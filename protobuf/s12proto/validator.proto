@@ -1,6 +1,6 @@
 // Copyright (c) 2018 SafetyCulture Pty Ltd. All Rights Reserved.
 
-syntax = "proto3";
+syntax = "proto2";
 package validator;
 
 import "google/protobuf/descriptor.proto";
@@ -8,12 +8,16 @@ import "google/protobuf/descriptor.proto";
 option go_package = "github.com/SafetyCulture/s12-proto/protobuf/s12proto";
 
 extend google.protobuf.FieldOptions {
-  FieldValidator field = 65020;
-}
-
-message FieldValidator {
   // Field value validates to a 128 bit universally unique identifier
-  bool uuid = 1;
+  optional bool uuid = 65200;
   // Uses a Golang RE2-syntax regex to match the field contents.
-  string regex = 2;
+  optional string regex = 65201;
+  // Field value of integer strictly greater than this value.
+  optional int64 int_gt = 65202;
+  // Field value of integer strictly smaller than this value.
+  optional int64 int_lt = 65203;
+  // Field value of integer greater or equal than this value.
+  optional int64 int_gte = 65204;
+  // Field value of integer smaller or equal than this value.
+  optional int64 int_lte = 65205;
 }

@@ -28,5 +28,23 @@ func (this *ExampleMessage) Validate() error {
 	if !_regex_ExampleMessage_Description.MatchString(this.Description) {
 		return github_com_pkg_errors.Errorf(`Description: value '%s' must be a string conforming to regex "^[a-z]{2,5}$"`, this.Description)
 	}
+	if !(this.Age > 0) {
+		return github_com_pkg_errors.Errorf(`Age: value '%s' must be greater than '0'`, this.Age)
+	}
+	if !(this.Speed < 110) {
+		return github_com_pkg_errors.Errorf(`Speed: value '%s' must be less than '110'`, this.Speed)
+	}
+	if !(this.Score >= 0) {
+		return github_com_pkg_errors.Errorf(`Score: value '%s' must be greater than or equal to '0'`, this.Score)
+	}
+	if !(this.Score <= 100) {
+		return github_com_pkg_errors.Errorf(`Score: value '%s' must be less than or equal to '100'`, this.Score)
+	}
+	return nil
+}
+func (this *InnerMessage) Validate() error {
+	if _, err := github_com_satori_go_uuid.FromString(this.Id); err != nil {
+		return github_com_pkg_errors.Errorf(`Id: value '%s' must be a parsable as a UUID`, this.Id)
+	}
 	return nil
 }
