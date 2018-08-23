@@ -54,10 +54,10 @@ func (p *plugin) Generate(file *generator.FileDescriptor) {
 func (p *plugin) generateRegexVars(file *generator.FileDescriptor, message *generator.Descriptor) {
 	ccTypeName := generator.CamelCaseSlice(message.TypeName())
 	for _, field := range message.Field {
-		valid := getFieldValidatorIfAny(field)
-		if valid != nil && valid.Regex != nil {
+
+		if regex := getRegexValue(field); regex != nil {
 			fieldName := p.GetFieldName(message, field)
-			p.P(`var `, regexName(ccTypeName, fieldName), ` = `, p.regexPkg.Use(), `.MustCompile(`, "`", valid.Regex, "`", `)`)
+			p.P(`var `, regexName(ccTypeName, fieldName), ` = `, p.regexPkg.Use(), `.MustCompile(`, "`", *regex, "`", `)`)
 		}
 	}
 }
@@ -68,8 +68,8 @@ func (p *plugin) generateValidateFunction(file *generator.FileDescriptor, messag
 	p.In()
 
 	for _, field := range message.Field {
-		fieldValidator := getFieldValidatorIfAny(field)
-		if fieldValidator == nil && !field.IsMessage() {
+
+		if !hasValidationExtensions(field) && !field.IsMessage() {
 			continue
 		}
 		var (
@@ -78,11 +78,11 @@ func (p *plugin) generateValidateFunction(file *generator.FileDescriptor, messag
 		)
 
 		if field.IsString() {
-			p.generateStringValidator(variableName, ccTypeName, fieldName, fieldValidator)
+			p.generateStringValidator(variableName, ccTypeName, fieldName, field)
 		} else if field.IsBytes() {
-			p.generateBytesValidator(variableName, ccTypeName, fieldName, fieldValidator)
+			p.generateBytesValidator(variableName, ccTypeName, fieldName, field)
 		} else if isSupportedInt(field) {
-			p.generateIntegerValidator(variableName, ccTypeName, fieldName, fieldValidator)
+			p.generateIntegerValidator(variableName, ccTypeName, fieldName, field)
 		}
 	}
 
@@ -91,72 +91,73 @@ func (p *plugin) generateValidateFunction(file *generator.FileDescriptor, messag
 	p.P(`}`)
 }
 
-func (p *plugin) generateStringValidator(variableName string, ccTypeName string, fieldName string, fv *validator.FieldValidator) {
-	if fv.Regex != nil {
+func (p *plugin) generateStringValidator(variableName string, ccTypeName string, fieldName string, field *descriptor.FieldDescriptorProto) {
+
+	if regex := getRegexValue(field); regex != nil {
 		p.P(`if !`, regexName(ccTypeName, fieldName), `.MatchString(`, variableName, `) {`)
 		p.In()
-		errorStr := "be a string conforming to regex " + strconv.Quote(fv.GetRegex())
-		p.generateErrorString(variableName, fieldName, errorStr, fv)
+		errorStr := "be a string conforming to regex " + strconv.Quote(*regex)
+		p.generateErrorString(variableName, fieldName, errorStr)
 		p.Out()
 		p.P(`}`)
 	}
-	if fv.Uuid != nil && *fv.Uuid {
+	if getUUIDValue(field) {
 		p.P(`if _, err := `, p.uuidPkg.Use(), `.FromString(`, variableName, `); err != nil {`)
 		p.In()
 		errorStr := "be a parsable as a UUID"
-		p.generateErrorString(variableName, fieldName, errorStr, fv)
+		p.generateErrorString(variableName, fieldName, errorStr)
 		p.Out()
 		p.P(`}`)
 	}
 }
 
-func (p *plugin) generateBytesValidator(variableName string, ccTypeName string, fieldName string, fv *validator.FieldValidator) {
-	if fv.Uuid != nil && *fv.Uuid {
+func (p *plugin) generateBytesValidator(variableName string, ccTypeName string, fieldName string, field *descriptor.FieldDescriptorProto) {
+	if getUUIDValue(field) {
 		p.P(`if _, err := `, p.uuidPkg.Use(), `.FromBytes(`, variableName, `); err != nil {`)
 		p.In()
 		errorStr := "be a parsable as a UUID"
-		p.generateErrorString(variableName, fieldName, errorStr, fv)
+		p.generateErrorString(variableName, fieldName, errorStr)
 		p.Out()
 		p.P(`}`)
 	}
 }
 
-func (p *plugin) generateIntegerValidator(variableName string, ccTypeName string, fieldName string, fv *validator.FieldValidator) {
-	if fv.IntGt != nil {
-		p.P(`if !(`, variableName, ` > `, fv.IntGt, `) {`)
+func (p *plugin) generateIntegerValidator(variableName string, ccTypeName string, fieldName string, field *descriptor.FieldDescriptorProto) {
+	if v := getIntGtValue(field); v != nil {
+		p.P(`if !(`, variableName, ` > `, v, `) {`)
 		p.In()
-		errorStr := fmt.Sprintf(`be greater than '%d'`, fv.GetIntGt())
-		p.generateErrorString(variableName, fieldName, errorStr, fv)
+		errorStr := fmt.Sprintf(`be greater than '%d'`, *v)
+		p.generateErrorString(variableName, fieldName, errorStr)
 		p.Out()
 		p.P(`}`)
 	}
-	if fv.IntGte != nil {
-		p.P(`if !(`, variableName, ` >= `, fv.IntGte, `) {`)
+	if v := getIntGteValue(field); v != nil {
+		p.P(`if !(`, variableName, ` >= `, v, `) {`)
 		p.In()
-		errorStr := fmt.Sprintf(`be greater than or equal to '%d'`, fv.GetIntGte())
-		p.generateErrorString(variableName, fieldName, errorStr, fv)
+		errorStr := fmt.Sprintf(`be greater than or equal to '%d'`, *v)
+		p.generateErrorString(variableName, fieldName, errorStr)
 		p.Out()
 		p.P(`}`)
 	}
-	if fv.IntLt != nil {
-		p.P(`if !(`, variableName, ` < `, fv.IntLt, `) {`)
+	if v := getIntLtValue(field); v != nil {
+		p.P(`if !(`, variableName, ` < `, v, `) {`)
 		p.In()
-		errorStr := fmt.Sprintf(`be less than '%d'`, fv.GetIntLt())
-		p.generateErrorString(variableName, fieldName, errorStr, fv)
+		errorStr := fmt.Sprintf(`be less than '%d'`, *v)
+		p.generateErrorString(variableName, fieldName, errorStr)
 		p.Out()
 		p.P(`}`)
 	}
-	if fv.IntLte != nil {
-		p.P(`if !(`, variableName, ` <= `, fv.IntLte, `) {`)
+	if v := getIntLteValue(field); v != nil {
+		p.P(`if !(`, variableName, ` <= `, v, `) {`)
 		p.In()
-		errorStr := fmt.Sprintf(`be less than or equal to '%d'`, fv.GetIntLte())
-		p.generateErrorString(variableName, fieldName, errorStr, fv)
+		errorStr := fmt.Sprintf(`be less than or equal to '%d'`, *v)
+		p.generateErrorString(variableName, fieldName, errorStr)
 		p.Out()
 		p.P(`}`)
 	}
 }
 
-func (p *plugin) generateErrorString(variableName string, fieldName string, specificError string, fv *validator.FieldValidator) {
+func (p *plugin) generateErrorString(variableName string, fieldName string, specificError string) {
 	p.P(`return `, p.errrosPkg.Use(), ".Errorf(`", fieldName, `: value '%s' must `, specificError, "`, ", variableName, `)`)
 }
 
@@ -164,11 +165,74 @@ func regexName(ccTypeName, fieldName string) string {
 	return "_regex_" + ccTypeName + "_" + fieldName
 }
 
-func getFieldValidatorIfAny(field *descriptor.FieldDescriptorProto) *validator.FieldValidator {
+func hasValidationExtensions(field *descriptor.FieldDescriptorProto) bool {
 	if field.Options != nil {
-		v, err := proto.GetExtension(field.Options, validator.E_Field)
-		if err == nil && v.(*validator.FieldValidator) != nil {
-			return (v.(*validator.FieldValidator))
+		validExts := []*proto.ExtensionDesc{
+			validator.E_Regex,
+			validator.E_Uuid,
+			validator.E_IntGt,
+			validator.E_IntLt,
+			validator.E_IntGte,
+			validator.E_IntLte,
+		}
+		for _, ext := range validExts {
+			if proto.HasExtension(field.Options, ext) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func getRegexValue(field *descriptor.FieldDescriptorProto) *string {
+	if field.Options != nil {
+		v, err := proto.GetExtension(field.Options, validator.E_Regex)
+		if err == nil && v.(*string) != nil {
+			return v.(*string)
+		}
+	}
+	return nil
+}
+
+func getUUIDValue(field *descriptor.FieldDescriptorProto) bool {
+	return proto.GetBoolExtension(field.Options, validator.E_Uuid, false)
+}
+
+func getIntGtValue(field *descriptor.FieldDescriptorProto) *int64 {
+	if field.Options != nil {
+		v, err := proto.GetExtension(field.Options, validator.E_IntGt)
+		if err == nil && v.(*int64) != nil {
+			return v.(*int64)
+		}
+	}
+	return nil
+}
+
+func getIntLtValue(field *descriptor.FieldDescriptorProto) *int64 {
+	if field.Options != nil {
+		v, err := proto.GetExtension(field.Options, validator.E_IntLt)
+		if err == nil && v.(*int64) != nil {
+			return v.(*int64)
+		}
+	}
+	return nil
+}
+
+func getIntGteValue(field *descriptor.FieldDescriptorProto) *int64 {
+	if field.Options != nil {
+		v, err := proto.GetExtension(field.Options, validator.E_IntGte)
+		if err == nil && v.(*int64) != nil {
+			return v.(*int64)
+		}
+	}
+	return nil
+}
+
+func getIntLteValue(field *descriptor.FieldDescriptorProto) *int64 {
+	if field.Options != nil {
+		v, err := proto.GetExtension(field.Options, validator.E_IntLte)
+		if err == nil && v.(*int64) != nil {
+			return v.(*int64)
 		}
 	}
 	return nil
