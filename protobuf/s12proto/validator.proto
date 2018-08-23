@@ -1,0 +1,19 @@
+// Copyright (c) 2018 SafetyCulture Pty Ltd. All Rights Reserved.
+
+syntax = "proto3";
+package validator;
+
+import "google/protobuf/descriptor.proto";
+
+option go_package = "github.com/SafetyCulture/s12-proto/protobuf/s12proto";
+
+extend google.protobuf.FieldOptions {
+  FieldValidator field = 65020;
+}
+
+message FieldValidator {
+  // Field value validates to a 128 bit universally unique identifier
+  bool uuid = 1;
+  // Uses a Golang RE2-syntax regex to match the field contents.
+  string regex = 2;
+}
