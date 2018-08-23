@@ -3,6 +3,7 @@
 package plugin
 
 import (
+	"fmt"
 	"strconv"
 
 	validator "github.com/SafetyCulture/s12-proto/protobuf/s12proto"
@@ -54,7 +55,7 @@ func (p *plugin) generateRegexVars(file *generator.FileDescriptor, message *gene
 	ccTypeName := generator.CamelCaseSlice(message.TypeName())
 	for _, field := range message.Field {
 		valid := getFieldValidatorIfAny(field)
-		if valid != nil && valid.Regex != "" {
+		if valid != nil && valid.Regex != nil {
 			fieldName := p.GetFieldName(message, field)
 			p.P(`var `, regexName(ccTypeName, fieldName), ` = `, p.regexPkg.Use(), `.MustCompile(`, "`", valid.Regex, "`", `)`)
 		}
@@ -78,11 +79,11 @@ func (p *plugin) generateValidateFunction(file *generator.FileDescriptor, messag
 
 		if field.IsString() {
 			p.generateStringValidator(variableName, ccTypeName, fieldName, fieldValidator)
-		}
-		if field.IsBytes() {
+		} else if field.IsBytes() {
 			p.generateBytesValidator(variableName, ccTypeName, fieldName, fieldValidator)
+		} else if isSupportedInt(field) {
+			p.generateIntegerValidator(variableName, ccTypeName, fieldName, fieldValidator)
 		}
-
 	}
 
 	p.P(`return nil`)
@@ -91,7 +92,7 @@ func (p *plugin) generateValidateFunction(file *generator.FileDescriptor, messag
 }
 
 func (p *plugin) generateStringValidator(variableName string, ccTypeName string, fieldName string, fv *validator.FieldValidator) {
-	if fv.Regex != "" {
+	if fv.Regex != nil {
 		p.P(`if !`, regexName(ccTypeName, fieldName), `.MatchString(`, variableName, `) {`)
 		p.In()
 		errorStr := "be a string conforming to regex " + strconv.Quote(fv.GetRegex())
@@ -99,7 +100,7 @@ func (p *plugin) generateStringValidator(variableName string, ccTypeName string,
 		p.Out()
 		p.P(`}`)
 	}
-	if fv.Uuid {
+	if fv.Uuid != nil && *fv.Uuid {
 		p.P(`if _, err := `, p.uuidPkg.Use(), `.FromString(`, variableName, `); err != nil {`)
 		p.In()
 		errorStr := "be a parsable as a UUID"
@@ -110,10 +111,45 @@ func (p *plugin) generateStringValidator(variableName string, ccTypeName string,
 }
 
 func (p *plugin) generateBytesValidator(variableName string, ccTypeName string, fieldName string, fv *validator.FieldValidator) {
-	if fv.Uuid {
+	if fv.Uuid != nil && *fv.Uuid {
 		p.P(`if _, err := `, p.uuidPkg.Use(), `.FromBytes(`, variableName, `); err != nil {`)
 		p.In()
 		errorStr := "be a parsable as a UUID"
+		p.generateErrorString(variableName, fieldName, errorStr, fv)
+		p.Out()
+		p.P(`}`)
+	}
+}
+
+func (p *plugin) generateIntegerValidator(variableName string, ccTypeName string, fieldName string, fv *validator.FieldValidator) {
+	if fv.IntGt != nil {
+		p.P(`if !(`, variableName, ` > `, fv.IntGt, `) {`)
+		p.In()
+		errorStr := fmt.Sprintf(`be greater than '%d'`, fv.GetIntGt())
+		p.generateErrorString(variableName, fieldName, errorStr, fv)
+		p.Out()
+		p.P(`}`)
+	}
+	if fv.IntGte != nil {
+		p.P(`if !(`, variableName, ` >= `, fv.IntGte, `) {`)
+		p.In()
+		errorStr := fmt.Sprintf(`be greater than or equal to '%d'`, fv.GetIntGte())
+		p.generateErrorString(variableName, fieldName, errorStr, fv)
+		p.Out()
+		p.P(`}`)
+	}
+	if fv.IntLt != nil {
+		p.P(`if !(`, variableName, ` < `, fv.IntLt, `) {`)
+		p.In()
+		errorStr := fmt.Sprintf(`be less than '%d'`, fv.GetIntLt())
+		p.generateErrorString(variableName, fieldName, errorStr, fv)
+		p.Out()
+		p.P(`}`)
+	}
+	if fv.IntLte != nil {
+		p.P(`if !(`, variableName, ` <= `, fv.IntLte, `) {`)
+		p.In()
+		errorStr := fmt.Sprintf(`be less than or equal to '%d'`, fv.GetIntLte())
 		p.generateErrorString(variableName, fieldName, errorStr, fv)
 		p.Out()
 		p.P(`}`)
@@ -136,4 +172,16 @@ func getFieldValidatorIfAny(field *descriptor.FieldDescriptorProto) *validator.F
 		}
 	}
 	return nil
+}
+
+func isSupportedInt(field *descriptor.FieldDescriptorProto) bool {
+	switch *(field.Type) {
+	case descriptor.FieldDescriptorProto_TYPE_INT32, descriptor.FieldDescriptorProto_TYPE_INT64:
+		return true
+	case descriptor.FieldDescriptorProto_TYPE_UINT32, descriptor.FieldDescriptorProto_TYPE_UINT64:
+		return true
+	case descriptor.FieldDescriptorProto_TYPE_SINT32, descriptor.FieldDescriptorProto_TYPE_SINT64:
+		return true
+	}
+	return false
 }
