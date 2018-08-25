@@ -78,7 +78,7 @@ func (p *plugin) generateValidateFunction(file *generator.FileDescriptor, messag
 			repeated     = field.IsRepeated()
 		)
 
-		if repeated {
+		if repeated && hasValidationExtensions(field) {
 			p.P(`for _, item := range `, variableName, `{`)
 			p.In()
 			variableName = "item"
@@ -92,7 +92,7 @@ func (p *plugin) generateValidateFunction(file *generator.FileDescriptor, messag
 			p.generateIntegerValidator(variableName, ccTypeName, fieldName, field)
 		}
 
-		if repeated {
+		if repeated && hasValidationExtensions(field) {
 			p.Out()
 			p.P(`}`)
 		}

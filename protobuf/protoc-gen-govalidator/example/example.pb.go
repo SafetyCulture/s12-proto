@@ -23,7 +23,7 @@ const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
 type ExampleMessage struct {
 	// Returns an error if the string cannot be parsed as a UUID
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// Bytes can also be parsed as UUID
+	// Bytes can also be parsed as UUID with support for gogo
 	userID []byte `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	// Strings can validate against a regular expresion
 	Description string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
@@ -48,7 +48,7 @@ func (m *ExampleMessage) Reset()         { *m = ExampleMessage{} }
 func (m *ExampleMessage) String() string { return proto.CompactTextString(m) }
 func (*ExampleMessage) ProtoMessage()    {}
 func (*ExampleMessage) Descriptor() ([]byte, []int) {
-	return fileDescriptor_example_fe886f0b290f8d85, []int{0}
+	return fileDescriptor_example_421c105e48632857, []int{0}
 }
 func (m *ExampleMessage) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ExampleMessage.Unmarshal(m, b)
@@ -142,7 +142,7 @@ func (m *InnerMessage) Reset()         { *m = InnerMessage{} }
 func (m *InnerMessage) String() string { return proto.CompactTextString(m) }
 func (*InnerMessage) ProtoMessage()    {}
 func (*InnerMessage) Descriptor() ([]byte, []int) {
-	return fileDescriptor_example_fe886f0b290f8d85, []int{1}
+	return fileDescriptor_example_421c105e48632857, []int{1}
 }
 func (m *InnerMessage) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_InnerMessage.Unmarshal(m, b)
@@ -174,9 +174,9 @@ func init() {
 	proto.RegisterType((*InnerMessage)(nil), "example.InnerMessage")
 }
 
-func init() { proto.RegisterFile("example.proto", fileDescriptor_example_fe886f0b290f8d85) }
+func init() { proto.RegisterFile("example.proto", fileDescriptor_example_421c105e48632857) }
 
-var fileDescriptor_example_fe886f0b290f8d85 = []byte{
+var fileDescriptor_example_421c105e48632857 = []byte{
 	// 367 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0x90, 0xcb, 0x4a, 0xc3, 0x40,
 	0x18, 0x85, 0x9b, 0x5b, 0x2f, 0xd3, 0xb4, 0xc8, 0xa0, 0x32, 0x74, 0x61, 0x42, 0x2d, 0x18, 0xd0,
