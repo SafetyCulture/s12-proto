@@ -4,13 +4,14 @@
 syntax = "proto3";
 package example;
 
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 import "github.com/SafetyCulture/s12-proto/protobuf/s12proto/validator.proto";
 
 message ExampleMessage {
   // Returns an error if the string cannot be parsed as a UUID
   string id = 1 [(validator.uuid) = true];
-  // Bytes can also be parsed as UUID
-  bytes user_id = 2 [(validator.uuid) = true];
+  // Bytes can also be parsed as UUID with support for gogo
+  bytes user_id = 2 [(gogoproto.customname) = "userID", (validator.uuid) = true];
   // Strings can validate against a regular expresion
   string description = 3 [(validator.regex) = "^[a-z]{2,5}$"];
   // integers can be greater than a value
