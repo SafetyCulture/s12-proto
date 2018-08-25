@@ -75,7 +75,14 @@ func (p *plugin) generateValidateFunction(file *generator.FileDescriptor, messag
 		var (
 			fieldName    = p.GetOneOfFieldName(message, field)
 			variableName = "this." + fieldName
+			repeated     = field.IsRepeated()
 		)
+
+		if repeated {
+			p.P(`for _, item := range `, variableName, `{`)
+			p.In()
+			variableName = "item"
+		}
 
 		if field.IsString() {
 			p.generateStringValidator(variableName, ccTypeName, fieldName, field)
@@ -83,6 +90,11 @@ func (p *plugin) generateValidateFunction(file *generator.FileDescriptor, messag
 			p.generateBytesValidator(variableName, ccTypeName, fieldName, field)
 		} else if isSupportedInt(field) {
 			p.generateIntegerValidator(variableName, ccTypeName, fieldName, field)
+		}
+
+		if repeated {
+			p.Out()
+			p.P(`}`)
 		}
 	}
 
@@ -104,7 +116,7 @@ func (p *plugin) generateStringValidator(variableName string, ccTypeName string,
 	if getUUIDValue(field) {
 		p.P(`if _, err := `, p.uuidPkg.Use(), `.FromString(`, variableName, `); err != nil {`)
 		p.In()
-		errorStr := "be a parsable as a UUID"
+		errorStr := "be parsable as a UUID"
 		p.generateErrorString(variableName, fieldName, errorStr)
 		p.Out()
 		p.P(`}`)
@@ -115,7 +127,7 @@ func (p *plugin) generateBytesValidator(variableName string, ccTypeName string, 
 	if getUUIDValue(field) {
 		p.P(`if _, err := `, p.uuidPkg.Use(), `.FromBytes(`, variableName, `); err != nil {`)
 		p.In()
-		errorStr := "be a parsable as a UUID"
+		errorStr := "be parsable as a UUID"
 		p.generateErrorString(variableName, fieldName, errorStr)
 		p.Out()
 		p.P(`}`)

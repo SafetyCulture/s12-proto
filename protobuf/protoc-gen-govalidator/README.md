@@ -27,6 +27,10 @@ message ExampleMessage {
   int32 score = 6 [(validator.int_gte) = 0, (validator.int_lte) = 100];
   // Validation is created for all messages
   InnerMessage inner = 7;
+  // can validate each repeated item too
+  repeated bytes ids = 8 [(validator.uuid) = true];
+  // You don't need to validate everything
+  string no_validation = 9;
 }
 
 message InnerMessage {

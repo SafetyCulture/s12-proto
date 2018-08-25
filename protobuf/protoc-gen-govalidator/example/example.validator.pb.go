@@ -40,6 +40,11 @@ func (this *ExampleMessage) Validate() error {
 	if !(this.Score <= 100) {
 		return github_com_pkg_errors.Errorf(`Score: value '%s' must be less than or equal to '100'`, this.Score)
 	}
+	for _, item := range this.Ids {
+		if _, err := github_com_satori_go_uuid.FromBytes(item); err != nil {
+			return github_com_pkg_errors.Errorf(`Ids: value '%s' must be a parsable as a UUID`, item)
+		}
+	}
 	return nil
 }
 func (this *InnerMessage) Validate() error {
