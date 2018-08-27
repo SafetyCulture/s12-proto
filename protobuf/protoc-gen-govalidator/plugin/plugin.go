@@ -170,7 +170,7 @@ func (p *plugin) generateIntegerValidator(variableName string, ccTypeName string
 }
 
 func (p *plugin) generateErrorString(variableName string, fieldName string, specificError string) {
-	p.P(`return `, p.errrosPkg.Use(), ".Errorf(`", fieldName, `: value '%s' must `, specificError, "`, ", variableName, `)`)
+	p.P(`return `, p.errrosPkg.Use(), ".Errorf(`", fieldName, `: value '%v' must `, specificError, "`, ", variableName, `)`)
 }
 
 func regexName(ccTypeName, fieldName string) string {
