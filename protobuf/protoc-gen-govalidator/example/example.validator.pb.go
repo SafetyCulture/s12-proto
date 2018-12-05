@@ -23,8 +23,8 @@ func (this *ExampleMessage) Validate() error {
 	if _, err := github_com_gofrs_uuid.FromString(this.Id); err != nil {
 		return github_com_pkg_errors.Errorf(`Id: value '%v' must be parsable as a UUID`, this.Id)
 	}
-	if _, err := github_com_gofrs_uuid.FromBytes(this.userID); err != nil {
-		return github_com_pkg_errors.Errorf(`userID: value '%v' must be parsable as a UUID`, this.userID)
+	if _, err := github_com_gofrs_uuid.FromBytes(this.UserID); err != nil {
+		return github_com_pkg_errors.Errorf(`UserID: value '%v' must be parsable as a UUID`, this.UserID)
 	}
 	if !_regex_ExampleMessage_Description.MatchString(this.Description) {
 		return github_com_pkg_errors.Errorf(`Description: value '%v' must be a string conforming to regex "^[a-z]{2,5}$"`, this.Description)
