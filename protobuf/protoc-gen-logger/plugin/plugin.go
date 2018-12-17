@@ -48,13 +48,15 @@ func (p *plugin) generateParseFunction(file *generator.FileDescriptor, message *
 
 	p.P(`res:=&`, ccTypeName, `{}`)
 	for _, field := range message.Field {
-		if !hasPayloadLoggerExtensions(field) {
-			continue
-		}
-
 		var (
 			fieldName = p.GetOneOfFieldName(message, field)
 		)
+
+		if !hasPayloadLoggerExtensions(field) {
+			p.P(`res.`, fieldName, `=this.`, fieldName)
+
+			continue
+		}
 
 		p.P(`if isLevelEnabled(levelToLogrus(`, p.s12proto.Use(), `.Level_`, getLevelLteValue(field).String(), `)) {`)
 		p.In()

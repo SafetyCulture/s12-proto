@@ -18,11 +18,12 @@ var _ = math.Inf
 
 func (this *ExampleMessage) Parse(isLevelEnabled func(level github_com_sirupsen_logrus.Level) bool) proto.Message {
 	res := &ExampleMessage{}
-	if isLevelEnabled(levelToLogrus(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level_DEBUG)) {
-		res.Id = this.Id
-	}
+	res.Id = this.Id
 	if isLevelEnabled(levelToLogrus(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level_INFO)) {
 		res.UserName = this.UserName
+	}
+	if isLevelEnabled(levelToLogrus(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level_DEBUG)) {
+		res.Password = this.Password
 	}
 	return res
 }
