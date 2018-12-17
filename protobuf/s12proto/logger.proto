@@ -1,0 +1,22 @@
+// Copyright (c) 2018 SafetyCulture Pty Ltd. All Rights Reserved.
+
+syntax = "proto2";
+package logger;
+
+import "google/protobuf/descriptor.proto";
+
+option go_package = "github.com/SafetyCulture/s12-proto/protobuf/s12proto";
+
+enum Level {
+  PANIC = 0;
+  FATAL = 1;
+  ERROR = 2;
+  WARN = 3;
+  INFO = 4;
+  DEBUG = 5;
+  TRACE = 6;
+}
+
+extend google.protobuf.FieldOptions {
+  optional Level level = 66200;
+}
