@@ -11,7 +11,11 @@ message ExampleMessage {
   string id = 1 [(logger.level) = DEBUG];
   string user_name = 2; // gets logged always 
   string password = 3 [(logger.level) = ERROR];
+<<<<<<< HEAD
   InnerMessage some_kind_of_inner_value = 4 [(logger.level) = INFO];
+=======
+  InnerMessage some_kind_of_innner_value = 4 [(logger.level) = INFO];
+>>>>>>> master
   oneof test_oneof {
     string one_of1 = 5;
     OneOfMessage one_of2 = 6 [(logger.level) = ERROR];
