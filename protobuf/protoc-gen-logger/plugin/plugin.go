@@ -38,25 +38,14 @@ func (p *plugin) Generate(file *generator.FileDescriptor) {
 	p.s12proto = p.NewImport("github.com/SafetyCulture/s12-proto/protobuf/s12proto")
 
 	for _, msg := range file.Messages() {
-		p.generatePublicFunction(file, msg)
 		p.generateParseFunction(file, msg)
 	}
-}
-
-func (p *plugin) generatePublicFunction(file *generator.FileDescriptor, message *generator.Descriptor) {
-	ccTypeName := generator.CamelCaseSlice(message.TypeName())
-
-	p.P(`func (this *`, ccTypeName, `) Parse(isLevelEnabled func(`, p.s12proto.Use(), `.Level) bool) proto.Message {`)
-	p.In()
-	p.P(`return this.parse(isLevelEnabled)`)
-	p.Out()
-	p.P(`}`)
 }
 
 func (p *plugin) generateParseFunction(file *generator.FileDescriptor, message *generator.Descriptor) {
 	ccTypeName := generator.CamelCaseSlice(message.TypeName())
 
-	p.P(`func (this *`, ccTypeName, `) parse(isLevelEnabled func(`, p.s12proto.Use(), `.Level) bool) *`, ccTypeName, ` {`)
+	p.P(`func (this *`, ccTypeName, `) Parse(isLevelEnabled func(`, p.s12proto.Use(), `.Level) bool) proto.Message {`)
 	p.In()
 
 	oneOfsMap := make(map[string]string)

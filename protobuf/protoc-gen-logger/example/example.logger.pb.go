@@ -3,12 +3,20 @@
 
 package example
 
-import github_com_SafetyCulture_s12_proto_protobuf_s12proto "github.com/SafetyCulture/s12-proto/protobuf/s12proto"
-import proto "github.com/gogo/protobuf/proto"
-import fmt "fmt"
-import math "math"
-import _ "github.com/SafetyCulture/s12-proto/protobuf/s12proto"
-import _ "github.com/gogo/protobuf/gogoproto"
+import (
+	"reflect"
+
+	github_com_SafetyCulture_s12_proto_protobuf_s12proto "github.com/SafetyCulture/s12-proto/protobuf/s12proto"
+	proto "github.com/gogo/protobuf/proto"
+
+	fmt "fmt"
+
+	math "math"
+
+	_ "github.com/SafetyCulture/s12-proto/protobuf/s12proto"
+
+	_ "github.com/gogo/protobuf/gogoproto"
+)
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -16,9 +24,6 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 func (this *ExampleMessage) Parse(isLevelEnabled func(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level) bool) proto.Message {
-	return this.parse(isLevelEnabled)
-}
-func (this *ExampleMessage) parse(isLevelEnabled func(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level) bool) *ExampleMessage {
 	res := &ExampleMessage{}
 	if isLevelEnabled(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level_DEBUG) {
 		res.Id = this.Id
@@ -28,8 +33,8 @@ func (this *ExampleMessage) parse(isLevelEnabled func(github_com_SafetyCulture_s
 		res.Password = this.Password
 	}
 	if isLevelEnabled(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level_INFO) {
-		if this.SomeKindOfInnnerValue != nil {
-			res.SomeKindOfInnnerValue = this.SomeKindOfInnnerValue.Parse(isLevelEnabled).(*InnerMessage)
+		if this.SomeKindOfInnerValue != nil {
+			res.SomeKindOfInnerValue = this.SomeKindOfInnerValue.Parse(isLevelEnabled).(*InnerMessage)
 		}
 	}
 	if reflect.TypeOf(this.TestOneof) == reflect.TypeOf(&ExampleMessage_OneOf1{}) {
@@ -47,17 +52,11 @@ func (this *ExampleMessage) parse(isLevelEnabled func(github_com_SafetyCulture_s
 	return res
 }
 func (this *OneOfMessage) Parse(isLevelEnabled func(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level) bool) proto.Message {
-	return this.parse(isLevelEnabled)
-}
-func (this *OneOfMessage) parse(isLevelEnabled func(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level) bool) *OneOfMessage {
 	res := &OneOfMessage{}
 	res.Value = this.Value
 	return res
 }
 func (this *InnerMessage) Parse(isLevelEnabled func(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level) bool) proto.Message {
-	return this.parse(isLevelEnabled)
-}
-func (this *InnerMessage) parse(isLevelEnabled func(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level) bool) *InnerMessage {
 	res := &InnerMessage{}
 	if isLevelEnabled(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level_DEBUG) {
 		res.Body = this.Body
