@@ -48,7 +48,7 @@ func (p *plugin) generateParseFunction(file *generator.FileDescriptor, message *
 	p.P(`func (this *`, ccTypeName, `) Parse(isLevelEnabled func(`, p.s12proto.Use(), `.Level) bool) proto.Message {`)
 	p.In()
 
-	oneOfsMap := make(map[string]string)
+	// oneOfsMap := make(map[string]string)
 	p.P(`res:=&`, ccTypeName, `{}`)
 	for _, field := range message.Field {
 		var (
@@ -57,8 +57,8 @@ func (p *plugin) generateParseFunction(file *generator.FileDescriptor, message *
 		)
 
 		if fieldName != fieldNameOneOf { // this is oneOf field
-			p.generateOneOfFieldRow(ccTypeName, fieldName, fieldNameOneOf, file.GoPackageName(), field)
-			oneOfsMap[fieldName] = fieldName
+			// p.generateOneOfFieldRow(ccTypeName, fieldName, fieldNameOneOf, file.GoPackageName(), field)
+			// oneOfsMap[fieldName] = fieldName
 			continue
 		}
 
@@ -128,6 +128,7 @@ func (p *plugin) generateFieldRow(field *descriptor.FieldDescriptorProto, fieldN
 	if field.IsMessage() {
 		p.P(`if this.`, fieldName, `!=nil {`)
 		p.In()
+		p.P(`// `, field.GetTypeName())
 		p.P(`res.`, fieldName, `=this.`, fieldName, `.Parse(isLevelEnabled).(*`, fieldTypename, `)`)
 		p.Out()
 		p.P(`}`)
