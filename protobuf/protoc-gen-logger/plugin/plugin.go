@@ -38,14 +38,25 @@ func (p *plugin) Generate(file *generator.FileDescriptor) {
 	p.s12proto = p.NewImport("github.com/SafetyCulture/s12-proto/protobuf/s12proto")
 
 	for _, msg := range file.Messages() {
+		p.generatePublicFunction(file, msg)
 		p.generateParseFunction(file, msg)
 	}
+}
+
+func (p *plugin) generatePublicFunction(file *generator.FileDescriptor, message *generator.Descriptor) {
+	ccTypeName := generator.CamelCaseSlice(message.TypeName())
+
+	p.P(`func (this *`, ccTypeName, `) Parse(isLevelEnabled func(`, p.s12proto.Use(), `.Level) bool) proto.Message {`)
+	p.In()
+	p.P(`return this.parse(isLevelEnabled)`)
+	p.Out()
+	p.P(`}`)
 }
 
 func (p *plugin) generateParseFunction(file *generator.FileDescriptor, message *generator.Descriptor) {
 	ccTypeName := generator.CamelCaseSlice(message.TypeName())
 
-	p.P(`func (this *`, ccTypeName, `) Parse(isLevelEnabled func(`, p.s12proto.Use(), `.Level) bool) proto.Message {`)
+	p.P(`func (this *`, ccTypeName, `) parse(isLevelEnabled func(`, p.s12proto.Use(), `.Level) bool) *`, ccTypeName, ` {`)
 	p.In()
 
 	oneOfsMap := make(map[string]string)
@@ -57,20 +68,20 @@ func (p *plugin) generateParseFunction(file *generator.FileDescriptor, message *
 		)
 
 		if fieldName != fieldNameOneOf { // this is oneOf field
-			p.generateOneOfFieldRow(ccTypeName, fieldName, fieldNameOneOf, field)
+			p.generateOneOfFieldRow(ccTypeName, fieldName, fieldNameOneOf, file.GoPackageName(), field)
 			oneOfsMap[fieldName] = fieldName
 			continue
 		}
 
 		if !hasPayloadLoggerExtensions(field) {
-			p.generateFieldRow(field, fieldName)
+			p.generateFieldRow(field, fieldName, file.GoPackageName())
 
 			continue
 		}
 
 		p.P(`if isLevelEnabled(`, p.s12proto.Use(), `.Level_`, getLevelValue(field).String(), `) {`)
 		p.In()
-		p.generateFieldRow(field, fieldName)
+		p.generateFieldRow(field, fieldName, file.GoPackageName())
 		p.Out()
 		p.P(`}`)
 	}
@@ -79,9 +90,9 @@ func (p *plugin) generateParseFunction(file *generator.FileDescriptor, message *
 	p.P(`}`)
 }
 
-func (p *plugin) generateOneOfFieldRow(typeName, fieldName, fieldNameOneOf string, field *descriptor.FieldDescriptorProto) {
-	fieldTypes := strings.Split(field.GetTypeName(), ".")
-	fieldTypeName := fieldTypes[len(fieldTypes)-1]
+func (p *plugin) generateOneOfFieldRow(typeName, fieldName, fieldNameOneOf, namespace string, field *descriptor.FieldDescriptorProto) {
+	fieldTypename := strings.TrimPrefix(field.GetTypeName(), ".")
+	fieldTypename = strings.TrimPrefix(fieldTypename, namespace+".")
 
 	p.P(`if reflect.TypeOf(this.`, fieldName, `) == reflect.TypeOf(&`, typeName, `_`, fieldNameOneOf, `{}){`)
 	p.In()
@@ -89,8 +100,12 @@ func (p *plugin) generateOneOfFieldRow(typeName, fieldName, fieldNameOneOf strin
 		if field.IsMessage() {
 			oneOfVarName := fmt.Sprint(`oneof_`, typeName, `_`, fieldNameOneOf)
 			p.P(oneOfVarName, `:=this.`, fieldName, `.(*`, typeName, `_`, fieldNameOneOf, `)`)
-			p.P(oneOfVarName, `.`, fieldNameOneOf, `=`, oneOfVarName, `.`, fieldNameOneOf, `.Parse(isLevelEnabled).(*`, fieldTypeName, `)`)
+			p.P(`if `, oneOfVarName, `!=nil {`)
+			p.In()
+			p.P(oneOfVarName, `.`, fieldNameOneOf, `=`, oneOfVarName, `.`, fieldNameOneOf, `.Parse(isLevelEnabled).(*`, fieldTypename, `)`)
 			p.P(`res.`, fieldName, ` = `, oneOfVarName)
+			p.Out()
+			p.P(`}`)
 		} else {
 			p.P(`res.`, fieldName, ` = this.`, fieldName)
 		}
@@ -101,8 +116,12 @@ func (p *plugin) generateOneOfFieldRow(typeName, fieldName, fieldNameOneOf strin
 		if field.IsMessage() {
 			oneOfVarName := fmt.Sprintf(`oneof_%s_%s`, typeName, fieldNameOneOf)
 			p.P(oneOfVarName, `:=this.`, fieldName, `.(*`, typeName, `_`, fieldNameOneOf, `)`)
-			p.P(oneOfVarName, `.`, fieldNameOneOf, `=`, oneOfVarName, `.`, fieldNameOneOf, `.Parse(isLevelEnabled).(*`, fieldTypeName, `)`)
+			p.P(`if `, oneOfVarName, `!=nil {`)
+			p.In()
+			p.P(oneOfVarName, `.`, fieldNameOneOf, `=`, oneOfVarName, `.`, fieldNameOneOf, `.Parse(isLevelEnabled).(*`, fieldTypename, `)`)
 			p.P(`res.`, fieldName, ` = `, oneOfVarName)
+			p.Out()
+			p.P(`}`)
 		} else {
 			p.P(`res.`, fieldName, ` = this.`, fieldName)
 		}
@@ -113,12 +132,16 @@ func (p *plugin) generateOneOfFieldRow(typeName, fieldName, fieldNameOneOf strin
 	p.P(`}`)
 }
 
-func (p *plugin) generateFieldRow(field *descriptor.FieldDescriptorProto, fieldName string) {
-	fieldTypes := strings.Split(field.GetTypeName(), ".")
-	fieldTypeName := fieldTypes[len(fieldTypes)-1]
+func (p *plugin) generateFieldRow(field *descriptor.FieldDescriptorProto, fieldName, namespace string) {
+	fieldTypename := strings.TrimPrefix(field.GetTypeName(), ".")
+	fieldTypename = strings.TrimPrefix(fieldTypename, namespace+".")
 
 	if field.IsMessage() {
-		p.P(`res.`, fieldName, `=this.`, fieldName, `.Parse(isLevelEnabled).(*`, fieldTypeName, `)`)
+		p.P(`if this.`, fieldName, `!=nil {`)
+		p.In()
+		p.P(`res.`, fieldName, `=this.`, fieldName, `.Parse(isLevelEnabled).(*`, fieldTypename, `)`)
+		p.Out()
+		p.P(`}`)
 	} else {
 		p.P(`res.`, fieldName, `=this.`, fieldName)
 	}
