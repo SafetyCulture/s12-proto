@@ -81,7 +81,7 @@ func (p *plugin) generateParseFunction(file *generator.FileDescriptor, message *
 
 func (p *plugin) generateOneOfFieldRow(typeName, fieldName, fieldNameOneOf, namespace string, field *descriptor.FieldDescriptorProto) {
 	fieldTypename := strings.TrimPrefix(field.GetTypeName(), ".")
-	fieldTypename = strings.TrimPrefix(fieldTypename, namespace+".")
+	// fieldTypename = strings.TrimPrefix(fieldTypename, namespace+".")
 
 	p.P(`if reflect.TypeOf(this.`, fieldName, `) == reflect.TypeOf(&`, typeName, `_`, fieldNameOneOf, `{}){`)
 	p.In()
@@ -123,7 +123,7 @@ func (p *plugin) generateOneOfFieldRow(typeName, fieldName, fieldNameOneOf, name
 
 func (p *plugin) generateFieldRow(field *descriptor.FieldDescriptorProto, fieldName, namespace string) {
 	fieldTypename := strings.TrimPrefix(field.GetTypeName(), ".")
-	fieldTypename = strings.TrimPrefix(fieldTypename, namespace+".")
+	// fieldTypename = strings.TrimPrefix(fieldTypename, namespace+".")
 
 	if field.IsMessage() {
 		p.P(`if this.`, fieldName, `!=nil {`)
