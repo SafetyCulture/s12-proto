@@ -8,7 +8,20 @@ import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 import "github.com/SafetyCulture/s12-proto/protobuf/s12proto/logger.proto";
 
 message ExampleMessage { 
-  string id = 1; // gets logged always 
-  string user_name = 2 [(logger.level) = INFO];
-  string password = 3 [(logger.level) = DEBUG];
+  string id = 1 [(logger.level) = DEBUG];
+  string user_name = 2; // gets logged always 
+  string password = 3 [(logger.level) = ERROR];
+  InnerMessage inner_message = 4;
+  oneof test_oneof {
+    string one_of1 = 5;
+    OneOfMessage one_of2 = 6 [(logger.level) = ERROR];
+  }
+}
+
+message OneOfMessage {
+  int32 value = 1;
+}
+
+message InnerMessage {
+  string body = 1 [(logger.level) = DEBUG];
 }
