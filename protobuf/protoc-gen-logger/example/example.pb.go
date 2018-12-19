@@ -21,19 +21,24 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
 
 type ExampleMessage struct {
-	Id                   string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	UserName             string   `protobuf:"bytes,2,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`
-	Password             string   `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+	Id           string        `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	UserName     string        `protobuf:"bytes,2,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`
+	Password     string        `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
+	InnerMessage *InnerMessage `protobuf:"bytes,4,opt,name=inner_message,json=innerMessage" json:"inner_message,omitempty"`
+	// Types that are valid to be assigned to TestOneof:
+	//	*ExampleMessage_OneOf1
+	//	*ExampleMessage_OneOf2
+	TestOneof            isExampleMessage_TestOneof `protobuf_oneof:"test_oneof"`
+	XXX_NoUnkeyedLiteral struct{}                   `json:"-"`
+	XXX_unrecognized     []byte                     `json:"-"`
+	XXX_sizecache        int32                      `json:"-"`
 }
 
 func (m *ExampleMessage) Reset()         { *m = ExampleMessage{} }
 func (m *ExampleMessage) String() string { return proto.CompactTextString(m) }
 func (*ExampleMessage) ProtoMessage()    {}
 func (*ExampleMessage) Descriptor() ([]byte, []int) {
-	return fileDescriptor_example_8374122b4797a445, []int{0}
+	return fileDescriptor_example_c9fdfa1e6135e764, []int{0}
 }
 func (m *ExampleMessage) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ExampleMessage.Unmarshal(m, b)
@@ -52,6 +57,27 @@ func (m *ExampleMessage) XXX_DiscardUnknown() {
 }
 
 var xxx_messageInfo_ExampleMessage proto.InternalMessageInfo
+
+type isExampleMessage_TestOneof interface {
+	isExampleMessage_TestOneof()
+}
+
+type ExampleMessage_OneOf1 struct {
+	OneOf1 string `protobuf:"bytes,5,opt,name=one_of1,json=oneOf1,proto3,oneof"`
+}
+type ExampleMessage_OneOf2 struct {
+	OneOf2 *OneOfMessage `protobuf:"bytes,6,opt,name=one_of2,json=oneOf2,oneof"`
+}
+
+func (*ExampleMessage_OneOf1) isExampleMessage_TestOneof() {}
+func (*ExampleMessage_OneOf2) isExampleMessage_TestOneof() {}
+
+func (m *ExampleMessage) GetTestOneof() isExampleMessage_TestOneof {
+	if m != nil {
+		return m.TestOneof
+	}
+	return nil
+}
 
 func (m *ExampleMessage) GetId() string {
 	if m != nil {
@@ -74,25 +100,201 @@ func (m *ExampleMessage) GetPassword() string {
 	return ""
 }
 
-func init() {
-	proto.RegisterType((*ExampleMessage)(nil), "example.ExampleMessage")
+func (m *ExampleMessage) GetInnerMessage() *InnerMessage {
+	if m != nil {
+		return m.InnerMessage
+	}
+	return nil
 }
 
-func init() { proto.RegisterFile("example.proto", fileDescriptor_example_8374122b4797a445) }
+func (m *ExampleMessage) GetOneOf1() string {
+	if x, ok := m.GetTestOneof().(*ExampleMessage_OneOf1); ok {
+		return x.OneOf1
+	}
+	return ""
+}
 
-var fileDescriptor_example_8374122b4797a445 = []byte{
-	// 198 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x4d, 0xad, 0x48, 0xcc,
-	0x2d, 0xc8, 0x49, 0xd5, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x87, 0x72, 0xa5, 0x74, 0xd3,
-	0x33, 0x4b, 0x32, 0x4a, 0x93, 0xf4, 0x92, 0xf3, 0x73, 0xf5, 0xd3, 0xf3, 0xd3, 0xf3, 0xf5, 0xc1,
-	0xf2, 0x49, 0xa5, 0x69, 0x60, 0x1e, 0x98, 0x03, 0x66, 0x41, 0xf4, 0x49, 0x39, 0x22, 0x29, 0x0f,
-	0x4e, 0x4c, 0x4b, 0x2d, 0xa9, 0x74, 0x2e, 0xcd, 0x29, 0x29, 0x2d, 0x4a, 0xd5, 0x2f, 0x36, 0x34,
-	0xd2, 0x85, 0x28, 0x87, 0x9b, 0x50, 0x6c, 0x68, 0x04, 0x11, 0xc9, 0xc9, 0x4f, 0x4f, 0x4f, 0x2d,
-	0x82, 0x18, 0xa1, 0x94, 0xca, 0xc5, 0xe7, 0x0a, 0xb1, 0xdc, 0x37, 0xb5, 0xb8, 0x38, 0x31, 0x3d,
-	0x55, 0x88, 0x8f, 0x8b, 0x29, 0x33, 0x45, 0x82, 0x51, 0x81, 0x51, 0x83, 0x33, 0x88, 0x29, 0x33,
-	0x45, 0x48, 0x91, 0x8b, 0xb3, 0xb4, 0x38, 0xb5, 0x28, 0x3e, 0x2f, 0x31, 0x37, 0x55, 0x82, 0x09,
-	0x24, 0xec, 0xc4, 0x72, 0x60, 0xa5, 0x02, 0x4b, 0x10, 0x07, 0x48, 0xd8, 0x2f, 0x31, 0x37, 0x55,
-	0x48, 0x81, 0x8b, 0xa3, 0x20, 0xb1, 0xb8, 0xb8, 0x3c, 0xbf, 0x28, 0x45, 0x82, 0x19, 0xae, 0x82,
-	0x35, 0x08, 0x2e, 0x9a, 0xc4, 0x06, 0xb6, 0xcd, 0x18, 0x10, 0x00, 0x00, 0xff, 0xff, 0x83, 0x99,
-	0x61, 0x64, 0xf9, 0x00, 0x00, 0x00,
+func (m *ExampleMessage) GetOneOf2() *OneOfMessage {
+	if x, ok := m.GetTestOneof().(*ExampleMessage_OneOf2); ok {
+		return x.OneOf2
+	}
+	return nil
+}
+
+// XXX_OneofFuncs is for the internal use of the proto package.
+func (*ExampleMessage) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
+	return _ExampleMessage_OneofMarshaler, _ExampleMessage_OneofUnmarshaler, _ExampleMessage_OneofSizer, []interface{}{
+		(*ExampleMessage_OneOf1)(nil),
+		(*ExampleMessage_OneOf2)(nil),
+	}
+}
+
+func _ExampleMessage_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
+	m := msg.(*ExampleMessage)
+	// test_oneof
+	switch x := m.TestOneof.(type) {
+	case *ExampleMessage_OneOf1:
+		_ = b.EncodeVarint(5<<3 | proto.WireBytes)
+		_ = b.EncodeStringBytes(x.OneOf1)
+	case *ExampleMessage_OneOf2:
+		_ = b.EncodeVarint(6<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.OneOf2); err != nil {
+			return err
+		}
+	case nil:
+	default:
+		return fmt.Errorf("ExampleMessage.TestOneof has unexpected type %T", x)
+	}
+	return nil
+}
+
+func _ExampleMessage_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
+	m := msg.(*ExampleMessage)
+	switch tag {
+	case 5: // test_oneof.one_of1
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		x, err := b.DecodeStringBytes()
+		m.TestOneof = &ExampleMessage_OneOf1{x}
+		return true, err
+	case 6: // test_oneof.one_of2
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(OneOfMessage)
+		err := b.DecodeMessage(msg)
+		m.TestOneof = &ExampleMessage_OneOf2{msg}
+		return true, err
+	default:
+		return false, nil
+	}
+}
+
+func _ExampleMessage_OneofSizer(msg proto.Message) (n int) {
+	m := msg.(*ExampleMessage)
+	// test_oneof
+	switch x := m.TestOneof.(type) {
+	case *ExampleMessage_OneOf1:
+		n += 1 // tag and wire
+		n += proto.SizeVarint(uint64(len(x.OneOf1)))
+		n += len(x.OneOf1)
+	case *ExampleMessage_OneOf2:
+		s := proto.Size(x.OneOf2)
+		n += 1 // tag and wire
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case nil:
+	default:
+		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
+	}
+	return n
+}
+
+type OneOfMessage struct {
+	Value                int32    `protobuf:"varint,1,opt,name=value,proto3" json:"value,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *OneOfMessage) Reset()         { *m = OneOfMessage{} }
+func (m *OneOfMessage) String() string { return proto.CompactTextString(m) }
+func (*OneOfMessage) ProtoMessage()    {}
+func (*OneOfMessage) Descriptor() ([]byte, []int) {
+	return fileDescriptor_example_c9fdfa1e6135e764, []int{1}
+}
+func (m *OneOfMessage) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_OneOfMessage.Unmarshal(m, b)
+}
+func (m *OneOfMessage) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_OneOfMessage.Marshal(b, m, deterministic)
+}
+func (dst *OneOfMessage) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_OneOfMessage.Merge(dst, src)
+}
+func (m *OneOfMessage) XXX_Size() int {
+	return xxx_messageInfo_OneOfMessage.Size(m)
+}
+func (m *OneOfMessage) XXX_DiscardUnknown() {
+	xxx_messageInfo_OneOfMessage.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_OneOfMessage proto.InternalMessageInfo
+
+func (m *OneOfMessage) GetValue() int32 {
+	if m != nil {
+		return m.Value
+	}
+	return 0
+}
+
+type InnerMessage struct {
+	Body                 string   `protobuf:"bytes,1,opt,name=body,proto3" json:"body,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *InnerMessage) Reset()         { *m = InnerMessage{} }
+func (m *InnerMessage) String() string { return proto.CompactTextString(m) }
+func (*InnerMessage) ProtoMessage()    {}
+func (*InnerMessage) Descriptor() ([]byte, []int) {
+	return fileDescriptor_example_c9fdfa1e6135e764, []int{2}
+}
+func (m *InnerMessage) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_InnerMessage.Unmarshal(m, b)
+}
+func (m *InnerMessage) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_InnerMessage.Marshal(b, m, deterministic)
+}
+func (dst *InnerMessage) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_InnerMessage.Merge(dst, src)
+}
+func (m *InnerMessage) XXX_Size() int {
+	return xxx_messageInfo_InnerMessage.Size(m)
+}
+func (m *InnerMessage) XXX_DiscardUnknown() {
+	xxx_messageInfo_InnerMessage.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_InnerMessage proto.InternalMessageInfo
+
+func (m *InnerMessage) GetBody() string {
+	if m != nil {
+		return m.Body
+	}
+	return ""
+}
+
+func init() {
+	proto.RegisterType((*ExampleMessage)(nil), "example.ExampleMessage")
+	proto.RegisterType((*OneOfMessage)(nil), "example.OneOfMessage")
+	proto.RegisterType((*InnerMessage)(nil), "example.InnerMessage")
+}
+
+func init() { proto.RegisterFile("example.proto", fileDescriptor_example_c9fdfa1e6135e764) }
+
+var fileDescriptor_example_c9fdfa1e6135e764 = []byte{
+	// 316 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x5c, 0x50, 0xcb, 0x4e, 0x83, 0x40,
+	0x14, 0xb5, 0x58, 0xfa, 0xb8, 0x52, 0x17, 0x93, 0x9a, 0x8c, 0x75, 0x43, 0x1a, 0x17, 0xdd, 0xb4,
+	0x0d, 0x98, 0xb8, 0x70, 0x67, 0x8d, 0x89, 0x2e, 0xb4, 0x09, 0x7e, 0x00, 0x19, 0xe4, 0x82, 0x24,
+	0xc0, 0x6d, 0x18, 0x50, 0xbb, 0xf5, 0x6f, 0xfc, 0x0b, 0x3f, 0xcd, 0x30, 0x43, 0x09, 0xba, 0x9b,
+	0xf3, 0xb8, 0x67, 0x4e, 0x0e, 0x4c, 0xf0, 0x53, 0x64, 0xbb, 0x14, 0x57, 0xbb, 0x82, 0x4a, 0x62,
+	0xc3, 0x06, 0xce, 0x96, 0x71, 0x52, 0xbe, 0x55, 0xc1, 0xea, 0x95, 0xb2, 0x75, 0x4c, 0x31, 0xad,
+	0x95, 0x1e, 0x54, 0x91, 0x42, 0x0a, 0xa8, 0x97, 0xbe, 0x9b, 0xdd, 0x76, 0xec, 0x2f, 0x22, 0xc2,
+	0x72, 0x7f, 0x57, 0xa5, 0x65, 0x55, 0xe0, 0x5a, 0x3a, 0xee, 0x52, 0xdb, 0xdb, 0x04, 0xe9, 0xb8,
+	0x9a, 0x49, 0x29, 0x8e, 0xb1, 0xd0, 0x11, 0xf3, 0x2f, 0x03, 0x4e, 0xef, 0xf5, 0xef, 0x4f, 0x28,
+	0xa5, 0x88, 0x91, 0x4d, 0xc1, 0x48, 0x42, 0xde, 0xb3, 0x7b, 0x8b, 0xf1, 0xa6, 0xff, 0xf3, 0x6d,
+	0x9b, 0x9e, 0x91, 0x84, 0xec, 0x02, 0xc6, 0x95, 0xc4, 0xc2, 0xcf, 0x45, 0x86, 0xdc, 0xa8, 0x45,
+	0x6f, 0x54, 0x13, 0xcf, 0x22, 0x43, 0x66, 0xc3, 0x68, 0x27, 0xa4, 0xfc, 0xa0, 0x22, 0xe4, 0xc7,
+	0xed, 0xa1, 0xe1, 0xb5, 0x2c, 0xbb, 0x81, 0x49, 0x92, 0xe7, 0x58, 0xf8, 0x99, 0xfe, 0x85, 0xf7,
+	0xed, 0xde, 0xe2, 0xc4, 0x3d, 0x5b, 0x1d, 0x96, 0x78, 0xac, 0xd5, 0xa6, 0x82, 0x67, 0x25, 0x1d,
+	0xc4, 0xce, 0x61, 0x48, 0x39, 0xfa, 0x14, 0x39, 0xdc, 0xac, 0xc3, 0x1f, 0x8e, 0xbc, 0x01, 0xe5,
+	0xb8, 0x8d, 0x1c, 0x76, 0x7d, 0x90, 0x5c, 0x3e, 0xf8, 0x17, 0xb8, 0xad, 0x1d, 0x4d, 0x84, 0xae,
+	0xd3, 0xde, 0xb9, 0x1b, 0x0b, 0xa0, 0x44, 0x59, 0xfa, 0x94, 0x23, 0x45, 0xf3, 0x4b, 0xb0, 0xba,
+	0x6e, 0x36, 0x05, 0xf3, 0x5d, 0xa4, 0x15, 0xaa, 0x11, 0x4c, 0x4f, 0x83, 0xf9, 0x02, 0xac, 0x6e,
+	0x49, 0xc6, 0xa1, 0x1f, 0x50, 0xb8, 0xff, 0xb3, 0x94, 0x62, 0x82, 0x81, 0xda, 0xf6, 0xea, 0x37,
+	0x00, 0x00, 0xff, 0xff, 0xf9, 0x62, 0xdb, 0x6b, 0xe7, 0x01, 0x00, 0x00,
 }

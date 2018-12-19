@@ -14,7 +14,6 @@ enum Level {
   WARN = 3;
   INFO = 4;
   DEBUG = 5;
-  TRACE = 6;
 }
 
 extend google.protobuf.FieldOptions {

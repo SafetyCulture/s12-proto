@@ -3,7 +3,6 @@
 
 package example
 
-import github_com_sirupsen_logrus "github.com/sirupsen/logrus"
 import github_com_SafetyCulture_s12_proto_protobuf_s12proto "github.com/SafetyCulture/s12-proto/protobuf/s12proto"
 import proto "github.com/gogo/protobuf/proto"
 import fmt "fmt"
@@ -16,33 +15,46 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
-func (this *ExampleMessage) Parse(isLevelEnabled func(level github_com_sirupsen_logrus.Level) bool) proto.Message {
-	res := &ExampleMessage{}
-	res.Id = this.Id
-	if isLevelEnabled(levelToLogrus(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level_INFO)) {
-		res.UserName = this.UserName
+func (this *ExampleMessage) Parse(isLevelEnabled func(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level) bool) *ExampleMessage {
+	type foo interface {
+		Parse(func(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level) bool) proto.Message
 	}
-	if isLevelEnabled(levelToLogrus(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level_DEBUG)) {
+	res := &ExampleMessage{}
+	if isLevelEnabled(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level_DEBUG) {
+		res.Id = this.Id
+	}
+	res.UserName = this.UserName
+	if isLevelEnabled(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level_ERROR) {
 		res.Password = this.Password
+	}
+	res.InnerMessage = this.InnerMessage.Parse(isLevelEnabled)
+	if reflect.TypeOf(this.TestOneof) == reflect.TypeOf(&ExampleMessage_OneOf1{}) {
+		res.TestOneof = this.TestOneof
+	}
+	if reflect.TypeOf(this.TestOneof) == reflect.TypeOf(&ExampleMessage_OneOf2{}) {
+		if isLevelEnabled(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level_ERROR) {
+			oneof_ExampleMessage_OneOf2 := this.TestOneof.(*ExampleMessage_OneOf2)
+			oneof_ExampleMessage_OneOf2.OneOf2 = oneof_ExampleMessage_OneOf2.OneOf2.Parse(isLevelEnabled)
+			res.TestOneof = oneof_ExampleMessage_OneOf2
+		}
 	}
 	return res
 }
-func levelToLogrus(level github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level) github_com_sirupsen_logrus.Level {
-	switch level {
-	case github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level_PANIC:
-		return github_com_sirupsen_logrus.PanicLevel
-	case github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level_FATAL:
-		return github_com_sirupsen_logrus.FatalLevel
-	case github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level_ERROR:
-		return github_com_sirupsen_logrus.ErrorLevel
-	case github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level_WARN:
-		return github_com_sirupsen_logrus.WarnLevel
-	case github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level_INFO:
-		return github_com_sirupsen_logrus.InfoLevel
-	case github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level_DEBUG:
-		return github_com_sirupsen_logrus.DebugLevel
-	case github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level_TRACE:
-		return github_com_sirupsen_logrus.TraceLevel
+func (this *OneOfMessage) Parse(isLevelEnabled func(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level) bool) *OneOfMessage {
+	type foo interface {
+		Parse(func(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level) bool) proto.Message
 	}
-	return 0
+	res := &OneOfMessage{}
+	res.Value = this.Value
+	return res
+}
+func (this *InnerMessage) Parse(isLevelEnabled func(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level) bool) *InnerMessage {
+	type foo interface {
+		Parse(func(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level) bool) proto.Message
+	}
+	res := &InnerMessage{}
+	if isLevelEnabled(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level_DEBUG) {
+		res.Body = this.Body
+	}
+	return res
 }
