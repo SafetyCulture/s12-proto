@@ -3,12 +3,20 @@
 
 package example
 
-import github_com_SafetyCulture_s12_proto_protobuf_s12proto "github.com/SafetyCulture/s12-proto/protobuf/s12proto"
-import proto "github.com/gogo/protobuf/proto"
-import fmt "fmt"
-import math "math"
-import _ "github.com/SafetyCulture/s12-proto/protobuf/s12proto"
-import _ "github.com/gogo/protobuf/gogoproto"
+import (
+	"reflect"
+
+	github_com_SafetyCulture_s12_proto_protobuf_s12proto "github.com/SafetyCulture/s12-proto/protobuf/s12proto"
+	proto "github.com/gogo/protobuf/proto"
+
+	fmt "fmt"
+
+	math "math"
+
+	_ "github.com/SafetyCulture/s12-proto/protobuf/s12proto"
+
+	_ "github.com/gogo/protobuf/gogoproto"
+)
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -24,7 +32,9 @@ func (this *ExampleMessage) Parse(isLevelEnabled func(github_com_SafetyCulture_s
 	if isLevelEnabled(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level_ERROR) {
 		res.Password = this.Password
 	}
-	res.InnerMessage = this.InnerMessage.Parse(isLevelEnabled).(*InnerMessage)
+	if isLevelEnabled(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level_INFO) {
+		res.SomeKindOfInnnerValue = this.SomeKindOfInnnerValue.Parse(isLevelEnabled).(*InnerMessage)
+	}
 	if reflect.TypeOf(this.TestOneof) == reflect.TypeOf(&ExampleMessage_OneOf1{}) {
 		res.TestOneof = this.TestOneof
 	}

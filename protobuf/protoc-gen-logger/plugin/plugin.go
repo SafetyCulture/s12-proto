@@ -114,8 +114,11 @@ func (p *plugin) generateOneOfFieldRow(typeName, fieldName, fieldNameOneOf strin
 }
 
 func (p *plugin) generateFieldRow(field *descriptor.FieldDescriptorProto, fieldName string) {
+	fieldTypes := strings.Split(field.GetTypeName(), ".")
+	fieldTypeName := fieldTypes[len(fieldTypes)-1]
+
 	if field.IsMessage() {
-		p.P(`res.`, fieldName, `=this.`, fieldName, `.Parse(isLevelEnabled).(*`, fieldName, `)`)
+		p.P(`res.`, fieldName, `=this.`, fieldName, `.Parse(isLevelEnabled).(*`, fieldTypeName, `)`)
 	} else {
 		p.P(`res.`, fieldName, `=this.`, fieldName)
 	}
