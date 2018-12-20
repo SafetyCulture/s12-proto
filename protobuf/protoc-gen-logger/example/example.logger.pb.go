@@ -17,9 +17,6 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 func (this *ExampleMessage) Parse(isLevelEnabled func(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level) bool) proto.Message {
-	type foo interface {
-		Parse(func(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level) bool) proto.Message
-	}
 	res := &ExampleMessage{}
 	if isLevelEnabled(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level_DEBUG) {
 		res.Id = this.Id
@@ -29,40 +26,24 @@ func (this *ExampleMessage) Parse(isLevelEnabled func(github_com_SafetyCulture_s
 		res.Password = this.Password
 	}
 	if isLevelEnabled(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level_INFO) {
-		mtype := reflect.TypeOf((*foo)(nil)).Elem()
-		fieldtype := reflect.TypeOf(this.SomeKindOfInnerValue)
-		if this.SomeKindOfInnerValue != nil && fieldtype.Implements(mtype) {
-			res.SomeKindOfInnerValue = this.SomeKindOfInnerValue.Parse(isLevelEnabled).(*InnerMessage)
-		}
+		res.SomeKindOfInnerValue = this.SomeKindOfInnerValue
 	}
 	if reflect.TypeOf(this.TestOneof) == reflect.TypeOf(&ExampleMessage_OneOf1{}) {
 		res.TestOneof = this.TestOneof
 	}
-	if reflect.TypeOf(this.TestOneof) == reflect.TypeOf(&ExampleMessage_OneOf2{}) {
-		if isLevelEnabled(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level_ERROR) {
-			oneof_ExampleMessage_OneOf2 := this.TestOneof.(*ExampleMessage_OneOf2)
-			mtype := reflect.TypeOf((*foo)(nil)).Elem()
-			fieldtype := reflect.TypeOf(oneof_ExampleMessage_OneOf2.OneOf2)
-			if oneof_ExampleMessage_OneOf2 != nil && fieldtype.Implements(mtype) {
-				oneof_ExampleMessage_OneOf2.OneOf2 = oneof_ExampleMessage_OneOf2.OneOf2.Parse(isLevelEnabled).(*OneOfMessage)
-				res.TestOneof = oneof_ExampleMessage_OneOf2
-			}
+	if isLevelEnabled(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level_ERROR) {
+		if reflect.TypeOf(this.TestOneof) == reflect.TypeOf(&ExampleMessage_OneOf2{}) {
+			res.TestOneof = this.TestOneof
 		}
 	}
 	return res
 }
 func (this *OneOfMessage) Parse(isLevelEnabled func(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level) bool) proto.Message {
-	type foo interface {
-		Parse(func(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level) bool) proto.Message
-	}
 	res := &OneOfMessage{}
 	res.Value = this.Value
 	return res
 }
 func (this *InnerMessage) Parse(isLevelEnabled func(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level) bool) proto.Message {
-	type foo interface {
-		Parse(func(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level) bool) proto.Message
-	}
 	res := &InnerMessage{}
 	if isLevelEnabled(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level_DEBUG) {
 		res.Body = this.Body
