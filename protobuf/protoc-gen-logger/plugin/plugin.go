@@ -12,9 +12,6 @@ type plugin struct {
 	generator.PluginImports
 
 	reflectPkg generator.Single
-	fmtPkg     generator.Single
-	logrusPkg  generator.Single
-	s12proto   generator.Single
 }
 
 func New() generator.Plugin {
@@ -31,10 +28,7 @@ func (p *plugin) Init(g *generator.Generator) {
 
 func (p *plugin) Generate(file *generator.FileDescriptor) {
 	p.PluginImports = generator.NewPluginImports(p.Generator)
-	p.fmtPkg = p.NewImport("fmt")
 	p.reflectPkg = p.NewImport("reflect")
-	p.logrusPkg = p.NewImport("github.com/sirupsen/logrus")
-	p.s12proto = p.NewImport("github.com/SafetyCulture/s12-proto/protobuf/s12proto")
 
 	for _, msg := range file.Messages() {
 		p.generateParseFunction(file, msg)
@@ -44,49 +38,76 @@ func (p *plugin) Generate(file *generator.FileDescriptor) {
 func (p *plugin) generateParseFunction(file *generator.FileDescriptor, message *generator.Descriptor) {
 	ccTypeName := generator.CamelCaseSlice(message.TypeName())
 
-	p.P(`func (this *`, ccTypeName, `) Parse(isLevelEnabled func(`, p.s12proto.Use(), `.Level) bool) proto.Message {`)
+	p.P(`func (this *`, ccTypeName, `) LogPayload(logger interface {`)
+	p.In()
+	p.P(`Debug(args ...interface{})`)
+	p.P(`Info(args ...interface{})`)
+	p.P(`Warn(args ...interface{})`)
+	p.P(`Error(args ...interface{})`)
+	p.P(`Fatal(args ...interface{})`)
+	p.P(`Panic(args ...interface{})`)
+	p.Out()
+	p.P(`}){`)
 	p.In()
 
-	p.P(`res:=&`, ccTypeName, `{}`)
 	for _, field := range message.Field {
 		var (
 			fieldName      = p.GetFieldName(message, field)
 			fieldNameOneOf = p.GetOneOfFieldName(message, field)
 		)
-
 		if fieldName != fieldNameOneOf {
-			if !hasPayloadLoggerExtensions(field) {
+			if hasPayloadLoggerExtensions(field) {
 				p.P(`if `, p.reflectPkg.Use(), `.TypeOf(this.`, fieldName, `) == `, p.reflectPkg.Use(), `.TypeOf(&`, ccTypeName, `_`, fieldNameOneOf, `{}){`)
 				p.In()
-				p.P(`res.`, fieldName, `=this.`, fieldName)
-				p.Out()
-				p.P(`}`)
-			} else {
-				p.P(`if isLevelEnabled(`, p.s12proto.Use(), `.Level_`, getLevelValue(field).String(), `) {`)
-				p.In()
-				p.P(`if `, p.reflectPkg.Use(), `.TypeOf(this.`, fieldName, `) == `, p.reflectPkg.Use(), `.TypeOf(&`, ccTypeName, `_`, fieldNameOneOf, `{}){`)
-				p.In()
-				p.P(`res.`, fieldName, `=this.`, fieldName)
-				p.Out()
-				p.P(`}`)
+				switch *getLevelValue(field) {
+				case logger.Level_PANIC:
+					p.P(`logger.Panic(this.`, fieldName, `)`)
+					break
+				case logger.Level_DEBUG:
+					p.P(`logger.Debug(this.`, fieldName, `)`)
+					break
+				case logger.Level_ERROR:
+					p.P(`logger.Error(this.`, fieldName, `)`)
+					break
+				case logger.Level_FATAL:
+					p.P(`logger.Fatal(this.`, fieldName, `)`)
+					break
+				case logger.Level_INFO:
+					p.P(`logger.Info(this.`, fieldName, `)`)
+					break
+				case logger.Level_WARN:
+					p.P(`logger.Warn(this.`, fieldName, `)`)
+					break
+				}
 				p.Out()
 				p.P(`}`)
 			}
 			continue
 		}
 
-		if !hasPayloadLoggerExtensions(field) {
-			p.P(`res.`, fieldName, `=this.`, fieldName)
-			continue
-		} else {
-			p.P(`if isLevelEnabled(`, p.s12proto.Use(), `.Level_`, getLevelValue(field).String(), `) {`)
-			p.In()
-			p.P(`res.`, fieldName, `=this.`, fieldName)
-			p.Out()
-			p.P(`}`)
+		if hasPayloadLoggerExtensions(field) {
+			switch *getLevelValue(field) {
+			case logger.Level_PANIC:
+				p.P(`logger.Panic(this.`, fieldName, `)`)
+				break
+			case logger.Level_DEBUG:
+				p.P(`logger.Debug(this.`, fieldName, `)`)
+				break
+			case logger.Level_ERROR:
+				p.P(`logger.Error(this.`, fieldName, `)`)
+				break
+			case logger.Level_FATAL:
+				p.P(`logger.Fatal(this.`, fieldName, `)`)
+				break
+			case logger.Level_INFO:
+				p.P(`logger.Info(this.`, fieldName, `)`)
+				break
+			case logger.Level_WARN:
+				p.P(`logger.Warn(this.`, fieldName, `)`)
+				break
+			}
 		}
 	}
-	p.P(`return res`)
 	p.Out()
 	p.P(`}`)
 }
