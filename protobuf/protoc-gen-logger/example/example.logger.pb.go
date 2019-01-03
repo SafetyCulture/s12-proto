@@ -22,13 +22,12 @@ func (this *ExampleMessage) LogPayload(logger interface {
 	Error(args ...interface{})
 	Fatal(args ...interface{})
 	Panic(args ...interface{})
-	Trace(args ...interface{})
 }) {
-	logger.Debug(this.Id)
-	logger.Error(this.Password)
-	logger.Info(this.SomeKindOfInnerValue)
+	logger.Debug("ExampleMessage", "Id", this.Id)
+	logger.Error("ExampleMessage", "Password", this.Password)
+	logger.Info("ExampleMessage", "SomeKindOfInnerValue", this.SomeKindOfInnerValue)
 	if reflect.TypeOf(this.TestOneof) == reflect.TypeOf(&ExampleMessage_OneOf2{}) {
-		logger.Error(this.TestOneof)
+		logger.Error("ExampleMessage_OneOf2", this.TestOneof)
 	}
 }
 func (this *OneOfMessage) LogPayload(logger interface {
@@ -38,7 +37,6 @@ func (this *OneOfMessage) LogPayload(logger interface {
 	Error(args ...interface{})
 	Fatal(args ...interface{})
 	Panic(args ...interface{})
-	Trace(args ...interface{})
 }) {
 }
 func (this *InnerMessage) LogPayload(logger interface {
@@ -48,7 +46,6 @@ func (this *InnerMessage) LogPayload(logger interface {
 	Error(args ...interface{})
 	Fatal(args ...interface{})
 	Panic(args ...interface{})
-	Trace(args ...interface{})
 }) {
-	logger.Debug(this.Body)
+	logger.Debug("InnerMessage", "Body", this.Body)
 }

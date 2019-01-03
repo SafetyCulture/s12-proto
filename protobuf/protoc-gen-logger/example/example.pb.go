@@ -38,7 +38,7 @@ func (m *ExampleMessage) Reset()         { *m = ExampleMessage{} }
 func (m *ExampleMessage) String() string { return proto.CompactTextString(m) }
 func (*ExampleMessage) ProtoMessage()    {}
 func (*ExampleMessage) Descriptor() ([]byte, []int) {
-	return fileDescriptor_example_448bef4c0e4f21e5, []int{0}
+	return fileDescriptor_example_bcd0c9707aaad945, []int{0}
 }
 func (m *ExampleMessage) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ExampleMessage.Unmarshal(m, b)
@@ -202,7 +202,7 @@ func (m *OneOfMessage) Reset()         { *m = OneOfMessage{} }
 func (m *OneOfMessage) String() string { return proto.CompactTextString(m) }
 func (*OneOfMessage) ProtoMessage()    {}
 func (*OneOfMessage) Descriptor() ([]byte, []int) {
-	return fileDescriptor_example_448bef4c0e4f21e5, []int{1}
+	return fileDescriptor_example_bcd0c9707aaad945, []int{1}
 }
 func (m *OneOfMessage) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_OneOfMessage.Unmarshal(m, b)
@@ -240,7 +240,7 @@ func (m *InnerMessage) Reset()         { *m = InnerMessage{} }
 func (m *InnerMessage) String() string { return proto.CompactTextString(m) }
 func (*InnerMessage) ProtoMessage()    {}
 func (*InnerMessage) Descriptor() ([]byte, []int) {
-	return fileDescriptor_example_448bef4c0e4f21e5, []int{2}
+	return fileDescriptor_example_bcd0c9707aaad945, []int{2}
 }
 func (m *InnerMessage) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_InnerMessage.Unmarshal(m, b)
@@ -273,9 +273,9 @@ func init() {
 	proto.RegisterType((*InnerMessage)(nil), "example.InnerMessage")
 }
 
-func init() { proto.RegisterFile("example.proto", fileDescriptor_example_448bef4c0e4f21e5) }
+func init() { proto.RegisterFile("example.proto", fileDescriptor_example_bcd0c9707aaad945) }
 
-var fileDescriptor_example_448bef4c0e4f21e5 = []byte{
+var fileDescriptor_example_bcd0c9707aaad945 = []byte{
 	// 333 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x5c, 0x50, 0xcf, 0x4a, 0xc3, 0x30,
 	0x18, 0x77, 0xb5, 0xdd, 0x9f, 0x38, 0x3d, 0x84, 0x09, 0x71, 0x5e, 0xca, 0xf0, 0xb0, 0xcb, 0x36,
