@@ -39,7 +39,7 @@ func (p *plugin) Generate(file *generator.FileDescriptor) {
 	p.fmtPkg = p.NewImport("fmt")
 	p.regexPkg = p.NewImport("regexp")
 	p.errrosPkg = p.NewImport("github.com/pkg/errors")
-	p.uuidPkg = p.NewImport("github.com/satori/go.uuid")
+	p.uuidPkg = p.NewImport("github.com/gofrs/uuid")
 
 	for _, msg := range file.Messages() {
 		if msg.DescriptorProto.GetOptions().GetMapEntry() {

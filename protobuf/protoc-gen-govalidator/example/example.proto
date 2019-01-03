@@ -11,7 +11,7 @@ message ExampleMessage {
   // Returns an error if the string cannot be parsed as a UUID
   string id = 1 [(validator.uuid) = true];
   // Bytes can also be parsed as UUID with support for gogo
-  bytes user_id = 2 [(gogoproto.customname) = "userID", (validator.uuid) = true];
+  bytes user_id = 2 [(gogoproto.customname) = "UserID", (validator.uuid) = true];
   // Strings can validate against a regular expresion
   string description = 3 [(validator.regex) = "^[a-z]{2,5}$"];
   // integers can be greater than a value

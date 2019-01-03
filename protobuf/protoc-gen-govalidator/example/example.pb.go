@@ -24,7 +24,7 @@ type ExampleMessage struct {
 	// Returns an error if the string cannot be parsed as a UUID
 	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Bytes can also be parsed as UUID with support for gogo
-	userID []byte `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	UserID []byte `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	// Strings can validate against a regular expresion
 	Description string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
 	// integers can be greater than a value
@@ -75,9 +75,9 @@ func (m *ExampleMessage) GetId() string {
 	return ""
 }
 
-func (m *ExampleMessage) GetuserID() []byte {
+func (m *ExampleMessage) GetUserID() []byte {
 	if m != nil {
-		return m.userID
+		return m.UserID
 	}
 	return nil
 }

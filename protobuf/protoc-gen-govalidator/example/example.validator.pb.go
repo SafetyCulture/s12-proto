@@ -5,7 +5,7 @@ package example
 
 import regexp "regexp"
 import github_com_pkg_errors "github.com/pkg/errors"
-import github_com_satori_go_uuid "github.com/satori/go.uuid"
+import github_com_gofrs_uuid "github.com/gofrs/uuid"
 import proto "github.com/gogo/protobuf/proto"
 import fmt "fmt"
 import math "math"
@@ -20,11 +20,11 @@ var _ = math.Inf
 var _regex_ExampleMessage_Description = regexp.MustCompile(`^[a-z]{2,5}$`)
 
 func (this *ExampleMessage) Validate() error {
-	if _, err := github_com_satori_go_uuid.FromString(this.Id); err != nil {
+	if _, err := github_com_gofrs_uuid.FromString(this.Id); err != nil {
 		return github_com_pkg_errors.Errorf(`Id: value '%v' must be parsable as a UUID`, this.Id)
 	}
-	if _, err := github_com_satori_go_uuid.FromBytes(this.userID); err != nil {
-		return github_com_pkg_errors.Errorf(`userID: value '%v' must be parsable as a UUID`, this.userID)
+	if _, err := github_com_gofrs_uuid.FromBytes(this.UserID); err != nil {
+		return github_com_pkg_errors.Errorf(`UserID: value '%v' must be parsable as a UUID`, this.UserID)
 	}
 	if !_regex_ExampleMessage_Description.MatchString(this.Description) {
 		return github_com_pkg_errors.Errorf(`Description: value '%v' must be a string conforming to regex "^[a-z]{2,5}$"`, this.Description)
@@ -42,14 +42,14 @@ func (this *ExampleMessage) Validate() error {
 		return github_com_pkg_errors.Errorf(`Score: value '%v' must be less than or equal to '100'`, this.Score)
 	}
 	for _, item := range this.Ids {
-		if _, err := github_com_satori_go_uuid.FromBytes(item); err != nil {
+		if _, err := github_com_gofrs_uuid.FromBytes(item); err != nil {
 			return github_com_pkg_errors.Errorf(`Ids: value '%v' must be parsable as a UUID`, item)
 		}
 	}
 	return nil
 }
 func (this *InnerMessage) Validate() error {
-	if _, err := github_com_satori_go_uuid.FromString(this.Id); err != nil {
+	if _, err := github_com_gofrs_uuid.FromString(this.Id); err != nil {
 		return github_com_pkg_errors.Errorf(`Id: value '%v' must be parsable as a UUID`, this.Id)
 	}
 	return nil
