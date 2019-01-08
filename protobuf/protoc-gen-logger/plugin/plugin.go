@@ -12,6 +12,7 @@ type plugin struct {
 	generator.PluginImports
 
 	reflectPkg generator.Single
+	s12Proto   generator.Single
 }
 
 func New() generator.Plugin {
@@ -29,6 +30,7 @@ func (p *plugin) Init(g *generator.Generator) {
 func (p *plugin) Generate(file *generator.FileDescriptor) {
 	p.PluginImports = generator.NewPluginImports(p.Generator)
 	p.reflectPkg = p.NewImport("reflect")
+	p.s12Proto = p.NewImport("github.com/SafetyCulture/s12-proto/protobuf/s12proto")
 
 	for _, msg := range file.Messages() {
 		p.generateParseFunction(file, msg)
@@ -38,16 +40,7 @@ func (p *plugin) Generate(file *generator.FileDescriptor) {
 func (p *plugin) generateParseFunction(file *generator.FileDescriptor, message *generator.Descriptor) {
 	ccTypeName := generator.CamelCaseSlice(message.TypeName())
 
-	p.P(`func (this *`, ccTypeName, `) LogPayload(logger interface {`)
-	p.In()
-	p.P(`Debug(args ...interface{})`)
-	p.P(`Info(args ...interface{})`)
-	p.P(`Warn(args ...interface{})`)
-	p.P(`Error(args ...interface{})`)
-	p.P(`Fatal(args ...interface{})`)
-	p.P(`Panic(args ...interface{})`)
-	p.Out()
-	p.P(`}){`)
+	p.P(`func (this *`, ccTypeName, `) LogPayload(logger `, p.s12Proto.Use(), `.Logger){`)
 	p.In()
 
 	for _, field := range message.Field {

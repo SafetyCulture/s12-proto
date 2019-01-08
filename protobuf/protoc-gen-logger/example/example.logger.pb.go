@@ -4,6 +4,7 @@
 package example
 
 import reflect "reflect"
+import github_com_SafetyCulture_s12_proto_protobuf_s12proto "github.com/SafetyCulture/s12-proto/protobuf/s12proto"
 import proto "github.com/gogo/protobuf/proto"
 import fmt "fmt"
 import math "math"
@@ -15,14 +16,7 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
-func (this *ExampleMessage) LogPayload(logger interface {
-	Debug(args ...interface{})
-	Info(args ...interface{})
-	Warn(args ...interface{})
-	Error(args ...interface{})
-	Fatal(args ...interface{})
-	Panic(args ...interface{})
-}) {
+func (this *ExampleMessage) LogPayload(logger github_com_SafetyCulture_s12_proto_protobuf_s12proto.Logger) {
 	logger.Debug("ExampleMessage", "Id", this.Id)
 	logger.Error("ExampleMessage", "Password", this.Password)
 	logger.Info("ExampleMessage", "SomeKindOfInnerValue", this.SomeKindOfInnerValue)
@@ -30,22 +24,8 @@ func (this *ExampleMessage) LogPayload(logger interface {
 		logger.Error("ExampleMessage_OneOf2", this.TestOneof)
 	}
 }
-func (this *OneOfMessage) LogPayload(logger interface {
-	Debug(args ...interface{})
-	Info(args ...interface{})
-	Warn(args ...interface{})
-	Error(args ...interface{})
-	Fatal(args ...interface{})
-	Panic(args ...interface{})
-}) {
+func (this *OneOfMessage) LogPayload(logger github_com_SafetyCulture_s12_proto_protobuf_s12proto.Logger) {
 }
-func (this *InnerMessage) LogPayload(logger interface {
-	Debug(args ...interface{})
-	Info(args ...interface{})
-	Warn(args ...interface{})
-	Error(args ...interface{})
-	Fatal(args ...interface{})
-	Panic(args ...interface{})
-}) {
+func (this *InnerMessage) LogPayload(logger github_com_SafetyCulture_s12_proto_protobuf_s12proto.Logger) {
 	logger.Debug("InnerMessage", "Body", this.Body)
 }
