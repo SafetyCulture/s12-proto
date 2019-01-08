@@ -16,37 +16,16 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
-func (this *ExampleMessage) Parse(isLevelEnabled func(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level) bool) proto.Message {
-	res := &ExampleMessage{}
-	if isLevelEnabled(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level_DEBUG) {
-		res.Id = this.Id
+func (this *ExampleMessage) LogPayload(logger github_com_SafetyCulture_s12_proto_protobuf_s12proto.Logger) {
+	logger.Debug("ExampleMessage", "Id", this.Id)
+	logger.Error("ExampleMessage", "Password", this.Password)
+	logger.Info("ExampleMessage", "SomeKindOfInnerValue", this.SomeKindOfInnerValue)
+	if reflect.TypeOf(this.TestOneof) == reflect.TypeOf(&ExampleMessage_OneOf2{}) {
+		logger.Error("ExampleMessage_OneOf2", this.TestOneof)
 	}
-	res.UserName = this.UserName
-	if isLevelEnabled(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level_ERROR) {
-		res.Password = this.Password
-	}
-	if isLevelEnabled(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level_INFO) {
-		res.SomeKindOfInnerValue = this.SomeKindOfInnerValue
-	}
-	if reflect.TypeOf(this.TestOneof) == reflect.TypeOf(&ExampleMessage_OneOf1{}) {
-		res.TestOneof = this.TestOneof
-	}
-	if isLevelEnabled(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level_ERROR) {
-		if reflect.TypeOf(this.TestOneof) == reflect.TypeOf(&ExampleMessage_OneOf2{}) {
-			res.TestOneof = this.TestOneof
-		}
-	}
-	return res
 }
-func (this *OneOfMessage) Parse(isLevelEnabled func(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level) bool) proto.Message {
-	res := &OneOfMessage{}
-	res.Value = this.Value
-	return res
+func (this *OneOfMessage) LogPayload(logger github_com_SafetyCulture_s12_proto_protobuf_s12proto.Logger) {
 }
-func (this *InnerMessage) Parse(isLevelEnabled func(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level) bool) proto.Message {
-	res := &InnerMessage{}
-	if isLevelEnabled(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Level_DEBUG) {
-		res.Body = this.Body
-	}
-	return res
+func (this *InnerMessage) LogPayload(logger github_com_SafetyCulture_s12_proto_protobuf_s12proto.Logger) {
+	logger.Debug("InnerMessage", "Body", this.Body)
 }

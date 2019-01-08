@@ -9,17 +9,17 @@ import "github.com/SafetyCulture/s12-proto/protobuf/s12proto/logger.proto";
 
 message ExampleMessage { 
   string id = 1 [(logger.level) = DEBUG];
-  string user_name = 2; // gets logged always 
+  string user_name = 2; // never logged
   string password = 3 [(logger.level) = ERROR];
   InnerMessage some_kind_of_inner_value = 4 [(logger.level) = INFO];
   oneof test_oneof {
-    string one_of1 = 5;
+    string one_of1 = 5; // never logged
     OneOfMessage one_of2 = 6 [(logger.level) = ERROR];
   }
 }
 
 message OneOfMessage {
-  int32 value = 1;
+  int32 value = 1; // never logged
 }
 
 message InnerMessage {
