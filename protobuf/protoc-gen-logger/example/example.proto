@@ -16,6 +16,7 @@ message ExampleMessage {
     string one_of1 = 5; // never logged
     OneOfMessage one_of2 = 6 [(logger.level) = ERROR];
   }
+  map<string, string> map_field = 7 [(logger.level) = ERROR];
 }
 
 message OneOfMessage {

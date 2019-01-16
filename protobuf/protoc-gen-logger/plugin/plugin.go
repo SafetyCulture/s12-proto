@@ -38,6 +38,11 @@ func (p *plugin) Generate(file *generator.FileDescriptor) {
 }
 
 func (p *plugin) generateParseFunction(file *generator.FileDescriptor, message *generator.Descriptor) {
+	if message.GetOptions().GetMapEntry() {
+		// maps are messages for Go proto generator but they dont actually have phisically created a new type for the map therefore we may skip
+		return
+	}
+
 	ccTypeName := generator.CamelCaseSlice(message.TypeName())
 
 	p.P(`func (this *`, ccTypeName, `) LogPayload(logger `, p.s12Proto.Use(), `.Logger){`)
@@ -81,22 +86,22 @@ func (p *plugin) generateParseFunction(file *generator.FileDescriptor, message *
 		if hasPayloadLoggerExtensions(field) {
 			switch *getLevelValue(field) {
 			case logger.Level_PANIC:
-				p.P(`logger.Panic("`, ccTypeName, `", "`, fieldName, `", this.`, fieldName, `)`)
+				p.P(`logger.Panic("`, ccTypeName, `, ".", "`, fieldName, `", this.`, fieldName, `)`)
 				break
 			case logger.Level_DEBUG:
-				p.P(`logger.Debug("`, ccTypeName, `", "`, fieldName, `", this.`, fieldName, `)`)
+				p.P(`logger.Debug("`, ccTypeName, `", ".", "`, fieldName, `", this.`, fieldName, `)`)
 				break
 			case logger.Level_ERROR:
-				p.P(`logger.Error("`, ccTypeName, `", "`, fieldName, `", this.`, fieldName, `)`)
+				p.P(`logger.Error("`, ccTypeName, `", ".", "`, fieldName, `", this.`, fieldName, `)`)
 				break
 			case logger.Level_FATAL:
-				p.P(`logger.Fatal("`, ccTypeName, `", "`, fieldName, `", this.`, fieldName, `)`)
+				p.P(`logger.Fatal("`, ccTypeName, `", ".", "`, fieldName, `", this.`, fieldName, `)`)
 				break
 			case logger.Level_INFO:
-				p.P(`logger.Info("`, ccTypeName, `", "`, fieldName, `", this.`, fieldName, `)`)
+				p.P(`logger.Info("`, ccTypeName, `", ".", "`, fieldName, `", this.`, fieldName, `)`)
 				break
 			case logger.Level_WARN:
-				p.P(`logger.Warn("`, ccTypeName, `", "`, fieldName, `", this.`, fieldName, `)`)
+				p.P(`logger.Warn("`, ccTypeName, `", ".", "`, fieldName, `", this.`, fieldName, `)`)
 				break
 			}
 		}
