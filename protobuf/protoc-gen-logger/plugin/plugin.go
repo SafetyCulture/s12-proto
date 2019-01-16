@@ -86,22 +86,22 @@ func (p *plugin) generateParseFunction(file *generator.FileDescriptor, message *
 		if hasPayloadLoggerExtensions(field) {
 			switch *getLevelValue(field) {
 			case logger.Level_PANIC:
-				p.P(`logger.Panic("`, ccTypeName, `", "`, fieldName, `", this.`, fieldName, `)`)
+				p.P(`logger.Panic("`, ccTypeName, `, ".", "`, fieldName, `", this.`, fieldName, `)`)
 				break
 			case logger.Level_DEBUG:
-				p.P(`logger.Debug("`, ccTypeName, `", "`, fieldName, `", this.`, fieldName, `)`)
+				p.P(`logger.Debug("`, ccTypeName, `", ".", "`, fieldName, `", this.`, fieldName, `)`)
 				break
 			case logger.Level_ERROR:
-				p.P(`logger.Error("`, ccTypeName, `", "`, fieldName, `", this.`, fieldName, `)`)
+				p.P(`logger.Error("`, ccTypeName, `", ".", "`, fieldName, `", this.`, fieldName, `)`)
 				break
 			case logger.Level_FATAL:
-				p.P(`logger.Fatal("`, ccTypeName, `", "`, fieldName, `", this.`, fieldName, `)`)
+				p.P(`logger.Fatal("`, ccTypeName, `", ".", "`, fieldName, `", this.`, fieldName, `)`)
 				break
 			case logger.Level_INFO:
-				p.P(`logger.Info("`, ccTypeName, `", "`, fieldName, `", this.`, fieldName, `)`)
+				p.P(`logger.Info("`, ccTypeName, `", ".", "`, fieldName, `", this.`, fieldName, `)`)
 				break
 			case logger.Level_WARN:
-				p.P(`logger.Warn("`, ccTypeName, `", "`, fieldName, `", this.`, fieldName, `)`)
+				p.P(`logger.Warn("`, ccTypeName, `", ".", "`, fieldName, `", this.`, fieldName, `)`)
 				break
 			}
 		}
