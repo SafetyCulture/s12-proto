@@ -23,6 +23,7 @@ func (this *ExampleMessage) LogPayload(logger github_com_SafetyCulture_s12_proto
 	if reflect.TypeOf(this.TestOneof) == reflect.TypeOf(&ExampleMessage_OneOf2{}) {
 		logger.Error("ExampleMessage_OneOf2", this.TestOneof)
 	}
+	logger.Error("ExampleMessage", "MapField", this.MapField)
 }
 func (this *OneOfMessage) LogPayload(logger github_com_SafetyCulture_s12_proto_protobuf_s12proto.Logger) {
 }
