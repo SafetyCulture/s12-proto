@@ -24,12 +24,12 @@ type ExampleMessage struct {
 	Id                   string        `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	UserName             string        `protobuf:"bytes,2,opt,name=user_name,json=userName,proto3" json:"user_name,omitempty"`
 	Password             string        `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
-	SomeKindOfInnerValue *InnerMessage `protobuf:"bytes,4,opt,name=some_kind_of_inner_value,json=someKindOfInnerValue,proto3" json:"some_kind_of_inner_value,omitempty"`
+	SomeKindOfInnerValue *InnerMessage `protobuf:"bytes,4,opt,name=some_kind_of_inner_value,json=someKindOfInnerValue" json:"some_kind_of_inner_value,omitempty"`
 	// Types that are valid to be assigned to TestOneof:
 	//	*ExampleMessage_OneOf1
 	//	*ExampleMessage_OneOf2
 	TestOneof            isExampleMessage_TestOneof `protobuf_oneof:"test_oneof"`
-	MapField             map[string]string          `protobuf:"bytes,7,rep,name=map_field,json=mapField,proto3" json:"map_field,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	MapField             map[string]string          `protobuf:"bytes,7,rep,name=map_field,json=mapField" json:"map_field,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}                   `json:"-"`
 	XXX_unrecognized     []byte                     `json:"-"`
 	XXX_sizecache        int32                      `json:"-"`
@@ -39,7 +39,7 @@ func (m *ExampleMessage) Reset()         { *m = ExampleMessage{} }
 func (m *ExampleMessage) String() string { return proto.CompactTextString(m) }
 func (*ExampleMessage) ProtoMessage()    {}
 func (*ExampleMessage) Descriptor() ([]byte, []int) {
-	return fileDescriptor_example_293142d358651c05, []int{0}
+	return fileDescriptor_example_31f42466d9b6854e, []int{0}
 }
 func (m *ExampleMessage) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ExampleMessage.Unmarshal(m, b)
@@ -67,7 +67,7 @@ type ExampleMessage_OneOf1 struct {
 	OneOf1 string `protobuf:"bytes,5,opt,name=one_of1,json=oneOf1,proto3,oneof"`
 }
 type ExampleMessage_OneOf2 struct {
-	OneOf2 *OneOfMessage `protobuf:"bytes,6,opt,name=one_of2,json=oneOf2,proto3,oneof"`
+	OneOf2 *OneOfMessage `protobuf:"bytes,6,opt,name=one_of2,json=oneOf2,oneof"`
 }
 
 func (*ExampleMessage_OneOf1) isExampleMessage_TestOneof() {}
@@ -210,7 +210,7 @@ func (m *OneOfMessage) Reset()         { *m = OneOfMessage{} }
 func (m *OneOfMessage) String() string { return proto.CompactTextString(m) }
 func (*OneOfMessage) ProtoMessage()    {}
 func (*OneOfMessage) Descriptor() ([]byte, []int) {
-	return fileDescriptor_example_293142d358651c05, []int{1}
+	return fileDescriptor_example_31f42466d9b6854e, []int{1}
 }
 func (m *OneOfMessage) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_OneOfMessage.Unmarshal(m, b)
@@ -248,7 +248,7 @@ func (m *InnerMessage) Reset()         { *m = InnerMessage{} }
 func (m *InnerMessage) String() string { return proto.CompactTextString(m) }
 func (*InnerMessage) ProtoMessage()    {}
 func (*InnerMessage) Descriptor() ([]byte, []int) {
-	return fileDescriptor_example_293142d358651c05, []int{2}
+	return fileDescriptor_example_31f42466d9b6854e, []int{2}
 }
 func (m *InnerMessage) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_InnerMessage.Unmarshal(m, b)
@@ -282,9 +282,9 @@ func init() {
 	proto.RegisterType((*InnerMessage)(nil), "example.InnerMessage")
 }
 
-func init() { proto.RegisterFile("example.proto", fileDescriptor_example_293142d358651c05) }
+func init() { proto.RegisterFile("example.proto", fileDescriptor_example_31f42466d9b6854e) }
 
-var fileDescriptor_example_293142d358651c05 = []byte{
+var fileDescriptor_example_31f42466d9b6854e = []byte{
 	// 399 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x5c, 0x51, 0xdd, 0x8a, 0xd4, 0x30,
 	0x14, 0x76, 0x3a, 0x7f, 0x3b, 0x67, 0x67, 0x45, 0xc2, 0x08, 0x71, 0xbc, 0x29, 0x83, 0xc2, 0xdc,
