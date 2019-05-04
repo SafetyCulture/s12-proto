@@ -240,7 +240,7 @@ void PrintHeaderInterfaces(Printer *printer, const FileDescriptor *file) {
 
 void PrintHeaderClients(Printer *printer, const FileDescriptor *file) {
   std::map<string, string> vars;
-  vars["package"] = file->package();
+  vars["package"] = DotsToColons(file->package());
   if (!file->package().empty()) {
     vars["package"].append("::");
   }
@@ -297,7 +297,7 @@ void PrintSourceIncludes(Printer *printer, const FileDescriptor *file) {
 
 void PrintSourceClients(Printer *printer, const FileDescriptor *file) {
   std::map<string, string> vars;
-  vars["package"] = file->package();
+  vars["package"] = DotsToColons(file->package());
   if (!file->package().empty()) {
     vars["package"].append("::");
   }

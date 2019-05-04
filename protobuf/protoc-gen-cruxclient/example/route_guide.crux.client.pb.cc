@@ -4,14 +4,11 @@
 
 #include "route_guide.crux.client.pb.h"
 
-crux::RouteGuideClient::RouteGuideClient(
-    const std::shared_ptr<routeguide::RouteGuide::StubInterface>& stub)
-    : mStub(stub) {}
+crux::RouteGuideClient::RouteGuideClient(const std::shared_ptr<routeguide::RouteGuide::StubInterface>& stub) : mStub(stub) {}
 
-routeguide::Feature crux::RouteGuideClient::GetFeature(
-    const routeguide::Point& request) const {
+routeguide::Feature crux::RouteGuideClient::GetFeature(const routeguide::Point& request) const {
   routeguide::Feature response;
-  auto status = MakeRequest([stub = mStub, request, &response]() {
+  auto status = MakeRequest([stub = mStub, request, &response](){
     grpc::ClientContext context;
     return stub->GetFeature(&context, request, &response);
   });
