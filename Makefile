@@ -10,7 +10,7 @@ CXX = g++
 CPPFLAGS += -I/usr/local/include -pthread
 CXXFLAGS += -std=c++11
 LDFLAGS += -L/usr/local/lib -lprotoc -lprotobuf -lpthread -ldl
-protoc-gen-cppservice: protobuf/protoc-gen-cppservice/cppservice_generator.o
+protoc-gen-cruxclient: protobuf/protoc-gen-cruxclient/cruxclient_generator.o
 	$(CXX) $^ $(LDFLAGS) -o $@
 
 .PHONY: install-govalidator
@@ -20,9 +20,9 @@ install-govalidator:
 .PHONY: install-logger
 	go install github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-logger
 
-.PHONY: install-cppservice
-install-cppservice: protoc-gen-cppservice
-	install protoc-gen-cppservice /usr/local/bin/protoc-gen-cppservice
+.PHONY: install-cruxclient
+install-cruxclient: protoc-gen-cruxclient
+	install protoc-gen-cruxclient /usr/local/bin/protoc-gen-cruxclient
 
 .PHONY: install
 install: install-govalidator install-logger
@@ -45,16 +45,16 @@ logger: install-logger
 	--logger_out=:protobuf/protoc-gen-logger/example \
 	protobuf/protoc-gen-logger/example/*.proto
 
-.PHONY: cppservice
-cppservice: install-cppservice
+.PHONY: cruxclient
+cruxclient: install-cruxclient
 	protoc \
-	-I./protobuf/protoc-gen-cppservice/example \
+	-I./protobuf/protoc-gen-cruxclient/example \
 	-I$(GOPATH)/src \
 	--plugin=protoc-gen-grpc=/usr/local/bin/grpc_cpp_plugin \
-	--cpp_out=:protobuf/protoc-gen-cppservice/example \
-	--grpc_out=:protobuf/protoc-gen-cppservice/example \
-	--cppservice_out=:protobuf/protoc-gen-cppservice/example \
-	protobuf/protoc-gen-cppservice/example/*.proto
+	--cpp_out=:protobuf/protoc-gen-cruxclient/example \
+	--grpc_out=:protobuf/protoc-gen-cruxclient/example \
+	--cruxclient_out=:protobuf/protoc-gen-cruxclient/example \
+	protobuf/protoc-gen-cruxclient/example/*.proto
 
 .PHONY: example
 example: govalidator logger

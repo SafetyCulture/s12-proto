@@ -2,5 +2,5 @@
 .vscode
 
 # cpp
-/protoc-gen-cppservice
+/protoc-gen-cruxclient
 *.o
