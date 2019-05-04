@@ -5,14 +5,17 @@
 #include "example.pb.h"
 #include "example.grpc.pb.h"
 
-#include <grpc++/impl/codegen/async_stream.h>
-#include <grpc++/impl/codegen/async_unary_call.h>
-#include <grpc++/impl/codegen/channel_interface.h>
-#include <grpc++/impl/codegen/client_unary_call.h>
-#include <grpc++/impl/codegen/method_handler_impl.h>
-#include <grpc++/impl/codegen/rpc_service_method.h>
-#include <grpc++/impl/codegen/service_type.h>
-#include <grpc++/impl/codegen/sync_stream.h>
+#include <functional>
+#include <grpcpp/impl/codegen/async_stream.h>
+#include <grpcpp/impl/codegen/async_unary_call.h>
+#include <grpcpp/impl/codegen/channel_interface.h>
+#include <grpcpp/impl/codegen/client_unary_call.h>
+#include <grpcpp/impl/codegen/client_callback.h>
+#include <grpcpp/impl/codegen/method_handler_impl.h>
+#include <grpcpp/impl/codegen/rpc_service_method.h>
+#include <grpcpp/impl/codegen/server_callback.h>
+#include <grpcpp/impl/codegen/service_type.h>
+#include <grpcpp/impl/codegen/sync_stream.h>
 namespace example {
 
 static const char* EchoService_method_names[] = {
@@ -20,6 +23,7 @@ static const char* EchoService_method_names[] = {
 };
 
 std::unique_ptr< EchoService::Stub> EchoService::NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options) {
+  (void)options;
   std::unique_ptr< EchoService::Stub> stub(new EchoService::Stub(channel));
   return stub;
 }
@@ -30,6 +34,14 @@ EchoService::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channe
 
 ::grpc::Status EchoService::Stub::Echo(::grpc::ClientContext* context, const ::example::EchoRequest& request, ::example::EchoResponse* response) {
   return ::grpc::internal::BlockingUnaryCall(channel_.get(), rpcmethod_Echo_, context, request, response);
+}
+
+void EchoService::Stub::experimental_async::Echo(::grpc::ClientContext* context, const ::example::EchoRequest* request, ::example::EchoResponse* response, std::function<void(::grpc::Status)> f) {
+  return ::grpc::internal::CallbackUnaryCall(stub_->channel_.get(), stub_->rpcmethod_Echo_, context, request, response, std::move(f));
+}
+
+void EchoService::Stub::experimental_async::Echo(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::example::EchoResponse* response, std::function<void(::grpc::Status)> f) {
+  return ::grpc::internal::CallbackUnaryCall(stub_->channel_.get(), stub_->rpcmethod_Echo_, context, request, response, std::move(f));
 }
 
 ::grpc::ClientAsyncResponseReader< ::example::EchoResponse>* EchoService::Stub::AsyncEchoRaw(::grpc::ClientContext* context, const ::example::EchoRequest& request, ::grpc::CompletionQueue* cq) {
