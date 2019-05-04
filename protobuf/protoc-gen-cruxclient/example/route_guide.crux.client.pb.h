@@ -16,19 +16,19 @@ namespace crux {
 class RouteGuideClientInterface {
  public:
   virtual ~RouteGuideClientInterface() {}
-  virtual ::routeguide::Feature GetFeature(const ::routeguide::Point& request) const = 0;
+  virtual routeguide::Feature GetFeature(const routeguide::Point& request) const = 0;
 };
 
 class RouteGuideClient: public RouteGuideClientInterface {
  public:
-  explicit RouteGuideClient(const std::shared_ptr<::routeguide::RouteGuide::StubInterface>& stub);
-  ::routeguide::Feature GetFeature(const ::routeguide::Point& request) const;
+  explicit RouteGuideClient(const std::shared_ptr<routeguide::RouteGuide::StubInterface>& stub);
+  routeguide::Feature GetFeature(const routeguide::Point& request) const;
 
  private:
-  std::shared_ptr<::routeguide::RouteGuide::StubInterface> mStub;
+  std::shared_ptr<routeguide::RouteGuide::StubInterface> mStub;
 
 };
 
 }  // namespace crux
 
-#endif  // GRPC_SERVICE_route_5fguide_2eproto__INCLUDED
+#endif  // CRUX_CLIENT_route_5fguide_2eproto__INCLUDED
