@@ -17,12 +17,14 @@ class RouteGuideClientInterface {
  public:
   virtual ~RouteGuideClientInterface() {}
   virtual routeguide::Feature GetFeature(const routeguide::Point& request) const = 0;
+  virtual std::vector<routeguide::Feature> ListFeatures(const routeguide::Rectangle& request) const = 0;
 };
 
 class RouteGuideClient: public RouteGuideClientInterface {
  public:
   explicit RouteGuideClient(const std::shared_ptr<routeguide::RouteGuide::StubInterface>& stub);
   routeguide::Feature GetFeature(const routeguide::Point& request) const;
+  std::vector<routeguide::Feature> ListFeatures(const routeguide::Rectangle& request) const;
 
  private:
   std::shared_ptr<routeguide::RouteGuide::StubInterface> mStub;

@@ -205,19 +205,18 @@ void PrintHeaderMethods(Printer *printer, const ServiceDescriptor *service,
     }
 
     if (method->server_streaming()) {
-      // TODO: [RC]: Is the interface for streaming different?
-    } else {
-      if (isVirtual) {
-        printer->Print("virtual ");
-      }
-      printer->Print(vars,
-                     "$response$ $method_name$(const $request$& "
-                     "request) const");
-      if (isVirtual) {
-        printer->Print(" = 0");
-      }
-      printer->Print(";\n");
+      vars["response"] = "std::vector<" + vars["response"] + ">";
     }
+    if (isVirtual) {
+      printer->Print("virtual ");
+    }
+    printer->Print(vars,
+                   "$response$ $method_name$(const $request$& "
+                   "request) const");
+    if (isVirtual) {
+      printer->Print(" = 0");
+    }
+    printer->Print(";\n");
   }
 }
 
@@ -319,41 +318,55 @@ void PrintSourceClients(Printer *printer, const FileDescriptor *file) {
       vars["request"] = ClassName(method->input_type(), true);
       vars["response"] = ClassName(method->output_type(), true);
 
+      if (method->server_streaming()) {
+        vars["response_item"] = vars["response"];
+        vars["response"] = "std::vector<" + vars["response"] + ">";
+      }
+
       if (method->client_streaming()) {
         // [RC]: Client Steaming not supported yet
         continue;
       }
 
+      printer->Print(
+          vars,
+          "$response$ crux::$service_name$Client::$method_name$(const "
+          "$request$& request) const {\n");
+      printer->Indent();
+      printer->Print(vars, "$response$ response;\n");
+      printer->Print(
+          "auto status = MakeRequest([stub = mStub, request, "
+          "&response](){\n");
+      printer->Indent();
+      printer->Print("grpc::ClientContext context;\n");
+
       if (method->server_streaming()) {
-        // TODO: [RC]: Is the interface for streaming different?
+        printer->Print(vars, "$response_item$ item;\n");
+        printer->Print(
+            vars, "auto stream = stub->$method_name$(&context, request);\n");
+        printer->Print("while (stream->Read(&item)) {\n");
+        printer->Indent();
+        printer->Print("response.emplace_back(item);\n");
+        printer->Outdent();
+        printer->Print("}\n");
+        printer->Print("return stream->Finish();\n");
       } else {
         printer->Print(
             vars,
-            "$response$ crux::$service_name$Client::$method_name$(const "
-            "$request$& request) const {\n");
-        printer->Indent();
-        printer->Print(vars, "$response$ response;\n");
-        printer->Print(
-            "auto status = MakeRequest([stub = mStub, request, "
-            "&response](){\n");
-        printer->Indent();
-        printer->Print("grpc::ClientContext context;\n");
-        printer->Print(
-            vars,
             "return stub->$method_name$(&context, request, &response);\n");
-        printer->Outdent();
-        printer->Print("});\n");
-        printer->Print("if (!status.ok()) {\n");
-        printer->Indent();
-        printer->Print(
-            "throw ServiceException(status.error_code(), "
-            "status.error_message());\n");
-        printer->Outdent();
-        printer->Print("}\n");
-        printer->Print("return response;\n");
-        printer->Outdent();
-        printer->Print("}\n");
       }
+      printer->Outdent();
+      printer->Print("});\n");
+      printer->Print("if (!status.ok()) {\n");
+      printer->Indent();
+      printer->Print(
+          "throw ServiceException(status.error_code(), "
+          "status.error_message());\n");
+      printer->Outdent();
+      printer->Print("}\n");
+      printer->Print("return response;\n");
+      printer->Outdent();
+      printer->Print("}\n");
     }
   }
 }

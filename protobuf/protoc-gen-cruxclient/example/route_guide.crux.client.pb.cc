@@ -17,3 +17,18 @@ routeguide::Feature crux::RouteGuideClient::GetFeature(const routeguide::Point& 
   }
   return response;
 }
+std::vector<routeguide::Feature> crux::RouteGuideClient::ListFeatures(const routeguide::Rectangle& request) const {
+  std::vector<routeguide::Feature> response;
+  auto status = MakeRequest([stub = mStub, request, &response](){
+    grpc::ClientContext context;
+    routeguide::Feature item;
+    auto stream = stub->ListFeatures(&context, request);
+    while (stream->Read(&item)) {
+      response.emplace_back(item);
+    }return stream->Finish();
+  });
+  if (!status.ok()) {
+    throw ServiceException(status.error_code(), status.error_message());
+  }
+  return response;
+}

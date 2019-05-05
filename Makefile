@@ -49,7 +49,6 @@ logger: install-logger
 cruxclient: install-cruxclient
 	protoc \
 	-I./protobuf/protoc-gen-cruxclient/example \
-	-I$(GOPATH)/src \
 	--plugin=protoc-gen-grpc=/usr/local/bin/grpc_cpp_plugin \
 	--cpp_out=:protobuf/protoc-gen-cruxclient/example \
 	--grpc_out=:protobuf/protoc-gen-cruxclient/example \
