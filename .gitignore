@@ -1,0 +1,6 @@
+
+.vscode
+
+# cpp
+/protoc-gen-cruxclient
+*.o
