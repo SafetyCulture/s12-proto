@@ -304,8 +304,7 @@ void PrintSourceIncludes(Printer *printer, const FileDescriptor *file) {
   vars["filename_base"] = StripProto(file->name());
 
   printer->Print(vars, "#include \"$filename_base$.crux.client.pb.h\"\n");
-  // TODO: [RC]: Change `service/` to `core/`
-  printer->Print(vars, "#include \"service/service_utils.hpp\"\n\n");
+  printer->Print(vars, "#include \"s12_client_support.hpp\"\n\n");
 
   PrintNamespace(printer, file, false);
 }
@@ -339,7 +338,7 @@ void PrintSourceClients(Printer *printer, const FileDescriptor *file) {
       }
 
       if (method->client_streaming()) {
-        // [RC]: Client Steaming not supported yet
+        // [RC]: Client Streaming not supported... yet
         continue;
       }
 
@@ -354,7 +353,7 @@ void PrintSourceClients(Printer *printer, const FileDescriptor *file) {
         printer->Print(
             vars,
             "std::unique_ptr<grpc::ClientReaderInterface<$response_item$>> "
-            "stream = stub->$method_name$(&context, request);\n");
+            "stream = mStub->$method_name$(&context, request);\n");
         printer->Print("while (stream->Read(&item)) {\n");
         printer->Indent();
         printer->Print("response.emplace_back(item);\n");
@@ -363,7 +362,7 @@ void PrintSourceClients(Printer *printer, const FileDescriptor *file) {
         printer->Print("grpc::Status status = stream->Finish();\n");
       } else {
         printer->Print(vars,
-                       "grpc::Status status = stub->$method_name$(&context, "
+                       "grpc::Status status = mStub->$method_name$(&context, "
                        "request, &response);\n");
       }
       printer->Print("if (!status.ok()) {\n");

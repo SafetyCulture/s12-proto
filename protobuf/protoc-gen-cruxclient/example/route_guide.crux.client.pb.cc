@@ -3,7 +3,7 @@
 // source: route_guide.proto
 
 #include "route_guide.crux.client.pb.h"
-#include "service/service_utils.hpp"
+#include "s12_client_support.hpp"
 
 namespace routeguide {
 
@@ -12,7 +12,7 @@ RouteGuideClient::RouteGuideClient(const std::shared_ptr<RouteGuide::StubInterfa
 routeguide::Feature RouteGuideClient::GetFeature(const routeguide::Point& request) const {
   routeguide::Feature response;
   grpc::ClientContext context;
-  grpc::Status status = stub->GetFeature(&context, request, &response);
+  grpc::Status status = mStub->GetFeature(&context, request, &response);
   if (!status.ok()) {
     throw crux::ServiceException(status.error_code(), status.error_message());
   }
@@ -22,7 +22,7 @@ std::vector<routeguide::Feature> RouteGuideClient::ListFeatures(const routeguide
   std::vector<routeguide::Feature> response;
   grpc::ClientContext context;
   routeguide::Feature item;
-  std::unique_ptr<grpc::ClientReaderInterface<routeguide::Feature>> stream = stub->ListFeatures(&context, request);
+  std::unique_ptr<grpc::ClientReaderInterface<routeguide::Feature>> stream = mStub->ListFeatures(&context, request);
   while (stream->Read(&item)) {
     response.emplace_back(item);
   }
