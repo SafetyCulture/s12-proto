@@ -168,14 +168,28 @@ void PrintPrologue(Printer *printer, const FileDescriptor *file) {
   printer->Print(vars, "// source: $filename$\n");
 }
 
+void PrintNamespace(Printer *printer, const FileDescriptor *file,
+                    bool isEpilogue) {
+  std::map<string, string> vars;
+  if (!file->package().empty()) {
+    std::vector<string> parts = tokenize(StripProto(file->package()), ".");
+    for (auto part = parts.begin(); part != parts.end(); part++) {
+      vars["part"] = *part;
+      if (!isEpilogue) {
+        printer->Print(vars, "namespace $part$ {\n");
+      } else {
+        printer->Print(vars, "}\n");
+      }
+    }
+    printer->Print(vars, "\n");
+  }
+}
+
 void PrintHeaderPrologue(Printer *printer, const FileDescriptor *file) {
   std::map<string, string> vars;
   vars["filename_identifier"] = FilenameIdentifier(file->name());
 
   PrintPrologue(printer, file);
-  printer->Print(vars, "#ifndef CRUX_CLIENT_$filename_identifier$__INCLUDED\n");
-  printer->Print(vars,
-                 "#define CRUX_CLIENT_$filename_identifier$__INCLUDED\n\n");
 }
 
 void PrintHeaderIncludes(Printer *printer, const FileDescriptor *file) {
@@ -186,7 +200,8 @@ void PrintHeaderIncludes(Printer *printer, const FileDescriptor *file) {
   printer->Print(vars, "#include \"$filename_base$.grpc.pb.h\"\n\n");
   printer->Print("#include <string>\n");
   printer->Print("#include <memory>\n\n");
-  printer->Print("namespace crux {\n\n");
+
+  PrintNamespace(printer, file, false);
 }
 
 void PrintHeaderMethods(Printer *printer, const ServiceDescriptor *service,
@@ -196,8 +211,8 @@ void PrintHeaderMethods(Printer *printer, const ServiceDescriptor *service,
        ++method_index) {
     const MethodDescriptor *method = service->method(method_index);
     vars["method_name"] = method->name();
-    vars["request"] = ClassName(method->input_type(), true);
-    vars["response"] = ClassName(method->output_type(), true);
+    vars["request"] = method->input_type()->name();
+    vars["response"] = method->output_type()->name();
 
     if (method->client_streaming()) {
       // [RC]: Client Steaming not supported yet
@@ -239,10 +254,7 @@ void PrintHeaderInterfaces(Printer *printer, const FileDescriptor *file) {
 
 void PrintHeaderClients(Printer *printer, const FileDescriptor *file) {
   std::map<string, string> vars;
-  vars["package"] = DotsToColons(file->package());
-  if (!file->package().empty()) {
-    vars["package"].append("::");
-  }
+
   for (int service_index = 0; service_index < file->service_count();
        ++service_index) {
     const ServiceDescriptor *service = file->service(service_index);
@@ -255,7 +267,7 @@ void PrintHeaderClients(Printer *printer, const FileDescriptor *file) {
     printer->Indent();
     printer->Print(vars,
                    "explicit $service_name$Client(const "
-                   "std::shared_ptr<$package$$service_name$::StubInterface>& "
+                   "std::shared_ptr<$service_name$::StubInterface>& "
                    "stub);\n");
     PrintHeaderMethods(printer, service, false);
     printer->Outdent();
@@ -263,9 +275,8 @@ void PrintHeaderClients(Printer *printer, const FileDescriptor *file) {
 
     printer->Print(" private:\n");
     printer->Indent();
-    printer->Print(
-        vars,
-        "std::shared_ptr<$package$$service_name$::StubInterface> mStub;\n\n");
+    printer->Print(vars,
+                   "std::shared_ptr<$service_name$::StubInterface> mStub;\n\n");
     printer->Outdent();
     printer->Print("};\n\n");
   }
@@ -276,9 +287,7 @@ void PrintHeaderEpilogue(Printer *printer, const FileDescriptor *file) {
   vars["filename"] = file->name();
   vars["filename_identifier"] = FilenameIdentifier(file->name());
 
-  printer->Print(vars, "}  // namespace crux\n\n");
-  printer->Print(vars,
-                 "#endif  // CRUX_CLIENT_$filename_identifier$__INCLUDED\n");
+  PrintNamespace(printer, file, true);
 }
 
 void PrintSourcePrologue(Printer *printer, const FileDescriptor *file) {
@@ -290,13 +299,14 @@ void PrintSourceIncludes(Printer *printer, const FileDescriptor *file) {
   std::map<string, string> vars;
   vars["filename_base"] = StripProto(file->name());
 
-  printer->Print(vars, "#include \"$filename_base$.crux.client.pb.h\"\n\n");
-  // TODO: [RC]: Need to decide how to import other include statements
+  printer->Print(vars, "#include \"$filename_base$.crux.client.pb.h\"\n");
+  printer->Print(vars, "#include \"core/service_utils.hpp\"\n\n");
+
+  PrintNamespace(printer, file, false);
 }
 
 void PrintSourceClients(Printer *printer, const FileDescriptor *file) {
   std::map<string, string> vars;
-  vars["package"] = DotsToColons(file->package());
   if (!file->package().empty()) {
     vars["package"].append("::");
   }
@@ -307,16 +317,16 @@ void PrintSourceClients(Printer *printer, const FileDescriptor *file) {
     vars["service_name"] = service->name();
 
     printer->Print(vars,
-                   "crux::$service_name$Client::$service_name$Client(const "
-                   "std::shared_ptr<$package$$service_name$::StubInterface>& "
+                   "$service_name$Client::$service_name$Client(const "
+                   "std::shared_ptr<$service_name$::StubInterface>& "
                    "stub) : mStub(stub) {}\n\n");
 
     for (int method_index = 0; method_index < service->method_count();
          ++method_index) {
       const MethodDescriptor *method = service->method(method_index);
       vars["method_name"] = method->name();
-      vars["request"] = ClassName(method->input_type(), true);
-      vars["response"] = ClassName(method->output_type(), true);
+      vars["request"] = method->input_type()->name();
+      vars["response"] = method->output_type()->name();
 
       if (method->server_streaming()) {
         vars["response_item"] = vars["response"];
@@ -328,39 +338,33 @@ void PrintSourceClients(Printer *printer, const FileDescriptor *file) {
         continue;
       }
 
-      printer->Print(
-          vars,
-          "$response$ crux::$service_name$Client::$method_name$(const "
-          "$request$& request) const {\n");
+      printer->Print(vars,
+                     "$response$ $service_name$Client::$method_name$(const "
+                     "$request$& request) const {\n");
       printer->Indent();
       printer->Print(vars, "$response$ response;\n");
-      printer->Print(
-          "auto status = MakeRequest([stub = mStub, request, "
-          "&response](){\n");
-      printer->Indent();
       printer->Print("grpc::ClientContext context;\n");
-
       if (method->server_streaming()) {
         printer->Print(vars, "$response_item$ item;\n");
         printer->Print(
-            vars, "auto stream = stub->$method_name$(&context, request);\n");
+            vars,
+            "std::unique_ptr<grpc::ClientReaderInterface<$response_item$>> "
+            "stream = stub->$method_name$(&context, request);\n");
         printer->Print("while (stream->Read(&item)) {\n");
         printer->Indent();
         printer->Print("response.emplace_back(item);\n");
         printer->Outdent();
         printer->Print("}\n");
-        printer->Print("return stream->Finish();\n");
+        printer->Print("grpc::Status status = stream->Finish();\n");
       } else {
-        printer->Print(
-            vars,
-            "return stub->$method_name$(&context, request, &response);\n");
+        printer->Print(vars,
+                       "grpc::Status status = stub->$method_name$(&context, "
+                       "request, &response);\n");
       }
-      printer->Outdent();
-      printer->Print("});\n");
       printer->Print("if (!status.ok()) {\n");
       printer->Indent();
       printer->Print(
-          "throw ServiceException(status.error_code(), "
+          "throw crux::ServiceException(status.error_code(), "
           "status.error_message());\n");
       printer->Outdent();
       printer->Print("}\n");
@@ -369,6 +373,11 @@ void PrintSourceClients(Printer *printer, const FileDescriptor *file) {
       printer->Print("}\n");
     }
   }
+}
+
+void PrintSourceEpilogue(Printer *printer, const FileDescriptor *file) {
+  printer->Print("\n");
+  PrintNamespace(printer, file, true);
 }
 
 class Generator : public CodeGenerator {
@@ -400,6 +409,7 @@ class Generator : public CodeGenerator {
     PrintSourcePrologue(&source_printer, file);
     PrintSourceIncludes(&source_printer, file);
     PrintSourceClients(&source_printer, file);
+    PrintSourceEpilogue(&source_printer, file);
 
     return true;
   }
