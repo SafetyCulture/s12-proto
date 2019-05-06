@@ -72,7 +72,7 @@ string StripProto(const string &filename) {
   }
 }
 
-// The following 3 function was copied from
+// The following 3 functions were copied from
 // grpc/src/compiler/cpp_generator.cc
 
 string FilenameIdentifier(const string &filename) {
