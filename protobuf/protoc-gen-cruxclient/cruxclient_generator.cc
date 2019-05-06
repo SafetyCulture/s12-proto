@@ -133,7 +133,7 @@ inline std::vector<string> tokenize(const string &input,
   }
 }
 
-// The following 3 function was copied from
+// The following 3 functions were copied from
 // grpc/src/compiler/cpp_generator_helpers.h
 
 inline string DotsToColons(const string &name) {
