@@ -3,14 +3,14 @@
 // source: route_guide.proto
 
 #include "route_guide.crux.client.pb.h"
-#include "core/service_utils.hpp"
+#include "service/service_utils.hpp"
 
 namespace routeguide {
 
 RouteGuideClient::RouteGuideClient(const std::shared_ptr<RouteGuide::StubInterface>& stub) : mStub(stub) {}
 
-Feature RouteGuideClient::GetFeature(const Point& request) const {
-  Feature response;
+routeguide::Feature RouteGuideClient::GetFeature(const routeguide::Point& request) const {
+  routeguide::Feature response;
   grpc::ClientContext context;
   grpc::Status status = stub->GetFeature(&context, request, &response);
   if (!status.ok()) {
@@ -18,11 +18,11 @@ Feature RouteGuideClient::GetFeature(const Point& request) const {
   }
   return response;
 }
-std::vector<Feature> RouteGuideClient::ListFeatures(const Rectangle& request) const {
-  std::vector<Feature> response;
+std::vector<routeguide::Feature> RouteGuideClient::ListFeatures(const routeguide::Rectangle& request) const {
+  std::vector<routeguide::Feature> response;
   grpc::ClientContext context;
-  Feature item;
-  std::unique_ptr<grpc::ClientReaderInterface<Feature>> stream = stub->ListFeatures(&context, request);
+  routeguide::Feature item;
+  std::unique_ptr<grpc::ClientReaderInterface<routeguide::Feature>> stream = stub->ListFeatures(&context, request);
   while (stream->Read(&item)) {
     response.emplace_back(item);
   }

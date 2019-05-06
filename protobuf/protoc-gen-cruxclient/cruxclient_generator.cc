@@ -211,8 +211,8 @@ void PrintHeaderMethods(Printer *printer, const ServiceDescriptor *service,
        ++method_index) {
     const MethodDescriptor *method = service->method(method_index);
     vars["method_name"] = method->name();
-    vars["request"] = method->input_type()->name();
-    vars["response"] = method->output_type()->name();
+    vars["request"] = ClassName(method->input_type(), true);
+    vars["response"] = ClassName(method->output_type(), true);
 
     if (method->client_streaming()) {
       // [RC]: Client Steaming not supported yet
@@ -300,7 +300,8 @@ void PrintSourceIncludes(Printer *printer, const FileDescriptor *file) {
   vars["filename_base"] = StripProto(file->name());
 
   printer->Print(vars, "#include \"$filename_base$.crux.client.pb.h\"\n");
-  printer->Print(vars, "#include \"core/service_utils.hpp\"\n\n");
+  // TODO: [RC]: Change `service/` to `core/`
+  printer->Print(vars, "#include \"service/service_utils.hpp\"\n\n");
 
   PrintNamespace(printer, file, false);
 }
@@ -325,8 +326,8 @@ void PrintSourceClients(Printer *printer, const FileDescriptor *file) {
          ++method_index) {
       const MethodDescriptor *method = service->method(method_index);
       vars["method_name"] = method->name();
-      vars["request"] = method->input_type()->name();
-      vars["response"] = method->output_type()->name();
+      vars["request"] = ClassName(method->input_type(), true);
+      vars["response"] = ClassName(method->output_type(), true);
 
       if (method->server_streaming()) {
         vars["response_item"] = vars["response"];
