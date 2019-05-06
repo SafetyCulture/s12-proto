@@ -160,6 +160,10 @@ inline string ClassName(const Descriptor *descriptor, bool qualified) {
   }
 }
 
+// ******************************************* //
+//         Code Generation Printing            //
+// ******************************************* //
+
 void PrintPrologue(Printer *printer, const FileDescriptor *file) {
   std::map<string, string> vars;
   vars["filename"] = file->name();
