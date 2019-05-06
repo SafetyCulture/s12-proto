@@ -111,7 +111,7 @@ inline string StringReplace(string str, const string &from, const string &to) {
   return StringReplace(str, from, to, true);
 }
 
-// The following 4 function was copied from
+// The following 4 functions were copied from
 // grpc/src/compiler/generator_helpers.h
 inline std::vector<string> tokenize(const string &input,
                                     const string &delimiters) {
