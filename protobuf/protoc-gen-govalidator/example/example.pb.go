@@ -3,11 +3,13 @@
 
 package example
 
-import proto "github.com/gogo/protobuf/proto"
-import fmt "fmt"
-import math "math"
-import _ "github.com/SafetyCulture/s12-proto/protobuf/s12proto"
-import _ "github.com/gogo/protobuf/gogoproto"
+import (
+	fmt "fmt"
+	_ "github.com/SafetyCulture/s12-proto/protobuf/s12proto"
+	_ "github.com/gogo/protobuf/gogoproto"
+	proto "github.com/gogo/protobuf/proto"
+	math "math"
+)
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -34,9 +36,9 @@ type ExampleMessage struct {
 	// intergers greater/less than or equal, the can also be combined
 	Score int32 `protobuf:"varint,6,opt,name=score,proto3" json:"score,omitempty"`
 	// Validation is created for all messages
-	Inner *InnerMessage `protobuf:"bytes,7,opt,name=inner" json:"inner,omitempty"`
+	Inner *InnerMessage `protobuf:"bytes,7,opt,name=inner,proto3" json:"inner,omitempty"`
 	// can validate each repeated item too
-	Ids [][]byte `protobuf:"bytes,8,rep,name=ids" json:"ids,omitempty"`
+	Ids [][]byte `protobuf:"bytes,8,rep,name=ids,proto3" json:"ids,omitempty"`
 	// You don't need to validate everything
 	NoValidation         string   `protobuf:"bytes,9,opt,name=no_validation,json=noValidation,proto3" json:"no_validation,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -48,7 +50,7 @@ func (m *ExampleMessage) Reset()         { *m = ExampleMessage{} }
 func (m *ExampleMessage) String() string { return proto.CompactTextString(m) }
 func (*ExampleMessage) ProtoMessage()    {}
 func (*ExampleMessage) Descriptor() ([]byte, []int) {
-	return fileDescriptor_example_6c613b41011552d2, []int{0}
+	return fileDescriptor_15a1dc8d40dadaa6, []int{0}
 }
 func (m *ExampleMessage) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ExampleMessage.Unmarshal(m, b)
@@ -56,8 +58,8 @@ func (m *ExampleMessage) XXX_Unmarshal(b []byte) error {
 func (m *ExampleMessage) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_ExampleMessage.Marshal(b, m, deterministic)
 }
-func (dst *ExampleMessage) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ExampleMessage.Merge(dst, src)
+func (m *ExampleMessage) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ExampleMessage.Merge(m, src)
 }
 func (m *ExampleMessage) XXX_Size() int {
 	return xxx_messageInfo_ExampleMessage.Size(m)
@@ -142,7 +144,7 @@ func (m *InnerMessage) Reset()         { *m = InnerMessage{} }
 func (m *InnerMessage) String() string { return proto.CompactTextString(m) }
 func (*InnerMessage) ProtoMessage()    {}
 func (*InnerMessage) Descriptor() ([]byte, []int) {
-	return fileDescriptor_example_6c613b41011552d2, []int{1}
+	return fileDescriptor_15a1dc8d40dadaa6, []int{1}
 }
 func (m *InnerMessage) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_InnerMessage.Unmarshal(m, b)
@@ -150,8 +152,8 @@ func (m *InnerMessage) XXX_Unmarshal(b []byte) error {
 func (m *InnerMessage) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_InnerMessage.Marshal(b, m, deterministic)
 }
-func (dst *InnerMessage) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_InnerMessage.Merge(dst, src)
+func (m *InnerMessage) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_InnerMessage.Merge(m, src)
 }
 func (m *InnerMessage) XXX_Size() int {
 	return xxx_messageInfo_InnerMessage.Size(m)
@@ -174,9 +176,9 @@ func init() {
 	proto.RegisterType((*InnerMessage)(nil), "example.InnerMessage")
 }
 
-func init() { proto.RegisterFile("example.proto", fileDescriptor_example_6c613b41011552d2) }
+func init() { proto.RegisterFile("example.proto", fileDescriptor_15a1dc8d40dadaa6) }
 
-var fileDescriptor_example_6c613b41011552d2 = []byte{
+var fileDescriptor_15a1dc8d40dadaa6 = []byte{
 	// 375 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0x90, 0xbd, 0x6e, 0xdb, 0x30,
 	0x14, 0x85, 0xad, 0x5f, 0xdb, 0xb4, 0x6c, 0x14, 0x44, 0x5b, 0x10, 0x1e, 0x2a, 0xc1, 0x35, 0x50,
