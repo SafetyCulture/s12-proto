@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	validator "github.com/SafetyCulture/s12-proto/protobuf/s12proto"
+	"github.com/gogo/protobuf/gogoproto"
 	"github.com/gogo/protobuf/proto"
 	"github.com/gogo/protobuf/protoc-gen-gogo/descriptor"
 	"github.com/gogo/protobuf/protoc-gen-gogo/generator"
@@ -15,10 +16,11 @@ import (
 type plugin struct {
 	*generator.Generator
 	generator.PluginImports
-	regexPkg  generator.Single
-	fmtPkg    generator.Single
-	errrosPkg generator.Single
-	uuidPkg   generator.Single
+	regexPkg    generator.Single
+	fmtPkg      generator.Single
+	errrosPkg   generator.Single
+	uuidPkg     generator.Single
+	s12protoPkg generator.Single
 }
 
 // New creates a new generator plugin for go validator
@@ -40,6 +42,7 @@ func (p *plugin) Generate(file *generator.FileDescriptor) {
 	p.regexPkg = p.NewImport("regexp")
 	p.errrosPkg = p.NewImport("github.com/pkg/errors")
 	p.uuidPkg = p.NewImport("github.com/gofrs/uuid")
+	p.s12protoPkg = p.NewImport("github.com/SafetyCulture/s12-proto/protobuf/s12proto")
 
 	for _, msg := range file.Messages() {
 		if msg.DescriptorProto.GetOptions().GetMapEntry() {
@@ -76,6 +79,7 @@ func (p *plugin) generateValidateFunction(file *generator.FileDescriptor, messag
 			fieldName    = p.GetOneOfFieldName(message, field)
 			variableName = "this." + fieldName
 			repeated     = field.IsRepeated()
+			nullable     = (gogoproto.IsNullable(field) || !gogoproto.ImportsGoGoProto(file.FileDescriptorProto)) && field.IsMessage()
 		)
 
 		if repeated && hasValidationExtensions(field) {
@@ -90,6 +94,8 @@ func (p *plugin) generateValidateFunction(file *generator.FileDescriptor, messag
 			p.generateBytesValidator(variableName, ccTypeName, fieldName, field)
 		} else if isSupportedInt(field) {
 			p.generateIntegerValidator(variableName, ccTypeName, fieldName, field)
+		} else if field.IsMessage() {
+			p.generateInnerMessageValidator(variableName, ccTypeName, fieldName, field, nullable)
 		}
 
 		if repeated && hasValidationExtensions(field) {
@@ -164,6 +170,33 @@ func (p *plugin) generateIntegerValidator(variableName string, ccTypeName string
 		p.In()
 		errorStr := fmt.Sprintf(`be less than or equal to '%d'`, *v)
 		p.generateErrorString(variableName, fieldName, errorStr)
+		p.Out()
+		p.P(`}`)
+	}
+}
+
+func (p *plugin) generateInnerMessageValidator(variableName string, ccTypeName string, fieldName string, field *descriptor.FieldDescriptorProto, nullable bool) {
+
+	if nullable {
+		p.P(`if `, variableName, ` != nil {`)
+		p.In()
+	} else {
+		variableName = "&(" + variableName + ")"
+	}
+
+	p.P(`if v, ok := `, variableName, `.(`, p.s12protoPkg.Use(), `.Validator); ok {`)
+	p.In()
+
+	p.P(`if err := v.Validate(); err != nil {`)
+	p.In()
+	p.P(`return `, p.s12protoPkg.Use(), `.FieldError("`, fieldName, `", err)`)
+	p.Out()
+	p.P(`}`)
+
+	p.Out()
+	p.P(`}`)
+
+	if nullable {
 		p.Out()
 		p.P(`}`)
 	}

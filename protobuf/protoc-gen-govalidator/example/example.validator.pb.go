@@ -6,6 +6,7 @@ package example
 import regexp "regexp"
 import github_com_pkg_errors "github.com/pkg/errors"
 import github_com_gofrs_uuid "github.com/gofrs/uuid"
+import github_com_SafetyCulture_s12_proto_protobuf_s12proto "github.com/SafetyCulture/s12-proto/protobuf/s12proto"
 import proto "github.com/gogo/protobuf/proto"
 import fmt "fmt"
 import math "math"
@@ -40,6 +41,13 @@ func (this *ExampleMessage) Validate() error {
 	}
 	if !(this.Score <= 100) {
 		return github_com_pkg_errors.Errorf(`Score: value '%v' must be less than or equal to '100'`, this.Score)
+	}
+	if this.Inner != nil {
+		if v, ok := this.Inner.(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Validator); ok {
+			if err := v.Validate(); err != nil {
+				return github_com_SafetyCulture_s12_proto_protobuf_s12proto.FieldError("Inner", err)
+			}
+		}
 	}
 	for _, item := range this.Ids {
 		if _, err := github_com_gofrs_uuid.FromBytes(item); err != nil {
