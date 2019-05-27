@@ -3,11 +3,10 @@
 
 package example
 
+import fmt "fmt"
 import regexp "regexp"
-import github_com_pkg_errors "github.com/pkg/errors"
 import github_com_SafetyCulture_s12_proto_protobuf_s12proto "github.com/SafetyCulture/s12-proto/protobuf/s12proto"
 import proto "github.com/gogo/protobuf/proto"
-import fmt "fmt"
 import math "math"
 import _ "github.com/SafetyCulture/s12-proto/protobuf/s12proto"
 import _ "github.com/gogo/protobuf/gogoproto"
@@ -21,25 +20,25 @@ var _regex_ExampleMessage_Description = regexp.MustCompile(`^[a-z]{2,5}$`)
 
 func (this *ExampleMessage) Validate() error {
 	if !github_com_SafetyCulture_s12_proto_protobuf_s12proto.IsUUID(this.Id) {
-		return github_com_pkg_errors.Errorf(`Id: value '%v' must be parsable as a UUID`, this.Id)
+		return fmt.Errorf(`Id: value '%v' must be parsable as a UUID`, this.Id)
 	}
 	if len(this.UserID) != github_com_SafetyCulture_s12_proto_protobuf_s12proto.UUIDSize {
-		return github_com_pkg_errors.Errorf(`UserID: value '%v' must be exactly 16 bytes long to be a valid UUID`, this.UserID)
+		return fmt.Errorf(`UserID: value '%v' must be exactly 16 bytes long to be a valid UUID`, this.UserID)
 	}
 	if !_regex_ExampleMessage_Description.MatchString(this.Description) {
-		return github_com_pkg_errors.Errorf(`Description: value '%v' must be a string conforming to regex "^[a-z]{2,5}$"`, this.Description)
+		return fmt.Errorf(`Description: value '%v' must be a string conforming to regex "^[a-z]{2,5}$"`, this.Description)
 	}
 	if !(this.Age > 0) {
-		return github_com_pkg_errors.Errorf(`Age: value '%v' must be greater than '0'`, this.Age)
+		return fmt.Errorf(`Age: value '%v' must be greater than '0'`, this.Age)
 	}
 	if !(this.Speed < 110) {
-		return github_com_pkg_errors.Errorf(`Speed: value '%v' must be less than '110'`, this.Speed)
+		return fmt.Errorf(`Speed: value '%v' must be less than '110'`, this.Speed)
 	}
 	if !(this.Score >= 0) {
-		return github_com_pkg_errors.Errorf(`Score: value '%v' must be greater than or equal to '0'`, this.Score)
+		return fmt.Errorf(`Score: value '%v' must be greater than or equal to '0'`, this.Score)
 	}
 	if !(this.Score <= 100) {
-		return github_com_pkg_errors.Errorf(`Score: value '%v' must be less than or equal to '100'`, this.Score)
+		return fmt.Errorf(`Score: value '%v' must be less than or equal to '100'`, this.Score)
 	}
 	if this.Inner != nil {
 		if v, ok := interface{}(this.Inner).(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Validator); ok {
@@ -50,7 +49,7 @@ func (this *ExampleMessage) Validate() error {
 	}
 	for _, item := range this.Ids {
 		if len(item) != github_com_SafetyCulture_s12_proto_protobuf_s12proto.UUIDSize {
-			return github_com_pkg_errors.Errorf(`Ids: value '%v' must be exactly 16 bytes long to be a valid UUID`, item)
+			return fmt.Errorf(`Ids: value '%v' must be exactly 16 bytes long to be a valid UUID`, item)
 		}
 	}
 	return nil
@@ -58,7 +57,7 @@ func (this *ExampleMessage) Validate() error {
 
 func (this *InnerMessage) Validate() error {
 	if !github_com_SafetyCulture_s12_proto_protobuf_s12proto.IsUUID(this.Id) {
-		return github_com_pkg_errors.Errorf(`Id: value '%v' must be parsable as a UUID`, this.Id)
+		return fmt.Errorf(`Id: value '%v' must be parsable as a UUID`, this.Id)
 	}
 	return nil
 }
