@@ -19,7 +19,6 @@ type plugin struct {
 	regexPkg    generator.Single
 	fmtPkg      generator.Single
 	errrosPkg   generator.Single
-	uuidPkg     generator.Single
 	s12protoPkg generator.Single
 }
 
@@ -41,7 +40,6 @@ func (p *plugin) Generate(file *generator.FileDescriptor) {
 	p.fmtPkg = p.NewImport("fmt")
 	p.regexPkg = p.NewImport("regexp")
 	p.errrosPkg = p.NewImport("github.com/pkg/errors")
-	p.uuidPkg = p.NewImport("github.com/gofrs/uuid")
 	p.s12protoPkg = p.NewImport("github.com/SafetyCulture/s12-proto/protobuf/s12proto")
 
 	for _, msg := range file.Messages() {
@@ -120,7 +118,7 @@ func (p *plugin) generateStringValidator(variableName string, ccTypeName string,
 		p.P(`}`)
 	}
 	if getUUIDValue(field) {
-		p.P(`if _, err := `, p.uuidPkg.Use(), `.FromString(`, variableName, `); err != nil {`)
+		p.P(`if !`, p.s12protoPkg.Use(), `.IsUUID(`, variableName, `) {`)
 		p.In()
 		errorStr := "be parsable as a UUID"
 		p.generateErrorString(variableName, fieldName, errorStr)
@@ -131,9 +129,9 @@ func (p *plugin) generateStringValidator(variableName string, ccTypeName string,
 
 func (p *plugin) generateBytesValidator(variableName string, ccTypeName string, fieldName string, field *descriptor.FieldDescriptorProto) {
 	if getUUIDValue(field) {
-		p.P(`if _, err := `, p.uuidPkg.Use(), `.FromBytes(`, variableName, `); err != nil {`)
+		p.P(`if len(`, variableName, `) != `, p.s12protoPkg.Use(), `.UUIDSize {`)
 		p.In()
-		errorStr := "be parsable as a UUID"
+		errorStr := "be exactly 16 bytes long to be a valid UUID"
 		p.generateErrorString(variableName, fieldName, errorStr)
 		p.Out()
 		p.P(`}`)

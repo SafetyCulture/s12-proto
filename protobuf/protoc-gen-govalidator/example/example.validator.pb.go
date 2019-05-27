@@ -5,7 +5,6 @@ package example
 
 import regexp "regexp"
 import github_com_pkg_errors "github.com/pkg/errors"
-import github_com_gofrs_uuid "github.com/gofrs/uuid"
 import github_com_SafetyCulture_s12_proto_protobuf_s12proto "github.com/SafetyCulture/s12-proto/protobuf/s12proto"
 import proto "github.com/gogo/protobuf/proto"
 import fmt "fmt"
@@ -21,11 +20,11 @@ var _ = math.Inf
 var _regex_ExampleMessage_Description = regexp.MustCompile(`^[a-z]{2,5}$`)
 
 func (this *ExampleMessage) Validate() error {
-	if _, err := github_com_gofrs_uuid.FromString(this.Id); err != nil {
+	if !github_com_SafetyCulture_s12_proto_protobuf_s12proto.IsUUID(this.Id) {
 		return github_com_pkg_errors.Errorf(`Id: value '%v' must be parsable as a UUID`, this.Id)
 	}
-	if _, err := github_com_gofrs_uuid.FromBytes(this.UserID); err != nil {
-		return github_com_pkg_errors.Errorf(`UserID: value '%v' must be parsable as a UUID`, this.UserID)
+	if len(this.UserID) != github_com_SafetyCulture_s12_proto_protobuf_s12proto.UUIDSize {
+		return github_com_pkg_errors.Errorf(`UserID: value '%v' must be exactly 16 bytes long to be a valid UUID`, this.UserID)
 	}
 	if !_regex_ExampleMessage_Description.MatchString(this.Description) {
 		return github_com_pkg_errors.Errorf(`Description: value '%v' must be a string conforming to regex "^[a-z]{2,5}$"`, this.Description)
@@ -50,15 +49,15 @@ func (this *ExampleMessage) Validate() error {
 		}
 	}
 	for _, item := range this.Ids {
-		if _, err := github_com_gofrs_uuid.FromBytes(item); err != nil {
-			return github_com_pkg_errors.Errorf(`Ids: value '%v' must be parsable as a UUID`, item)
+		if len(item) != github_com_SafetyCulture_s12_proto_protobuf_s12proto.UUIDSize {
+			return github_com_pkg_errors.Errorf(`Ids: value '%v' must be exactly 16 bytes long to be a valid UUID`, item)
 		}
 	}
 	return nil
 }
 
 func (this *InnerMessage) Validate() error {
-	if _, err := github_com_gofrs_uuid.FromString(this.Id); err != nil {
+	if !github_com_SafetyCulture_s12_proto_protobuf_s12proto.IsUUID(this.Id) {
 		return github_com_pkg_errors.Errorf(`Id: value '%v' must be parsable as a UUID`, this.Id)
 	}
 	return nil
