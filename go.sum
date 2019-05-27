@@ -1,9 +1,5 @@
-github.com/SafetyCulture/s12-proto/protobuf/s12proto v0.0.0-20190116024658-2fe1bfc71930 h1:nG1H9i2T2oQTVs/zrH3N5xXBvLRgdoiApv4wvskaNeI=
-github.com/SafetyCulture/s12-proto/protobuf/s12proto v0.0.0-20190116024658-2fe1bfc71930/go.mod h1:QdJVEsOEHmzjfRvYPZS/GEJIeCo1RZiA82mcAwNuC8E=
 github.com/gofrs/uuid v3.1.0+incompatible h1:q2rtkjaKT4YEr6E1kamy0Ha4RtepWlQBedyHx0uzKwA=
 github.com/gofrs/uuid v3.1.0+incompatible/go.mod h1:b2aQJv3Z4Fp6yNu3cdSllBxTCLRxnplIgP/c0N/04lM=
-github.com/gogo/protobuf v1.1.1 h1:72R+M5VuhED/KujmZVcIquuo8mBgX4oVda//DQb3PXo=
-github.com/gogo/protobuf v1.1.1/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
 github.com/gogo/protobuf v1.2.0 h1:xU6/SpYbvkNYiptHJYEDRseDLvYE7wSqhYYNy0QSUzI=
 github.com/gogo/protobuf v1.2.0/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
 github.com/pkg/errors v0.8.0 h1:WdK/asTD0HN+q6hsWO3/vpuAkAr+tw6aNJNDFFf0+qw=

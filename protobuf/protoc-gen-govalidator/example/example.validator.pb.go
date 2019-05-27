@@ -43,7 +43,7 @@ func (this *ExampleMessage) Validate() error {
 		return github_com_pkg_errors.Errorf(`Score: value '%v' must be less than or equal to '100'`, this.Score)
 	}
 	if this.Inner != nil {
-		if v, ok := this.Inner.(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Validator); ok {
+		if v, ok := interface{}(this.Inner).(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Validator); ok {
 			if err := v.Validate(); err != nil {
 				return github_com_SafetyCulture_s12_proto_protobuf_s12proto.FieldError("Inner", err)
 			}
@@ -56,6 +56,7 @@ func (this *ExampleMessage) Validate() error {
 	}
 	return nil
 }
+
 func (this *InnerMessage) Validate() error {
 	if _, err := github_com_gofrs_uuid.FromString(this.Id); err != nil {
 		return github_com_pkg_errors.Errorf(`Id: value '%v' must be parsable as a UUID`, this.Id)
