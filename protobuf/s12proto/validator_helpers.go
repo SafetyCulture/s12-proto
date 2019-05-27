@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	// // UUIDSize is the size of a UUID in bytes.
+	// UUIDSize is the size of a UUID in bytes.
 	UUIDSize int = 16
 )
 
