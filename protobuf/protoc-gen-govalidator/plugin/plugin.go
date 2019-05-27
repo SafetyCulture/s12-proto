@@ -50,7 +50,7 @@ func (p *plugin) Generate(file *generator.FileDescriptor) {
 		}
 		p.generateRegexVars(file, msg)
 		p.generateValidateFunction(file, msg)
-
+		p.P()
 	}
 }
 
@@ -184,7 +184,7 @@ func (p *plugin) generateInnerMessageValidator(variableName string, ccTypeName s
 		variableName = "&(" + variableName + ")"
 	}
 
-	p.P(`if v, ok := `, variableName, `.(`, p.s12protoPkg.Use(), `.Validator); ok {`)
+	p.P(`if v, ok := interface{}(`, variableName, `).(`, p.s12protoPkg.Use(), `.Validator); ok {`)
 	p.In()
 
 	p.P(`if err := v.Validate(); err != nil {`)
