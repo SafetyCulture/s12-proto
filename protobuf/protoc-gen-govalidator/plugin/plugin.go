@@ -18,7 +18,6 @@ type plugin struct {
 	generator.PluginImports
 	regexPkg    generator.Single
 	fmtPkg      generator.Single
-	errrosPkg   generator.Single
 	uuidPkg     generator.Single
 	s12protoPkg generator.Single
 }
@@ -40,7 +39,6 @@ func (p *plugin) Generate(file *generator.FileDescriptor) {
 	p.PluginImports = generator.NewPluginImports(p.Generator)
 	p.fmtPkg = p.NewImport("fmt")
 	p.regexPkg = p.NewImport("regexp")
-	p.errrosPkg = p.NewImport("github.com/pkg/errors")
 	p.uuidPkg = p.NewImport("github.com/gofrs/uuid")
 	p.s12protoPkg = p.NewImport("github.com/SafetyCulture/s12-proto/protobuf/s12proto")
 
@@ -203,7 +201,7 @@ func (p *plugin) generateInnerMessageValidator(variableName string, ccTypeName s
 }
 
 func (p *plugin) generateErrorString(variableName string, fieldName string, specificError string) {
-	p.P(`return `, p.errrosPkg.Use(), ".Errorf(`", fieldName, `: value '%v' must `, specificError, "`, ", variableName, `)`)
+	p.P(`return `, p.fmtPkg.Use(), ".Errorf(`", fieldName, `: value '%v' must `, specificError, "`, ", variableName, `)`)
 }
 
 func regexName(ccTypeName, fieldName string) string {
