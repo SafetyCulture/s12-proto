@@ -13,24 +13,28 @@ $ protoc -I. --gogo_out=:. --govalidator_out=. example.proto
 
 ```
 message ExampleMessage {
-  // Returns an error if the string cannot be parsed as a UUID
+  // returns an error if the string cannot be parsed as a UUID
   string id = 1 [(validator.uuid) = true];
-  // Bytes can also be parsed as UUID
-  bytes user_id = 2 [(validator.uuid) = true];
-  // Strings can validate against a regular expresion
-  string description = 3 [(validator.regex) = "^[a-z]{2,5}$"];
+  // bytes can also be parsed as UUID with support for gogo
+  bytes user_id = 2 [(gogoproto.customname) = "UserID", (validator.uuid) = true];
+  // strings can validate against a regular expresion
+  string email = 3 [(validator.regex) = ".+\\@.+\\..+"];
   // integers can be greater than a value
   int32 age = 4 [(validator.int_gt) = 0];
   // intergers can be less than a value
   int64 speed = 5 [(validator.int_lt) = 110];
   // intergers greater/less than or equal, the can also be combined
   int32 score = 6 [(validator.int_gte) = 0, (validator.int_lte) = 100];
-  // Validation is created for all messages
+  // validation is created for all messages
   InnerMessage inner = 7;
   // can validate each repeated item too
   repeated bytes ids = 8 [(validator.uuid) = true];
+  // validate the max length of a string
+  string description = 9 [(validator.length_lte) = 2000];
+  // validate the min length
+  string password = 10 [(validator.length_gte) = 8];
   // You don't need to validate everything
-  string no_validation = 9;
+  string no_validation = 11;
 }
 
 message InnerMessage {
