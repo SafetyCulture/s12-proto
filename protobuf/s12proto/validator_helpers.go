@@ -2,7 +2,28 @@
 
 package s12proto
 
-import "strings"
+import (
+	"regexp"
+	"strings"
+)
+
+const (
+	// UUIDSize is the size of a UUID in bytes.
+	UUIDSize int = 16
+)
+
+const (
+	uuid string = "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+)
+
+var (
+	rxUUID = regexp.MustCompile(uuid)
+)
+
+// IsUUID checks if the string is a UUID (version 3, 4 or 5).
+func IsUUID(str string) bool {
+	return rxUUID.MatchString(str)
+}
 
 type Validator interface {
 	Validate() error
