@@ -37,6 +37,10 @@ govalidator: install-govalidator
 	--govalidator_out=:protobuf/protoc-gen-govalidator/example \
 	protobuf/protoc-gen-govalidator/example/*.proto
 
+.PHONY: govalidator-test
+govalidator-test: 
+	go test github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-govalidator/example -v
+
 .PHONY: logger
 logger: install-logger
 	protoc \

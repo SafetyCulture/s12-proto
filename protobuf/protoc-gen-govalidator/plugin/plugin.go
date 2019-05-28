@@ -255,7 +255,7 @@ func (p *plugin) generateInnerMessageValidator(variableName string, ccTypeName s
 }
 
 func (p *plugin) generateErrorString(variableName string, fieldName string, specificError string) {
-	p.P(`return `, p.fmtPkg.Use(), ".Errorf(`", fieldName, `: value %q must `, specificError, "`, ", variableName, `)`)
+	p.P(`return `, p.fmtPkg.Use(), ".Errorf(`", fieldName, `: value '%v' must `, specificError, "`, ", variableName, `)`)
 }
 
 func regexName(ccTypeName, fieldName string) string {
