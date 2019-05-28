@@ -5,7 +5,7 @@ package validator;
 
 import "google/protobuf/descriptor.proto";
 
-option go_package = "s12proto";
+option go_package = "github.com/SafetyCulture/s12-proto/protobuf/s12proto";
 
 extend google.protobuf.FieldOptions {
   // Field value validates to a 128 bit universally unique identifier
@@ -21,7 +21,7 @@ extend google.protobuf.FieldOptions {
   // Field value of integer smaller or equal than this value.
   optional int64 int_lte = 65205;
   // Field value of length greater than this value.
-  optional int64 length_gt = 65206;
+  optional int64 length_gte = 65206;
   // Field value of length smaller than this value.
-  optional int64 length_lt = 65207;
+  optional int64 length_lte = 65207;
 }
