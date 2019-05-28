@@ -65,7 +65,7 @@ func (p *plugin) generateRegexVars(file *generator.FileDescriptor, message *gene
 
 func (p *plugin) generateValidateFunction(file *generator.FileDescriptor, message *generator.Descriptor) {
 	ccTypeName := generator.CamelCaseSlice(message.TypeName())
-	p.P(`func (this *`, ccTypeName, `) Validate() error {`)
+	p.P(`func (m *`, ccTypeName, `) Validate() error {`)
 	p.In()
 
 	for _, field := range message.Field {
@@ -75,7 +75,7 @@ func (p *plugin) generateValidateFunction(file *generator.FileDescriptor, messag
 		}
 		var (
 			fieldName    = p.GetOneOfFieldName(message, field)
-			variableName = "this." + fieldName
+			variableName = "m." + fieldName
 			repeated     = field.IsRepeated()
 			nullable     = (gogoproto.IsNullable(field) || !gogoproto.ImportsGoGoProto(file.FileDescriptorProto)) && field.IsMessage()
 		)
@@ -88,8 +88,10 @@ func (p *plugin) generateValidateFunction(file *generator.FileDescriptor, messag
 
 		if field.IsString() {
 			p.generateStringValidator(variableName, ccTypeName, fieldName, field)
+			p.generateLengthValidator(variableName, ccTypeName, fieldName, field)
 		} else if field.IsBytes() {
 			p.generateBytesValidator(variableName, ccTypeName, fieldName, field)
+			p.generateLengthValidator(variableName, ccTypeName, fieldName, field)
 		} else if isSupportedInt(field) {
 			p.generateIntegerValidator(variableName, ccTypeName, fieldName, field)
 		} else if field.IsMessage() {
@@ -173,6 +175,25 @@ func (p *plugin) generateIntegerValidator(variableName string, ccTypeName string
 	}
 }
 
+func (p *plugin) generateLengthValidator(variableName string, ccTypeName string, fieldName string, field *descriptor.FieldDescriptorProto) {
+	if v := getLengthGteValue(field); v != nil {
+		p.P(`if !(len(`, variableName, `) >= `, v, `) {`)
+		p.In()
+		errorStr := fmt.Sprintf(`have length greater than or equal to '%d'`, *v)
+		p.generateErrorString(variableName, fieldName, errorStr)
+		p.Out()
+		p.P(`}`)
+	}
+	if v := getLengthLteValue(field); v != nil {
+		p.P(`if !(len(`, variableName, `) <= `, v, `) {`)
+		p.In()
+		errorStr := fmt.Sprintf(`have length less than or equal to '%d'`, *v)
+		p.generateErrorString(variableName, fieldName, errorStr)
+		p.Out()
+		p.P(`}`)
+	}
+}
+
 func (p *plugin) generateInnerMessageValidator(variableName string, ccTypeName string, fieldName string, field *descriptor.FieldDescriptorProto, nullable bool) {
 
 	if nullable {
@@ -201,7 +222,7 @@ func (p *plugin) generateInnerMessageValidator(variableName string, ccTypeName s
 }
 
 func (p *plugin) generateErrorString(variableName string, fieldName string, specificError string) {
-	p.P(`return `, p.fmtPkg.Use(), ".Errorf(`", fieldName, `: value '%v' must `, specificError, "`, ", variableName, `)`)
+	p.P(`return `, p.fmtPkg.Use(), ".Errorf(`", fieldName, `: value %q must `, specificError, "`, ", variableName, `)`)
 }
 
 func regexName(ccTypeName, fieldName string) string {
@@ -217,6 +238,8 @@ func hasValidationExtensions(field *descriptor.FieldDescriptorProto) bool {
 			validator.E_IntLt,
 			validator.E_IntGte,
 			validator.E_IntLte,
+			validator.E_LengthGte,
+			validator.E_LengthLte,
 		}
 		for _, ext := range validExts {
 			if proto.HasExtension(field.Options, ext) {
@@ -274,6 +297,26 @@ func getIntGteValue(field *descriptor.FieldDescriptorProto) *int64 {
 func getIntLteValue(field *descriptor.FieldDescriptorProto) *int64 {
 	if field.Options != nil {
 		v, err := proto.GetExtension(field.Options, validator.E_IntLte)
+		if err == nil && v.(*int64) != nil {
+			return v.(*int64)
+		}
+	}
+	return nil
+}
+
+func getLengthLteValue(field *descriptor.FieldDescriptorProto) *int64 {
+	if field.Options != nil {
+		v, err := proto.GetExtension(field.Options, validator.E_LengthLte)
+		if err == nil && v.(*int64) != nil {
+			return v.(*int64)
+		}
+	}
+	return nil
+}
+
+func getLengthGteValue(field *descriptor.FieldDescriptorProto) *int64 {
+	if field.Options != nil {
+		v, err := proto.GetExtension(field.Options, validator.E_LengthGte)
 		if err == nil && v.(*int64) != nil {
 			return v.(*int64)
 		}
