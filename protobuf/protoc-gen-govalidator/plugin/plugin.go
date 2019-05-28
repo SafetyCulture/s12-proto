@@ -76,6 +76,7 @@ func (p *plugin) generateValidateFunction(file *generator.FileDescriptor, messag
 			variableName = "m." + fieldName
 			repeated     = field.IsRepeated()
 			nullable     = (gogoproto.IsNullable(field) || !gogoproto.ImportsGoGoProto(file.FileDescriptorProto)) && field.IsMessage()
+			optional     = proto.GetBoolExtension(field.Options, validator.E_Optional, false)
 		)
 
 		if repeated && hasValidationExtensions(field) {
@@ -85,13 +86,11 @@ func (p *plugin) generateValidateFunction(file *generator.FileDescriptor, messag
 		}
 
 		if field.IsString() {
-			p.generateStringValidator(variableName, ccTypeName, fieldName, field)
-			p.generateLengthValidator(variableName, ccTypeName, fieldName, field)
+			p.generateStringValidator(variableName, ccTypeName, fieldName, field, optional)
 		} else if field.IsBytes() {
-			p.generateBytesValidator(variableName, ccTypeName, fieldName, field)
-			p.generateLengthValidator(variableName, ccTypeName, fieldName, field)
+			p.generateBytesValidator(variableName, ccTypeName, fieldName, field, optional)
 		} else if isSupportedInt(field) {
-			p.generateIntegerValidator(variableName, ccTypeName, fieldName, field)
+			p.generateIntegerValidator(variableName, ccTypeName, fieldName, field, optional)
 		} else if field.IsMessage() {
 			p.generateInnerMessageValidator(variableName, ccTypeName, fieldName, field, nullable)
 		}
@@ -107,7 +106,12 @@ func (p *plugin) generateValidateFunction(file *generator.FileDescriptor, messag
 	p.P(`}`)
 }
 
-func (p *plugin) generateStringValidator(variableName string, ccTypeName string, fieldName string, field *descriptor.FieldDescriptorProto) {
+func (p *plugin) generateStringValidator(variableName string, ccTypeName string, fieldName string, field *descriptor.FieldDescriptorProto, optional bool) {
+
+	if optional {
+		p.P(`if `, variableName, ` != "" {`)
+		p.In()
+	}
 
 	if regex := getRegexValue(field); regex != nil {
 		p.P(`if !`, regexName(ccTypeName, fieldName), `.MatchString(`, variableName, `) {`)
@@ -125,9 +129,22 @@ func (p *plugin) generateStringValidator(variableName string, ccTypeName string,
 		p.Out()
 		p.P(`}`)
 	}
+
+	p.generateLengthValidator(variableName, ccTypeName, fieldName, field)
+
+	if optional {
+		p.Out()
+		p.P(`}`)
+	}
 }
 
-func (p *plugin) generateBytesValidator(variableName string, ccTypeName string, fieldName string, field *descriptor.FieldDescriptorProto) {
+func (p *plugin) generateBytesValidator(variableName string, ccTypeName string, fieldName string, field *descriptor.FieldDescriptorProto, optional bool) {
+
+	if optional {
+		p.P(`if `, variableName, ` != nil && len(`, variableName, `) > 0 {`)
+		p.In()
+	}
+
 	if getUUIDValue(field) {
 		p.P(`if len(`, variableName, `) != `, p.s12protoPkg.Use(), `.UUIDSize {`)
 		p.In()
@@ -136,9 +153,22 @@ func (p *plugin) generateBytesValidator(variableName string, ccTypeName string, 
 		p.Out()
 		p.P(`}`)
 	}
+
+	p.generateLengthValidator(variableName, ccTypeName, fieldName, field)
+
+	if optional {
+		p.Out()
+		p.P(`}`)
+	}
 }
 
-func (p *plugin) generateIntegerValidator(variableName string, ccTypeName string, fieldName string, field *descriptor.FieldDescriptorProto) {
+func (p *plugin) generateIntegerValidator(variableName string, ccTypeName string, fieldName string, field *descriptor.FieldDescriptorProto, optional bool) {
+
+	if optional {
+		p.P(`if `, variableName, ` != 0 {`)
+		p.In()
+	}
+
 	if v := getIntGtValue(field); v != nil {
 		p.P(`if !(`, variableName, ` > `, v, `) {`)
 		p.In()
@@ -168,6 +198,11 @@ func (p *plugin) generateIntegerValidator(variableName string, ccTypeName string
 		p.In()
 		errorStr := fmt.Sprintf(`be less than or equal to '%d'`, *v)
 		p.generateErrorString(variableName, fieldName, errorStr)
+		p.Out()
+		p.P(`}`)
+	}
+
+	if optional {
 		p.Out()
 		p.P(`}`)
 	}
@@ -238,6 +273,7 @@ func hasValidationExtensions(field *descriptor.FieldDescriptorProto) bool {
 			validator.E_IntLte,
 			validator.E_LengthGte,
 			validator.E_LengthLte,
+			validator.E_Optional,
 		}
 		for _, ext := range validExts {
 			if proto.HasExtension(field.Options, ext) {

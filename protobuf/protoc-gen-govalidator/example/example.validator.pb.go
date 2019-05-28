@@ -52,6 +52,11 @@ func (m *ExampleMessage) Validate() error {
 			return fmt.Errorf(`Ids: value %q must be exactly 16 bytes long to be a valid UUID`, item)
 		}
 	}
+	if m.MediaId != "" {
+		if !github_com_SafetyCulture_s12_proto_protobuf_s12proto.IsUUID(m.MediaId) {
+			return fmt.Errorf(`MediaId: value %q must be parsable as a UUID`, m.MediaId)
+		}
+	}
 	if !(len(m.Description) <= 2000) {
 		return fmt.Errorf(`Description: value %q must have length less than or equal to '2000'`, m.Description)
 	}
