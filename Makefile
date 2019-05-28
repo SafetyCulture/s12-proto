@@ -3,7 +3,7 @@
 generate:
 	protoc \
 	-I./protobuf/s12proto/:. \
-	--gogo_out=Mgoogle/protobuf/descriptor.proto=github.com/gogo/protobuf/protoc-gen-gogo/descriptor:../../../ \
+	--gogo_out=Mgoogle/protobuf/descriptor.proto=github.com/gogo/protobuf/protoc-gen-gogo/descriptor,paths=source_relative:./protobuf/s12proto \
 	protobuf/s12proto/*.proto
 
 CXX = g++
@@ -32,6 +32,7 @@ govalidator: install-govalidator
 	protoc \
 	-I./protobuf/protoc-gen-govalidator/example \
 	-I$(GOPATH)/src \
+	-I./protobuf \
 	--gogo_out=:protobuf/protoc-gen-govalidator/example \
 	--govalidator_out=:protobuf/protoc-gen-govalidator/example \
 	protobuf/protoc-gen-govalidator/example/*.proto
