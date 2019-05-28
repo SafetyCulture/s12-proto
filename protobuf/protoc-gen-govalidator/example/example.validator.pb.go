@@ -52,6 +52,11 @@ func (this *ExampleMessage) Validate() error {
 			return fmt.Errorf(`Ids: value '%v' must be exactly 16 bytes long to be a valid UUID`, item)
 		}
 	}
+	if this.MediaId != "" {
+		if !github_com_SafetyCulture_s12_proto_protobuf_s12proto.IsUUID(this.MediaId) {
+			return fmt.Errorf(`MediaId: value '%v' must be parsable as a UUID`, this.MediaId)
+		}
+	}
 	return nil
 }
 

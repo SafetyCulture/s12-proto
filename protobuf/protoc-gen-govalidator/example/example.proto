@@ -5,7 +5,7 @@ syntax = "proto3";
 package example;
 
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
-import "github.com/SafetyCulture/s12-proto/protobuf/s12proto/validator.proto";
+import "s12proto/validator.proto";
 
 message ExampleMessage {
   // Returns an error if the string cannot be parsed as a UUID
@@ -24,8 +24,10 @@ message ExampleMessage {
   InnerMessage inner = 7;
   // can validate each repeated item too
   repeated bytes ids = 8 [(validator.uuid) = true];
+  // only validate if non-zero value
+  string media_id = 9 [(validator.uuid) = true, (validator.optional) = true];
   // You don't need to validate everything
-  string no_validation = 9;
+  string no_validation = 10;
 }
 
 message InnerMessage {
