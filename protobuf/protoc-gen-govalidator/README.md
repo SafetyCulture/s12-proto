@@ -29,8 +29,10 @@ message ExampleMessage {
   InnerMessage inner = 7;
   // can validate each repeated item too
   repeated bytes ids = 8 [(validator.uuid) = true];
+  // only validate if non-zero value
+  string media_id = 9 [(validator.uuid) = true, (validator.optional) = true];
   // You don't need to validate everything
-  string no_validation = 9;
+  string no_validation = 10;
 }
 
 message InnerMessage {
