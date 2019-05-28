@@ -17,48 +17,54 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
-var _regex_ExampleMessage_Description = regexp.MustCompile(`^[a-z]{2,5}$`)
+var _regex_ExampleMessage_Email = regexp.MustCompile(`.+\@.+\..+`)
 
-func (this *ExampleMessage) Validate() error {
-	if _, err := github_com_gofrs_uuid.FromString(this.Id); err != nil {
-		return fmt.Errorf(`Id: value '%v' must be parsable as a UUID`, this.Id)
+func (m *ExampleMessage) Validate() error {
+	if _, err := github_com_gofrs_uuid.FromString(m.Id); err != nil {
+		return fmt.Errorf(`Id: value %q must be parsable as a UUID`, m.Id)
 	}
-	if _, err := github_com_gofrs_uuid.FromBytes(this.UserID); err != nil {
-		return fmt.Errorf(`UserID: value '%v' must be parsable as a UUID`, this.UserID)
+	if _, err := github_com_gofrs_uuid.FromBytes(m.UserID); err != nil {
+		return fmt.Errorf(`UserID: value %q must be parsable as a UUID`, m.UserID)
 	}
-	if !_regex_ExampleMessage_Description.MatchString(this.Description) {
-		return fmt.Errorf(`Description: value '%v' must be a string conforming to regex "^[a-z]{2,5}$"`, this.Description)
+	if !_regex_ExampleMessage_Email.MatchString(m.Email) {
+		return fmt.Errorf(`Email: value %q must be a string conforming to regex ".+\\@.+\\..+"`, m.Email)
 	}
-	if !(this.Age > 0) {
-		return fmt.Errorf(`Age: value '%v' must be greater than '0'`, this.Age)
+	if !(m.Age > 0) {
+		return fmt.Errorf(`Age: value %q must be greater than '0'`, m.Age)
 	}
-	if !(this.Speed < 110) {
-		return fmt.Errorf(`Speed: value '%v' must be less than '110'`, this.Speed)
+	if !(m.Speed < 110) {
+		return fmt.Errorf(`Speed: value %q must be less than '110'`, m.Speed)
 	}
-	if !(this.Score >= 0) {
-		return fmt.Errorf(`Score: value '%v' must be greater than or equal to '0'`, this.Score)
+	if !(m.Score >= 0) {
+		return fmt.Errorf(`Score: value %q must be greater than or equal to '0'`, m.Score)
 	}
-	if !(this.Score <= 100) {
-		return fmt.Errorf(`Score: value '%v' must be less than or equal to '100'`, this.Score)
+	if !(m.Score <= 100) {
+		return fmt.Errorf(`Score: value %q must be less than or equal to '100'`, m.Score)
 	}
-	if this.Inner != nil {
-		if v, ok := interface{}(this.Inner).(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Validator); ok {
+	if m.Inner != nil {
+		if v, ok := interface{}(m.Inner).(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Validator); ok {
 			if err := v.Validate(); err != nil {
 				return github_com_SafetyCulture_s12_proto_protobuf_s12proto.FieldError("Inner", err)
 			}
 		}
 	}
-	for _, item := range this.Ids {
+	for _, item := range m.Ids {
 		if _, err := github_com_gofrs_uuid.FromBytes(item); err != nil {
-			return fmt.Errorf(`Ids: value '%v' must be parsable as a UUID`, item)
+			return fmt.Errorf(`Ids: value %q must be parsable as a UUID`, item)
 		}
+	}
+	if !(len(m.Description) <= 2000) {
+		return fmt.Errorf(`Description: value %q must have length less than or equal to '2000'`, m.Description)
+	}
+	if !(len(m.Password) >= 8) {
+		return fmt.Errorf(`Password: value %q must have length greater than or equal to '8'`, m.Password)
 	}
 	return nil
 }
 
-func (this *InnerMessage) Validate() error {
-	if _, err := github_com_gofrs_uuid.FromString(this.Id); err != nil {
-		return fmt.Errorf(`Id: value '%v' must be parsable as a UUID`, this.Id)
+func (m *InnerMessage) Validate() error {
+	if _, err := github_com_gofrs_uuid.FromString(m.Id); err != nil {
+		return fmt.Errorf(`Id: value %q must be parsable as a UUID`, m.Id)
 	}
 	return nil
 }
