@@ -20,6 +20,10 @@ extend google.protobuf.FieldOptions {
   optional int64 int_gte = 65204;
   // Field value of integer smaller or equal than this value.
   optional int64 int_lte = 65205;
+  // Field value of length greater than this value.
+  optional int64 length_gte = 65206;
+  // Field value of length smaller than this value.
+  optional int64 length_lte = 65207;
   // Validation only applies to non-zero values.
-  optional bool optional = 65206;
+  optional bool optional = 65208;
 }
