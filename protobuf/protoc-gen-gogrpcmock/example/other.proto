@@ -1,0 +1,8 @@
+
+syntax = "proto3";
+
+package s12.routeguide;
+
+message Other {
+  string id = 1;
+}
