@@ -12,6 +12,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/icrowley/fake"
 
+	"github.com/gogo/protobuf/gogoproto"
 	"github.com/gogo/protobuf/protoc-gen-gogo/descriptor"
 	"github.com/gogo/protobuf/protoc-gen-gogo/generator"
 )
@@ -90,7 +91,8 @@ func (g *grpcmock) mockMethod(servTypeName string, method *descriptor.MethodDesc
 	msg := g.objectNamed(method.GetOutputType())
 	if m, ok := msg.(*generator.Descriptor); ok && !m.GetOptions().GetMapEntry() {
 		g.P(`res := `)
-		g.generateMockMessage(m, false)
+		// TODO: Depth should be a cmd param
+		g.generateMockMessage(m, false, true, 5)
 		g.P(`return res, nil`)
 	} else {
 		// Should this return an error?
@@ -101,15 +103,25 @@ func (g *grpcmock) mockMethod(servTypeName string, method *descriptor.MethodDesc
 	g.P(`}`)
 }
 
-func (g *grpcmock) generateMockMessage(msg *generator.Descriptor, inner bool) {
+func (g *grpcmock) generateMockMessage(msg *generator.Descriptor, inner, nullable bool, depth int) {
+	depth--
+	if depth < 0 {
+		return
+	}
+
 	msgName := g.TypeName(msg)
-	g.P(`&`, msgName, `{`)
+	if nullable {
+		msgName = "&" + msgName
+	}
+
+	g.P(msgName, `{`)
 	g.In()
 
 	for _, field := range msg.Field {
 		fieldName := g.GetFieldName(msg, field)
 		fieldType, _ := g.GoType(msg, field)
 		repeated := field.IsRepeated()
+		nullable := gogoproto.IsNullable(field) && field.IsMessage()
 
 		if field.OneofIndex != nil {
 			// TODO: Deal with oneof
@@ -121,7 +133,7 @@ func (g *grpcmock) generateMockMessage(msg *generator.Descriptor, inner bool) {
 		} else if isSupportedInt(field) {
 			g.generateMockInt(fieldName, fieldType, repeated, field)
 		} else if field.IsMessage() {
-			g.generateMockInnerMessage(fieldName, fieldType, repeated, field)
+			g.generateMockInnerMessage(fieldName, fieldType, repeated, nullable, field, depth)
 		}
 	}
 	g.Out()
@@ -158,7 +170,7 @@ func (g *grpcmock) generateMockInt(fieldName, fieldType string, repeated bool, f
 	g.P(fieldName, `: `, generateIntValue(fieldName), `,`)
 }
 
-func (g *grpcmock) generateMockInnerMessage(fieldName, fieldType string, repeated bool, field *descriptor.FieldDescriptorProto) {
+func (g *grpcmock) generateMockInnerMessage(fieldName, fieldType string, repeated, nullable bool, field *descriptor.FieldDescriptorProto, depth int) {
 
 	length := 1
 
@@ -182,7 +194,7 @@ func (g *grpcmock) generateMockInnerMessage(fieldName, fieldType string, repeate
 		default:
 			msg := g.objectNamed(field.GetTypeName())
 			if m, ok := msg.(*generator.Descriptor); ok && !m.GetOptions().GetMapEntry() {
-				g.generateMockMessage(m, true)
+				g.generateMockMessage(m, true, nullable, depth)
 			}
 		}
 	}

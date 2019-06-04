@@ -18,10 +18,10 @@ type RouteGuideMock struct{}
 func (m *RouteGuideMock) GetFeature(ctx context.Context, req *Point) (*Feature, error) {
 	res :=
 		&Feature{
-			Name: "non",
+			Name: "corrupti",
 			Location: &Point{
-				Latitude:  -64,
-				Longitude: -156,
+				Latitude:  -47,
+				Longitude: 107,
 			},
 		}
 	return res, nil
