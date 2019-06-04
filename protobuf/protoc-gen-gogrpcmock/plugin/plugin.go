@@ -4,9 +4,26 @@ package plugin
 
 import (
 	"fmt"
+	"math/rand"
+	"regexp"
+	"strconv"
+	"strings"
+
+	"github.com/gofrs/uuid"
+	"github.com/icrowley/fake"
 
 	"github.com/gogo/protobuf/protoc-gen-gogo/descriptor"
 	"github.com/gogo/protobuf/protoc-gen-gogo/generator"
+)
+
+var (
+	rxID          = regexp.MustCompile("(?i)id")
+	rxEmail       = regexp.MustCompile("(?i)email")
+	rxPhone       = regexp.MustCompile("(?i)phone")
+	rxURL         = regexp.MustCompile("(?i)url")
+	rxDescription = regexp.MustCompile("(?i)^(description|desc)$")
+	rxLatitude    = regexp.MustCompile("(?i)^(latitude|lat)$")
+	rxLongitude   = regexp.MustCompile("(?i)^(longitude|lng)$")
 )
 
 type grpcmock struct {
@@ -47,10 +64,6 @@ func (g *grpcmock) GenerateImports(file *generator.FileDescriptor) {
 
 func (g *grpcmock) mockService(file *generator.FileDescriptor, service *descriptor.ServiceDescriptorProto) {
 	origServName := service.GetName()
-	// fullServName := origServName
-	// if pkg := file.GetPackage(); pkg != "" {
-	// 	fullServName = pkg + "." + fullServName
-	// }
 	servName := generator.CamelCase(origServName)
 	servTypeName := fmt.Sprintf("%sMock", servName)
 
@@ -89,18 +102,26 @@ func (g *grpcmock) mockMethod(servTypeName string, method *descriptor.MethodDesc
 }
 
 func (g *grpcmock) generateMockMessage(msg *generator.Descriptor, inner bool) {
-	msgName := generator.CamelCaseSlice(msg.TypeName())
+	msgName := g.TypeName(msg)
 	g.P(`&`, msgName, `{`)
 	g.In()
+
 	for _, field := range msg.Field {
-		fieldName := g.GetOneOfFieldName(msg, field)
-		// repeated := field.IsRepeated()
+		fieldName := g.GetFieldName(msg, field)
+		fieldType, _ := g.GoType(msg, field)
+		repeated := field.IsRepeated()
+
+		if field.OneofIndex != nil {
+			// TODO: Deal with oneof
+			continue
+		}
+
 		if field.IsString() {
-			g.generateMockString(fieldName, field)
+			g.generateMockString(fieldName, fieldType, repeated, field)
 		} else if isSupportedInt(field) {
-			g.generateMockInt(fieldName, field)
+			g.generateMockInt(fieldName, fieldType, repeated, field)
 		} else if field.IsMessage() {
-			g.generateMockInnerMessage(fieldName, field)
+			g.generateMockInnerMessage(fieldName, fieldType, repeated, field)
 		}
 	}
 	g.Out()
@@ -112,19 +133,63 @@ func (g *grpcmock) generateMockMessage(msg *generator.Descriptor, inner bool) {
 
 }
 
-func (g *grpcmock) generateMockString(fieldName string, field *descriptor.FieldDescriptorProto) {
-	g.P(fieldName, `: "sddf",`)
+func (g *grpcmock) generateMockString(fieldName, fieldType string, repeated bool, field *descriptor.FieldDescriptorProto) {
+	if repeated {
+		g.P(fieldName, `: `, fieldType, `{`)
+		g.In()
+
+		for i := 0; i < 2; i++ {
+			g.P(`"`, generateStringValue(fieldName), `",`)
+		}
+
+		g.Out()
+		g.P(`},`)
+		return
+	}
+
+	g.P(fieldName, `: "`, generateStringValue(fieldName), `",`)
+
 }
 
-func (g *grpcmock) generateMockInt(fieldName string, field *descriptor.FieldDescriptorProto) {
-	g.P(fieldName, `: 100,`)
+func (g *grpcmock) generateMockInt(fieldName, fieldType string, repeated bool, field *descriptor.FieldDescriptorProto) {
+	if repeated {
+		g.P(fieldName, `: `, fieldType, `{100, 200},`)
+	}
+	g.P(fieldName, `: `, generateIntValue(fieldName), `,`)
 }
 
-func (g *grpcmock) generateMockInnerMessage(fieldName string, field *descriptor.FieldDescriptorProto) {
-	g.P(fieldName, `: `)
-	msg := g.objectNamed(field.GetTypeName())
-	if m, ok := msg.(*generator.Descriptor); ok && !m.GetOptions().GetMapEntry() {
-		g.generateMockMessage(m, true)
+func (g *grpcmock) generateMockInnerMessage(fieldName, fieldType string, repeated bool, field *descriptor.FieldDescriptorProto) {
+
+	length := 1
+
+	if repeated {
+		length = 2
+		g.P(fieldName, `: `, fieldType, `{`)
+		g.In()
+	} else {
+		g.P(fieldName, `: `)
+	}
+
+	//TODO: Create helper methods to deal with *time.Time and *time.Duration
+
+	for i := 0; i < length; i++ {
+		switch fieldType {
+		case "time.Time":
+			g.P(`time.Now(),`)
+		case "*time.Time", "*time.Duration":
+			// g.P(`&time.Time{},`)
+			g.P(`nil,`)
+		default:
+			msg := g.objectNamed(field.GetTypeName())
+			if m, ok := msg.(*generator.Descriptor); ok && !m.GetOptions().GetMapEntry() {
+				g.generateMockMessage(m, true)
+			}
+		}
+	}
+
+	if repeated {
+		g.Out()
+		g.P(`},`)
 	}
 }
 
@@ -147,4 +212,50 @@ func isSupportedInt(field *descriptor.FieldDescriptorProto) bool {
 		return true
 	}
 	return false
+}
+
+func generateStringValue(fieldName string) string {
+	val := ""
+
+	if rxID.MatchString(fieldName) {
+		val = uuid.Must(uuid.NewV4()).String()
+	}
+
+	if rxEmail.MatchString(fieldName) {
+		val = fake.EmailAddress()
+	}
+
+	if rxPhone.MatchString(fieldName) {
+		val = fake.Phone()
+	}
+
+	if rxDescription.MatchString(fieldName) {
+		val = fake.Paragraph()
+	}
+
+	if rxURL.MatchString(fieldName) {
+		val = fmt.Sprintf("https://%s/%s", strings.ToLower(fake.DomainName()), strings.Replace(fake.Words(), " ", "/", -1))
+	}
+
+	if val == "" {
+		val = fake.Word()
+	}
+	return val
+}
+
+func generateIntValue(fieldName string) string {
+	val := ""
+
+	if rxLatitude.MatchString(fieldName) {
+		val = strconv.Itoa(fake.LatitudeDegrees())
+	}
+
+	if rxLongitude.MatchString(fieldName) {
+		val = strconv.Itoa(fake.LongitudeDegrees())
+	}
+
+	if val == "" {
+		val = strconv.Itoa(int(rand.Int31()))
+	}
+	return val
 }

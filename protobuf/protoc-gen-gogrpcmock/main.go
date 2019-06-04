@@ -4,6 +4,7 @@ package main
 
 import (
 	"io/ioutil"
+	"log"
 	"os"
 	"strings"
 
@@ -16,10 +17,10 @@ func main() {
 	gen := generator.New()
 	data, err := ioutil.ReadAll(os.Stdin)
 	if err != nil {
-		gen.Error(err, "reading input")
+		gen.Error(err, "gogrpcmock: reading input")
 	}
 	if err := proto.Unmarshal(data, gen.Request); err != nil {
-		gen.Error(err, "parsing input proto")
+		gen.Error(err, "gogrpcmock: parsing input proto")
 	}
 
 	filesToGenerate := make([]string, 0, len(gen.Request.ProtoFile))
@@ -31,7 +32,8 @@ func main() {
 	gen.Request.FileToGenerate = filesToGenerate
 
 	if len(gen.Request.FileToGenerate) == 0 {
-		gen.Fail("no files to generate")
+		log.Println("gogrpcmock: no files to generate")
+		return
 	}
 
 	gen.CommandLineParameters(gen.Request.GetParameter())
@@ -47,11 +49,11 @@ func main() {
 
 	data, err = proto.Marshal(gen.Response)
 	if err != nil {
-		gen.Error(err, "failed to marshal output proto")
+		gen.Error(err, "gogrpcmock: failed to marshal output proto")
 	}
 
 	_, err = os.Stdout.Write(data)
 	if err != nil {
-		gen.Error(err, "failed to write output proto")
+		gen.Error(err, "gogrpcmock: failed to write output proto")
 	}
 }
