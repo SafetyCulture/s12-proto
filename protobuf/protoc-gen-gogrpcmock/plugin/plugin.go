@@ -172,6 +172,13 @@ func (g *grpcmock) generateMockInt(fieldName, fieldType string, repeated bool, f
 
 func (g *grpcmock) generateMockInnerMessage(fieldName, fieldType string, repeated, nullable bool, field *descriptor.FieldDescriptorProto, depth int) {
 
+	msgObj := g.objectNamed(field.GetTypeName())
+	msg, ok := msgObj.(*generator.Descriptor)
+	if ok && msg.GetOptions().GetMapEntry() {
+		//TODO: return map entries
+		return
+	}
+
 	length := 1
 
 	if repeated {
@@ -192,10 +199,7 @@ func (g *grpcmock) generateMockInnerMessage(fieldName, fieldType string, repeate
 			// g.P(`&time.Time{},`)
 			g.P(`nil,`)
 		default:
-			msg := g.objectNamed(field.GetTypeName())
-			if m, ok := msg.(*generator.Descriptor); ok && !m.GetOptions().GetMapEntry() {
-				g.generateMockMessage(m, true, nullable, depth)
-			}
+			g.generateMockMessage(msg, true, nullable, depth)
 		}
 	}
 
