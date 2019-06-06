@@ -60,5 +60,18 @@ cruxclient: install-cruxclient
 	--cruxclient_out=:protobuf/protoc-gen-cruxclient/example \
 	protobuf/protoc-gen-cruxclient/example/*.proto
 
+.PHONY: install-gogrpcmock
+install-gogrpcmock:
+	go install github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-gogrpcmock
+
+.PHONY: gogrpcmock
+gogrpcmock: install-gogrpcmock
+	protoc \
+	-I./protobuf/protoc-gen-gogrpcmock/example \
+	--gogo_out=plugin=grpc=:protobuf/protoc-gen-gogrpcmock/example \
+	--gogrpcmock_out=:protobuf/protoc-gen-gogrpcmock/example \
+	protobuf/protoc-gen-gogrpcmock/example/*.proto
+
+
 .PHONY: example
 example: govalidator logger
