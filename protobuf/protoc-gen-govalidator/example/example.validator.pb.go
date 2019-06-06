@@ -3,13 +3,15 @@
 
 package example
 
-import fmt "fmt"
-import regexp "regexp"
-import github_com_SafetyCulture_s12_proto_protobuf_s12proto "github.com/SafetyCulture/s12-proto/protobuf/s12proto"
-import proto "github.com/gogo/protobuf/proto"
-import math "math"
-import _ "github.com/SafetyCulture/s12-proto/protobuf/s12proto"
-import _ "github.com/gogo/protobuf/gogoproto"
+import (
+	fmt "fmt"
+	math "math"
+	proto "github.com/gogo/protobuf/proto"
+	_ "github.com/gogo/protobuf/gogoproto"
+	_ "github.com/SafetyCulture/s12-proto/protobuf/s12proto"
+	regexp "regexp"
+	github_com_SafetyCulture_s12_proto_protobuf_s12proto "github.com/SafetyCulture/s12-proto/protobuf/s12proto"
+)
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -63,6 +65,7 @@ func (m *ExampleMessage) Validate() error {
 	if !(len(m.Password) >= 8) {
 		return fmt.Errorf(`Password: value '%v' must have length greater than or equal to '8'`, m.Password)
 	}
+	// Validation of oneof fields is unsupported.
 	return nil
 }
 

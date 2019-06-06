@@ -32,6 +32,11 @@ message ExampleMessage {
   string password = 11 [(validator.length_gte) = 8];
   // You don't need to validate everything
   string no_validation = 12;
+
+  oneof contact_oneof {
+    string fax = 13;
+    string phone = 14 [(validator.length_gte) = 11];
+  }
 }
 
 message InnerMessage {
