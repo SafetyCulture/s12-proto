@@ -1,4 +1,11 @@
 github.com/SafetyCulture/s12-proto/protobuf/s12proto v0.0.0-20190606023032-8f7088190a1e h1:fFOUmzqKTPm/hFgNuCIwKQj49TjDvFQonjkAZxoSGoo=
 github.com/SafetyCulture/s12-proto/protobuf/s12proto v0.0.0-20190606023032-8f7088190a1e/go.mod h1:J95Q+u5v0UE/o7HMZI0YaTUsBE2Q5WdaG5VGPYAyskM=
+github.com/SafetyCulture/s12-proto/protobuf/s12proto v0.0.0-20190606024233-c47e79615804 h1:KHeiNzrNq6bzK/bsOWPaP1IAJuQj8wBwXnZagq51eOc=
+github.com/SafetyCulture/s12-proto/protobuf/s12proto v0.0.0-20190606024233-c47e79615804/go.mod h1:pScEy/w8bJkOqjmcGhfk5ovnQEsVvDsPNE+t1N8ruBU=
 github.com/gogo/protobuf v1.2.0 h1:xU6/SpYbvkNYiptHJYEDRseDLvYE7wSqhYYNy0QSUzI=
 github.com/gogo/protobuf v1.2.0/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
+github.com/gogo/protobuf v1.2.1 h1:/s5zKNz0uPFCZ5hddgPdo2TK2TVrUNMn0OOX8/aZMTE=
+github.com/gogo/protobuf v1.2.1/go.mod h1:hp+jE20tsWTFYpLwKvXlhS1hjn+gTNwPg2I6zVXpSg4=
+github.com/kisielk/errcheck v1.1.0/go.mod h1:EZBBE59ingxPouuu3KfxchcWSUPOHkagtvWXihfKN4Q=
+github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=
+golang.org/x/tools v0.0.0-20180221164845-07fd8470d635/go.mod h1:n7NCudcB/nEzxVGmLbDWY5pfWTLqBcC2KZ6jyYvM4mQ=
