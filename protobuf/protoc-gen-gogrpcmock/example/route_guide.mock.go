@@ -3,12 +3,10 @@
 
 package s12_routeguide
 
-import (
-	fmt "fmt"
-	math "math"
-	proto "github.com/gogo/protobuf/proto"
-	context "context"
-)
+import context "context"
+import proto "github.com/gogo/protobuf/proto"
+import fmt "fmt"
+import math "math"
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -20,10 +18,10 @@ type RouteGuideMock struct{}
 func (m *RouteGuideMock) GetFeature(ctx context.Context, req *Point) (*Feature, error) {
 	res :=
 		&Feature{
-			Name: "quod",
+			Name: "in",
 			Location: &Point{
-				Latitude:  -70,
-				Longitude: 142,
+				Latitude:  -52,
+				Longitude: -46,
 			},
 		}
 	return res, nil
