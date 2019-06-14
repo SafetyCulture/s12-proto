@@ -30,15 +30,37 @@ lis, _ := net.Listen("tcp", 50501)
 grpcServer.Serve(lis)
 ```
 
-## Options
+## Options & Example
 
 > WIP
 
 ```proto
 message Example {
-  // Sets the mock response to a static string
-  string name = 1 [(grpcmock.field) = { string: "John Smith" }];
+  string id = 1;
   // Randomly generates one of the static strings
-  string name = 2 [(grpcmock.field) = { string: "in progress", string: "complete" }]
+  string status = 2 [ (grpcmock.field) = {string : "in progress", string : "complete"} ];
+  string description = 3;
+  string email = 4;
+  // Randomly generates one word; this is the default for a string type
+  string not_email = 5 [ (grpcmock.field) = {word : true} ];
+  string phone = 6;
+  repeated string word = 7;
+  string url = 8;
+  int32 single_number = 9;
+  repeated int64 repeated_number = 10;
+  int32 lat = 11;
+  int32 lng = 12;
+  // Randomly generates between 1 and 5 words
+  string words = 13 [ (grpcmock.field) = {words : true} ];
+  // Randomly generates a set number of words
+  string wordsn = 14 [ (grpcmock.field) = {wordsn : 10} ];
+  // Randomly generates an integer between 0 and n
+  int32 intn = 15 [ (grpcmock.field) = {intn : 5} ];
+  // Generates a random full name
+  string fullname = 16 [ (grpcmock.field) = { fullname : true } ];
+  // Generates a random first name
+  string firstname = 17 [ (grpcmock.field) = { firstname : true } ];
+  // Generates a random last name
+  string lastname = 18 [ (grpcmock.field) = { lastname : true } ];
 }
 ```

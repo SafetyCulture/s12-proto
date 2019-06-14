@@ -177,14 +177,14 @@ func (g *grpcmock) generateMockInt(fieldName, fieldType string, repeated bool, f
 		g.In()
 
 		for i := 0; i < repeatCount; i++ {
-			g.P(generateIntValue(fieldName), `,`)
+			g.P(generateIntValue(fieldName, field), `,`)
 		}
 
 		g.Out()
 		g.P(`},`)
 		return
 	}
-	g.P(fieldName, `: `, generateIntValue(fieldName), `,`)
+	g.P(fieldName, `: `, generateIntValue(fieldName, field), `,`)
 }
 
 func (g *grpcmock) generateMockInnerMessage(fieldName, fieldType string, repeated, nullable bool, field *descriptor.FieldDescriptorProto, depth int) {
@@ -248,53 +248,78 @@ func isSupportedInt(field *descriptor.FieldDescriptorProto) bool {
 }
 
 func generateStringValue(fieldName string, field *descriptor.FieldDescriptorProto) string {
-	val := ""
 
-	if mocks := getFieldMocksIfAny(field); mocks != nil && len(mocks.String_) > 0 {
-		return mocks.String_[r.Intn(len(mocks.String_))]
+	if mocks := getFieldMocksIfAny(field); mocks != nil {
+		if len(mocks.String_) > 0 {
+			return mocks.String_[r.Intn(len(mocks.String_))]
+		}
+
+		if boolFromPtr(mocks.Word) {
+			return fake.Word()
+		}
+
+		if boolFromPtr(mocks.Words) {
+			return fake.Words()
+		}
+
+		if mocks.Wordsn != nil {
+			return fake.WordsN(int(*mocks.Wordsn))
+		}
+
+		if boolFromPtr(mocks.Fullname) {
+			return fake.FullName()
+		}
+
+		if boolFromPtr(mocks.Firstname) {
+			return fake.FirstName()
+		}
+
+		if boolFromPtr(mocks.Lastname) {
+			return fake.LastName()
+		}
 	}
 
 	if rxID.MatchString(fieldName) {
-		val = uuid.Must(uuid.NewV4()).String()
+		return uuid.Must(uuid.NewV4()).String()
 	}
 
 	if rxEmail.MatchString(fieldName) {
-		val = fake.EmailAddress()
+		return fake.EmailAddress()
 	}
 
 	if rxPhone.MatchString(fieldName) {
-		val = fake.Phone()
+		return fake.Phone()
 	}
 
 	if rxDescription.MatchString(fieldName) {
-		val = fake.Paragraph()
+		return fake.Paragraph()
 	}
 
 	if rxURL.MatchString(fieldName) {
-		val = fmt.Sprintf("https://%s/%s", strings.ToLower(fake.DomainName()), strings.Replace(fake.Words(), " ", "/", -1))
+		return fmt.Sprintf("https://%s/%s", strings.ToLower(fake.DomainName()), strings.Replace(fake.Words(), " ", "/", -1))
 	}
 
-	if val == "" {
-		val = fake.Word()
-	}
-	return val
+	return fake.Word()
 }
 
-func generateIntValue(fieldName string) string {
-	val := ""
-
+func generateIntValue(fieldName string, field *descriptor.FieldDescriptorProto) string {
 	if rxLatitude.MatchString(fieldName) {
-		val = strconv.Itoa(fake.LatitudeDegrees())
+		return strconv.Itoa(fake.LatitudeDegrees())
 	}
 
 	if rxLongitude.MatchString(fieldName) {
-		val = strconv.Itoa(fake.LongitudeDegrees())
+		return strconv.Itoa(fake.LongitudeDegrees())
 	}
 
-	if val == "" {
-		val = strconv.Itoa(int(r.Intn(1000)))
+	n := 1000
+
+	if mocks := getFieldMocksIfAny(field); mocks != nil {
+		if mocks.Intn != nil && *mocks.Intn > 0 {
+			n = int(*mocks.Intn)
+		}
 	}
-	return val
+
+	return strconv.Itoa(int(r.Intn(n)))
 }
 
 func getFieldMocksIfAny(field *descriptor.FieldDescriptorProto) *s12proto.FieldMock {
@@ -305,4 +330,11 @@ func getFieldMocksIfAny(field *descriptor.FieldDescriptorProto) *s12proto.FieldM
 		}
 	}
 	return nil
+}
+
+func boolFromPtr(b *bool) bool {
+	if b == nil {
+		return false
+	}
+	return *b
 }

@@ -22,11 +22,18 @@ message Complete {
       [ (grpcmock.field) = {string : "in progress", string : "complete"} ];
   string description = 3;
   string email = 4;
-  string phone = 5;
-  repeated string word = 6;
-  string url = 7;
-  int32 single_number = 8;
-  repeated int64 repeated_number = 9;
-  int32 lat = 10;
-  int32 lng = 11;
+  string not_email = 5 [ (grpcmock.field) = {word : true} ];
+  string phone = 6;
+  repeated string word = 7;
+  string url = 8;
+  int32 single_number = 9;
+  repeated int64 repeated_number = 10;
+  int32 lat = 11;
+  int32 lng = 12;
+  string words = 13 [ (grpcmock.field) = {words : true} ];
+  string wordsn = 14 [ (grpcmock.field) = {wordsn : 10} ];
+  int32 intn = 15 [ (grpcmock.field) = {intn : 5} ];
+  string fullname = 16 [ (grpcmock.field) = { fullname : true } ];
+  string firstname = 17 [ (grpcmock.field) = { firstname : true } ];
+  string lastname = 18 [ (grpcmock.field) = { lastname : true } ];
 }
