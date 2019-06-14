@@ -3,6 +3,8 @@ github.com/Masterminds/semver v1.4.2/go.mod h1:MB6lktGJrhw8PrUyiEoblNEGEQ+RzHPF0
 github.com/Masterminds/vcs v1.13.0/go.mod h1:N09YCmOQr6RLxC6UNHzuVwAdodYbbnycGHSmwVJjcKA=
 github.com/SafetyCulture/s12-proto/protobuf/s12proto v0.0.0-20190606045339-b50b3e0b1cac h1:8Je0PnFFKNeTMPCbDIkBT0h/DX4BsoLnVIapM62LhQQ=
 github.com/SafetyCulture/s12-proto/protobuf/s12proto v0.0.0-20190606045339-b50b3e0b1cac/go.mod h1:pScEy/w8bJkOqjmcGhfk5ovnQEsVvDsPNE+t1N8ruBU=
+github.com/SafetyCulture/s12-proto/protobuf/s12proto v0.0.0-20190611044242-41c2d179a334 h1:FEtU/sDzt1BaeexoHlbo9DY9NiBq3lpg+EmmWq2HkA4=
+github.com/SafetyCulture/s12-proto/protobuf/s12proto v0.0.0-20190611044242-41c2d179a334/go.mod h1:7DcHc4L9AJ0jF4ev5gOrgEQKLY17G5Fe2j03TD81Ieo=
 github.com/codegangsta/cli v1.20.0/go.mod h1:/qJNoX69yVSKu5o4jLyXAENLRyk1uhi7zkbQ3slBdOA=
 github.com/corpix/uarand v0.1.0 h1:HgE/0ismPNM4n3z2VeZxzwpMJiN4uSZ+SMpxxvoyffY=
 github.com/corpix/uarand v0.1.0/go.mod h1:SFKZvkcRoLqVRFZ4u25xPmp6m9ktANfbpXZ7SJ0/FNU=

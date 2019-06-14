@@ -1,0 +1,18 @@
+// Copyright (c) 2019 SafetyCulture Pty Ltd. All Rights Reserved.
+
+syntax = "proto2";
+package grpcmock;
+
+import "google/protobuf/descriptor.proto";
+
+option go_package = "github.com/SafetyCulture/s12-proto/protobuf/s12proto";
+
+extend google.protobuf.FieldOptions {
+  optional FieldMock field = 66300;
+}
+
+message FieldMock {
+  // Set the mocked field to a set string value. If repeated will choose one at
+  // random.
+  repeated string string = 1;
+}

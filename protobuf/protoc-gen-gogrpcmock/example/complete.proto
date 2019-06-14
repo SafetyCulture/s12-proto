@@ -1,0 +1,32 @@
+// Copyright (c) 2019 SafetyCulture Pty Ltd. All Rights Reserved.
+
+syntax = "proto3";
+package s12.complete;
+
+import "s12proto/grpcmock.proto";
+
+service MyCompleteService {
+  rpc GetMessage(MsgRequest) returns (MsgResponse) {}
+}
+
+message MsgRequest {}
+
+message MsgResponse {
+  string id = 1;
+  repeated Complete completed = 2;
+}
+
+message Complete {
+  string id = 1;
+  string status = 2
+      [ (grpcmock.field) = {string : "in progress", string : "complete"} ];
+  string description = 3;
+  string email = 4;
+  string phone = 5;
+  repeated string word = 6;
+  string url = 7;
+  int32 single_number = 8;
+  repeated int64 repeated_number = 9;
+  int32 lat = 10;
+  int32 lng = 11;
+}

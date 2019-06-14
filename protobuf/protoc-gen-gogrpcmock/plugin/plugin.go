@@ -8,11 +8,15 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gofrs/uuid"
 	"github.com/icrowley/fake"
 
+	"github.com/SafetyCulture/s12-proto/protobuf/s12proto"
+
 	"github.com/gogo/protobuf/gogoproto"
+	"github.com/gogo/protobuf/proto"
 	"github.com/gogo/protobuf/protoc-gen-gogo/descriptor"
 	"github.com/gogo/protobuf/protoc-gen-gogo/generator"
 )
@@ -26,6 +30,10 @@ var (
 	rxLatitude    = regexp.MustCompile("(?i)^(latitude|lat)$")
 	rxLongitude   = regexp.MustCompile("(?i)^(longitude|lng)$")
 )
+
+var r = rand.New(rand.NewSource(time.Now().UnixNano()))
+
+const repeatCount = 8
 
 type grpcmock struct {
 	*generator.Generator
@@ -150,8 +158,8 @@ func (g *grpcmock) generateMockString(fieldName, fieldType string, repeated bool
 		g.P(fieldName, `: `, fieldType, `{`)
 		g.In()
 
-		for i := 0; i < 2; i++ {
-			g.P(`"`, generateStringValue(fieldName), `",`)
+		for i := 0; i < repeatCount; i++ {
+			g.P(`"`, generateStringValue(fieldName, field), `",`)
 		}
 
 		g.Out()
@@ -159,13 +167,22 @@ func (g *grpcmock) generateMockString(fieldName, fieldType string, repeated bool
 		return
 	}
 
-	g.P(fieldName, `: "`, generateStringValue(fieldName), `",`)
+	g.P(fieldName, `: "`, generateStringValue(fieldName, field), `",`)
 
 }
 
 func (g *grpcmock) generateMockInt(fieldName, fieldType string, repeated bool, field *descriptor.FieldDescriptorProto) {
 	if repeated {
-		g.P(fieldName, `: `, fieldType, `{100, 200},`)
+		g.P(fieldName, `: `, fieldType, `{`)
+		g.In()
+
+		for i := 0; i < repeatCount; i++ {
+			g.P(generateIntValue(fieldName), `,`)
+		}
+
+		g.Out()
+		g.P(`},`)
+		return
 	}
 	g.P(fieldName, `: `, generateIntValue(fieldName), `,`)
 }
@@ -182,7 +199,7 @@ func (g *grpcmock) generateMockInnerMessage(fieldName, fieldType string, repeate
 	length := 1
 
 	if repeated {
-		length = 2
+		length = repeatCount
 		g.P(fieldName, `: `, fieldType, `{`)
 		g.In()
 	} else {
@@ -230,8 +247,12 @@ func isSupportedInt(field *descriptor.FieldDescriptorProto) bool {
 	return false
 }
 
-func generateStringValue(fieldName string) string {
+func generateStringValue(fieldName string, field *descriptor.FieldDescriptorProto) string {
 	val := ""
+
+	if mocks := getFieldMocksIfAny(field); mocks != nil && len(mocks.String_) > 0 {
+		return mocks.String_[r.Intn(len(mocks.String_))]
+	}
 
 	if rxID.MatchString(fieldName) {
 		val = uuid.Must(uuid.NewV4()).String()
@@ -271,7 +292,17 @@ func generateIntValue(fieldName string) string {
 	}
 
 	if val == "" {
-		val = strconv.Itoa(int(rand.Int31()))
+		val = strconv.Itoa(int(r.Intn(1000)))
 	}
 	return val
+}
+
+func getFieldMocksIfAny(field *descriptor.FieldDescriptorProto) *s12proto.FieldMock {
+	if field.Options != nil {
+		v, err := proto.GetExtension(field.Options, s12proto.E_Field)
+		if err == nil && v.(*s12proto.FieldMock) != nil {
+			return (v.(*s12proto.FieldMock))
+		}
+	}
+	return nil
 }

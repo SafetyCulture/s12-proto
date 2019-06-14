@@ -11,6 +11,7 @@ A `protoc` plugin that generates a mock implementation of a gRPC service.
 - [x] int types
 - [ ] float types
 - [x] inner messages
+- [ ] enum types 
 - [ ] bytes type
 - [ ] oneof type
 - [ ] map type
@@ -32,3 +33,12 @@ grpcServer.Serve(lis)
 ## Options
 
 > WIP
+
+```proto
+message Example {
+  // Sets the mock response to a static string
+  string name = 1 [(grpcmock.field) = { string: "John Smith" }];
+  // Randomly generates one of the static strings
+  string name = 2 [(grpcmock.field) = { string: "in progress", string: "complete" }]
+}
+```
