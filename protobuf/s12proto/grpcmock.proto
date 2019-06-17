@@ -23,4 +23,13 @@ message FieldMock {
   optional bool paragraph = 9;
   optional bool paragraphs = 10;
   optional int32 paragraphsn = 11;
+  optional bool uuid = 12;
+  optional bool email = 13;
+  optional bool phone = 14;
+  optional bool company = 15;
+  optional bool brand = 16;
+  optional bool product = 17;
+  optional bool color = 18;
+  optional bool hexcolor = 19;
+  repeated string prefix = 20;
 }

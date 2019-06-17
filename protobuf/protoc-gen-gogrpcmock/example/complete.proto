@@ -33,7 +33,18 @@ message Complete {
   string words = 13 [ (grpcmock.field) = {words : true} ];
   string wordsn = 14 [ (grpcmock.field) = {wordsn : 10} ];
   int32 intn = 15 [ (grpcmock.field) = {intn : 5} ];
-  string fullname = 16 [ (grpcmock.field) = { fullname : true } ];
-  string firstname = 17 [ (grpcmock.field) = { firstname : true } ];
-  string lastname = 18 [ (grpcmock.field) = { lastname : true } ];
+  string fullname = 16 [ (grpcmock.field) = {fullname : true} ];
+  string firstname = 17 [ (grpcmock.field) = {firstname : true} ];
+  string lastname = 18 [ (grpcmock.field) = {lastname : true} ];
+  string paragraph = 19 [ (grpcmock.field) = {paragraph : true} ];
+  string paragraphs = 20 [ (grpcmock.field) = {paragraphs : true} ];
+  string paragraphsn = 21 [ (grpcmock.field) = {paragraphsn : 2} ];
+  string uuid = 22 [ (grpcmock.field) = {uuid : true} ];
+  string email_address = 23 [ (grpcmock.field) = {email : true} ];
+  string phone_number = 24 [ (grpcmock.field) = {phone : true} ];
+  string company = 25 [ (grpcmock.field) = {company : true} ];
+  string brand = 26 [ (grpcmock.field) = {brand : true} ];
+  string product = 27 [ (grpcmock.field) = {product : true} ];
+  string color = 28 [ (grpcmock.field) = {color : true} ];
+  string hexcolor = 29 [ (grpcmock.field) = {prefix : "#", hexcolor : true} ];
 }

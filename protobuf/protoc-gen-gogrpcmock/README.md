@@ -62,5 +62,20 @@ message Example {
   string firstname = 17 [ (grpcmock.field) = { firstname : true } ];
   // Generates a random last name
   string lastname = 18 [ (grpcmock.field) = { lastname : true } ];
+  // Generates a single paragraph of random words
+  string paragraph = 19 [ (grpcmock.field) = {paragraph : true} ];
+  // Between 1 and 5 paragraphs of random words
+  string paragraphs = 20 [ (grpcmock.field) = {paragraphs : true} ];
+  // Set number of paragraphs
+  string paragraphsn = 21 [ (grpcmock.field) = {paragraphsn : 2} ];
+  string uuid = 22 [ (grpcmock.field) = {uuid : true} ];
+  string email_address = 23 [ (grpcmock.field) = {email : true} ];
+  string phone_number = 24 [ (grpcmock.field) = {phone : true} ];
+  string company = 25 [ (grpcmock.field) = {company : true} ];
+  string brand = 26 [ (grpcmock.field) = {brand : true} ];
+  string product = 27 [ (grpcmock.field) = {product : true} ];
+  string color = 28 [ (grpcmock.field) = {color : true} ];
+  // You can also add a prefix to the generated output
+  string hexcolor = 29 [ (grpcmock.field) = {prefix : "#", hexcolor : true} ];
 }
 ```

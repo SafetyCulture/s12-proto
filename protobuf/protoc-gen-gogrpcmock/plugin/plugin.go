@@ -50,6 +50,7 @@ func (g *grpcmock) Name() string {
 
 func (g *grpcmock) Init(gen *generator.Generator) {
 	g.Generator = gen
+	fake.Seed(time.Now().UnixNano())
 }
 
 func (g *grpcmock) Generate(file *generator.FileDescriptor) {
@@ -250,33 +251,85 @@ func isSupportedInt(field *descriptor.FieldDescriptorProto) bool {
 func generateStringValue(fieldName string, field *descriptor.FieldDescriptorProto) string {
 
 	if mocks := getFieldMocksIfAny(field); mocks != nil {
+		var sb strings.Builder
+
+		if len(mocks.Prefix) > 0 {
+			sb.WriteString(mocks.Prefix[r.Intn(len(mocks.Prefix))])
+		}
+
 		if len(mocks.String_) > 0 {
-			return mocks.String_[r.Intn(len(mocks.String_))]
+			sb.WriteString(mocks.String_[r.Intn(len(mocks.String_))])
 		}
 
 		if boolFromPtr(mocks.Word) {
-			return fake.Word()
+			sb.WriteString(fake.Word())
 		}
 
 		if boolFromPtr(mocks.Words) {
-			return fake.Words()
+			sb.WriteString(fake.Words())
 		}
 
 		if mocks.Wordsn != nil {
-			return fake.WordsN(int(*mocks.Wordsn))
+			sb.WriteString(fake.WordsN(int(*mocks.Wordsn)))
 		}
 
 		if boolFromPtr(mocks.Fullname) {
-			return fake.FullName()
+			sb.WriteString(fake.FullName())
 		}
 
 		if boolFromPtr(mocks.Firstname) {
-			return fake.FirstName()
+			sb.WriteString(fake.FirstName())
 		}
 
 		if boolFromPtr(mocks.Lastname) {
-			return fake.LastName()
+			sb.WriteString(fake.LastName())
 		}
+
+		if boolFromPtr(mocks.Paragraph) {
+			sb.WriteString(fake.Paragraph())
+		}
+
+		if boolFromPtr(mocks.Paragraphs) {
+			sb.WriteString(fake.Paragraphs())
+		}
+
+		if mocks.Paragraphsn != nil {
+			sb.WriteString(fake.ParagraphsN(int(*mocks.Paragraphsn)))
+		}
+
+		if boolFromPtr(mocks.Uuid) {
+			sb.WriteString(uuid.Must(uuid.NewV4()).String())
+		}
+
+		if boolFromPtr(mocks.Email) {
+			sb.WriteString(fake.EmailAddress())
+		}
+
+		if boolFromPtr(mocks.Phone) {
+			sb.WriteString(fake.Phone())
+		}
+
+		if boolFromPtr(mocks.Company) {
+			sb.WriteString(fake.Company())
+		}
+
+		if boolFromPtr(mocks.Brand) {
+			sb.WriteString(fake.Brand())
+		}
+
+		if boolFromPtr(mocks.Product) {
+			sb.WriteString(fake.ProductName())
+		}
+
+		if boolFromPtr(mocks.Color) {
+			sb.WriteString(fake.Color())
+		}
+
+		if boolFromPtr(mocks.Hexcolor) {
+			sb.WriteString(fake.HexColor())
+		}
+
+		return sb.String()
 	}
 
 	if rxID.MatchString(fieldName) {
@@ -296,10 +349,14 @@ func generateStringValue(fieldName string, field *descriptor.FieldDescriptorProt
 	}
 
 	if rxURL.MatchString(fieldName) {
-		return fmt.Sprintf("https://%s/%s", strings.ToLower(fake.DomainName()), strings.Replace(fake.Words(), " ", "/", -1))
+		return fakeURL()
 	}
 
 	return fake.Word()
+}
+
+func fakeURL() string {
+	return fmt.Sprintf("https://%s/%s", strings.ToLower(fake.DomainName()), strings.Replace(fake.Words(), " ", "/", -1))
 }
 
 func generateIntValue(fieldName string, field *descriptor.FieldDescriptorProto) string {
