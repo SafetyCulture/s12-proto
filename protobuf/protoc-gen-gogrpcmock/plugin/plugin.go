@@ -141,6 +141,8 @@ func (g *grpcmock) generateMockMessage(msg *generator.Descriptor, inner, nullabl
 			g.generateMockString(fieldName, fieldType, repeated, field)
 		} else if isSupportedInt(field) {
 			g.generateMockInt(fieldName, fieldType, repeated, field)
+		} else if field.IsEnum() {
+			g.generateMockEnum(fieldName, fieldType, field)
 		} else if field.IsMessage() {
 			g.generateMockInnerMessage(fieldName, fieldType, repeated, nullable, field, depth)
 		}
@@ -186,6 +188,13 @@ func (g *grpcmock) generateMockInt(fieldName, fieldType string, repeated bool, f
 		return
 	}
 	g.P(fieldName, `: `, generateIntValue(fieldName, field), `,`)
+}
+
+func (g *grpcmock) generateMockEnum(fieldName, fieldType string, field *descriptor.FieldDescriptorProto) {
+	enum := g.ObjectNamed(field.GetTypeName()).(*generator.EnumDescriptor)
+	enumValues := enum.GetValue()
+	enumValue := enumValues[r.Intn(len(enumValues))]
+	g.P(fieldName, `: `, strconv.Itoa(int(enumValue.GetNumber())), `,`)
 }
 
 func (g *grpcmock) generateMockInnerMessage(fieldName, fieldType string, repeated, nullable bool, field *descriptor.FieldDescriptorProto, depth int) {
