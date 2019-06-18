@@ -141,6 +141,8 @@ func (g *grpcmock) generateMockMessage(msg *generator.Descriptor, inner, nullabl
 			g.generateMockString(fieldName, fieldType, repeated, field)
 		} else if isSupportedInt(field) {
 			g.generateMockInt(fieldName, fieldType, repeated, field)
+		} else if isSupportedFloat(field) {
+			g.generateMockFloat(fieldName, fieldType, repeated, field)
 		} else if field.IsEnum() {
 			g.generateMockEnum(fieldName, fieldType, field)
 		} else if field.IsMessage() {
@@ -188,6 +190,22 @@ func (g *grpcmock) generateMockInt(fieldName, fieldType string, repeated bool, f
 		return
 	}
 	g.P(fieldName, `: `, generateIntValue(fieldName, field), `,`)
+}
+
+func (g *grpcmock) generateMockFloat(fieldName, fieldType string, repeated bool, field *descriptor.FieldDescriptorProto) {
+	if repeated {
+		g.P(fieldName, `: `, fieldType, `{`)
+		g.In()
+
+		for i := 0; i < repeatCount; i++ {
+			g.P(generateFloatValue(fieldName, field), `,`)
+		}
+
+		g.Out()
+		g.P(`},`)
+		return
+	}
+	g.P(fieldName, `: `, generateFloatValue(fieldName, field), `,`)
 }
 
 func (g *grpcmock) generateMockEnum(fieldName, fieldType string, field *descriptor.FieldDescriptorProto) {
@@ -252,6 +270,14 @@ func isSupportedInt(field *descriptor.FieldDescriptorProto) bool {
 	case descriptor.FieldDescriptorProto_TYPE_UINT32, descriptor.FieldDescriptorProto_TYPE_UINT64:
 		return true
 	case descriptor.FieldDescriptorProto_TYPE_SINT32, descriptor.FieldDescriptorProto_TYPE_SINT64:
+		return true
+	}
+	return false
+}
+
+func isSupportedFloat(field *descriptor.FieldDescriptorProto) bool {
+	switch *(field.Type) {
+	case descriptor.FieldDescriptorProto_TYPE_FLOAT, descriptor.FieldDescriptorProto_TYPE_DOUBLE:
 		return true
 	}
 	return false
@@ -386,6 +412,24 @@ func generateIntValue(fieldName string, field *descriptor.FieldDescriptorProto) 
 	}
 
 	return strconv.Itoa(int(r.Intn(n)))
+}
+
+func generateFloatValue(fieldName string, field *descriptor.FieldDescriptorProto) string {
+	if rxLatitude.MatchString(fieldName) {
+		return strconv.FormatFloat(float64(fake.Latitude()), 'f', 6, 32)
+	}
+
+	if rxLongitude.MatchString(fieldName) {
+		return strconv.FormatFloat(float64(fake.Longitude()), 'f', 6, 32)
+	}
+
+	n, m := 1000, 10000
+	if mocks := getFieldMocksIfAny(field); mocks != nil {
+		if mocks.Floatn != nil && *mocks.Floatn > 0 {
+			n = int(*mocks.Floatn)
+		}
+	}
+	return fmt.Sprintf("%d.%d", r.Intn(n), r.Intn(m))
 }
 
 func getFieldMocksIfAny(field *descriptor.FieldDescriptorProto) *s12proto.FieldMock {
