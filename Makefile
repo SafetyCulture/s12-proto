@@ -68,6 +68,7 @@ install-gogrpcmock:
 gogrpcmock: install-gogrpcmock
 	protoc \
 	-I./protobuf/protoc-gen-gogrpcmock/example \
+	-I./protobuf \
 	--gogo_out=plugin=grpc=:protobuf/protoc-gen-gogrpcmock/example \
 	--gogrpcmock_out=:protobuf/protoc-gen-gogrpcmock/example \
 	protobuf/protoc-gen-gogrpcmock/example/*.proto

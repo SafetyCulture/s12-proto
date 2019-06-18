@@ -13,7 +13,10 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/icrowley/fake"
 
+	"github.com/SafetyCulture/s12-proto/protobuf/s12proto"
+
 	"github.com/gogo/protobuf/gogoproto"
+	"github.com/gogo/protobuf/proto"
 	"github.com/gogo/protobuf/protoc-gen-gogo/descriptor"
 	"github.com/gogo/protobuf/protoc-gen-gogo/generator"
 )
@@ -30,6 +33,8 @@ var (
 
 var r = rand.New(rand.NewSource(time.Now().UnixNano()))
 
+const repeatCount = 8
+
 type grpcmock struct {
 	*generator.Generator
 	contextPkg string
@@ -45,6 +50,7 @@ func (g *grpcmock) Name() string {
 
 func (g *grpcmock) Init(gen *generator.Generator) {
 	g.Generator = gen
+	fake.Seed(time.Now().UnixNano())
 }
 
 func (g *grpcmock) Generate(file *generator.FileDescriptor) {
@@ -155,8 +161,8 @@ func (g *grpcmock) generateMockString(fieldName, fieldType string, repeated bool
 		g.P(fieldName, `: `, fieldType, `{`)
 		g.In()
 
-		for i := 0; i < 2; i++ {
-			g.P(`"`, generateStringValue(fieldName), `",`)
+		for i := 0; i < repeatCount; i++ {
+			g.P(`"`, generateStringValue(fieldName, field), `",`)
 		}
 
 		g.Out()
@@ -164,15 +170,24 @@ func (g *grpcmock) generateMockString(fieldName, fieldType string, repeated bool
 		return
 	}
 
-	g.P(fieldName, `: "`, generateStringValue(fieldName), `",`)
+	g.P(fieldName, `: "`, generateStringValue(fieldName, field), `",`)
 
 }
 
 func (g *grpcmock) generateMockInt(fieldName, fieldType string, repeated bool, field *descriptor.FieldDescriptorProto) {
 	if repeated {
-		g.P(fieldName, `: `, fieldType, `{100, 200},`)
+		g.P(fieldName, `: `, fieldType, `{`)
+		g.In()
+
+		for i := 0; i < repeatCount; i++ {
+			g.P(generateIntValue(fieldName, field), `,`)
+		}
+
+		g.Out()
+		g.P(`},`)
+		return
 	}
-	g.P(fieldName, `: `, generateIntValue(fieldName), `,`)
+	g.P(fieldName, `: `, generateIntValue(fieldName, field), `,`)
 }
 
 func (g *grpcmock) generateMockEnum(fieldName, fieldType string, field *descriptor.FieldDescriptorProto) {
@@ -194,7 +209,7 @@ func (g *grpcmock) generateMockInnerMessage(fieldName, fieldType string, repeate
 	length := 1
 
 	if repeated {
-		length = 2
+		length = repeatCount
 		g.P(fieldName, `: `, fieldType, `{`)
 		g.In()
 	} else {
@@ -242,48 +257,150 @@ func isSupportedInt(field *descriptor.FieldDescriptorProto) bool {
 	return false
 }
 
-func generateStringValue(fieldName string) string {
-	val := ""
+func generateStringValue(fieldName string, field *descriptor.FieldDescriptorProto) string {
+
+	if mocks := getFieldMocksIfAny(field); mocks != nil {
+		var sb strings.Builder
+
+		if len(mocks.Prefix) > 0 {
+			sb.WriteString(mocks.Prefix[r.Intn(len(mocks.Prefix))])
+		}
+
+		if len(mocks.String_) > 0 {
+			sb.WriteString(mocks.String_[r.Intn(len(mocks.String_))])
+		}
+
+		if boolFromPtr(mocks.Word) {
+			sb.WriteString(fake.Word())
+		}
+
+		if boolFromPtr(mocks.Words) {
+			sb.WriteString(fake.Words())
+		}
+
+		if mocks.Wordsn != nil {
+			sb.WriteString(fake.WordsN(int(*mocks.Wordsn)))
+		}
+
+		if boolFromPtr(mocks.Fullname) {
+			sb.WriteString(fake.FullName())
+		}
+
+		if boolFromPtr(mocks.Firstname) {
+			sb.WriteString(fake.FirstName())
+		}
+
+		if boolFromPtr(mocks.Lastname) {
+			sb.WriteString(fake.LastName())
+		}
+
+		if boolFromPtr(mocks.Paragraph) {
+			sb.WriteString(fake.Paragraph())
+		}
+
+		if boolFromPtr(mocks.Paragraphs) {
+			sb.WriteString(fake.Paragraphs())
+		}
+
+		if mocks.Paragraphsn != nil {
+			sb.WriteString(fake.ParagraphsN(int(*mocks.Paragraphsn)))
+		}
+
+		if boolFromPtr(mocks.Uuid) {
+			sb.WriteString(uuid.Must(uuid.NewV4()).String())
+		}
+
+		if boolFromPtr(mocks.Email) {
+			sb.WriteString(fake.EmailAddress())
+		}
+
+		if boolFromPtr(mocks.Phone) {
+			sb.WriteString(fake.Phone())
+		}
+
+		if boolFromPtr(mocks.Company) {
+			sb.WriteString(fake.Company())
+		}
+
+		if boolFromPtr(mocks.Brand) {
+			sb.WriteString(fake.Brand())
+		}
+
+		if boolFromPtr(mocks.Product) {
+			sb.WriteString(fake.ProductName())
+		}
+
+		if boolFromPtr(mocks.Color) {
+			sb.WriteString(fake.Color())
+		}
+
+		if boolFromPtr(mocks.Hexcolor) {
+			sb.WriteString(fake.HexColor())
+		}
+
+		return sb.String()
+	}
 
 	if rxID.MatchString(fieldName) {
-		val = uuid.Must(uuid.NewV4()).String()
+		return uuid.Must(uuid.NewV4()).String()
 	}
 
 	if rxEmail.MatchString(fieldName) {
-		val = fake.EmailAddress()
+		return fake.EmailAddress()
 	}
 
 	if rxPhone.MatchString(fieldName) {
-		val = fake.Phone()
+		return fake.Phone()
 	}
 
 	if rxDescription.MatchString(fieldName) {
-		val = fake.Paragraph()
+		return fake.Paragraph()
 	}
 
 	if rxURL.MatchString(fieldName) {
-		val = fmt.Sprintf("https://%s/%s", strings.ToLower(fake.DomainName()), strings.Replace(fake.Words(), " ", "/", -1))
+		return fakeURL()
 	}
 
-	if val == "" {
-		val = fake.Word()
-	}
-	return val
+	return fake.Word()
 }
 
-func generateIntValue(fieldName string) string {
-	val := ""
+func fakeURL() string {
+	return fmt.Sprintf("https://%s/%s", strings.ToLower(fake.DomainName()), strings.Replace(fake.Words(), " ", "/", -1))
+}
 
+func generateIntValue(fieldName string, field *descriptor.FieldDescriptorProto) string {
 	if rxLatitude.MatchString(fieldName) {
-		val = strconv.Itoa(fake.LatitudeDegrees())
+		return strconv.Itoa(fake.LatitudeDegrees())
 	}
 
 	if rxLongitude.MatchString(fieldName) {
-		val = strconv.Itoa(fake.LongitudeDegrees())
+		return strconv.Itoa(fake.LongitudeDegrees())
 	}
 
-	if val == "" {
-		val = strconv.Itoa(int(rand.Int31()))
+	n := 1000
+
+	if mocks := getFieldMocksIfAny(field); mocks != nil {
+		if mocks.Intn != nil && *mocks.Intn > 0 {
+			n = int(*mocks.Intn)
+		}
 	}
-	return val
+
+	return strconv.Itoa(int(r.Intn(n)))
+}
+
+func getFieldMocksIfAny(field *descriptor.FieldDescriptorProto) *s12proto.FieldMock {
+	if field.Options != nil {
+		v, err := proto.GetExtension(field.Options, s12proto.E_Field)
+		if err == nil && v.(*s12proto.FieldMock) != nil {
+			return (v.(*s12proto.FieldMock))
+		}
+	}
+	return nil
+}
+
+func boolFromPtr(b *bool) bool {
+	if b == nil {
+		return false
+	}
+	return *b
 }

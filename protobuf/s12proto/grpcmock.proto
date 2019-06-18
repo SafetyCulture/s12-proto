@@ -1,0 +1,35 @@
+// Copyright (c) 2019 SafetyCulture Pty Ltd. All Rights Reserved.
+
+syntax = "proto2";
+package grpcmock;
+
+import "google/protobuf/descriptor.proto";
+
+option go_package = "github.com/SafetyCulture/s12-proto/protobuf/s12proto";
+
+extend google.protobuf.FieldOptions { optional FieldMock field = 66300; }
+
+message FieldMock {
+  // Set the mocked field to a set string value. If repeated will choose one at
+  // random.
+  repeated string string = 1;
+  optional bool word = 2;
+  optional bool words = 3;
+  optional int32 wordsn = 4;
+  optional int32 intn = 5;
+  optional bool fullname = 6;
+  optional bool firstname = 7;
+  optional bool lastname = 8;
+  optional bool paragraph = 9;
+  optional bool paragraphs = 10;
+  optional int32 paragraphsn = 11;
+  optional bool uuid = 12;
+  optional bool email = 13;
+  optional bool phone = 14;
+  optional bool company = 15;
+  optional bool brand = 16;
+  optional bool product = 17;
+  optional bool color = 18;
+  optional bool hexcolor = 19;
+  repeated string prefix = 20;
+}
