@@ -1,5 +1,7 @@
 module github.com/SafetyCulture/s12-proto
 
+go 1.12
+
 require (
 	github.com/corpix/uarand v0.1.0 // indirect
 	github.com/gofrs/uuid v3.2.0+incompatible
