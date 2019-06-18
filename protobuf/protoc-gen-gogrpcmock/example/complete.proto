@@ -47,4 +47,7 @@ message Complete {
   string product = 27 [ (grpcmock.field) = {product : true} ];
   string color = 28 [ (grpcmock.field) = {color : true} ];
   string hexcolor = 29 [ (grpcmock.field) = {prefix : "#", hexcolor : true} ];
+  double latitude = 30;
+  double longitude = 31;
+  float floatn = 32 [ (grpcmock.field) = {floatn : 3} ];
 }

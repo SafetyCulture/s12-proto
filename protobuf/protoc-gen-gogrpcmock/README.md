@@ -9,13 +9,13 @@ A `protoc` plugin that generates a mock implementation of a gRPC service.
 - [ ] server streaming support
 - [x] string type
 - [x] int types
-- [ ] float types
+- [x] float types
 - [x] inner messages
-- [ ] enum types 
+- [x] enum types 
 - [ ] bytes type
 - [ ] oneof type
 - [ ] map type
-- [ ] option overrides*
+- [x] option overrides
 
 ## Usage
 
@@ -31,8 +31,6 @@ grpcServer.Serve(lis)
 ```
 
 ## Options & Example
-
-> WIP
 
 ```proto
 message Example {
@@ -77,5 +75,8 @@ message Example {
   string color = 28 [ (grpcmock.field) = {color : true} ];
   // You can also add a prefix to the generated output
   string hexcolor = 29 [ (grpcmock.field) = {prefix : "#", hexcolor : true} ];
+  double latitude = 30;
+  double longitude = 31;
+  float floatn = 32 [ (grpcmock.field) = {floatn : 3} ];
 }
 ```
