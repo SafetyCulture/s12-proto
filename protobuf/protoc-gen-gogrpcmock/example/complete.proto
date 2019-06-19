@@ -50,4 +50,5 @@ message Complete {
   double latitude = 30;
   double longitude = 31;
   float floatn = 32 [ (grpcmock.field) = {floatn : 3} ];
+  bool boolean = 33;
 }

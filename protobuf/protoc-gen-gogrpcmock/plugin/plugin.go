@@ -145,6 +145,8 @@ func (g *grpcmock) generateMockMessage(msg *generator.Descriptor, inner, nullabl
 			g.generateMockFloat(fieldName, fieldType, repeated, field)
 		} else if field.IsEnum() {
 			g.generateMockEnum(fieldName, fieldType, field)
+		} else if field.IsBool() {
+			g.generateMockBool(fieldName)
 		} else if field.IsMessage() {
 			g.generateMockInnerMessage(fieldName, fieldType, repeated, nullable, field, depth)
 		}
@@ -213,6 +215,15 @@ func (g *grpcmock) generateMockEnum(fieldName, fieldType string, field *descript
 	enumValues := enum.GetValue()
 	enumValue := enumValues[r.Intn(len(enumValues))]
 	g.P(fieldName, `: `, strconv.Itoa(int(enumValue.GetNumber())), `,`)
+}
+
+func (g *grpcmock) generateMockBool(fieldName string) {
+	bVal := "true"
+	// air on the side of true vs false
+	if n := r.Intn(3); n == 0 {
+		bVal = "false"
+	}
+	g.P(fieldName, `: `, bVal, `,`)
 }
 
 func (g *grpcmock) generateMockInnerMessage(fieldName, fieldType string, repeated, nullable bool, field *descriptor.FieldDescriptorProto, depth int) {

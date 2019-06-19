@@ -12,6 +12,7 @@ A `protoc` plugin that generates a mock implementation of a gRPC service.
 - [x] float types
 - [x] inner messages
 - [x] enum types 
+- [x] bool types 
 - [ ] bytes type
 - [ ] oneof type
 - [ ] map type
@@ -78,5 +79,6 @@ message Example {
   double latitude = 30;
   double longitude = 31;
   float floatn = 32 [ (grpcmock.field) = {floatn : 3} ];
+  bool boolean = 33;
 }
 ```
