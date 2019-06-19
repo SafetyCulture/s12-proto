@@ -39,6 +39,16 @@ func TestValidationRules(t *testing.T) {
 			},
 			false,
 		}, {
+			"UUIDWithoutDashes",
+			&ExampleMessage{
+				Id:       strings.Replace(id, "-", "", -1),
+				UserID:   byteID,
+				Email:    email,
+				Age:      18,
+				Password: password,
+			},
+			false,
+		}, {
 			"EmptyUUID",
 			&ExampleMessage{
 				Id:       "",
