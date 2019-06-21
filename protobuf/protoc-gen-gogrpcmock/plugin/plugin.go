@@ -40,6 +40,18 @@ type grpcmock struct {
 	contextPkg string
 }
 
+type oneofField struct {
+	fieldName string
+	subFields []*oneofSubField
+}
+
+type oneofSubField struct {
+	fieldName       string
+	typeName        string
+	fieldStructName string
+	protoField      *descriptor.FieldDescriptorProto
+}
+
 func New() generator.Plugin {
 	return &grpcmock{}
 }
@@ -118,6 +130,8 @@ func (g *grpcmock) generateMockMessage(msg *generator.Descriptor, inner, nullabl
 		return
 	}
 
+	oFields := make(map[int32]*oneofField)
+
 	msgName := g.TypeName(msg)
 	if nullable {
 		msgName = "&" + msgName
@@ -131,26 +145,44 @@ func (g *grpcmock) generateMockMessage(msg *generator.Descriptor, inner, nullabl
 		fieldType, _ := g.GoType(msg, field)
 		repeated := field.IsRepeated()
 		nullable := gogoproto.IsNullable(field) && field.IsMessage()
+		oneof := field.OneofIndex != nil
 
-		if field.OneofIndex != nil {
-			// TODO: Deal with oneof
+		if oneof {
+			if oFields[*field.OneofIndex] == nil {
+				of := oneofField{
+					fieldName: fieldName,
+				}
+				oFields[*field.OneofIndex] = &of
+			}
+
+			sfFieldName := g.GetOneOfFieldName(msg, field)
+			sfStructName := g.OneOfTypeName(msg, field)
+
+			of := oFields[*field.OneofIndex]
+			sf := oneofSubField{
+				fieldName:       sfFieldName,
+				fieldStructName: sfStructName,
+				typeName:        fieldType,
+				protoField:      field,
+			}
+			of.subFields = append(of.subFields, &sf)
 			continue
 		}
 
-		if field.IsString() {
-			g.generateMockString(fieldName, fieldType, repeated, field)
-		} else if isSupportedInt(field) {
-			g.generateMockInt(fieldName, fieldType, repeated, field)
-		} else if isSupportedFloat(field) {
-			g.generateMockFloat(fieldName, fieldType, repeated, field)
-		} else if field.IsEnum() {
-			g.generateMockEnum(fieldName, fieldType, field)
-		} else if field.IsBool() {
-			g.generateMockBool(fieldName)
-		} else if field.IsMessage() {
-			g.generateMockInnerMessage(fieldName, fieldType, repeated, nullable, field, depth)
-		}
+		g.generateMockField(fieldName, fieldType, repeated, nullable, field, depth)
 	}
+
+	for _, of := range oFields {
+		sf := of.subFields[r.Intn(len(of.subFields))]
+		nullable := gogoproto.IsNullable(sf.protoField) && sf.protoField.IsMessage()
+
+		g.P(of.fieldName, `: `, `&`, sf.fieldStructName, `{`)
+		g.In()
+		g.generateMockField(sf.fieldName, sf.typeName, false, nullable, sf.protoField, 1)
+		g.Out()
+		g.P(`},`)
+	}
+
 	g.Out()
 	if inner {
 		g.P(`},`)
@@ -158,6 +190,22 @@ func (g *grpcmock) generateMockMessage(msg *generator.Descriptor, inner, nullabl
 		g.P(`}`)
 	}
 
+}
+
+func (g *grpcmock) generateMockField(fieldName, fieldType string, repeated, nullable bool, field *descriptor.FieldDescriptorProto, depth int) {
+	if field.IsString() {
+		g.generateMockString(fieldName, fieldType, repeated, field)
+	} else if isSupportedInt(field) {
+		g.generateMockInt(fieldName, fieldType, repeated, field)
+	} else if isSupportedFloat(field) {
+		g.generateMockFloat(fieldName, fieldType, repeated, field)
+	} else if field.IsEnum() {
+		g.generateMockEnum(fieldName, fieldType, field)
+	} else if field.IsBool() {
+		g.generateMockBool(fieldName)
+	} else if field.IsMessage() {
+		g.generateMockInnerMessage(fieldName, fieldType, repeated, nullable, field, depth)
+	}
 }
 
 func (g *grpcmock) generateMockString(fieldName, fieldType string, repeated bool, field *descriptor.FieldDescriptorProto) {
