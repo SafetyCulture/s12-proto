@@ -178,7 +178,7 @@ func (g *grpcmock) generateMockMessage(msg *generator.Descriptor, inner, nullabl
 
 		g.P(of.fieldName, `: `, `&`, sf.fieldStructName, `{`)
 		g.In()
-		g.generateMockField(sf.fieldName, sf.typeName, false, nullable, sf.protoField, 1)
+		g.generateMockField(sf.fieldName, sf.typeName, false, nullable, sf.protoField, 10)
 		g.Out()
 		g.P(`},`)
 	}
