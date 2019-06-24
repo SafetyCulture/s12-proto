@@ -51,4 +51,14 @@ message Complete {
   double longitude = 31;
   float floatn = 32 [ (grpcmock.field) = {floatn : 3} ];
   bool boolean = 33;
+  oneof some_oneof {
+    string could_be = 34;
+    SubMessage or_could_be = 35;
+  }
+  oneof another_oneof {
+    string this = 36;
+    string that = 37 [ (grpcmock.field) = {paragraph : true} ];
+  }
 }
+
+message SubMessage { string id = 1; }
