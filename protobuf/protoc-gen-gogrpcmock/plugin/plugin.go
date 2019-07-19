@@ -213,7 +213,7 @@ func (g *grpcmock) generateMockString(fieldName, fieldType string, repeated bool
 		g.P(fieldName, `: `, fieldType, `{`)
 		g.In()
 
-		for i := 0; i < repeatCount; i++ {
+		for i := 0; i < getRepeatCount(field); i++ {
 			g.P(`"`, generateStringValue(fieldName, field), `",`)
 		}
 
@@ -231,7 +231,7 @@ func (g *grpcmock) generateMockInt(fieldName, fieldType string, repeated bool, f
 		g.P(fieldName, `: `, fieldType, `{`)
 		g.In()
 
-		for i := 0; i < repeatCount; i++ {
+		for i := 0; i < getRepeatCount(field); i++ {
 			g.P(generateIntValue(fieldName, field), `,`)
 		}
 
@@ -247,7 +247,7 @@ func (g *grpcmock) generateMockFloat(fieldName, fieldType string, repeated bool,
 		g.P(fieldName, `: `, fieldType, `{`)
 		g.In()
 
-		for i := 0; i < repeatCount; i++ {
+		for i := 0; i < getRepeatCount(field); i++ {
 			g.P(generateFloatValue(fieldName, field), `,`)
 		}
 
@@ -286,7 +286,7 @@ func (g *grpcmock) generateMockInnerMessage(fieldName, fieldType string, repeate
 	length := 1
 
 	if repeated {
-		length = repeatCount
+		length = getRepeatCount(field)
 		g.P(fieldName, `: `, fieldType, `{`)
 		g.In()
 	} else {
@@ -298,7 +298,9 @@ func (g *grpcmock) generateMockInnerMessage(fieldName, fieldType string, repeate
 	for i := 0; i < length; i++ {
 		switch fieldType {
 		case "time.Time":
-			g.P(`time.Now(),`)
+			g.P(`time.Now().Add(` + strconv.Itoa(r.Intn(1000)) + `),`)
+		case "time.Duration":
+			g.P(`time.Duration(` + strconv.Itoa(r.Intn(1000)) + `),`)
 		case "*time.Time", "*time.Duration":
 			// g.P(`&time.Time{},`)
 			g.P(`nil,`)
@@ -470,7 +472,7 @@ func generateIntValue(fieldName string, field *descriptor.FieldDescriptorProto) 
 		}
 	}
 
-	return strconv.Itoa(int(r.Intn(n)))
+	return strconv.Itoa(r.Intn(n))
 }
 
 func generateFloatValue(fieldName string, field *descriptor.FieldDescriptorProto) string {
@@ -506,4 +508,11 @@ func boolFromPtr(b *bool) bool {
 		return false
 	}
 	return *b
+}
+
+func getRepeatCount(field *descriptor.FieldDescriptorProto) int {
+	if mocks := getFieldMocksIfAny(field); mocks != nil && mocks.Repeatn != nil {
+		return int(mocks.GetRepeatn())
+	}
+	return repeatCount
 }

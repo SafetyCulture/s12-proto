@@ -27,7 +27,7 @@ message Complete {
   repeated string word = 7;
   string url = 8;
   int32 single_number = 9;
-  repeated int64 repeated_number = 10;
+  repeated int64 repeated_number = 10 [ (grpcmock.field) = {repeatn : 3} ];
   int32 lat = 11;
   int32 lng = 12;
   string words = 13 [ (grpcmock.field) = {words : true} ];

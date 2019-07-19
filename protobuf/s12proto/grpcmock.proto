@@ -33,4 +33,5 @@ message FieldMock {
   optional bool hexcolor = 19;
   repeated string prefix = 20;
   optional int32 floatn = 21;
+  optional int32 repeatn = 22;
 }
