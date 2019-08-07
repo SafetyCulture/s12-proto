@@ -253,7 +253,10 @@ void PrintHeaderInterfaces(Printer *printer, const FileDescriptor *file) {
     printer->Print(" public:\n");
     printer->Indent();
     printer->Print(vars, "virtual ~$service_name$ClientInterface() {}\n");
-    printer->Print("virtual void MakeRequest(const std::string& request_data, const std::string& request_type) const = 0;\n");
+    printer->Print(
+      "virtual void MakeRequest("
+      "const std::string& request_data, "
+      "const std::string& request_type) const = 0;\n");
     PrintHeaderMethods(printer, service, true);
     printer->Outdent();
     printer->Print("};\n\n");
@@ -277,7 +280,10 @@ void PrintHeaderClients(Printer *printer, const FileDescriptor *file) {
                    "explicit $service_name$Client(const "
                    "std::shared_ptr<$service_name$::StubInterface>& "
                    "stub);\n");
-    printer->Print("void MakeRequest(const std::string& request_data, const std::string& request_type) const override;\n");
+    printer->Print(
+      "void MakeRequest("
+      "const std::string& request_data, "
+      "const std::string& request_type) const override;\n");
     PrintHeaderMethods(printer, service, false, true);
     printer->Outdent();
     printer->Print("\n");
@@ -314,6 +320,51 @@ void PrintSourceIncludes(Printer *printer, const FileDescriptor *file) {
   PrintNamespace(printer, file, false);
 }
 
+void PrintMakeRequestMethod(
+  Printer *printer,
+  const ServiceDescriptor *service) {
+  std::map<string, string> vars;
+  vars["service_name"] = service->name();
+  printer->Print(
+    vars,
+    "void $service_name$Client::MakeRequest("
+    "const std::string& request_data, "
+    "const std::string& request_type) const {\n");
+  printer->Indent();
+  for (
+    int method_index = 0;
+    method_index < service->method_count();
+    ++method_index) {
+    const MethodDescriptor *method = service->method(method_index);
+    const Descriptor *request = method->input_type();
+    vars["request_type"] = request->full_name();
+    vars["method_name"] = method->name();
+    vars["request"] = ClassName(request, true);
+    if (method_index > 0) {
+      printer->Print("} else ");
+    }
+
+    // check request type
+    printer->Print(vars, "if (request_type == \"$request_type$\") {\n");
+    printer->Indent();
+
+    // parse request
+    printer->Print(vars, "$request$ request;\n");
+    printer->Print(vars, "if (!request.ParseFromString(request_data)) {\n");
+    printer->Indent();
+    printer->Print("throw crux::RequestParseException();\n");
+    printer->Outdent();
+    printer->Print("}\n");
+
+    // invoke method
+    printer->Print(vars, "$method_name$(request);\n");
+    printer->Outdent();
+  }
+  printer->Print("}\n");
+  printer->Outdent();
+  printer->Print("}\n");
+}
+
 void PrintSourceClients(Printer *printer, const FileDescriptor *file) {
   std::map<string, string> vars;
   if (!file->package().empty()) {
@@ -329,7 +380,7 @@ void PrintSourceClients(Printer *printer, const FileDescriptor *file) {
                    "$service_name$Client::$service_name$Client(const "
                    "std::shared_ptr<$service_name$::StubInterface>& "
                    "stub) : mStub(stub) {}\n\n");
-
+    PrintMakeRequestMethod(printer, service);
     for (int method_index = 0; method_index < service->method_count();
          ++method_index) {
       const MethodDescriptor *method = service->method(method_index);
