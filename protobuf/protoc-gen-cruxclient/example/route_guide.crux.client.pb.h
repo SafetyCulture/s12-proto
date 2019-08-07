@@ -11,23 +11,47 @@
 
 namespace routeguide {
 
+const char kRouteGuideGetFeature[] = "GetFeature";
+const char kRouteGuideUpdateFeature[] = "UpdateFeature";
+const char kRouteGuideListFeatures[] = "ListFeatures";
 class RouteGuideClientInterface {
  public:
   virtual ~RouteGuideClientInterface() {}
-  virtual void Invoke(const google::protobuf::Any& request_data) const {}
+  virtual void Invoke(const google::protobuf::Any& request_data, const std::string& method) const {}
   virtual routeguide::Feature GetFeature(const routeguide::Point& request) const = 0;
+  virtual routeguide::Feature UpdateFeature(const routeguide::Point& request) const = 0;
   virtual std::vector<routeguide::Feature> ListFeatures(const routeguide::Rectangle& request) const = 0;
+};
+
+const char kPublicRouteGuideGetFeature[] = "GetFeature";
+class PublicRouteGuideClientInterface {
+ public:
+  virtual ~PublicRouteGuideClientInterface() {}
+  virtual void Invoke(const google::protobuf::Any& request_data, const std::string& method) const {}
+  virtual routeguide::Feature GetFeature(const routeguide::Point& request) const = 0;
 };
 
 class RouteGuideClient: public RouteGuideClientInterface {
  public:
   explicit RouteGuideClient(const std::shared_ptr<RouteGuide::StubInterface>& stub);
-  void Invoke(const google::protobuf::Any& request_data) const override;
+  void Invoke(const google::protobuf::Any& request_data, const std::string& method) const override;
   routeguide::Feature GetFeature(const routeguide::Point& request) const override;
+  routeguide::Feature UpdateFeature(const routeguide::Point& request) const override;
   std::vector<routeguide::Feature> ListFeatures(const routeguide::Rectangle& request) const override;
 
  private:
   std::shared_ptr<RouteGuide::StubInterface> mStub;
+
+};
+
+class PublicRouteGuideClient: public PublicRouteGuideClientInterface {
+ public:
+  explicit PublicRouteGuideClient(const std::shared_ptr<PublicRouteGuide::StubInterface>& stub);
+  void Invoke(const google::protobuf::Any& request_data, const std::string& method) const override;
+  routeguide::Feature GetFeature(const routeguide::Point& request) const override;
+
+ private:
+  std::shared_ptr<PublicRouteGuide::StubInterface> mStub;
 
 };
 

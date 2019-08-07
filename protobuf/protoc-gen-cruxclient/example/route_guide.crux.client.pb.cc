@@ -9,31 +9,25 @@ namespace routeguide {
 
 RouteGuideClient::RouteGuideClient(const std::shared_ptr<RouteGuide::StubInterface>& stub) : mStub(stub) {}
 
-void RouteGuideClient::Invoke(const google::protobuf::Any& request_data) const {
-  if (request_data.type_url() == "routeguide.Point") {
+void RouteGuideClient::Invoke(const google::protobuf::Any& request_data, const std::string& method) const {
+  if (method == kRouteGuideGetFeature) {
     routeguide::Point request;
     if (!request.ParseFromString(request_data.value())) {
       throw crux::RequestParseException();
     }
     GetFeature(request);
-  } else if (request_data.type_url() == "routeguide.Rectangle") {
+  } else if (method == kRouteGuideUpdateFeature) {
+    routeguide::Point request;
+    if (!request.ParseFromString(request_data.value())) {
+      throw crux::RequestParseException();
+    }
+    UpdateFeature(request);
+  } else if (method == kRouteGuideListFeatures) {
     routeguide::Rectangle request;
     if (!request.ParseFromString(request_data.value())) {
       throw crux::RequestParseException();
     }
     ListFeatures(request);
-  } else if (request_data.type_url() == "routeguide.Point") {
-    routeguide::Point request;
-    if (!request.ParseFromString(request_data.value())) {
-      throw crux::RequestParseException();
-    }
-    RecordRoute(request);
-  } else if (request_data.type_url() == "routeguide.RouteNote") {
-    routeguide::RouteNote request;
-    if (!request.ParseFromString(request_data.value())) {
-      throw crux::RequestParseException();
-    }
-    RouteChat(request);
   }
   throw crux::RequestParseException();
 }
@@ -41,6 +35,15 @@ routeguide::Feature RouteGuideClient::GetFeature(const routeguide::Point& reques
   routeguide::Feature response;
   grpc::ClientContext context;
   grpc::Status status = mStub->GetFeature(&context, request, &response);
+  if (!status.ok()) {
+    throw crux::ServiceException(status.error_code(), status.error_message());
+  }
+  return response;
+}
+routeguide::Feature RouteGuideClient::UpdateFeature(const routeguide::Point& request) const {
+  routeguide::Feature response;
+  grpc::ClientContext context;
+  grpc::Status status = mStub->UpdateFeature(&context, request, &response);
   if (!status.ok()) {
     throw crux::ServiceException(status.error_code(), status.error_message());
   }
@@ -55,6 +58,27 @@ std::vector<routeguide::Feature> RouteGuideClient::ListFeatures(const routeguide
     response.emplace_back(item);
   }
   grpc::Status status = stream->Finish();
+  if (!status.ok()) {
+    throw crux::ServiceException(status.error_code(), status.error_message());
+  }
+  return response;
+}
+PublicRouteGuideClient::PublicRouteGuideClient(const std::shared_ptr<PublicRouteGuide::StubInterface>& stub) : mStub(stub) {}
+
+void PublicRouteGuideClient::Invoke(const google::protobuf::Any& request_data, const std::string& method) const {
+  if (method == kPublicRouteGuideGetFeature) {
+    routeguide::Point request;
+    if (!request.ParseFromString(request_data.value())) {
+      throw crux::RequestParseException();
+    }
+    GetFeature(request);
+  }
+  throw crux::RequestParseException();
+}
+routeguide::Feature PublicRouteGuideClient::GetFeature(const routeguide::Point& request) const {
+  routeguide::Feature response;
+  grpc::ClientContext context;
+  grpc::Status status = mStub->GetFeature(&context, request, &response);
   if (!status.ok()) {
     throw crux::ServiceException(status.error_code(), status.error_message());
   }

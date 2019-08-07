@@ -195,20 +195,24 @@ const char descriptor_table_protodef_route_5fguide_2eproto[] =
   "\001 \001(\0132\021.routeguide.Point\022\017\n\007message\030\002 \001("
   "\t\"b\n\014RouteSummary\022\023\n\013point_count\030\001 \001(\005\022\025"
   "\n\rfeature_count\030\002 \001(\005\022\020\n\010distance\030\003 \001(\005\022"
-  "\024\n\014elapsed_time\030\004 \001(\0052\205\002\n\nRouteGuide\0226\n\n"
+  "\024\n\014elapsed_time\030\004 \001(\0052\300\002\n\nRouteGuide\0226\n\n"
   "GetFeature\022\021.routeguide.Point\032\023.routegui"
-  "de.Feature\"\000\022>\n\014ListFeatures\022\025.routeguid"
-  "e.Rectangle\032\023.routeguide.Feature\"\0000\001\022>\n\013"
-  "RecordRoute\022\021.routeguide.Point\032\030.routegu"
-  "ide.RouteSummary\"\000(\001\022\?\n\tRouteChat\022\025.rout"
-  "eguide.RouteNote\032\025.routeguide.RouteNote\""
-  "\000(\0010\001B6\n\033io.grpc.examples.routeguideB\017Ro"
-  "uteGuideProtoP\001\242\002\003RTGb\006proto3"
+  "de.Feature\"\000\0229\n\rUpdateFeature\022\021.routegui"
+  "de.Point\032\023.routeguide.Feature\"\000\022>\n\014ListF"
+  "eatures\022\025.routeguide.Rectangle\032\023.routegu"
+  "ide.Feature\"\0000\001\022>\n\013RecordRoute\022\021.routegu"
+  "ide.Point\032\030.routeguide.RouteSummary\"\000(\001\022"
+  "\?\n\tRouteChat\022\025.routeguide.RouteNote\032\025.ro"
+  "uteguide.RouteNote\"\000(\0010\0012J\n\020PublicRouteG"
+  "uide\0226\n\nGetFeature\022\021.routeguide.Point\032\023."
+  "routeguide.Feature\"\000B6\n\033io.grpc.examples"
+  ".routeguideB\017RouteGuideProtoP\001\242\002\003RTGb\006pr"
+  "oto3"
   ;
 ::google::protobuf::internal::DescriptorTable descriptor_table_route_5fguide_2eproto = {
   false, InitDefaults_route_5fguide_2eproto, 
   descriptor_table_protodef_route_5fguide_2eproto,
-  "route_guide.proto", &assign_descriptors_table_route_5fguide_2eproto, 709,
+  "route_guide.proto", &assign_descriptors_table_route_5fguide_2eproto, 844,
 };
 
 void AddDescriptors_route_5fguide_2eproto() {

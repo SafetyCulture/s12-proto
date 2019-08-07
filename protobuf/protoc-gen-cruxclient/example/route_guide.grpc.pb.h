@@ -51,6 +51,18 @@ class RouteGuide final {
     std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::routeguide::Feature>> PrepareAsyncGetFeature(::grpc::ClientContext* context, const ::routeguide::Point& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::routeguide::Feature>>(PrepareAsyncGetFeatureRaw(context, request, cq));
     }
+    // A simple RPC.
+    //
+    // Update the feature at a given position.
+    //
+    // The updated feature is returned at the given position.
+    virtual ::grpc::Status UpdateFeature(::grpc::ClientContext* context, const ::routeguide::Point& request, ::routeguide::Feature* response) = 0;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::routeguide::Feature>> AsyncUpdateFeature(::grpc::ClientContext* context, const ::routeguide::Point& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::routeguide::Feature>>(AsyncUpdateFeatureRaw(context, request, cq));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::routeguide::Feature>> PrepareAsyncUpdateFeature(::grpc::ClientContext* context, const ::routeguide::Point& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::routeguide::Feature>>(PrepareAsyncUpdateFeatureRaw(context, request, cq));
+    }
     // A server-to-client streaming RPC.
     //
     // Obtains the Features available within the given Rectangle.  Results are
@@ -95,6 +107,8 @@ class RouteGuide final {
   private:
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::routeguide::Feature>* AsyncGetFeatureRaw(::grpc::ClientContext* context, const ::routeguide::Point& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientAsyncResponseReaderInterface< ::routeguide::Feature>* PrepareAsyncGetFeatureRaw(::grpc::ClientContext* context, const ::routeguide::Point& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::routeguide::Feature>* AsyncUpdateFeatureRaw(::grpc::ClientContext* context, const ::routeguide::Point& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::routeguide::Feature>* PrepareAsyncUpdateFeatureRaw(::grpc::ClientContext* context, const ::routeguide::Point& request, ::grpc::CompletionQueue* cq) = 0;
     virtual ::grpc::ClientReaderInterface< ::routeguide::Feature>* ListFeaturesRaw(::grpc::ClientContext* context, const ::routeguide::Rectangle& request) = 0;
     virtual ::grpc::ClientAsyncReaderInterface< ::routeguide::Feature>* AsyncListFeaturesRaw(::grpc::ClientContext* context, const ::routeguide::Rectangle& request, ::grpc::CompletionQueue* cq, void* tag) = 0;
     virtual ::grpc::ClientAsyncReaderInterface< ::routeguide::Feature>* PrepareAsyncListFeaturesRaw(::grpc::ClientContext* context, const ::routeguide::Rectangle& request, ::grpc::CompletionQueue* cq) = 0;
@@ -114,6 +128,13 @@ class RouteGuide final {
     }
     std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::routeguide::Feature>> PrepareAsyncGetFeature(::grpc::ClientContext* context, const ::routeguide::Point& request, ::grpc::CompletionQueue* cq) {
       return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::routeguide::Feature>>(PrepareAsyncGetFeatureRaw(context, request, cq));
+    }
+    ::grpc::Status UpdateFeature(::grpc::ClientContext* context, const ::routeguide::Point& request, ::routeguide::Feature* response) override;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::routeguide::Feature>> AsyncUpdateFeature(::grpc::ClientContext* context, const ::routeguide::Point& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::routeguide::Feature>>(AsyncUpdateFeatureRaw(context, request, cq));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::routeguide::Feature>> PrepareAsyncUpdateFeature(::grpc::ClientContext* context, const ::routeguide::Point& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::routeguide::Feature>>(PrepareAsyncUpdateFeatureRaw(context, request, cq));
     }
     std::unique_ptr< ::grpc::ClientReader< ::routeguide::Feature>> ListFeatures(::grpc::ClientContext* context, const ::routeguide::Rectangle& request) {
       return std::unique_ptr< ::grpc::ClientReader< ::routeguide::Feature>>(ListFeaturesRaw(context, request));
@@ -147,6 +168,8 @@ class RouteGuide final {
     std::shared_ptr< ::grpc::ChannelInterface> channel_;
     ::grpc::ClientAsyncResponseReader< ::routeguide::Feature>* AsyncGetFeatureRaw(::grpc::ClientContext* context, const ::routeguide::Point& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientAsyncResponseReader< ::routeguide::Feature>* PrepareAsyncGetFeatureRaw(::grpc::ClientContext* context, const ::routeguide::Point& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::routeguide::Feature>* AsyncUpdateFeatureRaw(::grpc::ClientContext* context, const ::routeguide::Point& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::routeguide::Feature>* PrepareAsyncUpdateFeatureRaw(::grpc::ClientContext* context, const ::routeguide::Point& request, ::grpc::CompletionQueue* cq) override;
     ::grpc::ClientReader< ::routeguide::Feature>* ListFeaturesRaw(::grpc::ClientContext* context, const ::routeguide::Rectangle& request) override;
     ::grpc::ClientAsyncReader< ::routeguide::Feature>* AsyncListFeaturesRaw(::grpc::ClientContext* context, const ::routeguide::Rectangle& request, ::grpc::CompletionQueue* cq, void* tag) override;
     ::grpc::ClientAsyncReader< ::routeguide::Feature>* PrepareAsyncListFeaturesRaw(::grpc::ClientContext* context, const ::routeguide::Rectangle& request, ::grpc::CompletionQueue* cq) override;
@@ -157,6 +180,7 @@ class RouteGuide final {
     ::grpc::ClientAsyncReaderWriter< ::routeguide::RouteNote, ::routeguide::RouteNote>* AsyncRouteChatRaw(::grpc::ClientContext* context, ::grpc::CompletionQueue* cq, void* tag) override;
     ::grpc::ClientAsyncReaderWriter< ::routeguide::RouteNote, ::routeguide::RouteNote>* PrepareAsyncRouteChatRaw(::grpc::ClientContext* context, ::grpc::CompletionQueue* cq) override;
     const ::grpc::internal::RpcMethod rpcmethod_GetFeature_;
+    const ::grpc::internal::RpcMethod rpcmethod_UpdateFeature_;
     const ::grpc::internal::RpcMethod rpcmethod_ListFeatures_;
     const ::grpc::internal::RpcMethod rpcmethod_RecordRoute_;
     const ::grpc::internal::RpcMethod rpcmethod_RouteChat_;
@@ -174,6 +198,12 @@ class RouteGuide final {
     // A feature with an empty name is returned if there's no feature at the given
     // position.
     virtual ::grpc::Status GetFeature(::grpc::ServerContext* context, const ::routeguide::Point* request, ::routeguide::Feature* response);
+    // A simple RPC.
+    //
+    // Update the feature at a given position.
+    //
+    // The updated feature is returned at the given position.
+    virtual ::grpc::Status UpdateFeature(::grpc::ServerContext* context, const ::routeguide::Point* request, ::routeguide::Feature* response);
     // A server-to-client streaming RPC.
     //
     // Obtains the Features available within the given Rectangle.  Results are
@@ -213,12 +243,32 @@ class RouteGuide final {
     }
   };
   template <class BaseClass>
+  class WithAsyncMethod_UpdateFeature : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service *service) {}
+   public:
+    WithAsyncMethod_UpdateFeature() {
+      ::grpc::Service::MarkMethodAsync(1);
+    }
+    ~WithAsyncMethod_UpdateFeature() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status UpdateFeature(::grpc::ServerContext* context, const ::routeguide::Point* request, ::routeguide::Feature* response) final override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestUpdateFeature(::grpc::ServerContext* context, ::routeguide::Point* request, ::grpc::ServerAsyncResponseWriter< ::routeguide::Feature>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(1, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  template <class BaseClass>
   class WithAsyncMethod_ListFeatures : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service *service) {}
    public:
     WithAsyncMethod_ListFeatures() {
-      ::grpc::Service::MarkMethodAsync(1);
+      ::grpc::Service::MarkMethodAsync(2);
     }
     ~WithAsyncMethod_ListFeatures() override {
       BaseClassMustBeDerivedFromService(this);
@@ -229,7 +279,7 @@ class RouteGuide final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestListFeatures(::grpc::ServerContext* context, ::routeguide::Rectangle* request, ::grpc::ServerAsyncWriter< ::routeguide::Feature>* writer, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncServerStreaming(1, context, request, writer, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncServerStreaming(2, context, request, writer, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -238,7 +288,7 @@ class RouteGuide final {
     void BaseClassMustBeDerivedFromService(const Service *service) {}
    public:
     WithAsyncMethod_RecordRoute() {
-      ::grpc::Service::MarkMethodAsync(2);
+      ::grpc::Service::MarkMethodAsync(3);
     }
     ~WithAsyncMethod_RecordRoute() override {
       BaseClassMustBeDerivedFromService(this);
@@ -249,7 +299,7 @@ class RouteGuide final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestRecordRoute(::grpc::ServerContext* context, ::grpc::ServerAsyncReader< ::routeguide::RouteSummary, ::routeguide::Point>* reader, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncClientStreaming(2, context, reader, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncClientStreaming(3, context, reader, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
@@ -258,7 +308,7 @@ class RouteGuide final {
     void BaseClassMustBeDerivedFromService(const Service *service) {}
    public:
     WithAsyncMethod_RouteChat() {
-      ::grpc::Service::MarkMethodAsync(3);
+      ::grpc::Service::MarkMethodAsync(4);
     }
     ~WithAsyncMethod_RouteChat() override {
       BaseClassMustBeDerivedFromService(this);
@@ -269,10 +319,10 @@ class RouteGuide final {
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     void RequestRouteChat(::grpc::ServerContext* context, ::grpc::ServerAsyncReaderWriter< ::routeguide::RouteNote, ::routeguide::RouteNote>* stream, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
-      ::grpc::Service::RequestAsyncBidiStreaming(3, context, stream, new_call_cq, notification_cq, tag);
+      ::grpc::Service::RequestAsyncBidiStreaming(4, context, stream, new_call_cq, notification_cq, tag);
     }
   };
-  typedef WithAsyncMethod_GetFeature<WithAsyncMethod_ListFeatures<WithAsyncMethod_RecordRoute<WithAsyncMethod_RouteChat<Service > > > > AsyncService;
+  typedef WithAsyncMethod_GetFeature<WithAsyncMethod_UpdateFeature<WithAsyncMethod_ListFeatures<WithAsyncMethod_RecordRoute<WithAsyncMethod_RouteChat<Service > > > > > AsyncService;
   template <class BaseClass>
   class WithGenericMethod_GetFeature : public BaseClass {
    private:
@@ -291,12 +341,29 @@ class RouteGuide final {
     }
   };
   template <class BaseClass>
+  class WithGenericMethod_UpdateFeature : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service *service) {}
+   public:
+    WithGenericMethod_UpdateFeature() {
+      ::grpc::Service::MarkMethodGeneric(1);
+    }
+    ~WithGenericMethod_UpdateFeature() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status UpdateFeature(::grpc::ServerContext* context, const ::routeguide::Point* request, ::routeguide::Feature* response) final override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+  };
+  template <class BaseClass>
   class WithGenericMethod_ListFeatures : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service *service) {}
    public:
     WithGenericMethod_ListFeatures() {
-      ::grpc::Service::MarkMethodGeneric(1);
+      ::grpc::Service::MarkMethodGeneric(2);
     }
     ~WithGenericMethod_ListFeatures() override {
       BaseClassMustBeDerivedFromService(this);
@@ -313,7 +380,7 @@ class RouteGuide final {
     void BaseClassMustBeDerivedFromService(const Service *service) {}
    public:
     WithGenericMethod_RecordRoute() {
-      ::grpc::Service::MarkMethodGeneric(2);
+      ::grpc::Service::MarkMethodGeneric(3);
     }
     ~WithGenericMethod_RecordRoute() override {
       BaseClassMustBeDerivedFromService(this);
@@ -330,7 +397,7 @@ class RouteGuide final {
     void BaseClassMustBeDerivedFromService(const Service *service) {}
    public:
     WithGenericMethod_RouteChat() {
-      ::grpc::Service::MarkMethodGeneric(3);
+      ::grpc::Service::MarkMethodGeneric(4);
     }
     ~WithGenericMethod_RouteChat() override {
       BaseClassMustBeDerivedFromService(this);
@@ -361,14 +428,34 @@ class RouteGuide final {
     // replace default version of method with streamed unary
     virtual ::grpc::Status StreamedGetFeature(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::routeguide::Point,::routeguide::Feature>* server_unary_streamer) = 0;
   };
-  typedef WithStreamedUnaryMethod_GetFeature<Service > StreamedUnaryService;
+  template <class BaseClass>
+  class WithStreamedUnaryMethod_UpdateFeature : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service *service) {}
+   public:
+    WithStreamedUnaryMethod_UpdateFeature() {
+      ::grpc::Service::MarkMethodStreamed(1,
+        new ::grpc::internal::StreamedUnaryHandler< ::routeguide::Point, ::routeguide::Feature>(std::bind(&WithStreamedUnaryMethod_UpdateFeature<BaseClass>::StreamedUpdateFeature, this, std::placeholders::_1, std::placeholders::_2)));
+    }
+    ~WithStreamedUnaryMethod_UpdateFeature() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable regular version of this method
+    ::grpc::Status UpdateFeature(::grpc::ServerContext* context, const ::routeguide::Point* request, ::routeguide::Feature* response) final override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    // replace default version of method with streamed unary
+    virtual ::grpc::Status StreamedUpdateFeature(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::routeguide::Point,::routeguide::Feature>* server_unary_streamer) = 0;
+  };
+  typedef WithStreamedUnaryMethod_GetFeature<WithStreamedUnaryMethod_UpdateFeature<Service > > StreamedUnaryService;
   template <class BaseClass>
   class WithSplitStreamingMethod_ListFeatures : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service *service) {}
    public:
     WithSplitStreamingMethod_ListFeatures() {
-      ::grpc::Service::MarkMethodStreamed(1,
+      ::grpc::Service::MarkMethodStreamed(2,
         new ::grpc::internal::SplitServerStreamingHandler< ::routeguide::Rectangle, ::routeguide::Feature>(std::bind(&WithSplitStreamingMethod_ListFeatures<BaseClass>::StreamedListFeatures, this, std::placeholders::_1, std::placeholders::_2)));
     }
     ~WithSplitStreamingMethod_ListFeatures() override {
@@ -383,7 +470,127 @@ class RouteGuide final {
     virtual ::grpc::Status StreamedListFeatures(::grpc::ServerContext* context, ::grpc::ServerSplitStreamer< ::routeguide::Rectangle,::routeguide::Feature>* server_split_streamer) = 0;
   };
   typedef WithSplitStreamingMethod_ListFeatures<Service > SplitStreamedService;
-  typedef WithStreamedUnaryMethod_GetFeature<WithSplitStreamingMethod_ListFeatures<Service > > StreamedService;
+  typedef WithStreamedUnaryMethod_GetFeature<WithStreamedUnaryMethod_UpdateFeature<WithSplitStreamingMethod_ListFeatures<Service > > > StreamedService;
+};
+
+// Interface exported by the server.
+class PublicRouteGuide final {
+ public:
+  static constexpr char const* service_full_name() {
+    return "routeguide.PublicRouteGuide";
+  }
+  class StubInterface {
+   public:
+    virtual ~StubInterface() {}
+    // A simple RPC.
+    //
+    // Obtains the feature at a given position.
+    //
+    // A feature with an empty name is returned if there's no feature at the given
+    // position.
+    virtual ::grpc::Status GetFeature(::grpc::ClientContext* context, const ::routeguide::Point& request, ::routeguide::Feature* response) = 0;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::routeguide::Feature>> AsyncGetFeature(::grpc::ClientContext* context, const ::routeguide::Point& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::routeguide::Feature>>(AsyncGetFeatureRaw(context, request, cq));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::routeguide::Feature>> PrepareAsyncGetFeature(::grpc::ClientContext* context, const ::routeguide::Point& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::routeguide::Feature>>(PrepareAsyncGetFeatureRaw(context, request, cq));
+    }
+  private:
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::routeguide::Feature>* AsyncGetFeatureRaw(::grpc::ClientContext* context, const ::routeguide::Point& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::routeguide::Feature>* PrepareAsyncGetFeatureRaw(::grpc::ClientContext* context, const ::routeguide::Point& request, ::grpc::CompletionQueue* cq) = 0;
+  };
+  class Stub final : public StubInterface {
+   public:
+    Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel);
+    ::grpc::Status GetFeature(::grpc::ClientContext* context, const ::routeguide::Point& request, ::routeguide::Feature* response) override;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::routeguide::Feature>> AsyncGetFeature(::grpc::ClientContext* context, const ::routeguide::Point& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::routeguide::Feature>>(AsyncGetFeatureRaw(context, request, cq));
+    }
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::routeguide::Feature>> PrepareAsyncGetFeature(::grpc::ClientContext* context, const ::routeguide::Point& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::routeguide::Feature>>(PrepareAsyncGetFeatureRaw(context, request, cq));
+    }
+
+   private:
+    std::shared_ptr< ::grpc::ChannelInterface> channel_;
+    ::grpc::ClientAsyncResponseReader< ::routeguide::Feature>* AsyncGetFeatureRaw(::grpc::ClientContext* context, const ::routeguide::Point& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::routeguide::Feature>* PrepareAsyncGetFeatureRaw(::grpc::ClientContext* context, const ::routeguide::Point& request, ::grpc::CompletionQueue* cq) override;
+    const ::grpc::internal::RpcMethod rpcmethod_GetFeature_;
+  };
+  static std::unique_ptr<Stub> NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options = ::grpc::StubOptions());
+
+  class Service : public ::grpc::Service {
+   public:
+    Service();
+    virtual ~Service();
+    // A simple RPC.
+    //
+    // Obtains the feature at a given position.
+    //
+    // A feature with an empty name is returned if there's no feature at the given
+    // position.
+    virtual ::grpc::Status GetFeature(::grpc::ServerContext* context, const ::routeguide::Point* request, ::routeguide::Feature* response);
+  };
+  template <class BaseClass>
+  class WithAsyncMethod_GetFeature : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service *service) {}
+   public:
+    WithAsyncMethod_GetFeature() {
+      ::grpc::Service::MarkMethodAsync(0);
+    }
+    ~WithAsyncMethod_GetFeature() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status GetFeature(::grpc::ServerContext* context, const ::routeguide::Point* request, ::routeguide::Feature* response) final override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    void RequestGetFeature(::grpc::ServerContext* context, ::routeguide::Point* request, ::grpc::ServerAsyncResponseWriter< ::routeguide::Feature>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+      ::grpc::Service::RequestAsyncUnary(0, context, request, response, new_call_cq, notification_cq, tag);
+    }
+  };
+  typedef WithAsyncMethod_GetFeature<Service > AsyncService;
+  template <class BaseClass>
+  class WithGenericMethod_GetFeature : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service *service) {}
+   public:
+    WithGenericMethod_GetFeature() {
+      ::grpc::Service::MarkMethodGeneric(0);
+    }
+    ~WithGenericMethod_GetFeature() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable synchronous version of this method
+    ::grpc::Status GetFeature(::grpc::ServerContext* context, const ::routeguide::Point* request, ::routeguide::Feature* response) final override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+  };
+  template <class BaseClass>
+  class WithStreamedUnaryMethod_GetFeature : public BaseClass {
+   private:
+    void BaseClassMustBeDerivedFromService(const Service *service) {}
+   public:
+    WithStreamedUnaryMethod_GetFeature() {
+      ::grpc::Service::MarkMethodStreamed(0,
+        new ::grpc::internal::StreamedUnaryHandler< ::routeguide::Point, ::routeguide::Feature>(std::bind(&WithStreamedUnaryMethod_GetFeature<BaseClass>::StreamedGetFeature, this, std::placeholders::_1, std::placeholders::_2)));
+    }
+    ~WithStreamedUnaryMethod_GetFeature() override {
+      BaseClassMustBeDerivedFromService(this);
+    }
+    // disable regular version of this method
+    ::grpc::Status GetFeature(::grpc::ServerContext* context, const ::routeguide::Point* request, ::routeguide::Feature* response) final override {
+      abort();
+      return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
+    }
+    // replace default version of method with streamed unary
+    virtual ::grpc::Status StreamedGetFeature(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::routeguide::Point,::routeguide::Feature>* server_unary_streamer) = 0;
+  };
+  typedef WithStreamedUnaryMethod_GetFeature<Service > StreamedUnaryService;
+  typedef Service SplitStreamedService;
+  typedef WithStreamedUnaryMethod_GetFeature<Service > StreamedService;
 };
 
 }  // namespace routeguide
