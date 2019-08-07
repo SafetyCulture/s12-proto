@@ -9,7 +9,7 @@ namespace routeguide {
 
 RouteGuideClient::RouteGuideClient(const std::shared_ptr<RouteGuide::StubInterface>& stub) : mStub(stub) {}
 
-void RouteGuideClient::MakeRequest(const google::protobuf::Any& request_data) const {
+void RouteGuideClient::Invoke(const google::protobuf::Any& request_data) const {
   if (request_data.type_url() == "routeguide.Point") {
     routeguide::Point request;
     if (!request.ParseFromString(request_data.value())) {

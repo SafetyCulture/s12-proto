@@ -255,7 +255,7 @@ void PrintHeaderInterfaces(Printer *printer, const FileDescriptor *file) {
     printer->Indent();
     printer->Print(vars, "virtual ~$service_name$ClientInterface() {}\n");
     printer->Print(
-      "virtual void MakeRequest("
+      "virtual void Invoke("
       "const google::protobuf::Any& request_data) const = 0;\n");
     PrintHeaderMethods(printer, service, true);
     printer->Outdent();
@@ -281,7 +281,7 @@ void PrintHeaderClients(Printer *printer, const FileDescriptor *file) {
                    "std::shared_ptr<$service_name$::StubInterface>& "
                    "stub);\n");
     printer->Print(
-      "void MakeRequest("
+      "void Invoke("
       "const google::protobuf::Any& request_data) const override;\n");
     PrintHeaderMethods(printer, service, false, true);
     printer->Outdent();
@@ -319,14 +319,14 @@ void PrintSourceIncludes(Printer *printer, const FileDescriptor *file) {
   PrintNamespace(printer, file, false);
 }
 
-void PrintMakeRequestMethod(
+void PrintInvokeMethod(
   Printer *printer,
   const ServiceDescriptor *service) {
   std::map<string, string> vars;
   vars["service_name"] = service->name();
   printer->Print(
     vars,
-    "void $service_name$Client::MakeRequest("
+    "void $service_name$Client::Invoke("
     "const google::protobuf::Any& request_data) const {\n");
   printer->Indent();
   for (
@@ -383,7 +383,7 @@ void PrintSourceClients(Printer *printer, const FileDescriptor *file) {
                    "$service_name$Client::$service_name$Client(const "
                    "std::shared_ptr<$service_name$::StubInterface>& "
                    "stub) : mStub(stub) {}\n\n");
-    PrintMakeRequestMethod(printer, service);
+    PrintInvokeMethod(printer, service);
     for (int method_index = 0; method_index < service->method_count();
          ++method_index) {
       const MethodDescriptor *method = service->method(method_index);

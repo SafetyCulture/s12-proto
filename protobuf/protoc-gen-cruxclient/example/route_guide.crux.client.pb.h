@@ -14,7 +14,7 @@ namespace routeguide {
 class RouteGuideClientInterface {
  public:
   virtual ~RouteGuideClientInterface() {}
-  virtual void MakeRequest(const google::protobuf::Any& request_data) const = 0;
+  virtual void Invoke(const google::protobuf::Any& request_data) const = 0;
   virtual routeguide::Feature GetFeature(const routeguide::Point& request) const = 0;
   virtual std::vector<routeguide::Feature> ListFeatures(const routeguide::Rectangle& request) const = 0;
 };
@@ -22,7 +22,7 @@ class RouteGuideClientInterface {
 class RouteGuideClient: public RouteGuideClientInterface {
  public:
   explicit RouteGuideClient(const std::shared_ptr<RouteGuide::StubInterface>& stub);
-  void MakeRequest(const google::protobuf::Any& request_data) const override;
+  void Invoke(const google::protobuf::Any& request_data) const override;
   routeguide::Feature GetFeature(const routeguide::Point& request) const override;
   std::vector<routeguide::Feature> ListFeatures(const routeguide::Rectangle& request) const override;
 
