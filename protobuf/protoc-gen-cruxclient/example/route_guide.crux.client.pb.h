@@ -13,6 +13,7 @@ namespace routeguide {
 class RouteGuideClientInterface {
  public:
   virtual ~RouteGuideClientInterface() {}
+  virtual void MakeRequest(const std::string& request_data, const std::string& request_type) const = 0;
   virtual routeguide::Feature GetFeature(const routeguide::Point& request) const = 0;
   virtual std::vector<routeguide::Feature> ListFeatures(const routeguide::Rectangle& request) const = 0;
 };
@@ -20,13 +21,14 @@ class RouteGuideClientInterface {
 class RouteGuideClient: public RouteGuideClientInterface {
  public:
   explicit RouteGuideClient(const std::shared_ptr<RouteGuide::StubInterface>& stub);
-  routeguide::Feature GetFeature(const routeguide::Point& request) const;
-  std::vector<routeguide::Feature> ListFeatures(const routeguide::Rectangle& request) const;
+  void MakeRequest(const std::string& request_data, const std::string& request_type) const override;
+  routeguide::Feature GetFeature(const routeguide::Point& request) const override;
+  std::vector<routeguide::Feature> ListFeatures(const routeguide::Rectangle& request) const override;
 
  private:
   std::shared_ptr<RouteGuide::StubInterface> mStub;
 
 };
 
-}
+}  // namespace routeguide
 

@@ -182,7 +182,7 @@ void PrintNamespace(Printer *printer, const FileDescriptor *file,
       if (!isEpilogue) {
         printer->Print(vars, "namespace $part$ {\n");
       } else {
-        printer->Print(vars, "}\n");
+        printer->Print(vars, "}  // namespace $part$\n");
       }
     }
     printer->Print(vars, "\n");
@@ -209,7 +209,7 @@ void PrintHeaderIncludes(Printer *printer, const FileDescriptor *file) {
 }
 
 void PrintHeaderMethods(Printer *printer, const ServiceDescriptor *service,
-                        bool isVirtual) {
+                        bool is_virtual, bool is_override = false) {
   std::map<string, string> vars;
   for (int method_index = 0; method_index < service->method_count();
        ++method_index) {
@@ -226,14 +226,17 @@ void PrintHeaderMethods(Printer *printer, const ServiceDescriptor *service,
     if (method->server_streaming()) {
       vars["response"] = "std::vector<" + vars["response"] + ">";
     }
-    if (isVirtual) {
+    if (is_virtual) {
       printer->Print("virtual ");
     }
     printer->Print(vars,
                    "$response$ $method_name$(const $request$& "
                    "request) const");
-    if (isVirtual) {
+    if (is_virtual) {
       printer->Print(" = 0");
+    }
+    if (is_override) {
+      printer->Print(" override");
     }
     printer->Print(";\n");
   }
@@ -250,6 +253,7 @@ void PrintHeaderInterfaces(Printer *printer, const FileDescriptor *file) {
     printer->Print(" public:\n");
     printer->Indent();
     printer->Print(vars, "virtual ~$service_name$ClientInterface() {}\n");
+    printer->Print("virtual void MakeRequest(const std::string& request_data, const std::string& request_type) const = 0;\n");
     PrintHeaderMethods(printer, service, true);
     printer->Outdent();
     printer->Print("};\n\n");
@@ -273,7 +277,8 @@ void PrintHeaderClients(Printer *printer, const FileDescriptor *file) {
                    "explicit $service_name$Client(const "
                    "std::shared_ptr<$service_name$::StubInterface>& "
                    "stub);\n");
-    PrintHeaderMethods(printer, service, false);
+    printer->Print("void MakeRequest(const std::string& request_data, const std::string& request_type) const override;\n");
+    PrintHeaderMethods(printer, service, false, true);
     printer->Outdent();
     printer->Print("\n");
 

@@ -33,5 +33,5 @@ std::vector<routeguide::Feature> RouteGuideClient::ListFeatures(const routeguide
   return response;
 }
 
-}
+}  // namespace routeguide
 
