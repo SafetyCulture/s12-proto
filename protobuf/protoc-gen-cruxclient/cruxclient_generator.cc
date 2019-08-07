@@ -256,7 +256,7 @@ void PrintHeaderInterfaces(Printer *printer, const FileDescriptor *file) {
     printer->Print(vars, "virtual ~$service_name$ClientInterface() {}\n");
     printer->Print(
       "virtual void Invoke("
-      "const google::protobuf::Any& request_data) const = 0;\n");
+      "const google::protobuf::Any& request_data) const {}\n");
     PrintHeaderMethods(printer, service, true);
     printer->Outdent();
     printer->Print("};\n\n");

@@ -14,7 +14,7 @@ namespace routeguide {
 class RouteGuideClientInterface {
  public:
   virtual ~RouteGuideClientInterface() {}
-  virtual void Invoke(const google::protobuf::Any& request_data) const = 0;
+  virtual void Invoke(const google::protobuf::Any& request_data) const {}
   virtual routeguide::Feature GetFeature(const routeguide::Point& request) const = 0;
   virtual std::vector<routeguide::Feature> ListFeatures(const routeguide::Rectangle& request) const = 0;
 };
