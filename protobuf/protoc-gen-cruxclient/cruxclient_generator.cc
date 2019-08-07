@@ -385,7 +385,7 @@ void PrintInvokeMethod(
     printer->Print(vars, "$request$ request;\n");
     printer->Print(
       vars,
-      "if (!request.ParseFromString(request_data.value())) {\n");
+      "if (!request_data.UnpackTo(&request)) {\n");
     printer->Indent();
     printer->Print("throw crux::RequestParseException();\n");
     printer->Outdent();
@@ -393,6 +393,7 @@ void PrintInvokeMethod(
 
     // invoke method
     printer->Print(vars, "$method_name$(request);\n");
+    printer->Print("return;\n");
     printer->Outdent();
   }
   printer->Print("}\n");

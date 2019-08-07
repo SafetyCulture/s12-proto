@@ -12,22 +12,25 @@ RouteGuideClient::RouteGuideClient(const std::shared_ptr<RouteGuide::StubInterfa
 void RouteGuideClient::Invoke(const google::protobuf::Any& request_data, const std::string& method) const {
   if (method == kRouteGuideGetFeature) {
     routeguide::Point request;
-    if (!request.ParseFromString(request_data.value())) {
+    if (!request_data.UnpackTo(&request)) {
       throw crux::RequestParseException();
     }
     GetFeature(request);
+    return;
   } else if (method == kRouteGuideUpdateFeature) {
     routeguide::Point request;
-    if (!request.ParseFromString(request_data.value())) {
+    if (!request_data.UnpackTo(&request)) {
       throw crux::RequestParseException();
     }
     UpdateFeature(request);
+    return;
   } else if (method == kRouteGuideListFeatures) {
     routeguide::Rectangle request;
-    if (!request.ParseFromString(request_data.value())) {
+    if (!request_data.UnpackTo(&request)) {
       throw crux::RequestParseException();
     }
     ListFeatures(request);
+    return;
   }
   throw crux::RequestParseException();
 }
@@ -68,10 +71,11 @@ PublicRouteGuideClient::PublicRouteGuideClient(const std::shared_ptr<PublicRoute
 void PublicRouteGuideClient::Invoke(const google::protobuf::Any& request_data, const std::string& method) const {
   if (method == kPublicRouteGuideGetFeature) {
     routeguide::Point request;
-    if (!request.ParseFromString(request_data.value())) {
+    if (!request_data.UnpackTo(&request)) {
       throw crux::RequestParseException();
     }
     GetFeature(request);
+    return;
   }
   throw crux::RequestParseException();
 }
