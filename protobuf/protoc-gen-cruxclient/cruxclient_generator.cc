@@ -182,7 +182,7 @@ void PrintNamespace(Printer *printer, const FileDescriptor *file,
       if (!isEpilogue) {
         printer->Print(vars, "namespace $part$ {\n");
       } else {
-        printer->Print(vars, "}  // namespace $part$\n");
+        printer->Print(vars, "}\n");
       }
     }
     printer->Print(vars, "\n");

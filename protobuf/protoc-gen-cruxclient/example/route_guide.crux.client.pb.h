@@ -30,5 +30,5 @@ class RouteGuideClient: public RouteGuideClientInterface {
 
 };
 
-}  // namespace routeguide
+}
 
