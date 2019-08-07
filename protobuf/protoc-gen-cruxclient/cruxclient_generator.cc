@@ -212,11 +212,11 @@ void PrintMethodNames(Printer *printer, const ServiceDescriptor *service) {
       // [RC]: Client Steaming not supported yet
       continue;
     }
-    vars["method_name"] = method->name();
+    vars["method_full_name"] = method->full_name();
     vars["method_signature"] = GetMethodSignature(service->name(), method);
     printer->Print(
       vars,
-      "const char $method_signature$[] = \"$method_name$\";\n");
+      "const char $method_signature$[] = \"$method_full_name$\";\n");
   }
 }
 
