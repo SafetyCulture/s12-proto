@@ -201,9 +201,10 @@ void PrintHeaderIncludes(Printer *printer, const FileDescriptor *file) {
   vars["filename_base"] = StripProto(file->name());
 
   printer->Print("#pragma once\n\n");
-  printer->Print(vars, "#include \"$filename_base$.grpc.pb.h\"\n\n");
   printer->Print("#include <string>\n");
   printer->Print("#include <memory>\n\n");
+  printer->Print(vars, "#include <google/protobuf/any.pb.h>\n");
+  printer->Print(vars, "#include \"$filename_base$.grpc.pb.h\"\n\n");
 
   PrintNamespace(printer, file, false);
 }
@@ -255,8 +256,7 @@ void PrintHeaderInterfaces(Printer *printer, const FileDescriptor *file) {
     printer->Print(vars, "virtual ~$service_name$ClientInterface() {}\n");
     printer->Print(
       "virtual void MakeRequest("
-      "const std::string& request_data, "
-      "const std::string& request_type) const = 0;\n");
+      "const google::protobuf::Any& request_data) const = 0;\n");
     PrintHeaderMethods(printer, service, true);
     printer->Outdent();
     printer->Print("};\n\n");
@@ -282,8 +282,7 @@ void PrintHeaderClients(Printer *printer, const FileDescriptor *file) {
                    "stub);\n");
     printer->Print(
       "void MakeRequest("
-      "const std::string& request_data, "
-      "const std::string& request_type) const override;\n");
+      "const google::protobuf::Any& request_data) const override;\n");
     PrintHeaderMethods(printer, service, false, true);
     printer->Outdent();
     printer->Print("\n");
@@ -328,8 +327,7 @@ void PrintMakeRequestMethod(
   printer->Print(
     vars,
     "void $service_name$Client::MakeRequest("
-    "const std::string& request_data, "
-    "const std::string& request_type) const {\n");
+    "const google::protobuf::Any& request_data) const {\n");
   printer->Indent();
   for (
     int method_index = 0;
@@ -345,12 +343,16 @@ void PrintMakeRequestMethod(
     }
 
     // check request type
-    printer->Print(vars, "if (request_type == \"$request_type$\") {\n");
+    printer->Print(
+      vars,
+      "if (request_data.type_url() == \"$request_type$\") {\n");
     printer->Indent();
 
     // parse request
     printer->Print(vars, "$request$ request;\n");
-    printer->Print(vars, "if (!request.ParseFromString(request_data)) {\n");
+    printer->Print(
+      vars,
+      "if (!request.ParseFromString(request_data.value())) {\n");
     printer->Indent();
     printer->Print("throw crux::RequestParseException();\n");
     printer->Outdent();
@@ -361,6 +363,7 @@ void PrintMakeRequestMethod(
     printer->Outdent();
   }
   printer->Print("}\n");
+  printer->Print("throw crux::RequestParseException();\n");
   printer->Outdent();
   printer->Print("}\n");
 }

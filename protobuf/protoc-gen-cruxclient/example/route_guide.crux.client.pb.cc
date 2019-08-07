@@ -9,32 +9,33 @@ namespace routeguide {
 
 RouteGuideClient::RouteGuideClient(const std::shared_ptr<RouteGuide::StubInterface>& stub) : mStub(stub) {}
 
-void RouteGuideClient::MakeRequest(const std::string& request_data, const std::string& request_type) const {
-  if (request_type == "routeguide.Point") {
+void RouteGuideClient::MakeRequest(const google::protobuf::Any& request_data) const {
+  if (request_data.type_url() == "routeguide.Point") {
     routeguide::Point request;
-    if (!request.ParseFromString(request_data)) {
+    if (!request.ParseFromString(request_data.value())) {
       throw crux::RequestParseException();
     }
     GetFeature(request);
-  } else if (request_type == "routeguide.Rectangle") {
+  } else if (request_data.type_url() == "routeguide.Rectangle") {
     routeguide::Rectangle request;
-    if (!request.ParseFromString(request_data)) {
+    if (!request.ParseFromString(request_data.value())) {
       throw crux::RequestParseException();
     }
     ListFeatures(request);
-  } else if (request_type == "routeguide.Point") {
+  } else if (request_data.type_url() == "routeguide.Point") {
     routeguide::Point request;
-    if (!request.ParseFromString(request_data)) {
+    if (!request.ParseFromString(request_data.value())) {
       throw crux::RequestParseException();
     }
     RecordRoute(request);
-  } else if (request_type == "routeguide.RouteNote") {
+  } else if (request_data.type_url() == "routeguide.RouteNote") {
     routeguide::RouteNote request;
-    if (!request.ParseFromString(request_data)) {
+    if (!request.ParseFromString(request_data.value())) {
       throw crux::RequestParseException();
     }
     RouteChat(request);
   }
+  throw crux::RequestParseException();
 }
 routeguide::Feature RouteGuideClient::GetFeature(const routeguide::Point& request) const {
   routeguide::Feature response;
@@ -60,5 +61,5 @@ std::vector<routeguide::Feature> RouteGuideClient::ListFeatures(const routeguide
   return response;
 }
 
-}  // namespace routeguide
+}
 

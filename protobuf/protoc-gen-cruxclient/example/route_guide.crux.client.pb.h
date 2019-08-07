@@ -3,17 +3,18 @@
 // source: route_guide.proto
 #pragma once
 
-#include "route_guide.grpc.pb.h"
-
 #include <string>
 #include <memory>
+
+#include <google/protobuf/any.pb.h>
+#include "route_guide.grpc.pb.h"
 
 namespace routeguide {
 
 class RouteGuideClientInterface {
  public:
   virtual ~RouteGuideClientInterface() {}
-  virtual void MakeRequest(const std::string& request_data, const std::string& request_type) const = 0;
+  virtual void MakeRequest(const google::protobuf::Any& request_data) const = 0;
   virtual routeguide::Feature GetFeature(const routeguide::Point& request) const = 0;
   virtual std::vector<routeguide::Feature> ListFeatures(const routeguide::Rectangle& request) const = 0;
 };
@@ -21,7 +22,7 @@ class RouteGuideClientInterface {
 class RouteGuideClient: public RouteGuideClientInterface {
  public:
   explicit RouteGuideClient(const std::shared_ptr<RouteGuide::StubInterface>& stub);
-  void MakeRequest(const std::string& request_data, const std::string& request_type) const override;
+  void MakeRequest(const google::protobuf::Any& request_data) const override;
   routeguide::Feature GetFeature(const routeguide::Point& request) const override;
   std::vector<routeguide::Feature> ListFeatures(const routeguide::Rectangle& request) const override;
 
