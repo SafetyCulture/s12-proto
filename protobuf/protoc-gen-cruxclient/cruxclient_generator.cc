@@ -371,10 +371,6 @@ void PrintInvokeMethod(
     vars["method_name"] = method->name();
     const Descriptor *request = method->input_type();
     vars["request"] = ClassName(request, true);
-    if (method_index > 0) {
-      printer->Print("} else ");
-    }
-
     // check request type
     printer->Print(
       vars,
@@ -395,8 +391,8 @@ void PrintInvokeMethod(
     printer->Print(vars, "$method_name$(request);\n");
     printer->Print("return;\n");
     printer->Outdent();
+    printer->Print("}\n");
   }
-  printer->Print("}\n");
   printer->Print("throw crux::RequestParseException();\n");
   printer->Outdent();
   printer->Print("}\n");

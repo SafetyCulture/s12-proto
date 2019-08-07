@@ -17,14 +17,16 @@ void RouteGuideClient::Invoke(const google::protobuf::Any& request_data, const s
     }
     GetFeature(request);
     return;
-  } else if (method == kRouteGuideUpdateFeature) {
+  }
+  if (method == kRouteGuideUpdateFeature) {
     routeguide::Point request;
     if (!request_data.UnpackTo(&request)) {
       throw crux::RequestParseException();
     }
     UpdateFeature(request);
     return;
-  } else if (method == kRouteGuideListFeatures) {
+  }
+  if (method == kRouteGuideListFeatures) {
     routeguide::Rectangle request;
     if (!request_data.UnpackTo(&request)) {
       throw crux::RequestParseException();
