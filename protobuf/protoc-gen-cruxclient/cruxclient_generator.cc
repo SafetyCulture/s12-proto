@@ -290,7 +290,6 @@ void PrintMockHeaderMethods(
     printer->Print(vars, "int m$method_name$CalledCount = 0;\n");
     printer->Print(vars, "$request$ m$method_name$Request;\n");
     printer->Print(vars, "$response$ m$method_name$Response;\n");
-    printer->Print(vars, "$request$ m$method_name$Request;\n");
     printer->Print(
       vars,
       "grpc::StatusCode m$method_name$ErrorStatusCode = "

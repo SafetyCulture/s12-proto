@@ -68,7 +68,6 @@ class MockRouteGuideClient: public RouteGuideClientInterface {
   int mGetFeatureCalledCount = 0;
   routeguide::Point mGetFeatureRequest;
   routeguide::Feature mGetFeatureResponse;
-  routeguide::Point mGetFeatureRequest;
   grpc::StatusCode mGetFeatureErrorStatusCode = grpc::StatusCode::INVALID_ARGUMENT;
   int mGetFeatureExceptionThrowCount = 0;
   routeguide::Feature GetFeature(const routeguide::Point& request) const override {
@@ -83,7 +82,6 @@ class MockRouteGuideClient: public RouteGuideClientInterface {
   int mUpdateFeatureCalledCount = 0;
   routeguide::Point mUpdateFeatureRequest;
   routeguide::Feature mUpdateFeatureResponse;
-  routeguide::Point mUpdateFeatureRequest;
   grpc::StatusCode mUpdateFeatureErrorStatusCode = grpc::StatusCode::INVALID_ARGUMENT;
   int mUpdateFeatureExceptionThrowCount = 0;
   routeguide::Feature UpdateFeature(const routeguide::Point& request) const override {
@@ -98,7 +96,6 @@ class MockRouteGuideClient: public RouteGuideClientInterface {
   int mListFeaturesCalledCount = 0;
   routeguide::Rectangle mListFeaturesRequest;
   std::vector<routeguide::Feature> mListFeaturesResponse;
-  routeguide::Rectangle mListFeaturesRequest;
   grpc::StatusCode mListFeaturesErrorStatusCode = grpc::StatusCode::INVALID_ARGUMENT;
   int mListFeaturesExceptionThrowCount = 0;
   std::vector<routeguide::Feature> ListFeatures(const routeguide::Rectangle& request) const override {
@@ -125,7 +122,6 @@ class MockPublicRouteGuideClient: public PublicRouteGuideClientInterface {
   int mGetFeatureCalledCount = 0;
   routeguide::Point mGetFeatureRequest;
   routeguide::Feature mGetFeatureResponse;
-  routeguide::Point mGetFeatureRequest;
   grpc::StatusCode mGetFeatureErrorStatusCode = grpc::StatusCode::INVALID_ARGUMENT;
   int mGetFeatureExceptionThrowCount = 0;
   routeguide::Feature GetFeature(const routeguide::Point& request) const override {
