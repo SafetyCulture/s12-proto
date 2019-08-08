@@ -11,9 +11,9 @@
 
 namespace routeguide {
 
-const char kRouteGuideGetFeature[] = "routeguide.RouteGuide.GetFeature";
-const char kRouteGuideUpdateFeature[] = "routeguide.RouteGuide.UpdateFeature";
-const char kRouteGuideListFeatures[] = "routeguide.RouteGuide.ListFeatures";
+const char kRouteGuideGetFeature[] = "/routeguide.RouteGuide/GetFeature";
+const char kRouteGuideUpdateFeature[] = "/routeguide.RouteGuide/UpdateFeature";
+const char kRouteGuideListFeatures[] = "/routeguide.RouteGuide/ListFeatures";
 class RouteGuideClientInterface {
  public:
   virtual ~RouteGuideClientInterface() {}
@@ -23,7 +23,7 @@ class RouteGuideClientInterface {
   virtual std::vector<routeguide::Feature> ListFeatures(const routeguide::Rectangle& request) const = 0;
 };
 
-const char kPublicRouteGuideGetFeature[] = "routeguide.PublicRouteGuide.GetFeature";
+const char kPublicRouteGuideGetFeature[] = "/routeguide.PublicRouteGuide/GetFeature";
 class PublicRouteGuideClientInterface {
  public:
   virtual ~PublicRouteGuideClientInterface() {}
