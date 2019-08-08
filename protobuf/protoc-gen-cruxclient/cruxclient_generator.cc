@@ -196,20 +196,45 @@ void PrintHeaderPrologue(Printer *printer, const FileDescriptor *file) {
   PrintPrologue(printer, file);
 }
 
+std::string GetMethodSignature(
+  const std::string& service_name,
+  const MethodDescriptor *method) {
+  return "k" + service_name + method->name();
+}
+
+void PrintMethodNames(Printer *printer, const ServiceDescriptor *service) {
+  std::map<string, string> vars;
+
+  for (int method_index = 0; method_index < service->method_count();
+       ++method_index) {
+    const MethodDescriptor *method = service->method(method_index);
+    if (method->client_streaming()) {
+      // [RC]: Client Steaming not supported yet
+      continue;
+    }
+    vars["method_url"] = "/" + service->full_name() + "/" + method->name();
+    vars["method_signature"] = GetMethodSignature(service->name(), method);
+    printer->Print(
+      vars,
+      "const char $method_signature$[] = \"$method_url$\";\n");
+  }
+}
+
 void PrintHeaderIncludes(Printer *printer, const FileDescriptor *file) {
   std::map<string, string> vars;
   vars["filename_base"] = StripProto(file->name());
 
   printer->Print("#pragma once\n\n");
-  printer->Print(vars, "#include \"$filename_base$.grpc.pb.h\"\n\n");
   printer->Print("#include <string>\n");
   printer->Print("#include <memory>\n\n");
+  printer->Print(vars, "#include <google/protobuf/any.pb.h>\n");
+  printer->Print(vars, "#include \"$filename_base$.grpc.pb.h\"\n\n");
 
   PrintNamespace(printer, file, false);
 }
 
 void PrintHeaderMethods(Printer *printer, const ServiceDescriptor *service,
-                        bool isVirtual) {
+                        bool is_virtual, bool is_override = false) {
   std::map<string, string> vars;
   for (int method_index = 0; method_index < service->method_count();
        ++method_index) {
@@ -226,14 +251,17 @@ void PrintHeaderMethods(Printer *printer, const ServiceDescriptor *service,
     if (method->server_streaming()) {
       vars["response"] = "std::vector<" + vars["response"] + ">";
     }
-    if (isVirtual) {
+    if (is_virtual) {
       printer->Print("virtual ");
     }
     printer->Print(vars,
                    "$response$ $method_name$(const $request$& "
                    "request) const");
-    if (isVirtual) {
+    if (is_virtual) {
       printer->Print(" = 0");
+    }
+    if (is_override) {
+      printer->Print(" override");
     }
     printer->Print(";\n");
   }
@@ -246,10 +274,15 @@ void PrintHeaderInterfaces(Printer *printer, const FileDescriptor *file) {
     const ServiceDescriptor *service = file->service(service_index);
     vars["service_name"] = service->name();
 
+    PrintMethodNames(printer, service);
     printer->Print(vars, "class $service_name$ClientInterface {\n");
     printer->Print(" public:\n");
     printer->Indent();
     printer->Print(vars, "virtual ~$service_name$ClientInterface() {}\n");
+    printer->Print(
+      "virtual void Invoke("
+      "const google::protobuf::Any& request_data, "
+      "const std::string& method) const {}\n");
     PrintHeaderMethods(printer, service, true);
     printer->Outdent();
     printer->Print("};\n\n");
@@ -273,7 +306,11 @@ void PrintHeaderClients(Printer *printer, const FileDescriptor *file) {
                    "explicit $service_name$Client(const "
                    "std::shared_ptr<$service_name$::StubInterface>& "
                    "stub);\n");
-    PrintHeaderMethods(printer, service, false);
+    printer->Print(
+      "void Invoke("
+      "const google::protobuf::Any& request_data, "
+      "const std::string& method) const override;\n");
+    PrintHeaderMethods(printer, service, false, true);
     printer->Outdent();
     printer->Print("\n");
 
@@ -309,6 +346,58 @@ void PrintSourceIncludes(Printer *printer, const FileDescriptor *file) {
   PrintNamespace(printer, file, false);
 }
 
+void PrintInvokeMethod(
+  Printer *printer,
+  const ServiceDescriptor *service) {
+  std::map<string, string> vars;
+  vars["service_name"] = service->name();
+  printer->Print(
+    vars,
+    "void $service_name$Client::Invoke("
+    "const google::protobuf::Any& request_data, "
+    "const std::string& method) const {\n");
+  printer->Indent();
+  for (
+    int method_index = 0;
+    method_index < service->method_count();
+    ++method_index) {
+    const MethodDescriptor *method = service->method(method_index);
+    if (method->client_streaming()) {
+      // [RC]: Client Steaming not supported yet
+      continue;
+    }
+
+    vars["method_signature"] = GetMethodSignature(service->name(), method);
+    vars["method_name"] = method->name();
+    const Descriptor *request = method->input_type();
+    vars["request"] = ClassName(request, true);
+    // check request type
+    printer->Print(
+      vars,
+      "if (method == $method_signature$) {\n");
+    printer->Indent();
+
+    // parse request
+    printer->Print(vars, "$request$ request;\n");
+    printer->Print(
+      vars,
+      "if (!request_data.UnpackTo(&request)) {\n");
+    printer->Indent();
+    printer->Print("throw crux::RequestParseException();\n");
+    printer->Outdent();
+    printer->Print("}\n");
+
+    // invoke method
+    printer->Print(vars, "$method_name$(request);\n");
+    printer->Print("return;\n");
+    printer->Outdent();
+    printer->Print("}\n");
+  }
+  printer->Print("throw crux::RequestParseException();\n");
+  printer->Outdent();
+  printer->Print("}\n");
+}
+
 void PrintSourceClients(Printer *printer, const FileDescriptor *file) {
   std::map<string, string> vars;
   if (!file->package().empty()) {
@@ -324,7 +413,7 @@ void PrintSourceClients(Printer *printer, const FileDescriptor *file) {
                    "$service_name$Client::$service_name$Client(const "
                    "std::shared_ptr<$service_name$::StubInterface>& "
                    "stub) : mStub(stub) {}\n\n");
-
+    PrintInvokeMethod(printer, service);
     for (int method_index = 0; method_index < service->method_count();
          ++method_index) {
       const MethodDescriptor *method = service->method(method_index);

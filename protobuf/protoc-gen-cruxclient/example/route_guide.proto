@@ -20,6 +20,13 @@ service RouteGuide {
   // position.
   rpc GetFeature(Point) returns (Feature) {}
 
+  // A simple RPC.
+  //
+  // Update the feature at a given position.
+  //
+  // The updated feature is returned at the given position.
+  rpc UpdateFeature(Point) returns (Feature) {}
+
   // A server-to-client streaming RPC.
   //
   // Obtains the Features available within the given Rectangle.  Results are
@@ -39,6 +46,17 @@ service RouteGuide {
   // Accepts a stream of RouteNotes sent while a route is being traversed,
   // while receiving other RouteNotes (e.g. from other users).
   rpc RouteChat(stream RouteNote) returns (stream RouteNote) {}
+}
+
+// Interface exported by the server.
+service PublicRouteGuide {
+  // A simple RPC.
+  //
+  // Obtains the feature at a given position.
+  //
+  // A feature with an empty name is returned if there's no feature at the given
+  // position.
+  rpc GetFeature(Point) returns (Feature) {}
 }
 
 // Points are represented as latitude-longitude pairs in the E7 representation
