@@ -228,7 +228,8 @@ void PrintHeaderIncludes(Printer *printer, const FileDescriptor *file) {
   printer->Print("#include <string>\n");
   printer->Print("#include <memory>\n\n");
   printer->Print(vars, "#include <google/protobuf/any.pb.h>\n");
-  printer->Print(vars, "#include \"$filename_base$.grpc.pb.h\"\n\n");
+  printer->Print(vars, "#include \"$filename_base$.grpc.pb.h\"\n");
+  printer->Print(vars, "#include \"s12_client_support.hpp\"\n\n");
 
   PrintNamespace(printer, file, false);
 }
@@ -287,14 +288,14 @@ void PrintMockHeaderMethods(
       vars["response"] = "std::vector<" + vars["response"] + ">";
     }
 
-    printer->Print(vars, "int m$method_name$CalledCount = 0;\n");
-    printer->Print(vars, "$request$ m$method_name$Request;\n");
+    printer->Print(vars, "mutable int m$method_name$CalledCount = 0;\n");
+    printer->Print(vars, "mutable $request$ m$method_name$Request;\n");
     printer->Print(vars, "$response$ m$method_name$Response;\n");
     printer->Print(
       vars,
       "grpc::StatusCode m$method_name$ErrorStatusCode = "
       "grpc::StatusCode::INVALID_ARGUMENT;\n");
-    printer->Print(vars, "int m$method_name$ExceptionThrowCount = 0;\n");
+    printer->Print(vars, "mutable int m$method_name$ExceptionThrowCount = 0;\n");
     printer->Print(vars,
                    "$response$ $method_name$(const $request$& "
                    "request) const override {\n");
@@ -305,7 +306,8 @@ void PrintMockHeaderMethods(
     printer->Print(vars, "m$method_name$ExceptionThrowCount--;\n");
     printer->Print(
       vars,
-      "throw ServiceException(m$method_name$ErrorStatusCode, \"Error\");\n");
+      "throw crux::ServiceException("
+      "m$method_name$ErrorStatusCode, \"Error\");\n");
     printer->Outdent();
     printer->Print("}\n");
     printer->Print(vars, "return m$method_name$Response;\n");
@@ -384,13 +386,13 @@ void PrintHeaderMockClients(Printer *printer, const FileDescriptor *file) {
         "public $service_name$ClientInterface {\n");
     printer->Print(" public:\n");
     printer->Indent();
-    printer->Print("int mInvokeCalledCount = 0;\n");
-    printer->Print("google::protobuf::Any mInvokeRequestData;\n");
-    printer->Print("std::string mInvokeMethod;\n");
+    printer->Print("mutable int mInvokeCalledCount = 0;\n");
+    printer->Print("mutable google::protobuf::Any mInvokeRequestData;\n");
+    printer->Print("mutable std::string mInvokeMethod;\n");
     printer->Print(
       "void Invoke("
       "const google::protobuf::Any& request_data, "
-      "const std::string& method) const override{\n");
+      "const std::string& method) const override {\n");
     printer->Indent();
     printer->Print("mInvokeCalledCount++;\n");
     printer->Print("mInvokeRequestData = request_data;\n");
@@ -421,7 +423,6 @@ void PrintSourceIncludes(Printer *printer, const FileDescriptor *file) {
   vars["filename_base"] = StripProto(file->name());
 
   printer->Print(vars, "#include \"$filename_base$.crux.client.pb.h\"\n");
-  printer->Print(vars, "#include \"s12_client_support.hpp\"\n\n");
 
   PrintNamespace(printer, file, false);
 }
