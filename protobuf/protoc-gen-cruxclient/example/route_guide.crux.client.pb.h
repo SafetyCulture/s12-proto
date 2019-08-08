@@ -8,6 +8,7 @@
 
 #include <google/protobuf/any.pb.h>
 #include "route_guide.grpc.pb.h"
+#include "s12_client_support.hpp"
 
 namespace routeguide {
 
@@ -52,6 +53,86 @@ class PublicRouteGuideClient: public PublicRouteGuideClientInterface {
 
  private:
   std::shared_ptr<PublicRouteGuide::StubInterface> mStub;
+
+};
+
+class MockRouteGuideClient: public RouteGuideClientInterface {
+ public:
+  mutable int mInvokeCalledCount = 0;
+  mutable google::protobuf::Any mInvokeRequestData;
+  mutable std::string mInvokeMethod;
+  void Invoke(const google::protobuf::Any& request_data, const std::string& method) const override {
+    mInvokeCalledCount++;
+    mInvokeRequestData = request_data;
+    mInvokeMethod = method;
+  }
+  mutable int mGetFeatureCalledCount = 0;
+  mutable routeguide::Point mGetFeatureRequest;
+  routeguide::Feature mGetFeatureResponse;
+  grpc::StatusCode mGetFeatureErrorStatusCode = grpc::StatusCode::INVALID_ARGUMENT;
+  mutable int mGetFeatureExceptionThrowCount = 0;
+  routeguide::Feature GetFeature(const routeguide::Point& request) const override {
+    mGetFeatureCalledCount++;
+    while (mGetFeatureExceptionThrowCount > 0) {
+      mGetFeatureExceptionThrowCount--;
+      throw crux::ServiceException(mGetFeatureErrorStatusCode, "Error");
+    }
+    return mGetFeatureResponse;
+  }
+
+  mutable int mUpdateFeatureCalledCount = 0;
+  mutable routeguide::Point mUpdateFeatureRequest;
+  routeguide::Feature mUpdateFeatureResponse;
+  grpc::StatusCode mUpdateFeatureErrorStatusCode = grpc::StatusCode::INVALID_ARGUMENT;
+  mutable int mUpdateFeatureExceptionThrowCount = 0;
+  routeguide::Feature UpdateFeature(const routeguide::Point& request) const override {
+    mUpdateFeatureCalledCount++;
+    while (mUpdateFeatureExceptionThrowCount > 0) {
+      mUpdateFeatureExceptionThrowCount--;
+      throw crux::ServiceException(mUpdateFeatureErrorStatusCode, "Error");
+    }
+    return mUpdateFeatureResponse;
+  }
+
+  mutable int mListFeaturesCalledCount = 0;
+  mutable routeguide::Rectangle mListFeaturesRequest;
+  std::vector<routeguide::Feature> mListFeaturesResponse;
+  grpc::StatusCode mListFeaturesErrorStatusCode = grpc::StatusCode::INVALID_ARGUMENT;
+  mutable int mListFeaturesExceptionThrowCount = 0;
+  std::vector<routeguide::Feature> ListFeatures(const routeguide::Rectangle& request) const override {
+    mListFeaturesCalledCount++;
+    while (mListFeaturesExceptionThrowCount > 0) {
+      mListFeaturesExceptionThrowCount--;
+      throw crux::ServiceException(mListFeaturesErrorStatusCode, "Error");
+    }
+    return mListFeaturesResponse;
+  }
+
+};
+
+class MockPublicRouteGuideClient: public PublicRouteGuideClientInterface {
+ public:
+  mutable int mInvokeCalledCount = 0;
+  mutable google::protobuf::Any mInvokeRequestData;
+  mutable std::string mInvokeMethod;
+  void Invoke(const google::protobuf::Any& request_data, const std::string& method) const override {
+    mInvokeCalledCount++;
+    mInvokeRequestData = request_data;
+    mInvokeMethod = method;
+  }
+  mutable int mGetFeatureCalledCount = 0;
+  mutable routeguide::Point mGetFeatureRequest;
+  routeguide::Feature mGetFeatureResponse;
+  grpc::StatusCode mGetFeatureErrorStatusCode = grpc::StatusCode::INVALID_ARGUMENT;
+  mutable int mGetFeatureExceptionThrowCount = 0;
+  routeguide::Feature GetFeature(const routeguide::Point& request) const override {
+    mGetFeatureCalledCount++;
+    while (mGetFeatureExceptionThrowCount > 0) {
+      mGetFeatureExceptionThrowCount--;
+      throw crux::ServiceException(mGetFeatureErrorStatusCode, "Error");
+    }
+    return mGetFeatureResponse;
+  }
 
 };
 

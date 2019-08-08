@@ -3,8 +3,6 @@
 // source: route_guide.proto
 
 #include "route_guide.crux.client.pb.h"
-#include "s12_client_support.hpp"
-
 namespace routeguide {
 
 RouteGuideClient::RouteGuideClient(const std::shared_ptr<RouteGuide::StubInterface>& stub) : mStub(stub) {}

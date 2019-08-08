@@ -228,7 +228,8 @@ void PrintHeaderIncludes(Printer *printer, const FileDescriptor *file) {
   printer->Print("#include <string>\n");
   printer->Print("#include <memory>\n\n");
   printer->Print(vars, "#include <google/protobuf/any.pb.h>\n");
-  printer->Print(vars, "#include \"$filename_base$.grpc.pb.h\"\n\n");
+  printer->Print(vars, "#include \"$filename_base$.grpc.pb.h\"\n");
+  printer->Print(vars, "#include \"s12_client_support.hpp\"\n\n");
 
   PrintNamespace(printer, file, false);
 }
@@ -264,6 +265,54 @@ void PrintHeaderMethods(Printer *printer, const ServiceDescriptor *service,
       printer->Print(" override");
     }
     printer->Print(";\n");
+  }
+}
+
+void PrintMockHeaderMethods(
+  Printer *printer,
+  const ServiceDescriptor *service) {
+  std::map<string, string> vars;
+  for (int method_index = 0; method_index < service->method_count();
+       ++method_index) {
+    const MethodDescriptor *method = service->method(method_index);
+    vars["method_name"] = method->name();
+    vars["request"] = ClassName(method->input_type(), true);
+    vars["response"] = ClassName(method->output_type(), true);
+
+    if (method->client_streaming()) {
+      // [RC]: Client Steaming not supported yet
+      continue;
+    }
+
+    if (method->server_streaming()) {
+      vars["response"] = "std::vector<" + vars["response"] + ">";
+    }
+
+    printer->Print(vars, "mutable int m$method_name$CalledCount = 0;\n");
+    printer->Print(vars, "mutable $request$ m$method_name$Request;\n");
+    printer->Print(vars, "$response$ m$method_name$Response;\n");
+    printer->Print(
+      vars,
+      "grpc::StatusCode m$method_name$ErrorStatusCode = "
+      "grpc::StatusCode::INVALID_ARGUMENT;\n");
+    printer->Print(vars, "mutable int m$method_name$ExceptionThrowCount = 0;\n");
+    printer->Print(vars,
+                   "$response$ $method_name$(const $request$& "
+                   "request) const override {\n");
+    printer->Indent();
+    printer->Print(vars, "m$method_name$CalledCount++;\n");
+    printer->Print(vars, "while (m$method_name$ExceptionThrowCount > 0) {\n");
+    printer->Indent();
+    printer->Print(vars, "m$method_name$ExceptionThrowCount--;\n");
+    printer->Print(
+      vars,
+      "throw crux::ServiceException("
+      "m$method_name$ErrorStatusCode, \"Error\");\n");
+    printer->Outdent();
+    printer->Print("}\n");
+    printer->Print(vars, "return m$method_name$Response;\n");
+    printer->Outdent();
+    printer->Print("}\n\n");
   }
 }
 
@@ -323,6 +372,39 @@ void PrintHeaderClients(Printer *printer, const FileDescriptor *file) {
   }
 }
 
+void PrintHeaderMockClients(Printer *printer, const FileDescriptor *file) {
+  std::map<string, string> vars;
+
+  for (int service_index = 0; service_index < file->service_count();
+       ++service_index) {
+    const ServiceDescriptor *service = file->service(service_index);
+    vars["service_name"] = service->name();
+
+    printer->Print(
+        vars,
+        "class Mock$service_name$Client: "
+        "public $service_name$ClientInterface {\n");
+    printer->Print(" public:\n");
+    printer->Indent();
+    printer->Print("mutable int mInvokeCalledCount = 0;\n");
+    printer->Print("mutable google::protobuf::Any mInvokeRequestData;\n");
+    printer->Print("mutable std::string mInvokeMethod;\n");
+    printer->Print(
+      "void Invoke("
+      "const google::protobuf::Any& request_data, "
+      "const std::string& method) const override {\n");
+    printer->Indent();
+    printer->Print("mInvokeCalledCount++;\n");
+    printer->Print("mInvokeRequestData = request_data;\n");
+    printer->Print("mInvokeMethod = method;\n");
+    printer->Outdent();
+    printer->Print("}\n");
+    PrintMockHeaderMethods(printer, service);
+    printer->Outdent();
+    printer->Print("};\n\n");
+  }
+}
+
 void PrintHeaderEpilogue(Printer *printer, const FileDescriptor *file) {
   std::map<string, string> vars;
   vars["filename"] = file->name();
@@ -341,7 +423,6 @@ void PrintSourceIncludes(Printer *printer, const FileDescriptor *file) {
   vars["filename_base"] = StripProto(file->name());
 
   printer->Print(vars, "#include \"$filename_base$.crux.client.pb.h\"\n");
-  printer->Print(vars, "#include \"s12_client_support.hpp\"\n\n");
 
   PrintNamespace(printer, file, false);
 }
@@ -494,6 +575,7 @@ class Generator : public CodeGenerator {
     PrintHeaderIncludes(&header_printer, file);
     PrintHeaderInterfaces(&header_printer, file);
     PrintHeaderClients(&header_printer, file);
+    PrintHeaderMockClients(&header_printer, file);
     PrintHeaderEpilogue(&header_printer, file);
 
     std::unique_ptr<ZeroCopyOutputStream> source_output(
