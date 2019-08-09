@@ -37,6 +37,9 @@ message ExampleMessage {
     string fax = 13;
     string phone = 14 [(validator.length_gte) = 11];
   }
+
+  // Required inner nessage
+  InnerMessage msg_required = 15 [(validator.msg_required) = true];
 }
 
 message InnerMessage {

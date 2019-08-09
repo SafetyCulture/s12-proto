@@ -242,6 +242,16 @@ func (p *plugin) generateLengthValidator(variableName string, ccTypeName string,
 
 func (p *plugin) generateInnerMessageValidator(variableName string, ccTypeName string, fieldName string, field *descriptor.FieldDescriptorProto, nullable bool) {
 
+	if getMsgRequiredValue(field) {
+		if nullable {
+			p.P(`if `, variableName, ` == nil {`)
+			p.In()
+			p.P(`return fmt.Errorf("message `, fieldName, ` is required")`)
+			p.Out()
+			p.P(`}`)
+		}
+	}
+
 	if nullable {
 		p.P(`if `, variableName, ` != nil {`)
 		p.In()
@@ -325,6 +335,7 @@ func hasValidationExtensions(field *descriptor.FieldDescriptorProto) bool {
 			validator.E_LengthGte,
 			validator.E_LengthLte,
 			validator.E_Optional,
+			validator.E_MsgRequired,
 		}
 		for _, ext := range validExts {
 			if proto.HasExtension(field.Options, ext) {
@@ -407,6 +418,10 @@ func getLengthGteValue(field *descriptor.FieldDescriptorProto) *int64 {
 		}
 	}
 	return nil
+}
+
+func getMsgRequiredValue(field *descriptor.FieldDescriptorProto) bool {
+	return proto.GetBoolExtension(field.Options, validator.E_MsgRequired, false)
 }
 
 func isSupportedInt(field *descriptor.FieldDescriptorProto) bool {

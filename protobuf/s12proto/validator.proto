@@ -26,4 +26,6 @@ extend google.protobuf.FieldOptions {
   optional int64 length_lte = 65207;
   // Validation only applies to non-zero values.
   optional bool optional = 65208;
+  // Validates that an inner message is required.
+  optional bool msg_required = 65209;
 }
