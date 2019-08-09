@@ -225,6 +225,7 @@ void PrintHeaderIncludes(Printer *printer, const FileDescriptor *file) {
   vars["filename_base"] = StripProto(file->name());
 
   printer->Print("#pragma once\n\n");
+  printer->Print("#include <vector>\n");
   printer->Print("#include <string>\n");
   printer->Print("#include <memory>\n\n");
   printer->Print(vars, "#include <google/protobuf/any.pb.h>\n");
@@ -289,19 +290,24 @@ void PrintMockHeaderMethods(
     }
 
     printer->Print(vars, "mutable int m$method_name$CalledCount = 0;\n");
-    printer->Print(vars, "mutable $request$ m$method_name$Request;\n");
+    printer->Print(
+      vars,
+      "mutable std::vector<$request$> m$method_name$Requests;\n");
     printer->Print(vars, "$response$ m$method_name$Response;\n");
     printer->Print(
       vars,
       "grpc::StatusCode m$method_name$ErrorStatusCode = "
       "grpc::StatusCode::INVALID_ARGUMENT;\n");
-    printer->Print(vars, "mutable int m$method_name$ExceptionThrowCount = 0;\n");
+    printer->Print(
+      vars,
+      "mutable int m$method_name$ExceptionThrowCount = 0;\n");
     printer->Print(vars,
                    "$response$ $method_name$(const $request$& "
                    "request) const override {\n");
     printer->Indent();
     printer->Print(vars, "m$method_name$CalledCount++;\n");
-    printer->Print(vars, "while (m$method_name$ExceptionThrowCount > 0) {\n");
+    printer->Print(vars, "m$method_name$Requests.push_back(request);\n");
+    printer->Print(vars, "if (m$method_name$ExceptionThrowCount > 0) {\n");
     printer->Indent();
     printer->Print(vars, "m$method_name$ExceptionThrowCount--;\n");
     printer->Print(
@@ -387,16 +393,36 @@ void PrintHeaderMockClients(Printer *printer, const FileDescriptor *file) {
     printer->Print(" public:\n");
     printer->Indent();
     printer->Print("mutable int mInvokeCalledCount = 0;\n");
-    printer->Print("mutable google::protobuf::Any mInvokeRequestData;\n");
-    printer->Print("mutable std::string mInvokeMethod;\n");
+    printer->Print(
+      "mutable std::vector<google::protobuf::Any> mInvokeRequestData;\n");
+    printer->Print("mutable std::vector<std::string> mInvokeMethods;\n");
+    printer->Print("bool mInvokeThrowParseException = false;\n");
+    printer->Print(
+      "grpc::StatusCode mInvokeErrorStatusCode = "
+      "grpc::StatusCode::INVALID_ARGUMENT;\n");
+    printer->Print(
+      "mutable int mInvokeExceptionThrowCount = 0;\n");
     printer->Print(
       "void Invoke("
       "const google::protobuf::Any& request_data, "
       "const std::string& method) const override {\n");
     printer->Indent();
     printer->Print("mInvokeCalledCount++;\n");
-    printer->Print("mInvokeRequestData = request_data;\n");
-    printer->Print("mInvokeMethod = method;\n");
+    printer->Print("mInvokeRequestData.push_back(request_data);\n");
+    printer->Print("mInvokeMethods.push_back(method);\n");
+    printer->Print("if (mInvokeThrowParseException) {\n");
+    printer->Indent();
+    printer->Print("throw crux::RequestParseException();\n");
+    printer->Outdent();
+    printer->Print("}\n");
+    printer->Print("if (mInvokeExceptionThrowCount > 0) {\n");
+    printer->Indent();
+    printer->Print("mInvokeExceptionThrowCount--;\n");
+    printer->Print(
+      "throw crux::ServiceException("
+      "mInvokeErrorStatusCode, \"Error\");\n");
+    printer->Outdent();
+    printer->Print("}\n");
     printer->Outdent();
     printer->Print("}\n");
     PrintMockHeaderMethods(printer, service);
