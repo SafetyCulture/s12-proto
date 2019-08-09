@@ -23,7 +23,7 @@ func TestValidationRules(t *testing.T) {
 		sb.WriteRune('a')
 	}
 
-	tests := []struct {
+	tests := [...]struct {
 		name        string
 		input       s12proto.Validator
 		shouldError bool
