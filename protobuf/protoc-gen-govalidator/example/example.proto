@@ -40,7 +40,7 @@ message ExampleMessage {
   // Required inner message
   InnerMessage msg_required = 15 [(validator.msg_required) = true];
 
-  // returns an error if the string cannot be parsed as a legacy s12 id
+  // returns an error if the string cannot be parsed as a legacy id
   string legacy_id = 16 [(gogoproto.customname) = "LegacyID", (validator.legacy_id) = true];
 
   // InnerMessage can contain a legacy id too
