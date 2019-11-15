@@ -28,4 +28,6 @@ extend google.protobuf.FieldOptions {
   optional bool optional = 65208;
   // Validates that an inner message is required.
   optional bool msg_required = 65209;
+  // Field value that caters to an upper case universally unique identifier, uuid or a long id
+  optional bool legacy_id = 65210;
 }

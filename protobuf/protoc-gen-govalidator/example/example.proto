@@ -1,6 +1,5 @@
 // Copyright (c) 2018 SafetyCulture Pty Ltd. All Rights Reserved.
 
-
 syntax = "proto3";
 package example;
 
@@ -16,9 +15,9 @@ message ExampleMessage {
   string email = 3 [(validator.regex) = ".+\\@.+\\..+"];
   // integers can be greater than a value
   int32 age = 4 [(validator.int_gt) = 0];
-  // intergers can be less than a value
+  // integers can be less than a value
   int64 speed = 5 [(validator.int_lt) = 110];
-  // intergers greater/less than or equal, the can also be combined
+  // integers greater/less than or equal, the can also be combined
   int32 score = 6 [(validator.int_gte) = 0, (validator.int_lte) = 100];
   // validation is created for all messages
   InnerMessage inner = 7;
@@ -38,10 +37,20 @@ message ExampleMessage {
     string phone = 14 [(validator.length_gte) = 11];
   }
 
-  // Required inner nessage
+  // Required inner message
   InnerMessage msg_required = 15 [(validator.msg_required) = true];
+
+  // returns an error if the string cannot be parsed as a legacy id
+  string legacy_id = 16 [(gogoproto.customname) = "LegacyID", (validator.legacy_id) = true];
+
+  // InnerMessage can contain a legacy id too
+  InnerMessageWithLegacyId  inner_legacy_id = 17;
 }
 
 message InnerMessage {
   string id = 1 [(validator.uuid) = true];
+}
+
+message InnerMessageWithLegacyId {
+  string id = 1 [(validator.legacy_id) = true];
 }

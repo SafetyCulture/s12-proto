@@ -142,6 +142,14 @@ func (p *plugin) generateStringValidator(variableName string, ccTypeName string,
 		p.Out()
 		p.P(`}`)
 	}
+	if getLegacyIDValue(field) {
+		p.P(`if !`, p.s12protoPkg.Use(), `.IsLegacyID(`, variableName, `) {`)
+		p.In()
+		errorStr := "be parsable as a UUID or a legacy ID"
+		p.generateErrorString(variableName, fieldName, errorStr)
+		p.Out()
+		p.P(`}`)
+	}
 
 	p.generateLengthValidator(variableName, ccTypeName, fieldName, field)
 
@@ -334,6 +342,7 @@ func hasValidationExtensions(field *descriptor.FieldDescriptorProto) bool {
 			validator.E_LengthLte,
 			validator.E_Optional,
 			validator.E_MsgRequired,
+			validator.E_LegacyId,
 		}
 		for _, ext := range validExts {
 			if proto.HasExtension(field.Options, ext) {
@@ -356,6 +365,10 @@ func getRegexValue(field *descriptor.FieldDescriptorProto) *string {
 
 func getUUIDValue(field *descriptor.FieldDescriptorProto) bool {
 	return proto.GetBoolExtension(field.Options, validator.E_Uuid, false)
+}
+
+func getLegacyIDValue(field *descriptor.FieldDescriptorProto) bool {
+	return proto.GetBoolExtension(field.Options, validator.E_LegacyId, false)
 }
 
 func getIntGtValue(field *descriptor.FieldDescriptorProto) *int64 {

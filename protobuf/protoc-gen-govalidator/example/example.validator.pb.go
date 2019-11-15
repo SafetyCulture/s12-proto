@@ -3,13 +3,15 @@
 
 package example
 
-import fmt "fmt"
-import regexp "regexp"
-import github_com_SafetyCulture_s12_proto_protobuf_s12proto "github.com/SafetyCulture/s12-proto/protobuf/s12proto"
-import proto "github.com/gogo/protobuf/proto"
-import math "math"
-import _ "github.com/SafetyCulture/s12-proto/protobuf/s12proto"
-import _ "github.com/gogo/protobuf/gogoproto"
+import (
+	fmt "fmt"
+	math "math"
+	proto "github.com/gogo/protobuf/proto"
+	_ "github.com/gogo/protobuf/gogoproto"
+	_ "github.com/SafetyCulture/s12-proto/protobuf/s12proto"
+	regexp "regexp"
+	github_com_SafetyCulture_s12_proto_protobuf_s12proto "github.com/SafetyCulture/s12-proto/protobuf/s12proto"
+)
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -74,12 +76,29 @@ func (m *ExampleMessage) Validate() error {
 			}
 		}
 	}
+	if !github_com_SafetyCulture_s12_proto_protobuf_s12proto.IsLegacyID(m.LegacyID) {
+		return fmt.Errorf(`LegacyID: value '%v' must be parsable as a UUID or a legacy ID`, m.LegacyID)
+	}
+	if m.InnerLegacyId != nil {
+		if v, ok := interface{}(m.InnerLegacyId).(github_com_SafetyCulture_s12_proto_protobuf_s12proto.Validator); ok {
+			if err := v.Validate(); err != nil {
+				return github_com_SafetyCulture_s12_proto_protobuf_s12proto.FieldError("InnerLegacyId", err)
+			}
+		}
+	}
 	return nil
 }
 
 func (m *InnerMessage) Validate() error {
 	if !github_com_SafetyCulture_s12_proto_protobuf_s12proto.IsUUID(m.Id) {
 		return fmt.Errorf(`Id: value '%v' must be parsable as a UUID`, m.Id)
+	}
+	return nil
+}
+
+func (m *InnerMessageWithLegacyId) Validate() error {
+	if !github_com_SafetyCulture_s12_proto_protobuf_s12proto.IsLegacyID(m.Id) {
+		return fmt.Errorf(`Id: value '%v' must be parsable as a UUID or a legacy ID`, m.Id)
 	}
 	return nil
 }
