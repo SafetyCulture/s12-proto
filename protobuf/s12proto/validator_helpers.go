@@ -14,14 +14,12 @@ const (
 
 const (
 	uuid string = "^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}$"
-	upper_case_uuid string = "^[[:xdigit:]]{8}-?[[:xdigit:]]{4}-?[[:xdigit:]]{4}-?[[:xdigit:]]{4}-?[[:xdigit:]]{12}$"
-	globally_unique_ios_string string = "^[[:xdigit:]]{8}-?[[:xdigit:]]{4}-?[[:xdigit:]]{4}-?[[:xdigit:]]{4}-?[[:xdigit:]]{12}-?[[:xdigit:]]{2,5}-?[[:xdigit:]]{16}$"
+	legacyId string = "(?i)^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}(-?[0-9a-f]{2,5}-?[0-9a-f]{16})?$"
 )
 
 var (
 	rxUUID = regexp.MustCompile(uuid)
-	rxUUIDUpperCase = regexp.MustCompile(upper_case_uuid)
-	rxUniqueIOsString = regexp.MustCompile(globally_unique_ios_string)
+	rxLegacyId = regexp.MustCompile(legacyId)
 )
 
 // IsUUID checks if the string is a UUID (version 3, 4 or 5).
@@ -30,7 +28,7 @@ func IsUUID(str string) bool {
 }
 
 func IsLegacyID(str string) bool {
-	return rxUUIDUpperCase.MatchString(str) || rxUniqueIOsString.MatchString(str)
+	return rxLegacyId.MatchString(str)
 }
 
 type Validator interface {

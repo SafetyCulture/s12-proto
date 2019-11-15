@@ -500,6 +500,19 @@ func TestValidationRules(t *testing.T) {
 			},
 			false,
 		}, {
+			"UUIDAsLegacyID",
+			&ExampleMessage{
+				Id:            id,
+				UserID:        byteID,
+				Email:         email,
+				Age:           18,
+				Password:      password,
+				MsgRequired:   &InnerMessage{Id: id},
+				LegacyID:      id,
+				InnerLegacyId: &InnerMessageWithLegacyId{Id: id},
+			},
+			false,
+		}, {
 			"LegacyIDWithoutDashes",
 			&ExampleMessage{
 				Id:          id,
