@@ -27,6 +27,7 @@ func IsUUID(str string) bool {
 	return rxUUID.MatchString(str)
 }
 
+// legacyId contains the id without the document prefix; the prefix is accounted for in the service implementation code
 func IsLegacyID(str string) bool {
 	return rxLegacyId.MatchString(str)
 }
