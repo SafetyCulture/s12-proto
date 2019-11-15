@@ -14,7 +14,6 @@ const (
 
 const (
 	uuid string = "^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}$"
-	// legacyId contains the id without the document prefix; the prefix is accounted for in the service implementation code
 	legacyId string = "(?i)^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}(-?[0-9a-f]{2,5}-?[0-9a-f]{16})?$"
 )
 
@@ -28,6 +27,7 @@ func IsUUID(str string) bool {
 	return rxUUID.MatchString(str)
 }
 
+// A legacyId does not contain the document prefix; the prefix is accounted for in the service implementation code
 func IsLegacyID(str string) bool {
 	return rxLegacyId.MatchString(str)
 }
