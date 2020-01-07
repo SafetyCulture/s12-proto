@@ -162,4 +162,3 @@ class MockPublicRouteGuideClient: public PublicRouteGuideClientInterface {
 };
 
 }
-

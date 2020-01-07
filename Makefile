@@ -8,9 +8,9 @@ generate:
 
 CXX = g++
 CPPFLAGS += -I/usr/local/include -pthread
-CXXFLAGS += -std=c++11
+CXXFLAGS += -std=c++17
 LDFLAGS += -L/usr/local/lib -lprotoc -lprotobuf -lpthread -ldl
-protoc-gen-cruxclient: protobuf/protoc-gen-cruxclient/cruxclient_generator.o
+protoc-gen-cruxclient: protobuf/protoc-gen-cruxclient/cruxclient_generator.o protobuf/protoc-gen-cruxclient/legacy_generator.o
 	$(CXX) $^ $(LDFLAGS) -o $@
 
 .PHONY: install-govalidator
@@ -38,7 +38,7 @@ govalidator: install-govalidator
 	protobuf/protoc-gen-govalidator/example/*.proto
 
 .PHONY: govalidator-test
-govalidator-test: 
+govalidator-test:
 	go test github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-govalidator/example -v
 
 .PHONY: logger
