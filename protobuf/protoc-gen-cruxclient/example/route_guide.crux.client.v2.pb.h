@@ -9,10 +9,6 @@
 
 #include <google/protobuf/any.pb.h>
 #include "route_guide.grpc.pb.h"
-namespace crux::engine::v1 {
-class TokenProvider;
-}  // namespace crux::engine::v1
-
 namespace routeguide.v1 {
 const char kRouteGuideGetFeature[] = "/routeguide.v1.RouteGuide/GetFeature";
 const char kRouteGuideUpdateFeature[] = "/routeguide.v1.RouteGuide/UpdateFeature";
@@ -44,7 +40,6 @@ class RouteGuideClient: public RouteGuideClientInterface {
 
  private:
   std::shared_ptr<RouteGuide::StubInterface> mStub;
-  std::shared_ptr<crux::engine::v1::TokenProvider> mTokenProvider;
 };
 
 class PublicRouteGuideClient: public PublicRouteGuideClientInterface {
@@ -55,7 +50,6 @@ class PublicRouteGuideClient: public PublicRouteGuideClientInterface {
 
  private:
   std::shared_ptr<PublicRouteGuide::StubInterface> mStub;
-  std::shared_ptr<crux::engine::v1::TokenProvider> mTokenProvider;
 };
 
 }  // namespace routeguide.v1

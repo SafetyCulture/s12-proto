@@ -35,13 +35,6 @@ void EngineGenerator::PrintPrologue(
   printer->Print(vars, "// source: $filename$\n");
 }
 
-void EngineGenerator::PrintForwardDeclarations(
-  google::protobuf::io::Printer *printer) const {
-  printer->Print("namespace crux::engine::v1 {\n");
-  printer->Print("class TokenProvider;\n");
-  printer->Print("}  // namespace crux::engine::v1\n\n");
-}
-
 void EngineGenerator::PrintNamespace(
   Printer *printer,
   const FileDescriptor *file,
@@ -107,7 +100,6 @@ void EngineGenerator::PrintHeaderIncludes(
   printer->Print(vars, "#include <google/protobuf/any.pb.h>\n");
   printer->Print(vars, "#include \"$filename_base$.grpc.pb.h\"\n");
 
-  PrintForwardDeclarations(printer);
   PrintNamespace(printer, file, false);
 }
 
@@ -204,7 +196,6 @@ void EngineGenerator::PrintHeaderClients(
     printer->Print(
       vars,
       "std::shared_ptr<$service_name$::StubInterface> mStub;\n");
-    printer->Print("std::shared_ptr<crux::engine::v1::TokenProvider> mTokenProvider;\n");
     printer->Outdent();
     printer->Print("};\n\n");
   }
@@ -330,6 +321,7 @@ void EngineGenerator::PrintSourceClients(
       printer->Indent();
       printer->Print(vars, "$response$ response;\n");
       printer->Print("grpc::ClientContext context;\n");
+      printer->Print("context.AddMetadata(\"authorization\", crux::engine::v1::TokenProvider::Shared()->GetAccessToken());\n");
       if (method->server_streaming()) {
         printer->Print(vars, "$response_item$ item;\n");
         printer->Print(

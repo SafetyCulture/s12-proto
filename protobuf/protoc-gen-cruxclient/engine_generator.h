@@ -26,7 +26,6 @@ class EngineGenerator {
     std::string *error) const;
 
  private:
-  void PrintForwardDeclarations(google::protobuf::io::Printer *printer) const;
   void PrintPrologue(
     google::protobuf::io::Printer *printer,
     const google::protobuf::FileDescriptor *file) const;

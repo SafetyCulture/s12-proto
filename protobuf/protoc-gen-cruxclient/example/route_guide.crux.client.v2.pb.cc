@@ -38,6 +38,7 @@ void RouteGuideClient::Invoke(const google::protobuf::Any& request_data, const s
 routeguide::v1::Feature RouteGuideClient::GetFeature(const routeguide::v1::Point& request) const {
   routeguide::v1::Feature response;
   grpc::ClientContext context;
+  context.AddMetadata("authorization", crux::engine::v1::TokenProvider::Shared()->GetAccessToken());
   grpc::Status status = mStub->GetFeature(&context, request, &response);
   if (!status.ok()) {
     throw crux::ServiceException(status.error_code(), status.error_message());
@@ -47,6 +48,7 @@ routeguide::v1::Feature RouteGuideClient::GetFeature(const routeguide::v1::Point
 routeguide::v1::Feature RouteGuideClient::UpdateFeature(const routeguide::v1::Point& request) const {
   routeguide::v1::Feature response;
   grpc::ClientContext context;
+  context.AddMetadata("authorization", crux::engine::v1::TokenProvider::Shared()->GetAccessToken());
   grpc::Status status = mStub->UpdateFeature(&context, request, &response);
   if (!status.ok()) {
     throw crux::ServiceException(status.error_code(), status.error_message());
@@ -56,6 +58,7 @@ routeguide::v1::Feature RouteGuideClient::UpdateFeature(const routeguide::v1::Po
 std::vector<routeguide::v1::Feature> RouteGuideClient::ListFeatures(const routeguide::v1::Rectangle& request) const {
   std::vector<routeguide::v1::Feature> response;
   grpc::ClientContext context;
+  context.AddMetadata("authorization", crux::engine::v1::TokenProvider::Shared()->GetAccessToken());
   routeguide::v1::Feature item;
   std::unique_ptr<grpc::ClientReaderInterface<routeguide::v1::Feature>> stream = mStub->ListFeatures(&context, request);
   while (stream->Read(&item)) {
@@ -83,6 +86,7 @@ void PublicRouteGuideClient::Invoke(const google::protobuf::Any& request_data, c
 routeguide::v1::Feature PublicRouteGuideClient::GetFeature(const routeguide::v1::Point& request) const {
   routeguide::v1::Feature response;
   grpc::ClientContext context;
+  context.AddMetadata("authorization", crux::engine::v1::TokenProvider::Shared()->GetAccessToken());
   grpc::Status status = mStub->GetFeature(&context, request, &response);
   if (!status.ok()) {
     throw crux::ServiceException(status.error_code(), status.error_message());
