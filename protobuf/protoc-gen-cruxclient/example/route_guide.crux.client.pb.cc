@@ -4,12 +4,13 @@
 
 #include "route_guide.crux.client.pb.h"
 namespace routeguide {
+namespace v1 {
 
 RouteGuideClient::RouteGuideClient(const std::shared_ptr<RouteGuide::StubInterface>& stub) : mStub(stub) {}
 
 void RouteGuideClient::Invoke(const google::protobuf::Any& request_data, const std::string& method) const {
   if (method == kRouteGuideGetFeature) {
-    routeguide::Point request;
+    routeguide::v1::Point request;
     if (!request_data.UnpackTo(&request)) {
       throw crux::RequestParseException();
     }
@@ -17,7 +18,7 @@ void RouteGuideClient::Invoke(const google::protobuf::Any& request_data, const s
     return;
   }
   if (method == kRouteGuideUpdateFeature) {
-    routeguide::Point request;
+    routeguide::v1::Point request;
     if (!request_data.UnpackTo(&request)) {
       throw crux::RequestParseException();
     }
@@ -25,7 +26,7 @@ void RouteGuideClient::Invoke(const google::protobuf::Any& request_data, const s
     return;
   }
   if (method == kRouteGuideListFeatures) {
-    routeguide::Rectangle request;
+    routeguide::v1::Rectangle request;
     if (!request_data.UnpackTo(&request)) {
       throw crux::RequestParseException();
     }
@@ -34,8 +35,8 @@ void RouteGuideClient::Invoke(const google::protobuf::Any& request_data, const s
   }
   throw crux::RequestParseException();
 }
-routeguide::Feature RouteGuideClient::GetFeature(const routeguide::Point& request) const {
-  routeguide::Feature response;
+routeguide::v1::Feature RouteGuideClient::GetFeature(const routeguide::v1::Point& request) const {
+  routeguide::v1::Feature response;
   grpc::ClientContext context;
   grpc::Status status = mStub->GetFeature(&context, request, &response);
   if (!status.ok()) {
@@ -43,8 +44,8 @@ routeguide::Feature RouteGuideClient::GetFeature(const routeguide::Point& reques
   }
   return response;
 }
-routeguide::Feature RouteGuideClient::UpdateFeature(const routeguide::Point& request) const {
-  routeguide::Feature response;
+routeguide::v1::Feature RouteGuideClient::UpdateFeature(const routeguide::v1::Point& request) const {
+  routeguide::v1::Feature response;
   grpc::ClientContext context;
   grpc::Status status = mStub->UpdateFeature(&context, request, &response);
   if (!status.ok()) {
@@ -52,11 +53,11 @@ routeguide::Feature RouteGuideClient::UpdateFeature(const routeguide::Point& req
   }
   return response;
 }
-std::vector<routeguide::Feature> RouteGuideClient::ListFeatures(const routeguide::Rectangle& request) const {
-  std::vector<routeguide::Feature> response;
+std::vector<routeguide::v1::Feature> RouteGuideClient::ListFeatures(const routeguide::v1::Rectangle& request) const {
+  std::vector<routeguide::v1::Feature> response;
   grpc::ClientContext context;
-  routeguide::Feature item;
-  std::unique_ptr<grpc::ClientReaderInterface<routeguide::Feature>> stream = mStub->ListFeatures(&context, request);
+  routeguide::v1::Feature item;
+  std::unique_ptr<grpc::ClientReaderInterface<routeguide::v1::Feature>> stream = mStub->ListFeatures(&context, request);
   while (stream->Read(&item)) {
     response.emplace_back(item);
   }
@@ -70,7 +71,7 @@ PublicRouteGuideClient::PublicRouteGuideClient(const std::shared_ptr<PublicRoute
 
 void PublicRouteGuideClient::Invoke(const google::protobuf::Any& request_data, const std::string& method) const {
   if (method == kPublicRouteGuideGetFeature) {
-    routeguide::Point request;
+    routeguide::v1::Point request;
     if (!request_data.UnpackTo(&request)) {
       throw crux::RequestParseException();
     }
@@ -79,8 +80,8 @@ void PublicRouteGuideClient::Invoke(const google::protobuf::Any& request_data, c
   }
   throw crux::RequestParseException();
 }
-routeguide::Feature PublicRouteGuideClient::GetFeature(const routeguide::Point& request) const {
-  routeguide::Feature response;
+routeguide::v1::Feature PublicRouteGuideClient::GetFeature(const routeguide::v1::Point& request) const {
+  routeguide::v1::Feature response;
   grpc::ClientContext context;
   grpc::Status status = mStub->GetFeature(&context, request, &response);
   if (!status.ok()) {
@@ -89,5 +90,6 @@ routeguide::Feature PublicRouteGuideClient::GetFeature(const routeguide::Point& 
   return response;
 }
 
+}
 }
 

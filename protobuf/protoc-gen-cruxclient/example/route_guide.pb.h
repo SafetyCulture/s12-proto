@@ -55,6 +55,7 @@ struct TableStruct_route_5fguide_2eproto {
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_route_5fguide_2eproto;
 namespace routeguide {
+namespace v1 {
 class Feature;
 class FeatureDefaultTypeInternal;
 extern FeatureDefaultTypeInternal _Feature_default_instance_;
@@ -70,20 +71,22 @@ extern RouteNoteDefaultTypeInternal _RouteNote_default_instance_;
 class RouteSummary;
 class RouteSummaryDefaultTypeInternal;
 extern RouteSummaryDefaultTypeInternal _RouteSummary_default_instance_;
+}  // namespace v1
 }  // namespace routeguide
 PROTOBUF_NAMESPACE_OPEN
-template<> ::routeguide::Feature* Arena::CreateMaybeMessage<::routeguide::Feature>(Arena*);
-template<> ::routeguide::Point* Arena::CreateMaybeMessage<::routeguide::Point>(Arena*);
-template<> ::routeguide::Rectangle* Arena::CreateMaybeMessage<::routeguide::Rectangle>(Arena*);
-template<> ::routeguide::RouteNote* Arena::CreateMaybeMessage<::routeguide::RouteNote>(Arena*);
-template<> ::routeguide::RouteSummary* Arena::CreateMaybeMessage<::routeguide::RouteSummary>(Arena*);
+template<> ::routeguide::v1::Feature* Arena::CreateMaybeMessage<::routeguide::v1::Feature>(Arena*);
+template<> ::routeguide::v1::Point* Arena::CreateMaybeMessage<::routeguide::v1::Point>(Arena*);
+template<> ::routeguide::v1::Rectangle* Arena::CreateMaybeMessage<::routeguide::v1::Rectangle>(Arena*);
+template<> ::routeguide::v1::RouteNote* Arena::CreateMaybeMessage<::routeguide::v1::RouteNote>(Arena*);
+template<> ::routeguide::v1::RouteSummary* Arena::CreateMaybeMessage<::routeguide::v1::RouteSummary>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace routeguide {
+namespace v1 {
 
 // ===================================================================
 
 class Point :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:routeguide.Point) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:routeguide.v1.Point) */ {
  public:
   Point();
   virtual ~Point();
@@ -163,7 +166,7 @@ class Point :
   void InternalSwap(Point* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "routeguide.Point";
+    return "routeguide.v1.Point";
   }
   private:
   inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
@@ -209,7 +212,7 @@ class Point :
   void _internal_set_longitude(::PROTOBUF_NAMESPACE_ID::int32 value);
   public:
 
-  // @@protoc_insertion_point(class_scope:routeguide.Point)
+  // @@protoc_insertion_point(class_scope:routeguide.v1.Point)
  private:
   class _Internal;
 
@@ -222,7 +225,7 @@ class Point :
 // -------------------------------------------------------------------
 
 class Rectangle :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:routeguide.Rectangle) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:routeguide.v1.Rectangle) */ {
  public:
   Rectangle();
   virtual ~Rectangle();
@@ -302,7 +305,7 @@ class Rectangle :
   void InternalSwap(Rectangle* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "routeguide.Rectangle";
+    return "routeguide.v1.Rectangle";
   }
   private:
   inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
@@ -330,50 +333,50 @@ class Rectangle :
     kLoFieldNumber = 1,
     kHiFieldNumber = 2,
   };
-  // .routeguide.Point lo = 1;
+  // .routeguide.v1.Point lo = 1;
   bool has_lo() const;
   private:
   bool _internal_has_lo() const;
   public:
   void clear_lo();
-  const ::routeguide::Point& lo() const;
-  ::routeguide::Point* release_lo();
-  ::routeguide::Point* mutable_lo();
-  void set_allocated_lo(::routeguide::Point* lo);
+  const ::routeguide::v1::Point& lo() const;
+  ::routeguide::v1::Point* release_lo();
+  ::routeguide::v1::Point* mutable_lo();
+  void set_allocated_lo(::routeguide::v1::Point* lo);
   private:
-  const ::routeguide::Point& _internal_lo() const;
-  ::routeguide::Point* _internal_mutable_lo();
+  const ::routeguide::v1::Point& _internal_lo() const;
+  ::routeguide::v1::Point* _internal_mutable_lo();
   public:
 
-  // .routeguide.Point hi = 2;
+  // .routeguide.v1.Point hi = 2;
   bool has_hi() const;
   private:
   bool _internal_has_hi() const;
   public:
   void clear_hi();
-  const ::routeguide::Point& hi() const;
-  ::routeguide::Point* release_hi();
-  ::routeguide::Point* mutable_hi();
-  void set_allocated_hi(::routeguide::Point* hi);
+  const ::routeguide::v1::Point& hi() const;
+  ::routeguide::v1::Point* release_hi();
+  ::routeguide::v1::Point* mutable_hi();
+  void set_allocated_hi(::routeguide::v1::Point* hi);
   private:
-  const ::routeguide::Point& _internal_hi() const;
-  ::routeguide::Point* _internal_mutable_hi();
+  const ::routeguide::v1::Point& _internal_hi() const;
+  ::routeguide::v1::Point* _internal_mutable_hi();
   public:
 
-  // @@protoc_insertion_point(class_scope:routeguide.Rectangle)
+  // @@protoc_insertion_point(class_scope:routeguide.v1.Rectangle)
  private:
   class _Internal;
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
-  ::routeguide::Point* lo_;
-  ::routeguide::Point* hi_;
+  ::routeguide::v1::Point* lo_;
+  ::routeguide::v1::Point* hi_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_route_5fguide_2eproto;
 };
 // -------------------------------------------------------------------
 
 class Feature :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:routeguide.Feature) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:routeguide.v1.Feature) */ {
  public:
   Feature();
   virtual ~Feature();
@@ -453,7 +456,7 @@ class Feature :
   void InternalSwap(Feature* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "routeguide.Feature";
+    return "routeguide.v1.Feature";
   }
   private:
   inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
@@ -497,35 +500,35 @@ class Feature :
   std::string* _internal_mutable_name();
   public:
 
-  // .routeguide.Point location = 2;
+  // .routeguide.v1.Point location = 2;
   bool has_location() const;
   private:
   bool _internal_has_location() const;
   public:
   void clear_location();
-  const ::routeguide::Point& location() const;
-  ::routeguide::Point* release_location();
-  ::routeguide::Point* mutable_location();
-  void set_allocated_location(::routeguide::Point* location);
+  const ::routeguide::v1::Point& location() const;
+  ::routeguide::v1::Point* release_location();
+  ::routeguide::v1::Point* mutable_location();
+  void set_allocated_location(::routeguide::v1::Point* location);
   private:
-  const ::routeguide::Point& _internal_location() const;
-  ::routeguide::Point* _internal_mutable_location();
+  const ::routeguide::v1::Point& _internal_location() const;
+  ::routeguide::v1::Point* _internal_mutable_location();
   public:
 
-  // @@protoc_insertion_point(class_scope:routeguide.Feature)
+  // @@protoc_insertion_point(class_scope:routeguide.v1.Feature)
  private:
   class _Internal;
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr name_;
-  ::routeguide::Point* location_;
+  ::routeguide::v1::Point* location_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_route_5fguide_2eproto;
 };
 // -------------------------------------------------------------------
 
 class RouteNote :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:routeguide.RouteNote) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:routeguide.v1.RouteNote) */ {
  public:
   RouteNote();
   virtual ~RouteNote();
@@ -605,7 +608,7 @@ class RouteNote :
   void InternalSwap(RouteNote* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "routeguide.RouteNote";
+    return "routeguide.v1.RouteNote";
   }
   private:
   inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
@@ -649,35 +652,35 @@ class RouteNote :
   std::string* _internal_mutable_message();
   public:
 
-  // .routeguide.Point location = 1;
+  // .routeguide.v1.Point location = 1;
   bool has_location() const;
   private:
   bool _internal_has_location() const;
   public:
   void clear_location();
-  const ::routeguide::Point& location() const;
-  ::routeguide::Point* release_location();
-  ::routeguide::Point* mutable_location();
-  void set_allocated_location(::routeguide::Point* location);
+  const ::routeguide::v1::Point& location() const;
+  ::routeguide::v1::Point* release_location();
+  ::routeguide::v1::Point* mutable_location();
+  void set_allocated_location(::routeguide::v1::Point* location);
   private:
-  const ::routeguide::Point& _internal_location() const;
-  ::routeguide::Point* _internal_mutable_location();
+  const ::routeguide::v1::Point& _internal_location() const;
+  ::routeguide::v1::Point* _internal_mutable_location();
   public:
 
-  // @@protoc_insertion_point(class_scope:routeguide.RouteNote)
+  // @@protoc_insertion_point(class_scope:routeguide.v1.RouteNote)
  private:
   class _Internal;
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr message_;
-  ::routeguide::Point* location_;
+  ::routeguide::v1::Point* location_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_route_5fguide_2eproto;
 };
 // -------------------------------------------------------------------
 
 class RouteSummary :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:routeguide.RouteSummary) */ {
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:routeguide.v1.RouteSummary) */ {
  public:
   RouteSummary();
   virtual ~RouteSummary();
@@ -757,7 +760,7 @@ class RouteSummary :
   void InternalSwap(RouteSummary* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "routeguide.RouteSummary";
+    return "routeguide.v1.RouteSummary";
   }
   private:
   inline ::PROTOBUF_NAMESPACE_ID::Arena* GetArenaNoVirtual() const {
@@ -823,7 +826,7 @@ class RouteSummary :
   void _internal_set_elapsed_time(::PROTOBUF_NAMESPACE_ID::int32 value);
   public:
 
-  // @@protoc_insertion_point(class_scope:routeguide.RouteSummary)
+  // @@protoc_insertion_point(class_scope:routeguide.v1.RouteSummary)
  private:
   class _Internal;
 
@@ -854,7 +857,7 @@ inline ::PROTOBUF_NAMESPACE_ID::int32 Point::_internal_latitude() const {
   return latitude_;
 }
 inline ::PROTOBUF_NAMESPACE_ID::int32 Point::latitude() const {
-  // @@protoc_insertion_point(field_get:routeguide.Point.latitude)
+  // @@protoc_insertion_point(field_get:routeguide.v1.Point.latitude)
   return _internal_latitude();
 }
 inline void Point::_internal_set_latitude(::PROTOBUF_NAMESPACE_ID::int32 value) {
@@ -863,7 +866,7 @@ inline void Point::_internal_set_latitude(::PROTOBUF_NAMESPACE_ID::int32 value) 
 }
 inline void Point::set_latitude(::PROTOBUF_NAMESPACE_ID::int32 value) {
   _internal_set_latitude(value);
-  // @@protoc_insertion_point(field_set:routeguide.Point.latitude)
+  // @@protoc_insertion_point(field_set:routeguide.v1.Point.latitude)
 }
 
 // int32 longitude = 2;
@@ -874,7 +877,7 @@ inline ::PROTOBUF_NAMESPACE_ID::int32 Point::_internal_longitude() const {
   return longitude_;
 }
 inline ::PROTOBUF_NAMESPACE_ID::int32 Point::longitude() const {
-  // @@protoc_insertion_point(field_get:routeguide.Point.longitude)
+  // @@protoc_insertion_point(field_get:routeguide.v1.Point.longitude)
   return _internal_longitude();
 }
 inline void Point::_internal_set_longitude(::PROTOBUF_NAMESPACE_ID::int32 value) {
@@ -883,14 +886,14 @@ inline void Point::_internal_set_longitude(::PROTOBUF_NAMESPACE_ID::int32 value)
 }
 inline void Point::set_longitude(::PROTOBUF_NAMESPACE_ID::int32 value) {
   _internal_set_longitude(value);
-  // @@protoc_insertion_point(field_set:routeguide.Point.longitude)
+  // @@protoc_insertion_point(field_set:routeguide.v1.Point.longitude)
 }
 
 // -------------------------------------------------------------------
 
 // Rectangle
 
-// .routeguide.Point lo = 1;
+// .routeguide.v1.Point lo = 1;
 inline bool Rectangle::_internal_has_lo() const {
   return this != internal_default_instance() && lo_ != nullptr;
 }
@@ -903,35 +906,35 @@ inline void Rectangle::clear_lo() {
   }
   lo_ = nullptr;
 }
-inline const ::routeguide::Point& Rectangle::_internal_lo() const {
-  const ::routeguide::Point* p = lo_;
-  return p != nullptr ? *p : *reinterpret_cast<const ::routeguide::Point*>(
-      &::routeguide::_Point_default_instance_);
+inline const ::routeguide::v1::Point& Rectangle::_internal_lo() const {
+  const ::routeguide::v1::Point* p = lo_;
+  return p != nullptr ? *p : *reinterpret_cast<const ::routeguide::v1::Point*>(
+      &::routeguide::v1::_Point_default_instance_);
 }
-inline const ::routeguide::Point& Rectangle::lo() const {
-  // @@protoc_insertion_point(field_get:routeguide.Rectangle.lo)
+inline const ::routeguide::v1::Point& Rectangle::lo() const {
+  // @@protoc_insertion_point(field_get:routeguide.v1.Rectangle.lo)
   return _internal_lo();
 }
-inline ::routeguide::Point* Rectangle::release_lo() {
-  // @@protoc_insertion_point(field_release:routeguide.Rectangle.lo)
+inline ::routeguide::v1::Point* Rectangle::release_lo() {
+  // @@protoc_insertion_point(field_release:routeguide.v1.Rectangle.lo)
   
-  ::routeguide::Point* temp = lo_;
+  ::routeguide::v1::Point* temp = lo_;
   lo_ = nullptr;
   return temp;
 }
-inline ::routeguide::Point* Rectangle::_internal_mutable_lo() {
+inline ::routeguide::v1::Point* Rectangle::_internal_mutable_lo() {
   
   if (lo_ == nullptr) {
-    auto* p = CreateMaybeMessage<::routeguide::Point>(GetArenaNoVirtual());
+    auto* p = CreateMaybeMessage<::routeguide::v1::Point>(GetArenaNoVirtual());
     lo_ = p;
   }
   return lo_;
 }
-inline ::routeguide::Point* Rectangle::mutable_lo() {
-  // @@protoc_insertion_point(field_mutable:routeguide.Rectangle.lo)
+inline ::routeguide::v1::Point* Rectangle::mutable_lo() {
+  // @@protoc_insertion_point(field_mutable:routeguide.v1.Rectangle.lo)
   return _internal_mutable_lo();
 }
-inline void Rectangle::set_allocated_lo(::routeguide::Point* lo) {
+inline void Rectangle::set_allocated_lo(::routeguide::v1::Point* lo) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
   if (message_arena == nullptr) {
     delete lo_;
@@ -947,10 +950,10 @@ inline void Rectangle::set_allocated_lo(::routeguide::Point* lo) {
     
   }
   lo_ = lo;
-  // @@protoc_insertion_point(field_set_allocated:routeguide.Rectangle.lo)
+  // @@protoc_insertion_point(field_set_allocated:routeguide.v1.Rectangle.lo)
 }
 
-// .routeguide.Point hi = 2;
+// .routeguide.v1.Point hi = 2;
 inline bool Rectangle::_internal_has_hi() const {
   return this != internal_default_instance() && hi_ != nullptr;
 }
@@ -963,35 +966,35 @@ inline void Rectangle::clear_hi() {
   }
   hi_ = nullptr;
 }
-inline const ::routeguide::Point& Rectangle::_internal_hi() const {
-  const ::routeguide::Point* p = hi_;
-  return p != nullptr ? *p : *reinterpret_cast<const ::routeguide::Point*>(
-      &::routeguide::_Point_default_instance_);
+inline const ::routeguide::v1::Point& Rectangle::_internal_hi() const {
+  const ::routeguide::v1::Point* p = hi_;
+  return p != nullptr ? *p : *reinterpret_cast<const ::routeguide::v1::Point*>(
+      &::routeguide::v1::_Point_default_instance_);
 }
-inline const ::routeguide::Point& Rectangle::hi() const {
-  // @@protoc_insertion_point(field_get:routeguide.Rectangle.hi)
+inline const ::routeguide::v1::Point& Rectangle::hi() const {
+  // @@protoc_insertion_point(field_get:routeguide.v1.Rectangle.hi)
   return _internal_hi();
 }
-inline ::routeguide::Point* Rectangle::release_hi() {
-  // @@protoc_insertion_point(field_release:routeguide.Rectangle.hi)
+inline ::routeguide::v1::Point* Rectangle::release_hi() {
+  // @@protoc_insertion_point(field_release:routeguide.v1.Rectangle.hi)
   
-  ::routeguide::Point* temp = hi_;
+  ::routeguide::v1::Point* temp = hi_;
   hi_ = nullptr;
   return temp;
 }
-inline ::routeguide::Point* Rectangle::_internal_mutable_hi() {
+inline ::routeguide::v1::Point* Rectangle::_internal_mutable_hi() {
   
   if (hi_ == nullptr) {
-    auto* p = CreateMaybeMessage<::routeguide::Point>(GetArenaNoVirtual());
+    auto* p = CreateMaybeMessage<::routeguide::v1::Point>(GetArenaNoVirtual());
     hi_ = p;
   }
   return hi_;
 }
-inline ::routeguide::Point* Rectangle::mutable_hi() {
-  // @@protoc_insertion_point(field_mutable:routeguide.Rectangle.hi)
+inline ::routeguide::v1::Point* Rectangle::mutable_hi() {
+  // @@protoc_insertion_point(field_mutable:routeguide.v1.Rectangle.hi)
   return _internal_mutable_hi();
 }
-inline void Rectangle::set_allocated_hi(::routeguide::Point* hi) {
+inline void Rectangle::set_allocated_hi(::routeguide::v1::Point* hi) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
   if (message_arena == nullptr) {
     delete hi_;
@@ -1007,7 +1010,7 @@ inline void Rectangle::set_allocated_hi(::routeguide::Point* hi) {
     
   }
   hi_ = hi;
-  // @@protoc_insertion_point(field_set_allocated:routeguide.Rectangle.hi)
+  // @@protoc_insertion_point(field_set_allocated:routeguide.v1.Rectangle.hi)
 }
 
 // -------------------------------------------------------------------
@@ -1019,15 +1022,15 @@ inline void Feature::clear_name() {
   name_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 inline const std::string& Feature::name() const {
-  // @@protoc_insertion_point(field_get:routeguide.Feature.name)
+  // @@protoc_insertion_point(field_get:routeguide.v1.Feature.name)
   return _internal_name();
 }
 inline void Feature::set_name(const std::string& value) {
   _internal_set_name(value);
-  // @@protoc_insertion_point(field_set:routeguide.Feature.name)
+  // @@protoc_insertion_point(field_set:routeguide.v1.Feature.name)
 }
 inline std::string* Feature::mutable_name() {
-  // @@protoc_insertion_point(field_mutable:routeguide.Feature.name)
+  // @@protoc_insertion_point(field_mutable:routeguide.v1.Feature.name)
   return _internal_mutable_name();
 }
 inline const std::string& Feature::_internal_name() const {
@@ -1041,26 +1044,26 @@ inline void Feature::set_name(std::string&& value) {
   
   name_.SetNoArena(
     &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:routeguide.Feature.name)
+  // @@protoc_insertion_point(field_set_rvalue:routeguide.v1.Feature.name)
 }
 inline void Feature::set_name(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   
   name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:routeguide.Feature.name)
+  // @@protoc_insertion_point(field_set_char:routeguide.v1.Feature.name)
 }
 inline void Feature::set_name(const char* value, size_t size) {
   
   name_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:routeguide.Feature.name)
+  // @@protoc_insertion_point(field_set_pointer:routeguide.v1.Feature.name)
 }
 inline std::string* Feature::_internal_mutable_name() {
   
   return name_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 inline std::string* Feature::release_name() {
-  // @@protoc_insertion_point(field_release:routeguide.Feature.name)
+  // @@protoc_insertion_point(field_release:routeguide.v1.Feature.name)
   
   return name_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
@@ -1071,10 +1074,10 @@ inline void Feature::set_allocated_name(std::string* name) {
     
   }
   name_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), name);
-  // @@protoc_insertion_point(field_set_allocated:routeguide.Feature.name)
+  // @@protoc_insertion_point(field_set_allocated:routeguide.v1.Feature.name)
 }
 
-// .routeguide.Point location = 2;
+// .routeguide.v1.Point location = 2;
 inline bool Feature::_internal_has_location() const {
   return this != internal_default_instance() && location_ != nullptr;
 }
@@ -1087,35 +1090,35 @@ inline void Feature::clear_location() {
   }
   location_ = nullptr;
 }
-inline const ::routeguide::Point& Feature::_internal_location() const {
-  const ::routeguide::Point* p = location_;
-  return p != nullptr ? *p : *reinterpret_cast<const ::routeguide::Point*>(
-      &::routeguide::_Point_default_instance_);
+inline const ::routeguide::v1::Point& Feature::_internal_location() const {
+  const ::routeguide::v1::Point* p = location_;
+  return p != nullptr ? *p : *reinterpret_cast<const ::routeguide::v1::Point*>(
+      &::routeguide::v1::_Point_default_instance_);
 }
-inline const ::routeguide::Point& Feature::location() const {
-  // @@protoc_insertion_point(field_get:routeguide.Feature.location)
+inline const ::routeguide::v1::Point& Feature::location() const {
+  // @@protoc_insertion_point(field_get:routeguide.v1.Feature.location)
   return _internal_location();
 }
-inline ::routeguide::Point* Feature::release_location() {
-  // @@protoc_insertion_point(field_release:routeguide.Feature.location)
+inline ::routeguide::v1::Point* Feature::release_location() {
+  // @@protoc_insertion_point(field_release:routeguide.v1.Feature.location)
   
-  ::routeguide::Point* temp = location_;
+  ::routeguide::v1::Point* temp = location_;
   location_ = nullptr;
   return temp;
 }
-inline ::routeguide::Point* Feature::_internal_mutable_location() {
+inline ::routeguide::v1::Point* Feature::_internal_mutable_location() {
   
   if (location_ == nullptr) {
-    auto* p = CreateMaybeMessage<::routeguide::Point>(GetArenaNoVirtual());
+    auto* p = CreateMaybeMessage<::routeguide::v1::Point>(GetArenaNoVirtual());
     location_ = p;
   }
   return location_;
 }
-inline ::routeguide::Point* Feature::mutable_location() {
-  // @@protoc_insertion_point(field_mutable:routeguide.Feature.location)
+inline ::routeguide::v1::Point* Feature::mutable_location() {
+  // @@protoc_insertion_point(field_mutable:routeguide.v1.Feature.location)
   return _internal_mutable_location();
 }
-inline void Feature::set_allocated_location(::routeguide::Point* location) {
+inline void Feature::set_allocated_location(::routeguide::v1::Point* location) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
   if (message_arena == nullptr) {
     delete location_;
@@ -1131,14 +1134,14 @@ inline void Feature::set_allocated_location(::routeguide::Point* location) {
     
   }
   location_ = location;
-  // @@protoc_insertion_point(field_set_allocated:routeguide.Feature.location)
+  // @@protoc_insertion_point(field_set_allocated:routeguide.v1.Feature.location)
 }
 
 // -------------------------------------------------------------------
 
 // RouteNote
 
-// .routeguide.Point location = 1;
+// .routeguide.v1.Point location = 1;
 inline bool RouteNote::_internal_has_location() const {
   return this != internal_default_instance() && location_ != nullptr;
 }
@@ -1151,35 +1154,35 @@ inline void RouteNote::clear_location() {
   }
   location_ = nullptr;
 }
-inline const ::routeguide::Point& RouteNote::_internal_location() const {
-  const ::routeguide::Point* p = location_;
-  return p != nullptr ? *p : *reinterpret_cast<const ::routeguide::Point*>(
-      &::routeguide::_Point_default_instance_);
+inline const ::routeguide::v1::Point& RouteNote::_internal_location() const {
+  const ::routeguide::v1::Point* p = location_;
+  return p != nullptr ? *p : *reinterpret_cast<const ::routeguide::v1::Point*>(
+      &::routeguide::v1::_Point_default_instance_);
 }
-inline const ::routeguide::Point& RouteNote::location() const {
-  // @@protoc_insertion_point(field_get:routeguide.RouteNote.location)
+inline const ::routeguide::v1::Point& RouteNote::location() const {
+  // @@protoc_insertion_point(field_get:routeguide.v1.RouteNote.location)
   return _internal_location();
 }
-inline ::routeguide::Point* RouteNote::release_location() {
-  // @@protoc_insertion_point(field_release:routeguide.RouteNote.location)
+inline ::routeguide::v1::Point* RouteNote::release_location() {
+  // @@protoc_insertion_point(field_release:routeguide.v1.RouteNote.location)
   
-  ::routeguide::Point* temp = location_;
+  ::routeguide::v1::Point* temp = location_;
   location_ = nullptr;
   return temp;
 }
-inline ::routeguide::Point* RouteNote::_internal_mutable_location() {
+inline ::routeguide::v1::Point* RouteNote::_internal_mutable_location() {
   
   if (location_ == nullptr) {
-    auto* p = CreateMaybeMessage<::routeguide::Point>(GetArenaNoVirtual());
+    auto* p = CreateMaybeMessage<::routeguide::v1::Point>(GetArenaNoVirtual());
     location_ = p;
   }
   return location_;
 }
-inline ::routeguide::Point* RouteNote::mutable_location() {
-  // @@protoc_insertion_point(field_mutable:routeguide.RouteNote.location)
+inline ::routeguide::v1::Point* RouteNote::mutable_location() {
+  // @@protoc_insertion_point(field_mutable:routeguide.v1.RouteNote.location)
   return _internal_mutable_location();
 }
-inline void RouteNote::set_allocated_location(::routeguide::Point* location) {
+inline void RouteNote::set_allocated_location(::routeguide::v1::Point* location) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
   if (message_arena == nullptr) {
     delete location_;
@@ -1195,7 +1198,7 @@ inline void RouteNote::set_allocated_location(::routeguide::Point* location) {
     
   }
   location_ = location;
-  // @@protoc_insertion_point(field_set_allocated:routeguide.RouteNote.location)
+  // @@protoc_insertion_point(field_set_allocated:routeguide.v1.RouteNote.location)
 }
 
 // string message = 2;
@@ -1203,15 +1206,15 @@ inline void RouteNote::clear_message() {
   message_.ClearToEmptyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 inline const std::string& RouteNote::message() const {
-  // @@protoc_insertion_point(field_get:routeguide.RouteNote.message)
+  // @@protoc_insertion_point(field_get:routeguide.v1.RouteNote.message)
   return _internal_message();
 }
 inline void RouteNote::set_message(const std::string& value) {
   _internal_set_message(value);
-  // @@protoc_insertion_point(field_set:routeguide.RouteNote.message)
+  // @@protoc_insertion_point(field_set:routeguide.v1.RouteNote.message)
 }
 inline std::string* RouteNote::mutable_message() {
-  // @@protoc_insertion_point(field_mutable:routeguide.RouteNote.message)
+  // @@protoc_insertion_point(field_mutable:routeguide.v1.RouteNote.message)
   return _internal_mutable_message();
 }
 inline const std::string& RouteNote::_internal_message() const {
@@ -1225,26 +1228,26 @@ inline void RouteNote::set_message(std::string&& value) {
   
   message_.SetNoArena(
     &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
-  // @@protoc_insertion_point(field_set_rvalue:routeguide.RouteNote.message)
+  // @@protoc_insertion_point(field_set_rvalue:routeguide.v1.RouteNote.message)
 }
 inline void RouteNote::set_message(const char* value) {
   GOOGLE_DCHECK(value != nullptr);
   
   message_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
-  // @@protoc_insertion_point(field_set_char:routeguide.RouteNote.message)
+  // @@protoc_insertion_point(field_set_char:routeguide.v1.RouteNote.message)
 }
 inline void RouteNote::set_message(const char* value, size_t size) {
   
   message_.SetNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
       ::std::string(reinterpret_cast<const char*>(value), size));
-  // @@protoc_insertion_point(field_set_pointer:routeguide.RouteNote.message)
+  // @@protoc_insertion_point(field_set_pointer:routeguide.v1.RouteNote.message)
 }
 inline std::string* RouteNote::_internal_mutable_message() {
   
   return message_.MutableNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
 inline std::string* RouteNote::release_message() {
-  // @@protoc_insertion_point(field_release:routeguide.RouteNote.message)
+  // @@protoc_insertion_point(field_release:routeguide.v1.RouteNote.message)
   
   return message_.ReleaseNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
 }
@@ -1255,7 +1258,7 @@ inline void RouteNote::set_allocated_message(std::string* message) {
     
   }
   message_.SetAllocatedNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), message);
-  // @@protoc_insertion_point(field_set_allocated:routeguide.RouteNote.message)
+  // @@protoc_insertion_point(field_set_allocated:routeguide.v1.RouteNote.message)
 }
 
 // -------------------------------------------------------------------
@@ -1270,7 +1273,7 @@ inline ::PROTOBUF_NAMESPACE_ID::int32 RouteSummary::_internal_point_count() cons
   return point_count_;
 }
 inline ::PROTOBUF_NAMESPACE_ID::int32 RouteSummary::point_count() const {
-  // @@protoc_insertion_point(field_get:routeguide.RouteSummary.point_count)
+  // @@protoc_insertion_point(field_get:routeguide.v1.RouteSummary.point_count)
   return _internal_point_count();
 }
 inline void RouteSummary::_internal_set_point_count(::PROTOBUF_NAMESPACE_ID::int32 value) {
@@ -1279,7 +1282,7 @@ inline void RouteSummary::_internal_set_point_count(::PROTOBUF_NAMESPACE_ID::int
 }
 inline void RouteSummary::set_point_count(::PROTOBUF_NAMESPACE_ID::int32 value) {
   _internal_set_point_count(value);
-  // @@protoc_insertion_point(field_set:routeguide.RouteSummary.point_count)
+  // @@protoc_insertion_point(field_set:routeguide.v1.RouteSummary.point_count)
 }
 
 // int32 feature_count = 2;
@@ -1290,7 +1293,7 @@ inline ::PROTOBUF_NAMESPACE_ID::int32 RouteSummary::_internal_feature_count() co
   return feature_count_;
 }
 inline ::PROTOBUF_NAMESPACE_ID::int32 RouteSummary::feature_count() const {
-  // @@protoc_insertion_point(field_get:routeguide.RouteSummary.feature_count)
+  // @@protoc_insertion_point(field_get:routeguide.v1.RouteSummary.feature_count)
   return _internal_feature_count();
 }
 inline void RouteSummary::_internal_set_feature_count(::PROTOBUF_NAMESPACE_ID::int32 value) {
@@ -1299,7 +1302,7 @@ inline void RouteSummary::_internal_set_feature_count(::PROTOBUF_NAMESPACE_ID::i
 }
 inline void RouteSummary::set_feature_count(::PROTOBUF_NAMESPACE_ID::int32 value) {
   _internal_set_feature_count(value);
-  // @@protoc_insertion_point(field_set:routeguide.RouteSummary.feature_count)
+  // @@protoc_insertion_point(field_set:routeguide.v1.RouteSummary.feature_count)
 }
 
 // int32 distance = 3;
@@ -1310,7 +1313,7 @@ inline ::PROTOBUF_NAMESPACE_ID::int32 RouteSummary::_internal_distance() const {
   return distance_;
 }
 inline ::PROTOBUF_NAMESPACE_ID::int32 RouteSummary::distance() const {
-  // @@protoc_insertion_point(field_get:routeguide.RouteSummary.distance)
+  // @@protoc_insertion_point(field_get:routeguide.v1.RouteSummary.distance)
   return _internal_distance();
 }
 inline void RouteSummary::_internal_set_distance(::PROTOBUF_NAMESPACE_ID::int32 value) {
@@ -1319,7 +1322,7 @@ inline void RouteSummary::_internal_set_distance(::PROTOBUF_NAMESPACE_ID::int32 
 }
 inline void RouteSummary::set_distance(::PROTOBUF_NAMESPACE_ID::int32 value) {
   _internal_set_distance(value);
-  // @@protoc_insertion_point(field_set:routeguide.RouteSummary.distance)
+  // @@protoc_insertion_point(field_set:routeguide.v1.RouteSummary.distance)
 }
 
 // int32 elapsed_time = 4;
@@ -1330,7 +1333,7 @@ inline ::PROTOBUF_NAMESPACE_ID::int32 RouteSummary::_internal_elapsed_time() con
   return elapsed_time_;
 }
 inline ::PROTOBUF_NAMESPACE_ID::int32 RouteSummary::elapsed_time() const {
-  // @@protoc_insertion_point(field_get:routeguide.RouteSummary.elapsed_time)
+  // @@protoc_insertion_point(field_get:routeguide.v1.RouteSummary.elapsed_time)
   return _internal_elapsed_time();
 }
 inline void RouteSummary::_internal_set_elapsed_time(::PROTOBUF_NAMESPACE_ID::int32 value) {
@@ -1339,7 +1342,7 @@ inline void RouteSummary::_internal_set_elapsed_time(::PROTOBUF_NAMESPACE_ID::in
 }
 inline void RouteSummary::set_elapsed_time(::PROTOBUF_NAMESPACE_ID::int32 value) {
   _internal_set_elapsed_time(value);
-  // @@protoc_insertion_point(field_set:routeguide.RouteSummary.elapsed_time)
+  // @@protoc_insertion_point(field_set:routeguide.v1.RouteSummary.elapsed_time)
 }
 
 #ifdef __GNUC__
@@ -1356,6 +1359,7 @@ inline void RouteSummary::set_elapsed_time(::PROTOBUF_NAMESPACE_ID::int32 value)
 
 // @@protoc_insertion_point(namespace_scope)
 
+}  // namespace v1
 }  // namespace routeguide
 
 // @@protoc_insertion_point(global_scope)

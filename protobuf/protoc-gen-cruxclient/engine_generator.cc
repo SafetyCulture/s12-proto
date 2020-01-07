@@ -41,16 +41,12 @@ void EngineGenerator::PrintNamespace(
   bool isEpilogue) const {
   std::map<string, string> vars;
   if (!file->package().empty()) {
-    std::vector<string> parts = tokenize(StripProto(file->package()), ".");
-    for (auto part = parts.begin(); part != parts.end(); part++) {
-      vars["part"] = *part;
-      if (!isEpilogue) {
-        printer->Print(vars, "namespace $part$ {\n");
-      } else {
-        printer->Print(vars, "}\n");
-      }
+    vars["package"] = file->package();
+    if (!isEpilogue) {
+      printer->Print(vars, "namespace $package$ {\n");
+    } else {
+      printer->Print(vars, "}  // namespace $package$\n");
     }
-    printer->Print(vars, "\n");
   }
 }
 
