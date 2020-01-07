@@ -1,5 +1,5 @@
 // Copyright (c) 2020 SafetyCulture Pty Ltd. All Rights Reserved.
-#include "legacy_generator.h"
+#include "engine_generator.h"
 #include <google/protobuf/compiler/code_generator.h>
 #include <google/protobuf/compiler/plugin.h>
 #include <google/protobuf/descriptor.h>
@@ -25,7 +25,7 @@ using std::string;
 
 namespace cruxclient_generator {
 
-void LegacyGenerator::PrintPrologue(
+void EngineGenerator::PrintPrologue(
   Printer *printer,
   const FileDescriptor *file) const {
   std::map<string, string> vars;
@@ -35,7 +35,7 @@ void LegacyGenerator::PrintPrologue(
   printer->Print(vars, "// source: $filename$\n");
 }
 
-void LegacyGenerator::PrintNamespace(
+void EngineGenerator::PrintNamespace(
   Printer *printer,
   const FileDescriptor *file,
   bool isEpilogue) const {
@@ -54,7 +54,7 @@ void LegacyGenerator::PrintNamespace(
   }
 }
 
-void LegacyGenerator::PrintHeaderPrologue(
+void EngineGenerator::PrintHeaderPrologue(
   Printer *printer,
   const FileDescriptor *file) const {
   std::map<string, string> vars;
@@ -63,13 +63,13 @@ void LegacyGenerator::PrintHeaderPrologue(
   PrintPrologue(printer, file);
 }
 
-std::string LegacyGenerator::GetMethodSignature(
+std::string EngineGenerator::GetMethodSignature(
   const std::string& service_name,
   const std::string& method_name) const {
   return "k" + service_name + method_name;
 }
 
-void LegacyGenerator::PrintMethodNames(
+void EngineGenerator::PrintMethodNames(
   Printer *printer,
   const ServiceDescriptor *service) const {
   std::map<string, string> vars;
@@ -91,7 +91,7 @@ void LegacyGenerator::PrintMethodNames(
   }
 }
 
-void LegacyGenerator::PrintHeaderIncludes(
+void EngineGenerator::PrintHeaderIncludes(
   Printer *printer,
   const FileDescriptor *file) const {
   std::map<string, string> vars;
@@ -108,7 +108,7 @@ void LegacyGenerator::PrintHeaderIncludes(
   PrintNamespace(printer, file, false);
 }
 
-void LegacyGenerator::PrintHeaderMethods(
+void EngineGenerator::PrintHeaderMethods(
   Printer *printer,
   const ServiceDescriptor *service,
   bool is_virtual,
@@ -145,7 +145,7 @@ void LegacyGenerator::PrintHeaderMethods(
   }
 }
 
-void LegacyGenerator::PrintMockHeaderMethods(
+void EngineGenerator::PrintMockHeaderMethods(
   Printer *printer,
   const ServiceDescriptor *service) const {
   std::map<string, string> vars;
@@ -198,7 +198,7 @@ void LegacyGenerator::PrintMockHeaderMethods(
   }
 }
 
-void LegacyGenerator::PrintHeaderInterfaces(
+void EngineGenerator::PrintHeaderInterfaces(
   Printer *printer,
   const FileDescriptor *file) const {
   std::map<string, string> vars;
@@ -222,7 +222,7 @@ void LegacyGenerator::PrintHeaderInterfaces(
   }
 }
 
-void LegacyGenerator::PrintHeaderClients(
+void EngineGenerator::PrintHeaderClients(
   Printer *printer,
   const FileDescriptor *file) const {
   std::map<string, string> vars;
@@ -258,7 +258,7 @@ void LegacyGenerator::PrintHeaderClients(
   }
 }
 
-void LegacyGenerator::PrintHeaderMockClients(
+void EngineGenerator::PrintHeaderMockClients(
   Printer *printer,
   const FileDescriptor *file) const {
   std::map<string, string> vars;
@@ -313,7 +313,7 @@ void LegacyGenerator::PrintHeaderMockClients(
   }
 }
 
-void LegacyGenerator::PrintHeaderEpilogue(
+void EngineGenerator::PrintHeaderEpilogue(
   Printer *printer,
   const FileDescriptor *file) const {
   std::map<string, string> vars;
@@ -323,25 +323,25 @@ void LegacyGenerator::PrintHeaderEpilogue(
   PrintNamespace(printer, file, true);
 }
 
-void LegacyGenerator::PrintSourcePrologue(
+void EngineGenerator::PrintSourcePrologue(
   Printer *printer,
   const FileDescriptor *file) const {
   PrintPrologue(printer, file);
   printer->Print("\n");
 }
 
-void LegacyGenerator::PrintSourceIncludes(
+void EngineGenerator::PrintSourceIncludes(
   Printer *printer,
   const FileDescriptor *file) const {
   std::map<string, string> vars;
   vars["filename_base"] = StripProto(file->name());
 
-  printer->Print(vars, "#include \"$filename_base$.crux.client.pb.h\"\n");
+  printer->Print(vars, "#include \"$filename_base$.crux.client.v2.pb.h\"\n");
 
   PrintNamespace(printer, file, false);
 }
 
-void LegacyGenerator::PrintInvokeMethod(
+void EngineGenerator::PrintInvokeMethod(
   Printer *printer,
   const ServiceDescriptor *service) const {
   std::map<string, string> vars;
@@ -395,7 +395,7 @@ void LegacyGenerator::PrintInvokeMethod(
   printer->Print("}\n");
 }
 
-void LegacyGenerator::PrintSourceClients(
+void EngineGenerator::PrintSourceClients(
   Printer *printer,
   const FileDescriptor *file) const {
   std::map<string, string> vars;
@@ -467,14 +467,14 @@ void LegacyGenerator::PrintSourceClients(
   }
 }
 
-void LegacyGenerator::PrintSourceEpilogue(
+void EngineGenerator::PrintSourceEpilogue(
   Printer *printer,
   const FileDescriptor *file) const {
   printer->Print("\n");
   PrintNamespace(printer, file, true);
 }
 
-void LegacyGenerator::Generate(
+void EngineGenerator::Generate(
   const google::protobuf::FileDescriptor *file,
   const std::string &parameter,
   google::protobuf::compiler::GeneratorContext *context,
@@ -482,7 +482,7 @@ void LegacyGenerator::Generate(
   string file_name = StripProto(file->name());
 
   std::unique_ptr<ZeroCopyOutputStream> header_output(
-      context->Open(file_name + ".crux.client.pb.h"));
+      context->Open(file_name + ".crux.client.v2.pb.h"));
   Printer header_printer(header_output.get(), '$');
   PrintHeaderPrologue(&header_printer, file);
   PrintHeaderIncludes(&header_printer, file);
@@ -492,7 +492,7 @@ void LegacyGenerator::Generate(
   PrintHeaderEpilogue(&header_printer, file);
 
   std::unique_ptr<ZeroCopyOutputStream> source_output(
-      context->Open(file_name + ".crux.client.pb.cc"));
+      context->Open(file_name + ".crux.client.v2.pb.cc"));
   Printer source_printer(source_output.get(), '$');
   PrintSourcePrologue(&source_printer, file);
   PrintSourceIncludes(&source_printer, file);

@@ -17,7 +17,7 @@ class Printer;
 }  // namespace google::protobuf
 
 namespace cruxclient_generator {
-class LegacyGenerator {
+class EngineGenerator {
  public:
   void Generate(
     const google::protobuf::FileDescriptor *file,

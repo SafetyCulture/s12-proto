@@ -9,6 +9,7 @@
 #include <string>
 #include "common.h"
 #include "legacy_generator.h"
+#include "engine_generator.h"
 
 using google::protobuf::Descriptor;
 using google::protobuf::FileDescriptor;
@@ -29,15 +30,21 @@ class Generator : public CodeGenerator {
   Generator() {}
   ~Generator() override {}
 
-  bool Generate(const FileDescriptor *file, const string &parameter,
-                GeneratorContext *context, string *error) const override {
+  bool Generate(
+    const FileDescriptor *file,
+    const string &parameter,
+    GeneratorContext *context,
+    string *error) const override {
     if (!file->service_count()) {
       // No services, nothing to do.
       return true;
     }
 
-    LegacyGenerateor legacy_generator;
+    LegacyGenerator legacy_generator;
     legacy_generator.Generate(file, parameter, context, error);
+
+    EngineGenerator engine_generator;
+    engine_generator.Generate(file, parameter, context, error);
     return true;
   }
 };
