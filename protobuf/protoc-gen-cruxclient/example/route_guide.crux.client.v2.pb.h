@@ -9,7 +9,7 @@
 
 #include <google/protobuf/any.pb.h>
 #include "route_guide.grpc.pb.h"
-#include "s12_client_support.hpp"
+#include "crux_engine_support.h"
 
 namespace routeguide.v1 {
 const char kRouteGuideGetFeature[] = "/routeguide.v1.RouteGuide/GetFeature";
@@ -34,7 +34,7 @@ class PublicRouteGuideClientInterface {
 
 class RouteGuideClient: public RouteGuideClientInterface {
  public:
-  explicit RouteGuideClient(const std::shared_ptr<RouteGuide::StubInterface>& stub);
+  RouteGuideClient(const std::shared_ptr<RouteGuide::StubInterface>& stub, std::shared_ptr<crux::engine::v1::TokenProviderInterface>& token_provider);
   void Invoke(const google::protobuf::Any& request_data, const std::string& method) const override;
   routeguide::v1::Feature GetFeature(const routeguide::v1::Point& request) const override;
   routeguide::v1::Feature UpdateFeature(const routeguide::v1::Point& request) const override;
@@ -42,17 +42,19 @@ class RouteGuideClient: public RouteGuideClientInterface {
 
  private:
   std::shared_ptr<RouteGuide::StubInterface> mStub;
+  std::shared_ptr<crux::engine::v1::TokenProviderInterface> mTokenProvider;
 
 };
 
 class PublicRouteGuideClient: public PublicRouteGuideClientInterface {
  public:
-  explicit PublicRouteGuideClient(const std::shared_ptr<PublicRouteGuide::StubInterface>& stub);
+  PublicRouteGuideClient(const std::shared_ptr<PublicRouteGuide::StubInterface>& stub, std::shared_ptr<crux::engine::v1::TokenProviderInterface>& token_provider);
   void Invoke(const google::protobuf::Any& request_data, const std::string& method) const override;
   routeguide::v1::Feature GetFeature(const routeguide::v1::Point& request) const override;
 
  private:
   std::shared_ptr<PublicRouteGuide::StubInterface> mStub;
+  std::shared_ptr<crux::engine::v1::TokenProviderInterface> mTokenProvider;
 
 };
 

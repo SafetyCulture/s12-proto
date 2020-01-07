@@ -99,7 +99,7 @@ void EngineGenerator::PrintHeaderIncludes(
   printer->Print("#include <memory>\n\n");
   printer->Print(vars, "#include <google/protobuf/any.pb.h>\n");
   printer->Print(vars, "#include \"$filename_base$.grpc.pb.h\"\n");
-  printer->Print(vars, "#include \"s12_client_support.hpp\"\n\n");
+  printer->Print(vars, "#include \"crux_engine_support.h\"\n\n");
 
   PrintNamespace(printer, file, false);
 }
@@ -198,6 +198,7 @@ void EngineGenerator::PrintHeaderInterfaces(
   Printer *printer,
   const FileDescriptor *file) const {
   std::map<string, string> vars;
+
   for (int service_index = 0; service_index < file->service_count();
        ++service_index) {
     const ServiceDescriptor *service = file->service(service_index);
@@ -233,10 +234,11 @@ void EngineGenerator::PrintHeaderClients(
         "class $service_name$Client: public $service_name$ClientInterface {\n");
     printer->Print(" public:\n");
     printer->Indent();
-    printer->Print(vars,
-                   "explicit $service_name$Client(const "
-                   "std::shared_ptr<$service_name$::StubInterface>& "
-                   "stub);\n");
+    printer->Print(
+      vars,
+      "$service_name$Client(const "
+      "std::shared_ptr<$service_name$::StubInterface>& stub, "
+      "std::shared_ptr<crux::engine::v1::TokenProviderInterface>& token_provider);\n");
     printer->Print(
       "void Invoke("
       "const google::protobuf::Any& request_data, "
@@ -247,8 +249,10 @@ void EngineGenerator::PrintHeaderClients(
 
     printer->Print(" private:\n");
     printer->Indent();
-    printer->Print(vars,
-                   "std::shared_ptr<$service_name$::StubInterface> mStub;\n\n");
+    printer->Print(
+      vars,
+      "std::shared_ptr<$service_name$::StubInterface> mStub;\n");
+    printer->Print("std::shared_ptr<crux::engine::v1::TokenProviderInterface> mTokenProvider;\n\n");
     printer->Outdent();
     printer->Print("};\n\n");
   }
