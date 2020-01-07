@@ -9,7 +9,7 @@
 
 #include <google/protobuf/any.pb.h>
 #include "route_guide.grpc.pb.h"
-namespace routeguide.v1 {
+namespace routeguide:v1 {
 const char kRouteGuideGetFeature[] = "/routeguide.v1.RouteGuide/GetFeature";
 const char kRouteGuideUpdateFeature[] = "/routeguide.v1.RouteGuide/UpdateFeature";
 const char kRouteGuideListFeatures[] = "/routeguide.v1.RouteGuide/ListFeatures";
@@ -52,4 +52,4 @@ class PublicRouteGuideClient: public PublicRouteGuideClientInterface {
   std::shared_ptr<PublicRouteGuide::StubInterface> mStub;
 };
 
-}  // namespace routeguide.v1
+}  // namespace routeguide:v1

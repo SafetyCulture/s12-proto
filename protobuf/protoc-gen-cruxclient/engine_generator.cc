@@ -41,7 +41,9 @@ void EngineGenerator::PrintNamespace(
   bool isEpilogue) const {
   std::map<string, string> vars;
   if (!file->package().empty()) {
-    vars["package"] = file->package();
+    std::string package = file->package();
+    ReplaceCharacters(&package, ".", ':');
+    vars["package"] = package;
     if (!isEpilogue) {
       printer->Print(vars, "namespace $package$ {\n");
     } else {
@@ -221,7 +223,7 @@ void EngineGenerator::PrintSourceIncludes(
   vars["filename_base"] = StripProto(file->name());
 
   printer->Print(vars, "#include \"$filename_base$.crux.client.v2.pb.h\"\n");
-  printer->Print(vars, "#include \"crux_engine_support.h\"\n\n");
+  printer->Print(vars, "#include \"engine/engine.h\"\n\n");
 
   PrintNamespace(printer, file, false);
 }

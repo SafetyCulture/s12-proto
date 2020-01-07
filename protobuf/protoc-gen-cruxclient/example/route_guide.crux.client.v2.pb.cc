@@ -3,9 +3,9 @@
 // source: route_guide.proto
 
 #include "route_guide.crux.client.v2.pb.h"
-#include "crux_engine_support.h"
+#include "engine/engine.h"
 
-namespace routeguide.v1 {
+namespace routeguide:v1 {
 RouteGuideClient::RouteGuideClient(const std::shared_ptr<RouteGuide::StubInterface>& stub) : mStub(stub) {}
 
 void RouteGuideClient::Invoke(const google::protobuf::Any& request_data, const std::string& method) const {
@@ -94,4 +94,4 @@ routeguide::v1::Feature PublicRouteGuideClient::GetFeature(const routeguide::v1:
   return response;
 }
 
-}  // namespace routeguide.v1
+}  // namespace routeguide:v1
