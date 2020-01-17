@@ -10,7 +10,7 @@ CXX = g++
 CPPFLAGS += -I/usr/local/include -pthread
 CXXFLAGS += -std=c++17
 LDFLAGS += -L/usr/local/lib -lprotoc -lprotobuf -lpthread -ldl
-protoc-gen-cruxclient: protobuf/protoc-gen-cruxclient/cruxclient_generator.o protobuf/protoc-gen-cruxclient/legacy_generator.o protobuf/protoc-gen-cruxclient/engine_generator.o
+protoc-gen-cruxclient: protobuf/protoc-gen-cruxclient/cruxclient_generator.o protobuf/protoc-gen-cruxclient/legacy_generator.o protobuf/protoc-gen-cruxclient/api_generator.o
 	$(CXX) $^ $(LDFLAGS) -o $@
 
 .PHONY: install-govalidator

@@ -9,7 +9,7 @@
 #include <string>
 #include "common.h"
 #include "legacy_generator.h"
-#include "engine_generator.h"
+#include "api_generator.h"
 
 using google::protobuf::Descriptor;
 using google::protobuf::FileDescriptor;
@@ -43,8 +43,8 @@ class Generator : public CodeGenerator {
     LegacyGenerator legacy_generator;
     legacy_generator.Generate(file, parameter, context, error);
 
-    EngineGenerator engine_generator;
-    engine_generator.Generate(file, parameter, context, error);
+    APIGenerator api_generator;
+    api_generator.Generate(file, parameter, context, error);
     return true;
   }
 };

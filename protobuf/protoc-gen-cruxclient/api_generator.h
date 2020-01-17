@@ -17,7 +17,7 @@ class Printer;
 }  // namespace google::protobuf
 
 namespace cruxclient_generator {
-class EngineGenerator {
+class APIGenerator {
  public:
   void Generate(
     const google::protobuf::FileDescriptor *file,
@@ -39,21 +39,13 @@ class EngineGenerator {
   std::string GetMethodSignature(
     const std::string& service_name,
     const std::string& method_name) const;
-  void PrintMethodNames(
-    google::protobuf::io::Printer *printer,
-    const google::protobuf::ServiceDescriptor *service) const;
   void PrintHeaderIncludes(
     google::protobuf::io::Printer *printer,
     const google::protobuf::FileDescriptor *file) const;
-  void PrintHeaderMethods(
-    google::protobuf::io::Printer *printer,
-    const google::protobuf::ServiceDescriptor *service,
-    bool is_virtual,
-    bool is_override = false) const;
-  void PrintHeaderInterfaces(
+  void PrintHeaderInterface(
     google::protobuf::io::Printer *printer,
     const google::protobuf::FileDescriptor *file) const;
-  void PrintHeaderClients(
+  void PrintHeaderAPIs(
     google::protobuf::io::Printer *printer,
     const google::protobuf::FileDescriptor *file) const;
   void PrintHeaderEpilogue(
@@ -65,15 +57,22 @@ class EngineGenerator {
   void PrintSourceIncludes(
     google::protobuf::io::Printer *printer,
     const google::protobuf::FileDescriptor *file) const;
-  void PrintInvokeMethod(
-    google::protobuf::io::Printer *printer,
-    const google::protobuf::ServiceDescriptor *service) const;
-  void PrintSourceClients(
+  void PrintSourceAPIs(
     google::protobuf::io::Printer *printer,
     const google::protobuf::FileDescriptor *file) const;
   void PrintSourceEpilogue(
     google::protobuf::io::Printer *printer,
     const google::protobuf::FileDescriptor *file) const;
+
+  void GenerateAPIHeader(
+    const google::protobuf::FileDescriptor *file,
+    const std::string &parameter,
+    google::protobuf::compiler::GeneratorContext *context) const;
+
+  void GenerateAPISource(
+    const google::protobuf::FileDescriptor *file,
+    const std::string &parameter,
+    google::protobuf::compiler::GeneratorContext *context) const;
 };
 
 }  // namespace cruxclient_generator
