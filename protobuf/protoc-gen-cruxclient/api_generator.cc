@@ -61,12 +61,6 @@ void APIGenerator::PrintHeaderPrologue(
   PrintPrologue(printer, file);
 }
 
-std::string APIGenerator::GetMethodSignature(
-  const std::string& service_name,
-  const std::string& method_name) const {
-  return "k" + service_name + method_name;
-}
-
 void APIGenerator::PrintHeaderIncludes(
   Printer *printer,
   const FileDescriptor *file) const {

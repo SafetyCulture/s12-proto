@@ -36,9 +36,6 @@ class APIGenerator {
   void PrintHeaderPrologue(
     google::protobuf::io::Printer *printer,
     const google::protobuf::FileDescriptor *file) const;
-  std::string GetMethodSignature(
-    const std::string& service_name,
-    const std::string& method_name) const;
   void PrintHeaderIncludes(
     google::protobuf::io::Printer *printer,
     const google::protobuf::FileDescriptor *file) const;
