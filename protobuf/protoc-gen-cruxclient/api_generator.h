@@ -39,9 +39,6 @@ class APIGenerator {
   void PrintHeaderIncludes(
     google::protobuf::io::Printer *printer,
     const google::protobuf::FileDescriptor *file) const;
-  void PrintHeaderInterface(
-    google::protobuf::io::Printer *printer,
-    const google::protobuf::FileDescriptor *file) const;
   void PrintHeaderAPIs(
     google::protobuf::io::Printer *printer,
     const google::protobuf::FileDescriptor *file) const;
