@@ -102,6 +102,38 @@ void APIGenerator::PrintHeaderAPIs(
     vars["service_fullname"] = DotsToColons(service->full_name());
 
     printer->Print(vars, "namespace $service_name$ {\n");
+    printer->Print("template<typename RESPONSE>\n");
+    printer->Print("grpc::Status Invoke("
+    "grpc::ClientContext* context, "
+    "const google::protobuf::Any& request_data, "
+    "const std::string& method_name, "
+    "RESPONSE* response) {\n");
+    printer->Indent();
+    for (int method_index = 0; method_index < service->method_count();
+        ++method_index) {
+      const MethodDescriptor *method = service->method(method_index);
+      vars["method_name"] = method->name();
+      vars["request"] = ClassName(method->input_type(), true);
+      vars["response"] = ClassName(method->output_type(), true);
+      vars["api_name"] = method->name() + "API";
+
+      printer->Print(vars, "if (method_name == \"$method_name$\") {\n");
+      printer->Indent();
+      printer->Print(vars, "$request$ request;\n");
+      printer->Print("if (!request_data.UnpackTo(&request)) {\n");
+      printer->Indent();
+      printer->Print("return grpc::Status(grpc::StatusCode::DATA_LOSS, \"Unable to unpack the request data\");\n");
+      printer->Outdent();
+      printer->Print("}\n");
+      printer->Print(vars, "$api_name$ api = $api_name$();\n");
+      printer->Print("return api.Execute(context, request, response);\n");
+      printer->Outdent();
+      printer->Print("}\n\n");
+    }
+    printer->Print("return grpc::Status(grpc::StatusCode::DATA_LOSS, \"Invalid method name\");\n");
+    printer->Outdent();
+    printer->Print("}\n\n");
+
     for (int method_index = 0; method_index < service->method_count();
         ++method_index) {
       const MethodDescriptor *method = service->method(method_index);
@@ -115,13 +147,14 @@ void APIGenerator::PrintHeaderAPIs(
         continue;
       }
 
-
       printer->Print(vars, "class $api_name$ {\n");
       printer->Print(" public:\n");
       printer->Indent();
       printer->Print(vars,
       "explicit $api_name$(const std::shared_ptr<ChannelProvider>& provider);\n");
       printer->Print("std::string Name() const;\n");
+      printer->Print("std::string ServiceName() const;\n");
+      printer->Print("std::string MethodName() const;\n");
       printer->Print(vars, "grpc::Status Execute(\n");
       printer->Indent();
       printer->Print(vars, "grpc::ClientContext* context,\n"

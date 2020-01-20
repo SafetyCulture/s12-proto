@@ -18,10 +18,62 @@ class ChannelProvider {
 };
 
 namespace RouteGuide {
+template<typename RESPONSE>
+grpc::Status Invoke(grpc::ClientContext* context, const google::protobuf::Any& request_data, const std::string& method_name, RESPONSE* response) {
+  if (method_name == "GetFeature") {
+    routeguide::v1::Point request;
+    if (!request_data.UnpackTo(&request)) {
+      return grpc::Status(grpc::StatusCode::DATA_LOSS, "Unable to unpack the request data");
+    }
+    GetFeatureAPI api = GetFeatureAPI();
+    return api.Execute(context, request, response);
+  }
+
+  if (method_name == "UpdateFeature") {
+    routeguide::v1::Point request;
+    if (!request_data.UnpackTo(&request)) {
+      return grpc::Status(grpc::StatusCode::DATA_LOSS, "Unable to unpack the request data");
+    }
+    UpdateFeatureAPI api = UpdateFeatureAPI();
+    return api.Execute(context, request, response);
+  }
+
+  if (method_name == "ListFeatures") {
+    routeguide::v1::Rectangle request;
+    if (!request_data.UnpackTo(&request)) {
+      return grpc::Status(grpc::StatusCode::DATA_LOSS, "Unable to unpack the request data");
+    }
+    ListFeaturesAPI api = ListFeaturesAPI();
+    return api.Execute(context, request, response);
+  }
+
+  if (method_name == "RecordRoute") {
+    routeguide::v1::Point request;
+    if (!request_data.UnpackTo(&request)) {
+      return grpc::Status(grpc::StatusCode::DATA_LOSS, "Unable to unpack the request data");
+    }
+    RecordRouteAPI api = RecordRouteAPI();
+    return api.Execute(context, request, response);
+  }
+
+  if (method_name == "RouteChat") {
+    routeguide::v1::RouteNote request;
+    if (!request_data.UnpackTo(&request)) {
+      return grpc::Status(grpc::StatusCode::DATA_LOSS, "Unable to unpack the request data");
+    }
+    RouteChatAPI api = RouteChatAPI();
+    return api.Execute(context, request, response);
+  }
+
+  return grpc::Status(grpc::StatusCode::DATA_LOSS, "Invalid method name");
+}
+
 class GetFeatureAPI {
  public:
   explicit GetFeatureAPI(const std::shared_ptr<ChannelProvider>& provider);
   std::string Name() const;
+  std::string ServiceName() const;
+  std::string MethodName() const;
   grpc::Status Execute(
     grpc::ClientContext* context,
     const routeguide::v1::Point& request,
@@ -34,6 +86,8 @@ class UpdateFeatureAPI {
  public:
   explicit UpdateFeatureAPI(const std::shared_ptr<ChannelProvider>& provider);
   std::string Name() const;
+  std::string ServiceName() const;
+  std::string MethodName() const;
   grpc::Status Execute(
     grpc::ClientContext* context,
     const routeguide::v1::Point& request,
@@ -46,6 +100,8 @@ class ListFeaturesAPI {
  public:
   explicit ListFeaturesAPI(const std::shared_ptr<ChannelProvider>& provider);
   std::string Name() const;
+  std::string ServiceName() const;
+  std::string MethodName() const;
   grpc::Status Execute(
     grpc::ClientContext* context,
     const routeguide::v1::Rectangle& request,
@@ -57,10 +113,26 @@ class ListFeaturesAPI {
 }  // namespace RouteGuide
 
 namespace PublicRouteGuide {
+template<typename RESPONSE>
+grpc::Status Invoke(grpc::ClientContext* context, const google::protobuf::Any& request_data, const std::string& method_name, RESPONSE* response) {
+  if (method_name == "GetFeature") {
+    routeguide::v1::Point request;
+    if (!request_data.UnpackTo(&request)) {
+      return grpc::Status(grpc::StatusCode::DATA_LOSS, "Unable to unpack the request data");
+    }
+    GetFeatureAPI api = GetFeatureAPI();
+    return api.Execute(context, request, response);
+  }
+
+  return grpc::Status(grpc::StatusCode::DATA_LOSS, "Invalid method name");
+}
+
 class GetFeatureAPI {
  public:
   explicit GetFeatureAPI(const std::shared_ptr<ChannelProvider>& provider);
   std::string Name() const;
+  std::string ServiceName() const;
+  std::string MethodName() const;
   grpc::Status Execute(
     grpc::ClientContext* context,
     const routeguide::v1::Point& request,
