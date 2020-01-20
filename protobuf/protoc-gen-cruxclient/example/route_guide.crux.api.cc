@@ -7,7 +7,7 @@
 namespace routeguide::v1 {
 
 namespace RouteGuide{
-GetFeatureAPI(const std::shared_ptr<ChannelProvider>& provider) {
+GetFeatureAPI(const std::shared_ptr<crux::engine::ChannelProvider>& provider) {
   mStub = routeguide::v1::RouteGuide::NewStub(provider->ConnectionChannel());
 }
 
@@ -30,7 +30,7 @@ grpc::Status GetFeatureAPI::Execute(
   return mStub->GetFeature(context, request, response);
 }
 
-UpdateFeatureAPI(const std::shared_ptr<ChannelProvider>& provider) {
+UpdateFeatureAPI(const std::shared_ptr<crux::engine::ChannelProvider>& provider) {
   mStub = routeguide::v1::RouteGuide::NewStub(provider->ConnectionChannel());
 }
 
@@ -53,7 +53,7 @@ grpc::Status UpdateFeatureAPI::Execute(
   return mStub->UpdateFeature(context, request, response);
 }
 
-ListFeaturesAPI(const std::shared_ptr<ChannelProvider>& provider) {
+ListFeaturesAPI(const std::shared_ptr<crux::engine::ChannelProvider>& provider) {
   mStub = routeguide::v1::RouteGuide::NewStub(provider->ConnectionChannel());
 }
 
@@ -79,7 +79,7 @@ grpc::Status ListFeaturesAPI::Execute(
 }  // namespace RouteGuide
 
 namespace PublicRouteGuide{
-GetFeatureAPI(const std::shared_ptr<ChannelProvider>& provider) {
+GetFeatureAPI(const std::shared_ptr<crux::engine::ChannelProvider>& provider) {
   mStub = routeguide::v1::PublicRouteGuide::NewStub(provider->ConnectionChannel());
 }
 

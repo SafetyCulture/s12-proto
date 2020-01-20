@@ -74,20 +74,10 @@ void APIGenerator::PrintHeaderIncludes(
   printer->Print("#include <string>\n");
   printer->Print("#include <memory>\n\n");
   printer->Print(vars, "#include <google/protobuf/any.pb.h>\n");
-  printer->Print(vars, "#include \"$filename_base$.grpc.pb.h\"\n\n");
+  printer->Print(vars, "#include \"$filename_base$.grpc.pb.h\"\n");
+  printer->Print(vars, "#include \"crux_engine_client_support.h\"\n\n");
 
   PrintNamespace(printer, file, false);
-}
-
-void APIGenerator::PrintHeaderInterface(
-    google::protobuf::io::Printer *printer,
-    const google::protobuf::FileDescriptor *file) const {
-  printer->Print("class ChannelProvider {\n");
-  printer->Print(" public:\n");
-  printer->Indent();
-  printer->Print("virtual std::shared_ptr<grpc::Channel> ConnectionChannel() const = 0;\n");
-  printer->Outdent();
-  printer->Print("};\n\n");
 }
 
 void APIGenerator::PrintHeaderAPIs(
@@ -104,6 +94,7 @@ void APIGenerator::PrintHeaderAPIs(
     printer->Print(vars, "namespace $service_name$ {\n");
     printer->Print("template<typename RESPONSE>\n");
     printer->Print("grpc::Status Invoke("
+    "const std::shared_ptr<crux::engine::ChannelProvider>& provider, "
     "grpc::ClientContext* context, "
     "const google::protobuf::Any& request_data, "
     "const std::string& method_name, "
@@ -125,7 +116,7 @@ void APIGenerator::PrintHeaderAPIs(
       printer->Print("return grpc::Status(grpc::StatusCode::DATA_LOSS, \"Unable to unpack the request data\");\n");
       printer->Outdent();
       printer->Print("}\n");
-      printer->Print(vars, "$api_name$ api = $api_name$();\n");
+      printer->Print(vars, "$api_name$ api = $api_name$(provider);\n");
       printer->Print("return api.Execute(context, request, response);\n");
       printer->Outdent();
       printer->Print("}\n\n");
@@ -151,10 +142,10 @@ void APIGenerator::PrintHeaderAPIs(
       printer->Print(" public:\n");
       printer->Indent();
       printer->Print(vars,
-      "explicit $api_name$(const std::shared_ptr<ChannelProvider>& provider);\n");
-      printer->Print("std::string Name() const;\n");
-      printer->Print("std::string ServiceName() const;\n");
-      printer->Print("std::string MethodName() const;\n");
+      "explicit $api_name$(const std::shared_ptr<crux::engine::ChannelProvider>& provider);\n");
+      printer->Print("static std::string Name() const;\n");
+      printer->Print("static std::string ServiceName() const;\n");
+      printer->Print("static std::string MethodName() const;\n");
       printer->Print(vars, "grpc::Status Execute(\n");
       printer->Indent();
       printer->Print(vars, "grpc::ClientContext* context,\n"
@@ -222,7 +213,7 @@ void APIGenerator::PrintSourceAPIs(
       }
 
       printer->Print(vars,
-      "$api_name$(const std::shared_ptr<ChannelProvider>& provider) {\n");
+      "$api_name$(const std::shared_ptr<crux::engine::ChannelProvider>& provider) {\n");
       printer->Indent();
       printer->Print(vars, "mStub = $service_fullname$::NewStub(provider->ConnectionChannel());\n");
       printer->Outdent();
@@ -276,7 +267,6 @@ void APIGenerator::GenerateAPIHeader(
   Printer printer(output.get(), '$');
   PrintHeaderPrologue(&printer, file);
   PrintHeaderIncludes(&printer, file);
-  PrintHeaderInterface(&printer, file);
   PrintHeaderAPIs(&printer, file);
   PrintHeaderEpilogue(&printer, file);
 }
