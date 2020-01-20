@@ -12,7 +12,15 @@ GetFeatureAPI(const std::shared_ptr<ChannelProvider>& provider) {
 }
 
 std::string GetFeatureAPI::Name() const {
-  return "RouteGuide_GetFeature";
+  return "routeguide_v1_RouteGuide_GetFeature";
+}
+
+std::string GetFeatureAPI::ServiceName() const {
+  return "routeguide_v1_RouteGuide";
+}
+
+std::string GetFeatureAPI::MethodName() const {
+  return "GetFeature";
 }
 
 grpc::Status GetFeatureAPI::Execute(
@@ -27,7 +35,15 @@ UpdateFeatureAPI(const std::shared_ptr<ChannelProvider>& provider) {
 }
 
 std::string UpdateFeatureAPI::Name() const {
-  return "RouteGuide_UpdateFeature";
+  return "routeguide_v1_RouteGuide_UpdateFeature";
+}
+
+std::string UpdateFeatureAPI::ServiceName() const {
+  return "routeguide_v1_RouteGuide";
+}
+
+std::string UpdateFeatureAPI::MethodName() const {
+  return "UpdateFeature";
 }
 
 grpc::Status UpdateFeatureAPI::Execute(
@@ -42,7 +58,15 @@ ListFeaturesAPI(const std::shared_ptr<ChannelProvider>& provider) {
 }
 
 std::string ListFeaturesAPI::Name() const {
-  return "RouteGuide_ListFeatures";
+  return "routeguide_v1_RouteGuide_ListFeatures";
+}
+
+std::string ListFeaturesAPI::ServiceName() const {
+  return "routeguide_v1_RouteGuide";
+}
+
+std::string ListFeaturesAPI::MethodName() const {
+  return "ListFeatures";
 }
 
 grpc::Status ListFeaturesAPI::Execute(
@@ -60,7 +84,15 @@ GetFeatureAPI(const std::shared_ptr<ChannelProvider>& provider) {
 }
 
 std::string GetFeatureAPI::Name() const {
-  return "PublicRouteGuide_GetFeature";
+  return "routeguide_v1_PublicRouteGuide_GetFeature";
+}
+
+std::string GetFeatureAPI::ServiceName() const {
+  return "routeguide_v1_PublicRouteGuide";
+}
+
+std::string GetFeatureAPI::MethodName() const {
+  return "GetFeature";
 }
 
 grpc::Status GetFeatureAPI::Execute(
@@ -74,4 +106,3 @@ grpc::Status GetFeatureAPI::Execute(
 
 
 }  // namespace routeguide::v1
-

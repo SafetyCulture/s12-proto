@@ -205,6 +205,7 @@ void APIGenerator::PrintSourceAPIs(
     const ServiceDescriptor *service = file->service(service_index);
     vars["service_name"] = service->name();
     vars["service_fullname"] = DotsToColons(service->full_name());
+    vars["service_fullname_underscore"] = DotsToUnderscores(service->full_name());
 
     printer->Print(vars, "namespace $service_name${\n");
     for (int method_index = 0; method_index < service->method_count();
@@ -229,7 +230,19 @@ void APIGenerator::PrintSourceAPIs(
 
       printer->Print(vars, "std::string $api_name$::Name() const {\n");
       printer->Indent();
-      printer->Print(vars, "return \"$service_name$_$method_name$\";\n");
+      printer->Print(vars, "return \"$service_fullname_underscore$_$method_name$\";\n");
+      printer->Outdent();
+      printer->Print("}\n\n");
+
+      printer->Print(vars, "std::string $api_name$::ServiceName() const {\n");
+      printer->Indent();
+      printer->Print(vars, "return \"$service_fullname_underscore$\";\n");
+      printer->Outdent();
+      printer->Print("}\n\n");
+
+      printer->Print(vars, "std::string $api_name$::MethodName() const {\n");
+      printer->Indent();
+      printer->Print(vars, "return \"$method_name$\";\n");
       printer->Outdent();
       printer->Print("}\n\n");
 
