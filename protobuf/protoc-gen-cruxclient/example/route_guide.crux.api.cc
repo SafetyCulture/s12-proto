@@ -30,6 +30,12 @@ grpc::Status GetFeatureAPI::Execute(
   return mStub->GetFeature(context, request, response);
 }
 
+std::unique_ptr<grpc::ClientReaderInterface<routeguide::v1::Feature>> GetFeatureAPI::Execute(
+  grpc::ClientContext* context,
+  const routeguide::v1::Point& request) const {
+  return grpc::Status(grpc::StatusCode::UNIMPLEMENTED, "Please call non-streaming method instead");
+}
+
 UpdateFeatureAPI(const std::shared_ptr<crux::engine::ChannelProvider>& provider) {
   mStub = routeguide::v1::RouteGuide::NewStub(provider->ConnectionChannel());
 }
@@ -53,6 +59,12 @@ grpc::Status UpdateFeatureAPI::Execute(
   return mStub->UpdateFeature(context, request, response);
 }
 
+std::unique_ptr<grpc::ClientReaderInterface<routeguide::v1::Feature>> UpdateFeatureAPI::Execute(
+  grpc::ClientContext* context,
+  const routeguide::v1::Point& request) const {
+  return grpc::Status(grpc::StatusCode::UNIMPLEMENTED, "Please call non-streaming method instead");
+}
+
 ListFeaturesAPI(const std::shared_ptr<crux::engine::ChannelProvider>& provider) {
   mStub = routeguide::v1::RouteGuide::NewStub(provider->ConnectionChannel());
 }
@@ -73,7 +85,13 @@ grpc::Status ListFeaturesAPI::Execute(
   grpc::ClientContext* context,
   const routeguide::v1::Rectangle& request,
   routeguide::v1::Feature* response) const {
-  return mStub->ListFeatures(context, request, response);
+  return grpc::Status(grpc::StatusCode::UNIMPLEMENTED, "Please call streaming method instead");
+}
+
+std::unique_ptr<grpc::ClientReaderInterface<routeguide::v1::Feature>> ListFeaturesAPI::Execute(
+  grpc::ClientContext* context,
+  const routeguide::v1::Rectangle& request) const {
+  return mStub->ListFeatures(context, request);
 }
 
 }  // namespace RouteGuide
@@ -102,7 +120,14 @@ grpc::Status GetFeatureAPI::Execute(
   return mStub->GetFeature(context, request, response);
 }
 
+std::unique_ptr<grpc::ClientReaderInterface<routeguide::v1::Feature>> GetFeatureAPI::Execute(
+  grpc::ClientContext* context,
+  const routeguide::v1::Point& request) const {
+  return grpc::Status(grpc::StatusCode::UNIMPLEMENTED, "Please call non-streaming method instead");
+}
+
 }  // namespace PublicRouteGuide
 
 
 }  // namespace routeguide::v1
+
