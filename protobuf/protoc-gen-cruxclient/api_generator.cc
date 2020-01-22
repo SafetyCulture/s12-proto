@@ -97,8 +97,7 @@ void APIGenerator::PrintHeaderAPIs(
     "const std::shared_ptr<crux::engine::ChannelProvider>& provider, "
     "grpc::ClientContext* context, "
     "const google::protobuf::Any& request_data, "
-    "const std::string& method_name, "
-    "RESPONSE* response) {\n");
+    "const std::string& method_name) {\n");
     printer->Indent();
     for (int method_index = 0; method_index < service->method_count();
         ++method_index) {
@@ -117,7 +116,8 @@ void APIGenerator::PrintHeaderAPIs(
       printer->Outdent();
       printer->Print("}\n");
       printer->Print(vars, "$api_name$ api = $api_name$(provider);\n");
-      printer->Print("return api.Execute(context, request, response);\n");
+      printer->Print(vars, "$response$ response;\n");
+      printer->Print("return api.Execute(context, request, &response);\n");
       printer->Outdent();
       printer->Print("}\n\n");
     }
@@ -151,6 +151,12 @@ void APIGenerator::PrintHeaderAPIs(
       printer->Print(vars, "grpc::ClientContext* context,\n"
         "const $request$& request,\n"
         "$response$* response) const;\n");
+      printer->Outdent();
+      printer->Print("// server streaming\n");
+      printer->Print(vars, "std::unique_ptr<grpc::ClientReaderInterface<$response$>> Execute(\n");
+      printer->Indent();
+      printer->Print(vars, "grpc::ClientContext* context,\n"
+        "const $request$& request) const;\n");
       printer->Outdent();
       printer->Outdent();
       printer->Print(" private:\n");
@@ -242,7 +248,23 @@ void APIGenerator::PrintSourceAPIs(
       printer->Print(vars, "grpc::ClientContext* context,\n"
         "const $request$& request,\n"
         "$response$* response) const {\n");
-      printer->Print(vars, "return mStub->$method_name$(context, request, response);\n");
+      if (method->server_streaming()) {
+        printer->Print(vars, "return grpc::Status(grpc::StatusCode::UNIMPLEMENTED, \"Please call streaming method instead\");\n");
+      } else {
+        printer->Print(vars, "return mStub->$method_name$(context, request, response);\n");
+      }
+      printer->Outdent();
+      printer->Print("}\n\n");
+
+      printer->Print(vars, "std::unique_ptr<grpc::ClientReaderInterface<$response$>> $api_name$::Execute(\n");
+      printer->Indent();
+      printer->Print(vars, "grpc::ClientContext* context,\n"
+        "const $request$& request) const {\n");
+      if (method->server_streaming()) {
+        printer->Print(vars, "return mStub->$method_name$(context, request);\n");
+      } else {
+        printer->Print(vars, "return grpc::Status(grpc::StatusCode::UNIMPLEMENTED, \"Please call non-streaming method instead\");\n");
+      }
       printer->Outdent();
       printer->Print("}\n\n");
     }
