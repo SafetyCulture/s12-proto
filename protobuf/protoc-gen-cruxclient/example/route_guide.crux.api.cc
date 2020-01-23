@@ -6,20 +6,29 @@
 
 namespace routeguide::v1 {
 
-namespace RouteGuide{
-GetFeatureAPI(const std::shared_ptr<crux::engine::ChannelProvider>& provider) {
+namespace RouteGuideNS {
+template <typename R>
+class UnimplementedClientReader final: public grpc::ClientReaderInterface<R> {
+ public:
+  void WaitForInitialMetadata() override {}
+  bool NextMessageSize(uint32_t* sz) override { return true; }
+  bool Read(R* msg) override { return false; }
+  grpc::Status Finish() override { return grpc::Status(grpc::StatusCode::UNIMPLEMENTED, "Please call non-streaming method instead"); }
+};
+
+GetFeatureAPI::GetFeatureAPI(const std::shared_ptr<crux::engine::ChannelProvider>& provider) {
   mStub = routeguide::v1::RouteGuide::NewStub(provider->ConnectionChannel());
 }
 
-std::string GetFeatureAPI::Name() const {
+std::string GetFeatureAPI::Name() {
   return "routeguide_v1_RouteGuide_GetFeature";
 }
 
-std::string GetFeatureAPI::ServiceName() const {
+std::string GetFeatureAPI::ServiceName() {
   return "routeguide_v1_RouteGuide";
 }
 
-std::string GetFeatureAPI::MethodName() const {
+std::string GetFeatureAPI::MethodName() {
   return "GetFeature";
 }
 
@@ -33,22 +42,22 @@ grpc::Status GetFeatureAPI::Execute(
 std::unique_ptr<grpc::ClientReaderInterface<routeguide::v1::Feature>> GetFeatureAPI::Execute(
   grpc::ClientContext* context,
   const routeguide::v1::Point& request) const {
-  return grpc::Status(grpc::StatusCode::UNIMPLEMENTED, "Please call non-streaming method instead");
+  return std::make_unique<UnimplementedClientReader<routeguide::v1::Feature>>();
 }
 
-UpdateFeatureAPI(const std::shared_ptr<crux::engine::ChannelProvider>& provider) {
+UpdateFeatureAPI::UpdateFeatureAPI(const std::shared_ptr<crux::engine::ChannelProvider>& provider) {
   mStub = routeguide::v1::RouteGuide::NewStub(provider->ConnectionChannel());
 }
 
-std::string UpdateFeatureAPI::Name() const {
+std::string UpdateFeatureAPI::Name() {
   return "routeguide_v1_RouteGuide_UpdateFeature";
 }
 
-std::string UpdateFeatureAPI::ServiceName() const {
+std::string UpdateFeatureAPI::ServiceName() {
   return "routeguide_v1_RouteGuide";
 }
 
-std::string UpdateFeatureAPI::MethodName() const {
+std::string UpdateFeatureAPI::MethodName() {
   return "UpdateFeature";
 }
 
@@ -62,22 +71,22 @@ grpc::Status UpdateFeatureAPI::Execute(
 std::unique_ptr<grpc::ClientReaderInterface<routeguide::v1::Feature>> UpdateFeatureAPI::Execute(
   grpc::ClientContext* context,
   const routeguide::v1::Point& request) const {
-  return grpc::Status(grpc::StatusCode::UNIMPLEMENTED, "Please call non-streaming method instead");
+  return std::make_unique<UnimplementedClientReader<routeguide::v1::Feature>>();
 }
 
-ListFeaturesAPI(const std::shared_ptr<crux::engine::ChannelProvider>& provider) {
+ListFeaturesAPI::ListFeaturesAPI(const std::shared_ptr<crux::engine::ChannelProvider>& provider) {
   mStub = routeguide::v1::RouteGuide::NewStub(provider->ConnectionChannel());
 }
 
-std::string ListFeaturesAPI::Name() const {
+std::string ListFeaturesAPI::Name() {
   return "routeguide_v1_RouteGuide_ListFeatures";
 }
 
-std::string ListFeaturesAPI::ServiceName() const {
+std::string ListFeaturesAPI::ServiceName() {
   return "routeguide_v1_RouteGuide";
 }
 
-std::string ListFeaturesAPI::MethodName() const {
+std::string ListFeaturesAPI::MethodName() {
   return "ListFeatures";
 }
 
@@ -94,22 +103,31 @@ std::unique_ptr<grpc::ClientReaderInterface<routeguide::v1::Feature>> ListFeatur
   return mStub->ListFeatures(context, request);
 }
 
-}  // namespace RouteGuide
+}  // namespace RouteGuideNS
 
-namespace PublicRouteGuide{
-GetFeatureAPI(const std::shared_ptr<crux::engine::ChannelProvider>& provider) {
+namespace PublicRouteGuideNS {
+template <typename R>
+class UnimplementedClientReader final: public grpc::ClientReaderInterface<R> {
+ public:
+  void WaitForInitialMetadata() override {}
+  bool NextMessageSize(uint32_t* sz) override { return true; }
+  bool Read(R* msg) override { return false; }
+  grpc::Status Finish() override { return grpc::Status(grpc::StatusCode::UNIMPLEMENTED, "Please call non-streaming method instead"); }
+};
+
+GetFeatureAPI::GetFeatureAPI(const std::shared_ptr<crux::engine::ChannelProvider>& provider) {
   mStub = routeguide::v1::PublicRouteGuide::NewStub(provider->ConnectionChannel());
 }
 
-std::string GetFeatureAPI::Name() const {
+std::string GetFeatureAPI::Name() {
   return "routeguide_v1_PublicRouteGuide_GetFeature";
 }
 
-std::string GetFeatureAPI::ServiceName() const {
+std::string GetFeatureAPI::ServiceName() {
   return "routeguide_v1_PublicRouteGuide";
 }
 
-std::string GetFeatureAPI::MethodName() const {
+std::string GetFeatureAPI::MethodName() {
   return "GetFeature";
 }
 
@@ -123,10 +141,10 @@ grpc::Status GetFeatureAPI::Execute(
 std::unique_ptr<grpc::ClientReaderInterface<routeguide::v1::Feature>> GetFeatureAPI::Execute(
   grpc::ClientContext* context,
   const routeguide::v1::Point& request) const {
-  return grpc::Status(grpc::StatusCode::UNIMPLEMENTED, "Please call non-streaming method instead");
+  return std::make_unique<UnimplementedClientReader<routeguide::v1::Feature>>();
 }
 
-}  // namespace PublicRouteGuide
+}  // namespace PublicRouteGuideNS
 
 
 }  // namespace routeguide::v1

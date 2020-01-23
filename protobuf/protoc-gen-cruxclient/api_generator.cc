@@ -91,7 +91,49 @@ void APIGenerator::PrintHeaderAPIs(
     vars["service_name"] = service->name();
     vars["service_fullname"] = DotsToColons(service->full_name());
 
-    printer->Print(vars, "namespace $service_name$ {\n");
+    printer->Print(vars, "namespace $service_name$NS {\n");
+
+    for (int method_index = 0; method_index < service->method_count();
+        ++method_index) {
+      const MethodDescriptor *method = service->method(method_index);
+      vars["method_name"] = method->name();
+      vars["request"] = ClassName(method->input_type(), true);
+      vars["response"] = ClassName(method->output_type(), true);
+      vars["api_name"] = method->name() + "API";
+
+      if (method->client_streaming()) {
+        // [RC]: Client Steaming not supported yet
+        continue;
+      }
+
+      printer->Print(vars, "class $api_name$ {\n");
+      printer->Print(" public:\n");
+      printer->Indent();
+      printer->Print(vars,
+      "explicit $api_name$(const std::shared_ptr<crux::engine::ChannelProvider>& provider);\n");
+      printer->Print("static std::string Name();\n");
+      printer->Print("static std::string ServiceName();\n");
+      printer->Print("static std::string MethodName();\n");
+      printer->Print(vars, "grpc::Status Execute(\n");
+      printer->Indent();
+      printer->Print(vars, "grpc::ClientContext* context,\n"
+        "const $request$& request,\n"
+        "$response$* response) const;\n");
+      printer->Outdent();
+      printer->Print("// server streaming\n");
+      printer->Print(vars, "std::unique_ptr<grpc::ClientReaderInterface<$response$>> Execute(\n");
+      printer->Indent();
+      printer->Print(vars, "grpc::ClientContext* context,\n"
+        "const $request$& request) const;\n");
+      printer->Outdent();
+      printer->Outdent();
+      printer->Print(" private:\n");
+      printer->Indent();
+      printer->Print(vars, "std::unique_ptr<$service_name$::StubInterface> mStub;\n");
+      printer->Outdent();
+      printer->Print("};\n\n");
+    }
+
     printer->Print("template<typename RESPONSE>\n");
     printer->Print("grpc::Status Invoke("
     "const std::shared_ptr<crux::engine::ChannelProvider>& provider, "
@@ -125,47 +167,7 @@ void APIGenerator::PrintHeaderAPIs(
     printer->Outdent();
     printer->Print("}\n\n");
 
-    for (int method_index = 0; method_index < service->method_count();
-        ++method_index) {
-      const MethodDescriptor *method = service->method(method_index);
-      vars["method_name"] = method->name();
-      vars["request"] = ClassName(method->input_type(), true);
-      vars["response"] = ClassName(method->output_type(), true);
-      vars["api_name"] = method->name() + "API";
-
-      if (method->client_streaming()) {
-        // [RC]: Client Steaming not supported yet
-        continue;
-      }
-
-      printer->Print(vars, "class $api_name$ {\n");
-      printer->Print(" public:\n");
-      printer->Indent();
-      printer->Print(vars,
-      "explicit $api_name$(const std::shared_ptr<crux::engine::ChannelProvider>& provider);\n");
-      printer->Print("static std::string Name() const;\n");
-      printer->Print("static std::string ServiceName() const;\n");
-      printer->Print("static std::string MethodName() const;\n");
-      printer->Print(vars, "grpc::Status Execute(\n");
-      printer->Indent();
-      printer->Print(vars, "grpc::ClientContext* context,\n"
-        "const $request$& request,\n"
-        "$response$* response) const;\n");
-      printer->Outdent();
-      printer->Print("// server streaming\n");
-      printer->Print(vars, "std::unique_ptr<grpc::ClientReaderInterface<$response$>> Execute(\n");
-      printer->Indent();
-      printer->Print(vars, "grpc::ClientContext* context,\n"
-        "const $request$& request) const;\n");
-      printer->Outdent();
-      printer->Outdent();
-      printer->Print(" private:\n");
-      printer->Indent();
-      printer->Print(vars, "std::unique_ptr<$service_name$::StubInterface> mStub;\n");
-      printer->Outdent();
-      printer->Print("};\n\n");
-    }
-    printer->Print(vars, "}  // namespace $service_name$\n\n");
+    printer->Print(vars, "}  // namespace $service_name$NS\n\n");
   }
 }
 
@@ -204,7 +206,17 @@ void APIGenerator::PrintSourceAPIs(
     vars["service_fullname"] = DotsToColons(service->full_name());
     vars["service_fullname_underscore"] = DotsToUnderscores(service->full_name());
 
-    printer->Print(vars, "namespace $service_name${\n");
+    printer->Print(vars, "namespace $service_name$NS {\n");
+    printer->Print("template <typename R>\n");
+    printer->Print("class UnimplementedClientReader final: public grpc::ClientReaderInterface<R> {\n");
+    printer->Print(" public:\n");
+    printer->Indent();
+    printer->Print("void WaitForInitialMetadata() override {}\n");
+    printer->Print("bool NextMessageSize(uint32_t* sz) override { return true; }\n");
+    printer->Print("bool Read(R* msg) override { return false; }\n");
+    printer->Print("grpc::Status Finish() override { return grpc::Status(grpc::StatusCode::UNIMPLEMENTED, \"Please call non-streaming method instead\"); }\n");
+    printer->Outdent();
+    printer->Print("};\n\n");
     for (int method_index = 0; method_index < service->method_count();
          ++method_index) {
       const MethodDescriptor *method = service->method(method_index);
@@ -219,25 +231,25 @@ void APIGenerator::PrintSourceAPIs(
       }
 
       printer->Print(vars,
-      "$api_name$(const std::shared_ptr<crux::engine::ChannelProvider>& provider) {\n");
+      "$api_name$::$api_name$(const std::shared_ptr<crux::engine::ChannelProvider>& provider) {\n");
       printer->Indent();
       printer->Print(vars, "mStub = $service_fullname$::NewStub(provider->ConnectionChannel());\n");
       printer->Outdent();
       printer->Print("}\n\n");
 
-      printer->Print(vars, "std::string $api_name$::Name() const {\n");
+      printer->Print(vars, "std::string $api_name$::Name() {\n");
       printer->Indent();
       printer->Print(vars, "return \"$service_fullname_underscore$_$method_name$\";\n");
       printer->Outdent();
       printer->Print("}\n\n");
 
-      printer->Print(vars, "std::string $api_name$::ServiceName() const {\n");
+      printer->Print(vars, "std::string $api_name$::ServiceName() {\n");
       printer->Indent();
       printer->Print(vars, "return \"$service_fullname_underscore$\";\n");
       printer->Outdent();
       printer->Print("}\n\n");
 
-      printer->Print(vars, "std::string $api_name$::MethodName() const {\n");
+      printer->Print(vars, "std::string $api_name$::MethodName() {\n");
       printer->Indent();
       printer->Print(vars, "return \"$method_name$\";\n");
       printer->Outdent();
@@ -263,12 +275,12 @@ void APIGenerator::PrintSourceAPIs(
       if (method->server_streaming()) {
         printer->Print(vars, "return mStub->$method_name$(context, request);\n");
       } else {
-        printer->Print(vars, "return grpc::Status(grpc::StatusCode::UNIMPLEMENTED, \"Please call non-streaming method instead\");\n");
+        printer->Print(vars, "return std::make_unique<UnimplementedClientReader<$response$>>();\n");
       }
       printer->Outdent();
       printer->Print("}\n\n");
     }
-    printer->Print(vars, "}  // namespace $service_name$\n\n");
+    printer->Print(vars, "}  // namespace $service_name$NS\n\n");
   }
 }
 
