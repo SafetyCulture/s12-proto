@@ -13,7 +13,61 @@
 
 namespace routeguide::v1 {
 
-namespace RouteGuide {
+namespace RouteGuideNS {
+class GetFeatureAPI {
+ public:
+  explicit GetFeatureAPI(const std::shared_ptr<crux::engine::ChannelProvider>& provider);
+  static std::string Name();
+  static std::string ServiceName();
+  static std::string MethodName();
+  grpc::Status Execute(
+    grpc::ClientContext* context,
+    const routeguide::v1::Point& request,
+    routeguide::v1::Feature* response) const;
+  // server streaming
+  std::unique_ptr<grpc::ClientReaderInterface<routeguide::v1::Feature>> Execute(
+    grpc::ClientContext* context,
+    const routeguide::v1::Point& request) const;
+ private:
+  std::unique_ptr<RouteGuide::StubInterface> mStub;
+};
+
+class UpdateFeatureAPI {
+ public:
+  explicit UpdateFeatureAPI(const std::shared_ptr<crux::engine::ChannelProvider>& provider);
+  static std::string Name();
+  static std::string ServiceName();
+  static std::string MethodName();
+  grpc::Status Execute(
+    grpc::ClientContext* context,
+    const routeguide::v1::Point& request,
+    routeguide::v1::Feature* response) const;
+  // server streaming
+  std::unique_ptr<grpc::ClientReaderInterface<routeguide::v1::Feature>> Execute(
+    grpc::ClientContext* context,
+    const routeguide::v1::Point& request) const;
+ private:
+  std::unique_ptr<RouteGuide::StubInterface> mStub;
+};
+
+class ListFeaturesAPI {
+ public:
+  explicit ListFeaturesAPI(const std::shared_ptr<crux::engine::ChannelProvider>& provider);
+  static std::string Name();
+  static std::string ServiceName();
+  static std::string MethodName();
+  grpc::Status Execute(
+    grpc::ClientContext* context,
+    const routeguide::v1::Rectangle& request,
+    routeguide::v1::Feature* response) const;
+  // server streaming
+  std::unique_ptr<grpc::ClientReaderInterface<routeguide::v1::Feature>> Execute(
+    grpc::ClientContext* context,
+    const routeguide::v1::Rectangle& request) const;
+ private:
+  std::unique_ptr<RouteGuide::StubInterface> mStub;
+};
+
 template<typename RESPONSE>
 grpc::Status Invoke(const std::shared_ptr<crux::engine::ChannelProvider>& provider, grpc::ClientContext* context, const google::protobuf::Any& request_data, const std::string& method_name) {
   if (method_name == "GetFeature") {
@@ -69,12 +123,15 @@ grpc::Status Invoke(const std::shared_ptr<crux::engine::ChannelProvider>& provid
   return grpc::Status(grpc::StatusCode::DATA_LOSS, "Invalid method name");
 }
 
+}  // namespace RouteGuideNS
+
+namespace PublicRouteGuideNS {
 class GetFeatureAPI {
  public:
   explicit GetFeatureAPI(const std::shared_ptr<crux::engine::ChannelProvider>& provider);
-  static std::string Name() const;
-  static std::string ServiceName() const;
-  static std::string MethodName() const;
+  static std::string Name();
+  static std::string ServiceName();
+  static std::string MethodName();
   grpc::Status Execute(
     grpc::ClientContext* context,
     const routeguide::v1::Point& request,
@@ -84,48 +141,9 @@ class GetFeatureAPI {
     grpc::ClientContext* context,
     const routeguide::v1::Point& request) const;
  private:
-  std::unique_ptr<RouteGuide::StubInterface> mStub;
+  std::unique_ptr<PublicRouteGuide::StubInterface> mStub;
 };
 
-class UpdateFeatureAPI {
- public:
-  explicit UpdateFeatureAPI(const std::shared_ptr<crux::engine::ChannelProvider>& provider);
-  static std::string Name() const;
-  static std::string ServiceName() const;
-  static std::string MethodName() const;
-  grpc::Status Execute(
-    grpc::ClientContext* context,
-    const routeguide::v1::Point& request,
-    routeguide::v1::Feature* response) const;
-  // server streaming
-  std::unique_ptr<grpc::ClientReaderInterface<routeguide::v1::Feature>> Execute(
-    grpc::ClientContext* context,
-    const routeguide::v1::Point& request) const;
- private:
-  std::unique_ptr<RouteGuide::StubInterface> mStub;
-};
-
-class ListFeaturesAPI {
- public:
-  explicit ListFeaturesAPI(const std::shared_ptr<crux::engine::ChannelProvider>& provider);
-  static std::string Name() const;
-  static std::string ServiceName() const;
-  static std::string MethodName() const;
-  grpc::Status Execute(
-    grpc::ClientContext* context,
-    const routeguide::v1::Rectangle& request,
-    routeguide::v1::Feature* response) const;
-  // server streaming
-  std::unique_ptr<grpc::ClientReaderInterface<routeguide::v1::Feature>> Execute(
-    grpc::ClientContext* context,
-    const routeguide::v1::Rectangle& request) const;
- private:
-  std::unique_ptr<RouteGuide::StubInterface> mStub;
-};
-
-}  // namespace RouteGuide
-
-namespace PublicRouteGuide {
 template<typename RESPONSE>
 grpc::Status Invoke(const std::shared_ptr<crux::engine::ChannelProvider>& provider, grpc::ClientContext* context, const google::protobuf::Any& request_data, const std::string& method_name) {
   if (method_name == "GetFeature") {
@@ -141,25 +159,6 @@ grpc::Status Invoke(const std::shared_ptr<crux::engine::ChannelProvider>& provid
   return grpc::Status(grpc::StatusCode::DATA_LOSS, "Invalid method name");
 }
 
-class GetFeatureAPI {
- public:
-  explicit GetFeatureAPI(const std::shared_ptr<crux::engine::ChannelProvider>& provider);
-  static std::string Name() const;
-  static std::string ServiceName() const;
-  static std::string MethodName() const;
-  grpc::Status Execute(
-    grpc::ClientContext* context,
-    const routeguide::v1::Point& request,
-    routeguide::v1::Feature* response) const;
-  // server streaming
-  std::unique_ptr<grpc::ClientReaderInterface<routeguide::v1::Feature>> Execute(
-    grpc::ClientContext* context,
-    const routeguide::v1::Point& request) const;
- private:
-  std::unique_ptr<PublicRouteGuide::StubInterface> mStub;
-};
-
-}  // namespace PublicRouteGuide
+}  // namespace PublicRouteGuideNS
 
 }  // namespace routeguide::v1
-
