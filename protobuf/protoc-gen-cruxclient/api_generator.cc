@@ -380,7 +380,13 @@ void APIGenerator::PrintDjinniYAML(
   google::protobuf::io::Printer *printer,
   const google::protobuf::FileDescriptor *file,
   const std::string& main_file_name) const {
+  string file_name = StripProto(file->name());
+  std::vector<std::string> paths = tokenize(StripProto(file_name), "/");
+  paths.pop_back();
+  std::string dir = join(paths, "/");
+
   std::map<string, string> vars;
+  vars["dir"] = dir;
   for (int message_index = 0; message_index < file->message_type_count();
        ++message_index) {
     const Descriptor *message = file->message_type(message_index);
@@ -411,7 +417,7 @@ void APIGenerator::PrintDjinniYAML(
     printer->Print("objc:\n");
     printer->Indent();
     printer->Print(vars, "typename: '$objc_class_prefix$$message_name$'\n");
-    printer->Print(vars, "header: '<S12/$objc_file_name$.pbobjc.h>'\n");
+    printer->Print(vars, "header: '\"$dir$/$objc_file_name$.pbobjc.h\"'\n");
     printer->Print(vars, "boxed: '$objc_class_prefix$$message_name$'\n");
     printer->Print("pointer: true\n");
     printer->Print("hash: '%s.hash()'\n");
@@ -447,7 +453,13 @@ void APIGenerator::PrintDjinniYAML(
 void APIGenerator::PrintDjinniObjcSupport(
   google::protobuf::io::Printer *printer,
   const google::protobuf::FileDescriptor *file) const {
+  string file_name = StripProto(file->name());
+  std::vector<std::string> paths = tokenize(StripProto(file_name), "/");
+  paths.pop_back();
+  std::string dir = join(paths, "/");
+
   std::map<string, string> vars;
+  vars["dir"] = dir;
   for (int message_index = 0; message_index < file->message_type_count();
        ++message_index) {
     const Descriptor *message = file->message_type(message_index);
@@ -461,7 +473,7 @@ void APIGenerator::PrintDjinniObjcSupport(
     vars["objc_class_prefix"] = options.objc_class_prefix();
 
     printer->Print(vars, "#include \"$file_name$.pb.h\"\n");
-    printer->Print(vars, "#import <S12/$objc_file_name$.pbobjc.h>\n\n");
+    printer->Print(vars, "#import \"$dir$/$objc_file_name$.pbobjc.h\"\n\n");
 
     printer->Print(vars, "namespace djinni::$cpp_type_name$ {\n");
     printer->Print(vars, "struct Translator {\n");
