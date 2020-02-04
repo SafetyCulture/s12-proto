@@ -162,4 +162,3 @@ grpc::Status Invoke(const std::shared_ptr<crux::engine::ChannelProvider>& provid
 }  // namespace PublicRouteGuideNS
 
 }  // namespace routeguide::v1
-
