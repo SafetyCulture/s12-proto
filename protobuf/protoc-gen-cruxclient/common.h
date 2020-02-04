@@ -2,6 +2,7 @@
 
 #pragma once
 #include <string>
+#include <sstream>
 #include <google/protobuf/descriptor.h>
 
 using google::protobuf::Descriptor;
@@ -126,6 +127,56 @@ inline std::string DotsToColons(const std::string &name) {
 
 inline std::string DotsToUnderscores(const std::string &name) {
   return StringReplace(name, ".", "_");
+}
+
+inline std::string DotsToSlashs(const std::string &name) {
+  return StringReplace(name, ".", "/");
+}
+
+inline std::string ToLower(const std::string &input) {
+  std::string output = input;
+  std::transform(output.begin(), output.end(), output.begin(),
+  [](unsigned char c){ return std::tolower(c); });
+  return output;
+}
+
+inline std::string join(
+  const std::vector<std::string> &elements,
+  const std::string &separator) {
+  if (!elements.empty()) {
+    std::stringstream ss;
+    auto it = elements.cbegin();
+    while (true) {
+      ss << *it++;
+      if (it != elements.cend())
+        ss << separator;
+      else
+        return ss.str();
+    }
+  }
+  return "";
+}
+
+inline std::string ToCamelCase(const std::string& text) {
+  std::stringstream result;
+  bool is_new_word = true;
+
+  for (const auto ch : text) {
+    is_new_word = is_new_word || ch == '_';
+    if (ch == '_') continue;
+    if (std::isalpha(ch)) {
+      if (is_new_word) {
+        result << static_cast<char>(std::toupper(ch));
+        is_new_word = false;
+      } else {
+        result << static_cast<char>(std::tolower(ch));
+      }
+    } else {
+      result << ch;
+    }
+  }
+
+  return result.str();
 }
 
 inline std::string ClassName(const Descriptor *descriptor, bool qualified) {

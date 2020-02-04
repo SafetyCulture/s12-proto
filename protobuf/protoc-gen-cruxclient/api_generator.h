@@ -2,6 +2,7 @@
 
 #pragma once
 #include <string>
+#include <map>
 
 namespace google::protobuf {
 class FileDescriptor;
@@ -20,6 +21,12 @@ namespace cruxclient_generator {
 class APIGenerator {
  public:
   void Generate(
+    const google::protobuf::FileDescriptor *file,
+    const std::string &parameter,
+    google::protobuf::compiler::GeneratorContext *context,
+    std::string *error) const;
+
+  void GenerateDjinniSupport(
     const google::protobuf::FileDescriptor *file,
     const std::string &parameter,
     google::protobuf::compiler::GeneratorContext *context,
@@ -66,6 +73,28 @@ class APIGenerator {
   void GenerateAPISource(
     const google::protobuf::FileDescriptor *file,
     const std::string &parameter,
+    google::protobuf::compiler::GeneratorContext *context) const;
+
+  // Djinni Support
+  void GenerateDjinniYAML(
+    const google::protobuf::FileDescriptor *file,
+    google::protobuf::compiler::GeneratorContext *context) const;
+
+  void PrintDjinniYAML(
+    google::protobuf::io::Printer *printer,
+    const google::protobuf::FileDescriptor *file,
+    const std::string& main_file_name) const;
+
+  void GenerateDjinniObjcSupport(
+    const google::protobuf::FileDescriptor *file,
+    google::protobuf::compiler::GeneratorContext *context) const;
+
+  void PrintDjinniObjcSupport(
+    google::protobuf::io::Printer *printer,
+    const google::protobuf::FileDescriptor *file) const;
+
+  void GenerateDjinniJavaSupport(
+    const google::protobuf::FileDescriptor *file,
     google::protobuf::compiler::GeneratorContext *context) const;
 };
 
