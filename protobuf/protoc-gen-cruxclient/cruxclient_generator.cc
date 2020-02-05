@@ -19,8 +19,6 @@ using google::protobuf::compiler::CodeGenerator;
 using google::protobuf::compiler::GeneratorContext;
 using google::protobuf::compiler::ParseGeneratorParameter;
 using google::protobuf::compiler::PluginMain;
-using google::protobuf::io::Printer;
-using google::protobuf::io::ZeroCopyOutputStream;
 using std::string;
 
 namespace cruxclient_generator {
@@ -45,6 +43,7 @@ class Generator : public CodeGenerator {
 
     APIGenerator api_generator;
     api_generator.Generate(file, parameter, context, error);
+    api_generator.GenerateDjinniSupport(file, parameter, context, error);
     return true;
   }
 };

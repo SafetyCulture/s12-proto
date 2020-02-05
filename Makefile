@@ -53,12 +53,12 @@ logger: install-logger
 .PHONY: cruxclient
 cruxclient: install-cruxclient
 	protoc \
-	-I./protobuf/protoc-gen-cruxclient/example \
+	-I./protobuf/protoc-gen-cruxclient/proto \
 	--plugin=protoc-gen-grpc=/usr/local/bin/grpc_cpp_plugin \
-	--cpp_out=:protobuf/protoc-gen-cruxclient/example \
-	--grpc_out=:protobuf/protoc-gen-cruxclient/example \
-	--cruxclient_out=:protobuf/protoc-gen-cruxclient/example \
-	protobuf/protoc-gen-cruxclient/example/*.proto
+	--cpp_out=:protobuf/protoc-gen-cruxclient/generated \
+	--grpc_out=:protobuf/protoc-gen-cruxclient/generated \
+	--cruxclient_out=:protobuf/protoc-gen-cruxclient/generated \
+	protobuf/protoc-gen-cruxclient/proto/routeguide/v1/route_guide.proto
 
 .PHONY: install-gogrpcmock
 install-gogrpcmock:
