@@ -24,6 +24,10 @@ install-govalidator:
 install-cruxclient: protoc-gen-cruxclient
 	install protoc-gen-cruxclient /usr/local/bin/protoc-gen-cruxclient
 
+.PHONY: install-cruxobjc
+install-cruxobjc: protoc-gen-cruxobjc
+	install protoc-gen-cruxobjc /usr/local/bin/protoc-gen-cruxobjc
+
 .PHONY: install
 install: install-govalidator install-logger
 
