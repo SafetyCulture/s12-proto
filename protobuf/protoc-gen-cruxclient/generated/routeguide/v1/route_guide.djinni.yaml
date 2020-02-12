@@ -10,7 +10,7 @@ cpp:
   byValue: false
 objc:
   typename: 'RTGPoint'
-  header: '<CruxDomain/routeguide_v1_Message.pbobjc.h>'
+  header: '"routeguide_v1_Message.pbobjc.h"'
   boxed: 'RTGPoint'
   pointer: true
   hash: '%s.hash()'
@@ -40,7 +40,7 @@ cpp:
   byValue: false
 objc:
   typename: 'RTGRectangle'
-  header: '<CruxDomain/routeguide_v1_Message.pbobjc.h>'
+  header: '"routeguide_v1_Message.pbobjc.h"'
   boxed: 'RTGRectangle'
   pointer: true
   hash: '%s.hash()'
@@ -70,7 +70,7 @@ cpp:
   byValue: false
 objc:
   typename: 'RTGFeature'
-  header: '<CruxDomain/routeguide_v1_Message.pbobjc.h>'
+  header: '"routeguide_v1_Message.pbobjc.h"'
   boxed: 'RTGFeature'
   pointer: true
   hash: '%s.hash()'
@@ -100,7 +100,7 @@ cpp:
   byValue: false
 objc:
   typename: 'RTGRouteNote'
-  header: '<CruxDomain/routeguide_v1_Message.pbobjc.h>'
+  header: '"routeguide_v1_Message.pbobjc.h"'
   boxed: 'RTGRouteNote'
   pointer: true
   hash: '%s.hash()'
@@ -130,7 +130,7 @@ cpp:
   byValue: false
 objc:
   typename: 'RTGRouteSummary'
-  header: '<CruxDomain/routeguide_v1_Message.pbobjc.h>'
+  header: '"routeguide_v1_Message.pbobjc.h"'
   boxed: 'RTGRouteSummary'
   pointer: true
   hash: '%s.hash()'
@@ -148,3 +148,4 @@ jni:
   header: '"routeguide/v1/route_guide.djinni.jni.h"'
   typename: 'RouteSummary'
   typeSignature: 'Lio.grpc.examples.routeguide.RouteSummary;'
+

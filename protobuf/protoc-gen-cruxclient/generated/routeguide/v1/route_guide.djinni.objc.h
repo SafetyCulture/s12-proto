@@ -2,7 +2,7 @@
 #pragma once
 #include <string>
 #include "routeguide/v1/message.pb.h"
-#import <CruxDomain/routeguide_v1_Message.pbobjc.h>
+#import "routeguide_v1_Message.pbobjc.h"
 
 namespace djinni::routeguide::v1::Point {
 struct Translator {
@@ -32,7 +32,7 @@ struct Translator {
 }  //namespace djinni::routeguide::v1::Point
 
 #include "routeguide/v1/message.pb.h"
-#import <CruxDomain/routeguide_v1_Message.pbobjc.h>
+#import "routeguide_v1_Message.pbobjc.h"
 
 namespace djinni::routeguide::v1::Rectangle {
 struct Translator {
@@ -62,7 +62,7 @@ struct Translator {
 }  //namespace djinni::routeguide::v1::Rectangle
 
 #include "routeguide/v1/message.pb.h"
-#import <CruxDomain/routeguide_v1_Message.pbobjc.h>
+#import "routeguide_v1_Message.pbobjc.h"
 
 namespace djinni::routeguide::v1::Feature {
 struct Translator {
@@ -92,7 +92,7 @@ struct Translator {
 }  //namespace djinni::routeguide::v1::Feature
 
 #include "routeguide/v1/message.pb.h"
-#import <CruxDomain/routeguide_v1_Message.pbobjc.h>
+#import "routeguide_v1_Message.pbobjc.h"
 
 namespace djinni::routeguide::v1::RouteNote {
 struct Translator {
@@ -122,7 +122,7 @@ struct Translator {
 }  //namespace djinni::routeguide::v1::RouteNote
 
 #include "routeguide/v1/message.pb.h"
-#import <CruxDomain/routeguide_v1_Message.pbobjc.h>
+#import "routeguide_v1_Message.pbobjc.h"
 
 namespace djinni::routeguide::v1::RouteSummary {
 struct Translator {
