@@ -383,7 +383,7 @@ void APIGenerator::PrintDjinniYAML(
   string file_name = StripProto(file->name());
   std::vector<std::string> paths = tokenize(StripProto(file_name), "/");
   paths.pop_back();
-  std::string dir = join(paths, "/");
+  std::string dir = join(paths, "_");
 
   std::map<string, string> vars;
   vars["dir"] = dir;
@@ -417,7 +417,7 @@ void APIGenerator::PrintDjinniYAML(
     printer->Print("objc:\n");
     printer->Indent();
     printer->Print(vars, "typename: '$objc_class_prefix$$message_name$'\n");
-    printer->Print(vars, "header: '\"$dir$/$objc_file_name$.pbobjc.h\"'\n");
+    printer->Print(vars, "header: '\"$dir$_$objc_file_name$.pbobjc.h\"'\n");
     printer->Print(vars, "boxed: '$objc_class_prefix$$message_name$'\n");
     printer->Print("pointer: true\n");
     printer->Print("hash: '%s.hash()'\n");
@@ -456,7 +456,7 @@ void APIGenerator::PrintDjinniObjcSupport(
   string file_name = StripProto(file->name());
   std::vector<std::string> paths = tokenize(StripProto(file_name), "/");
   paths.pop_back();
-  std::string dir = join(paths, "/");
+  std::string dir = join(paths, "_");
 
   std::map<string, string> vars;
   vars["dir"] = dir;
@@ -473,7 +473,7 @@ void APIGenerator::PrintDjinniObjcSupport(
     vars["objc_class_prefix"] = options.objc_class_prefix();
 
     printer->Print(vars, "#include \"$file_name$.pb.h\"\n");
-    printer->Print(vars, "#import \"$dir$/$objc_file_name$.pbobjc.h\"\n\n");
+    printer->Print(vars, "#import \"$dir$_$objc_file_name$.pbobjc.h\"\n\n");
 
     printer->Print(vars, "namespace djinni::$cpp_type_name$ {\n");
     printer->Print(vars, "struct Translator {\n");
