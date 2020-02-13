@@ -29,9 +29,9 @@ struct Translator {
   }
 
   static LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
-    size_t byte_size = message.ByteSizeLong();
+    size_t size = message.ByteSizeLong();
     jbyte* temp = new jbyte[size];
-    message.SerializeToArray(temp, (int)byte_size);
+    message.SerializeToArray(temp, static_cast<int>(size));
     jbyteArray bytes = jniEnv->NewByteArray(size);
     jniEnv->SetByteArrayRegion(bytes, 0, size, temp);
     delete[] temp;
@@ -70,9 +70,9 @@ struct Translator {
   }
 
   static LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
-    size_t byte_size = message.ByteSizeLong();
+    size_t size = message.ByteSizeLong();
     jbyte* temp = new jbyte[size];
-    message.SerializeToArray(temp, (int)byte_size);
+    message.SerializeToArray(temp, static_cast<int>(size));
     jbyteArray bytes = jniEnv->NewByteArray(size);
     jniEnv->SetByteArrayRegion(bytes, 0, size, temp);
     delete[] temp;
@@ -111,9 +111,9 @@ struct Translator {
   }
 
   static LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
-    size_t byte_size = message.ByteSizeLong();
+    size_t size = message.ByteSizeLong();
     jbyte* temp = new jbyte[size];
-    message.SerializeToArray(temp, (int)byte_size);
+    message.SerializeToArray(temp, static_cast<int>(size));
     jbyteArray bytes = jniEnv->NewByteArray(size);
     jniEnv->SetByteArrayRegion(bytes, 0, size, temp);
     delete[] temp;
@@ -152,9 +152,9 @@ struct Translator {
   }
 
   static LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
-    size_t byte_size = message.ByteSizeLong();
+    size_t size = message.ByteSizeLong();
     jbyte* temp = new jbyte[size];
-    message.SerializeToArray(temp, (int)byte_size);
+    message.SerializeToArray(temp, static_cast<int>(size));
     jbyteArray bytes = jniEnv->NewByteArray(size);
     jniEnv->SetByteArrayRegion(bytes, 0, size, temp);
     delete[] temp;
@@ -193,9 +193,9 @@ struct Translator {
   }
 
   static LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
-    size_t byte_size = message.ByteSizeLong();
+    size_t size = message.ByteSizeLong();
     jbyte* temp = new jbyte[size];
-    message.SerializeToArray(temp, (int)byte_size);
+    message.SerializeToArray(temp, static_cast<int>(size));
     jbyteArray bytes = jniEnv->NewByteArray(size);
     jniEnv->SetByteArrayRegion(bytes, 0, size, temp);
     delete[] temp;
@@ -206,3 +206,4 @@ struct Translator {
   }
 };
 }  //namespace djinni::routeguide::v1::RouteSummary
+

@@ -499,7 +499,7 @@ void APIGenerator::PrintDjinniObjcSupport(
     printer->Indent();
     printer->Print("size_t byte_size = message.ByteSizeLong();\n");
     printer->Print("void *bytes = malloc(byte_size);\n");
-    printer->Print("message.SerializeToArray(bytes, (int)byte_size);\n");
+    printer->Print("message.SerializeToArray(bytes, static_cast<int>(byte_size));\n");
     printer->Print("NSData *data = [NSData dataWithBytes: bytes length: (int)byte_size];\n");
     printer->Print("NSError *error;\n");
     printer->Print(vars, "return [$objc_class_prefix$$message_name$ parseFromData:data error:&error];\n");
@@ -598,9 +598,9 @@ void APIGenerator::PrintDjinniJNISupport(
 
     printer->Print("static LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {\n");
     printer->Indent();
-    printer->Print("size_t byte_size = message.ByteSizeLong();\n");
+    printer->Print("size_t size = message.ByteSizeLong();\n");
     printer->Print("jbyte* temp = new jbyte[size];\n");
-    printer->Print("message.SerializeToArray(temp, (int)byte_size);\n");
+    printer->Print("message.SerializeToArray(temp, static_cast<int>(size));\n");
     printer->Print("jbyteArray bytes = jniEnv->NewByteArray(size);\n");
     printer->Print("jniEnv->SetByteArrayRegion(bytes, 0, size, temp);\n");
     printer->Print("delete[] temp;\n");
