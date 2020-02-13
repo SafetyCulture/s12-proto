@@ -569,9 +569,10 @@ void APIGenerator::PrintDjinniJNISupport(
     // JNI Info
     printer->Print("struct JNIInfo {\n");
     printer->Indent();
-    printer->Print(vars, "const GlobalRef<jclass> clazz { jniFindClass(\"$java_package$.$message_name$\")  };\n");
+    printer->Print(vars, "const GlobalRef<jclass> clazz { jniFindClass(\"$java_package$/$message_name$\")  };\n");
     printer->Print(vars, "const jmethodID method_toBytes { jniGetMethodID(clazz.get(), \"toByteArray\", \"()[B\") };\n");
-    printer->Print(vars, "const jmethodID method_fromBytes { jniGetStaticMethodID(clazz.get(), \"parseFrom\", \"([B)L$java_package$.$message_name$\") };\n");
+    printer->Print(vars, "const jmethodID method_byteSize { jniGetMethodID(clazz.get(), \"getSerializedSize\", \"()I\") };\n");
+    printer->Print(vars, "const jmethodID method_fromBytes { jniGetStaticMethodID(clazz.get(), \"parseFrom\", \"([B)L$java_package$/$message_name$;\") };\n");
     printer->Outdent();
     printer->Print("};\n\n");
 
@@ -586,20 +587,23 @@ void APIGenerator::PrintDjinniJNISupport(
     printer->Print("assert(j != nullptr);\n");
     printer->Print("const auto& data = JniClass<JNIInfo>::get();\n");
     printer->Print("assert(jniEnv->IsInstanceOf(j, data.clazz.get()));\n");
-    printer->Print("jbyte *b = jniEnv->CallByteMethod(j, data.method_toBytes);\n");
+    printer->Print("jbyte b = jniEnv->CallByteMethod(j, data.method_toBytes);\n");
+    printer->Print("auto byte_len = jniEnv->CallIntMethod(j, data.method_byteSize);\n");
     printer->Print("jniExceptionCheck(jniEnv);\n");
-    printer->Print("int byte_len = static_cast<int>(jniEnv->GetArrayLength(b));\n");
     printer->Print("CppType cpp_message;\n");
-    printer->Print("cpp_message.ParseFromArray(b, byte_len);\n");
+    printer->Print("cpp_message.ParseFromArray(&b, byte_len);\n");
     printer->Print("return cpp_message;\n");
     printer->Outdent();
     printer->Print("}\n\n");
 
-    printer->Print("static LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& c) {\n");
+    printer->Print("static LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {\n");
     printer->Indent();
     printer->Print("size_t byte_size = message.ByteSizeLong();\n");
-    printer->Print("void *bytes = malloc(byte_size);\n");
-    printer->Print("message.SerializeToArray(bytes, (int)byte_size);\n");
+    printer->Print("jbyte* temp = new jbyte[size];\n");
+    printer->Print("message.SerializeToArray(temp, (int)byte_size);\n");
+    printer->Print("jbyteArray bytes = jniEnv->NewByteArray(size);\n");
+    printer->Print("jniEnv->SetByteArrayRegion(bytes, 0, size, temp);\n");
+    printer->Print("delete[] temp;\n");
     printer->Print("const auto& data = JniClass<JNIInfo>::get();\n");
     printer->Print("auto j = LocalRef<JniType>{jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes)};\n");
     printer->Print("jniExceptionCheck(jniEnv);\n");
