@@ -93,9 +93,14 @@ class APIGenerator {
     google::protobuf::io::Printer *printer,
     const google::protobuf::FileDescriptor *file) const;
 
-  void GenerateDjinniJavaSupport(
+  void GenerateDjinniJNISupport(
     const google::protobuf::FileDescriptor *file,
     google::protobuf::compiler::GeneratorContext *context) const;
+
+  void PrintDjinniJNISupport(
+    google::protobuf::io::Printer *printer,
+    const google::protobuf::FileDescriptor *file) const;
+
 };
 
 }  // namespace cruxclient_generator
