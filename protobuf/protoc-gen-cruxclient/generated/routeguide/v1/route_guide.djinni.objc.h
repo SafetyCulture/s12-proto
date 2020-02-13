@@ -23,7 +23,7 @@ struct Translator {
   static ObjcType fromCpp(const CppType& message) {
     size_t byte_size = message.ByteSizeLong();
     void *bytes = malloc(byte_size);
-    message.SerializeToArray(bytes, (int)byte_size);
+    message.SerializeToArray(bytes, static_cast<int>(byte_size));
     NSData *data = [NSData dataWithBytes: bytes length: (int)byte_size];
     NSError *error;
     return [RTGPoint parseFromData:data error:&error];
@@ -53,7 +53,7 @@ struct Translator {
   static ObjcType fromCpp(const CppType& message) {
     size_t byte_size = message.ByteSizeLong();
     void *bytes = malloc(byte_size);
-    message.SerializeToArray(bytes, (int)byte_size);
+    message.SerializeToArray(bytes, static_cast<int>(byte_size));
     NSData *data = [NSData dataWithBytes: bytes length: (int)byte_size];
     NSError *error;
     return [RTGRectangle parseFromData:data error:&error];
@@ -83,7 +83,7 @@ struct Translator {
   static ObjcType fromCpp(const CppType& message) {
     size_t byte_size = message.ByteSizeLong();
     void *bytes = malloc(byte_size);
-    message.SerializeToArray(bytes, (int)byte_size);
+    message.SerializeToArray(bytes, static_cast<int>(byte_size));
     NSData *data = [NSData dataWithBytes: bytes length: (int)byte_size];
     NSError *error;
     return [RTGFeature parseFromData:data error:&error];
@@ -113,7 +113,7 @@ struct Translator {
   static ObjcType fromCpp(const CppType& message) {
     size_t byte_size = message.ByteSizeLong();
     void *bytes = malloc(byte_size);
-    message.SerializeToArray(bytes, (int)byte_size);
+    message.SerializeToArray(bytes, static_cast<int>(byte_size));
     NSData *data = [NSData dataWithBytes: bytes length: (int)byte_size];
     NSError *error;
     return [RTGRouteNote parseFromData:data error:&error];
@@ -143,7 +143,7 @@ struct Translator {
   static ObjcType fromCpp(const CppType& message) {
     size_t byte_size = message.ByteSizeLong();
     void *bytes = malloc(byte_size);
-    message.SerializeToArray(bytes, (int)byte_size);
+    message.SerializeToArray(bytes, static_cast<int>(byte_size));
     NSData *data = [NSData dataWithBytes: bytes length: (int)byte_size];
     NSError *error;
     return [RTGRouteSummary parseFromData:data error:&error];
