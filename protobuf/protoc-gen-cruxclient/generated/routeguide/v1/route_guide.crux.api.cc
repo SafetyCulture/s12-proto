@@ -25,7 +25,7 @@ std::string GetFeatureAPI::Name() {
 }
 
 std::string GetFeatureAPI::ServiceName() {
-  return "routeguide_v1_RouteGuide";
+  return kServiceName;
 }
 
 std::string GetFeatureAPI::MethodName() {
@@ -54,7 +54,7 @@ std::string UpdateFeatureAPI::Name() {
 }
 
 std::string UpdateFeatureAPI::ServiceName() {
-  return "routeguide_v1_RouteGuide";
+  return kServiceName;
 }
 
 std::string UpdateFeatureAPI::MethodName() {
@@ -83,7 +83,7 @@ std::string ListFeaturesAPI::Name() {
 }
 
 std::string ListFeaturesAPI::ServiceName() {
-  return "routeguide_v1_RouteGuide";
+  return kServiceName;
 }
 
 std::string ListFeaturesAPI::MethodName() {
@@ -101,6 +101,60 @@ std::unique_ptr<grpc::ClientReaderInterface<routeguide::v1::Feature>> ListFeatur
   grpc::ClientContext* context,
   const routeguide::v1::Rectangle& request) const {
   return mStub->ListFeatures(context, request);
+}
+
+grpc::Status Invoke(const std::shared_ptr<crux::engine::ChannelProvider>& provider, grpc::ClientContext* context, const google::protobuf::Any& request_data, const std::string& method_name) {
+  if (method_name == "GetFeature") {
+    routeguide::v1::Point request;
+    if (!request_data.UnpackTo(&request)) {
+      return grpc::Status(grpc::StatusCode::DATA_LOSS, "Unable to unpack the request data");
+    }
+    GetFeatureAPI api = GetFeatureAPI(provider);
+    routeguide::v1::Feature response;
+    return api.Execute(context, request, &response);
+  }
+
+  if (method_name == "UpdateFeature") {
+    routeguide::v1::Point request;
+    if (!request_data.UnpackTo(&request)) {
+      return grpc::Status(grpc::StatusCode::DATA_LOSS, "Unable to unpack the request data");
+    }
+    UpdateFeatureAPI api = UpdateFeatureAPI(provider);
+    routeguide::v1::Feature response;
+    return api.Execute(context, request, &response);
+  }
+
+  if (method_name == "ListFeatures") {
+    routeguide::v1::Rectangle request;
+    if (!request_data.UnpackTo(&request)) {
+      return grpc::Status(grpc::StatusCode::DATA_LOSS, "Unable to unpack the request data");
+    }
+    ListFeaturesAPI api = ListFeaturesAPI(provider);
+    routeguide::v1::Feature response;
+    return api.Execute(context, request, &response);
+  }
+
+  if (method_name == "RecordRoute") {
+    routeguide::v1::Point request;
+    if (!request_data.UnpackTo(&request)) {
+      return grpc::Status(grpc::StatusCode::DATA_LOSS, "Unable to unpack the request data");
+    }
+    RecordRouteAPI api = RecordRouteAPI(provider);
+    routeguide::v1::RouteSummary response;
+    return api.Execute(context, request, &response);
+  }
+
+  if (method_name == "RouteChat") {
+    routeguide::v1::RouteNote request;
+    if (!request_data.UnpackTo(&request)) {
+      return grpc::Status(grpc::StatusCode::DATA_LOSS, "Unable to unpack the request data");
+    }
+    RouteChatAPI api = RouteChatAPI(provider);
+    routeguide::v1::RouteNote response;
+    return api.Execute(context, request, &response);
+  }
+
+  return grpc::Status(grpc::StatusCode::DATA_LOSS, "Invalid method name");
 }
 
 }  // namespace RouteGuideNS
@@ -124,7 +178,7 @@ std::string GetFeatureAPI::Name() {
 }
 
 std::string GetFeatureAPI::ServiceName() {
-  return "routeguide_v1_PublicRouteGuide";
+  return kServiceName;
 }
 
 std::string GetFeatureAPI::MethodName() {
@@ -142,6 +196,20 @@ std::unique_ptr<grpc::ClientReaderInterface<routeguide::v1::Feature>> GetFeature
   grpc::ClientContext* context,
   const routeguide::v1::Point& request) const {
   return std::make_unique<UnimplementedClientReader<routeguide::v1::Feature>>();
+}
+
+grpc::Status Invoke(const std::shared_ptr<crux::engine::ChannelProvider>& provider, grpc::ClientContext* context, const google::protobuf::Any& request_data, const std::string& method_name) {
+  if (method_name == "GetFeature") {
+    routeguide::v1::Point request;
+    if (!request_data.UnpackTo(&request)) {
+      return grpc::Status(grpc::StatusCode::DATA_LOSS, "Unable to unpack the request data");
+    }
+    GetFeatureAPI api = GetFeatureAPI(provider);
+    routeguide::v1::Feature response;
+    return api.Execute(context, request, &response);
+  }
+
+  return grpc::Status(grpc::StatusCode::DATA_LOSS, "Invalid method name");
 }
 
 }  // namespace PublicRouteGuideNS
