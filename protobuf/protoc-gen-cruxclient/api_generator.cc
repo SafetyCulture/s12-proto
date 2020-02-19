@@ -93,8 +93,10 @@ void APIGenerator::PrintHeaderAPIs(
     const ServiceDescriptor *service = file->service(service_index);
     vars["service_name"] = service->name();
     vars["service_fullname"] = DotsToColons(service->full_name());
+    vars["service_fullname_underscore"] = DotsToUnderscores(service->full_name());
 
     printer->Print(vars, "namespace $service_name$NS {\n");
+    printer->Print(vars, "const char kServiceName[] = \"$service_fullname_underscore$\";\n");
 
     for (int method_index = 0; method_index < service->method_count();
         ++method_index) {
@@ -137,38 +139,11 @@ void APIGenerator::PrintHeaderAPIs(
       printer->Print("};\n\n");
     }
 
-    printer->Print("template<typename RESPONSE>\n");
     printer->Print("grpc::Status Invoke("
     "const std::shared_ptr<crux::engine::ChannelProvider>& provider, "
     "grpc::ClientContext* context, "
     "const google::protobuf::Any& request_data, "
-    "const std::string& method_name) {\n");
-    printer->Indent();
-    for (int method_index = 0; method_index < service->method_count();
-        ++method_index) {
-      const MethodDescriptor *method = service->method(method_index);
-      vars["method_name"] = method->name();
-      vars["request"] = ClassName(method->input_type(), true);
-      vars["response"] = ClassName(method->output_type(), true);
-      vars["api_name"] = method->name() + "API";
-
-      printer->Print(vars, "if (method_name == \"$method_name$\") {\n");
-      printer->Indent();
-      printer->Print(vars, "$request$ request;\n");
-      printer->Print("if (!request_data.UnpackTo(&request)) {\n");
-      printer->Indent();
-      printer->Print("return grpc::Status(grpc::StatusCode::DATA_LOSS, \"Unable to unpack the request data\");\n");
-      printer->Outdent();
-      printer->Print("}\n");
-      printer->Print(vars, "$api_name$ api = $api_name$(provider);\n");
-      printer->Print(vars, "$response$ response;\n");
-      printer->Print("return api.Execute(context, request, &response);\n");
-      printer->Outdent();
-      printer->Print("}\n\n");
-    }
-    printer->Print("return grpc::Status(grpc::StatusCode::DATA_LOSS, \"Invalid method name\");\n");
-    printer->Outdent();
-    printer->Print("}\n\n");
+    "const std::string& method_name);\n");
 
     printer->Print(vars, "}  // namespace $service_name$NS\n\n");
   }
@@ -248,7 +223,7 @@ void APIGenerator::PrintSourceAPIs(
 
       printer->Print(vars, "std::string $api_name$::ServiceName() {\n");
       printer->Indent();
-      printer->Print(vars, "return \"$service_fullname_underscore$\";\n");
+      printer->Print("return kServiceName;\n");
       printer->Outdent();
       printer->Print("}\n\n");
 
@@ -283,6 +258,39 @@ void APIGenerator::PrintSourceAPIs(
       printer->Outdent();
       printer->Print("}\n\n");
     }
+
+    printer->Print("grpc::Status Invoke("
+    "const std::shared_ptr<crux::engine::ChannelProvider>& provider, "
+    "grpc::ClientContext* context, "
+    "const google::protobuf::Any& request_data, "
+    "const std::string& method_name) {\n");
+    printer->Indent();
+    for (int method_index = 0; method_index < service->method_count();
+        ++method_index) {
+      const MethodDescriptor *method = service->method(method_index);
+      vars["method_name"] = method->name();
+      vars["request"] = ClassName(method->input_type(), true);
+      vars["response"] = ClassName(method->output_type(), true);
+      vars["api_name"] = method->name() + "API";
+
+      printer->Print(vars, "if (method_name == \"$method_name$\") {\n");
+      printer->Indent();
+      printer->Print(vars, "$request$ request;\n");
+      printer->Print("if (!request_data.UnpackTo(&request)) {\n");
+      printer->Indent();
+      printer->Print("return grpc::Status(grpc::StatusCode::DATA_LOSS, \"Unable to unpack the request data\");\n");
+      printer->Outdent();
+      printer->Print("}\n");
+      printer->Print(vars, "$api_name$ api = $api_name$(provider);\n");
+      printer->Print(vars, "$response$ response;\n");
+      printer->Print("return api.Execute(context, request, &response);\n");
+      printer->Outdent();
+      printer->Print("}\n\n");
+    }
+    printer->Print("return grpc::Status(grpc::StatusCode::DATA_LOSS, \"Invalid method name\");\n");
+    printer->Outdent();
+    printer->Print("}\n\n");
+
     printer->Print(vars, "}  // namespace $service_name$NS\n\n");
   }
 }
