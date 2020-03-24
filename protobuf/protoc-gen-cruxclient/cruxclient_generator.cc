@@ -44,6 +44,7 @@ class Generator : public CodeGenerator {
     legacy_generator.Generate(file, parameter, context, error);
 
     api_generator.Generate(file, parameter, context, error);
+    api_generator.GenerateDjinniSupport(file, parameter, context, error);
     return true;
   }
 };

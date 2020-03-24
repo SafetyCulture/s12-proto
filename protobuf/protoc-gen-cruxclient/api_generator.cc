@@ -515,15 +515,6 @@ void APIGenerator::GenerateDjinniJNISupport(
   printer.Print("#pragma once\n");
   printer.Print("#include \"djinni_support.hpp\"\n");
 
-  for (int dep_index = 0; dep_index < file->dependency_count(); ++dep_index) {
-    auto imported_file = file->dependency(dep_index);
-    std::vector<std::string> dep_paths = tokenize(StripProto(imported_file->name()), "/");
-    dep_paths.pop_back();
-    std::string dep_dir = join(dep_paths, "/");
-    if (dep_dir == dir) {
-      PrintDjinniJNISupport(&printer, imported_file);
-    }
-  }
   PrintDjinniJNISupport(&printer, file);
 }
 
@@ -617,6 +608,7 @@ void APIGenerator::GenerateDjinniSupport(
   const std::string &parameter,
   google::protobuf::compiler::GeneratorContext *context,
   std::string *error) const {
+  if (file->message_type_count() == 0) { return; }
   GenerateDjinniYAML(file, context);
   GenerateDjinniObjcSupport(file, context);
   GenerateDjinniJNISupport(file, context);
