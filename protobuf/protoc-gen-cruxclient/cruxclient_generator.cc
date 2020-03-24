@@ -33,15 +33,16 @@ class Generator : public CodeGenerator {
     const string &parameter,
     GeneratorContext *context,
     string *error) const override {
-    if (!file->service_count()) {
-      // No services, nothing to do.
+    APIGenerator api_generator;
+    if (file->service_count() == 0) {
+      // No services, generate djinni support
+      api_generator.GenerateDjinniSupport(file, parameter, context, error);
       return true;
     }
 
     LegacyGenerator legacy_generator;
     legacy_generator.Generate(file, parameter, context, error);
 
-    APIGenerator api_generator;
     api_generator.Generate(file, parameter, context, error);
     api_generator.GenerateDjinniSupport(file, parameter, context, error);
     return true;

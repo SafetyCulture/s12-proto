@@ -16,7 +16,7 @@ objc:
   hash: '%s.hash()'
 objcpp:
   translator: 'djinni::routeguide::v1::Point::Translator'
-  header: '"routeguide/v1/route_guide.djinni.objc.h"'
+  header: '"routeguide/v1/message.djinni.objc.h"'
 java:
   typename: 'io.grpc.examples.routeguide.Point'
   boxed: 'io.grpc.examples.routeguide.Point'
@@ -25,9 +25,9 @@ java:
   hash: '%s.hashCode()'
 jni:
   translator: 'djinni::routeguide::v1::Point::Translator'
-  header: '"routeguide/v1/route_guide.djinni.jni.h"'
+  header: '"routeguide/v1/message.djinni.jni.h"'
   typename: jobject
-  typeSignature: 'Lio/grpc/examples/routeguide.Point;'
+  typeSignature: 'Lio/grpc/examples/routeguide/Point;'
 
 ---
 name: pb_Rectangle
@@ -46,7 +46,7 @@ objc:
   hash: '%s.hash()'
 objcpp:
   translator: 'djinni::routeguide::v1::Rectangle::Translator'
-  header: '"routeguide/v1/route_guide.djinni.objc.h"'
+  header: '"routeguide/v1/message.djinni.objc.h"'
 java:
   typename: 'io.grpc.examples.routeguide.Rectangle'
   boxed: 'io.grpc.examples.routeguide.Rectangle'
@@ -55,9 +55,9 @@ java:
   hash: '%s.hashCode()'
 jni:
   translator: 'djinni::routeguide::v1::Rectangle::Translator'
-  header: '"routeguide/v1/route_guide.djinni.jni.h"'
+  header: '"routeguide/v1/message.djinni.jni.h"'
   typename: jobject
-  typeSignature: 'Lio/grpc/examples/routeguide.Rectangle;'
+  typeSignature: 'Lio/grpc/examples/routeguide/Rectangle;'
 
 ---
 name: pb_Feature
@@ -76,7 +76,7 @@ objc:
   hash: '%s.hash()'
 objcpp:
   translator: 'djinni::routeguide::v1::Feature::Translator'
-  header: '"routeguide/v1/route_guide.djinni.objc.h"'
+  header: '"routeguide/v1/message.djinni.objc.h"'
 java:
   typename: 'io.grpc.examples.routeguide.Feature'
   boxed: 'io.grpc.examples.routeguide.Feature'
@@ -85,9 +85,9 @@ java:
   hash: '%s.hashCode()'
 jni:
   translator: 'djinni::routeguide::v1::Feature::Translator'
-  header: '"routeguide/v1/route_guide.djinni.jni.h"'
+  header: '"routeguide/v1/message.djinni.jni.h"'
   typename: jobject
-  typeSignature: 'Lio/grpc/examples/routeguide.Feature;'
+  typeSignature: 'Lio/grpc/examples/routeguide/Feature;'
 
 ---
 name: pb_RouteNote
@@ -106,7 +106,7 @@ objc:
   hash: '%s.hash()'
 objcpp:
   translator: 'djinni::routeguide::v1::RouteNote::Translator'
-  header: '"routeguide/v1/route_guide.djinni.objc.h"'
+  header: '"routeguide/v1/message.djinni.objc.h"'
 java:
   typename: 'io.grpc.examples.routeguide.RouteNote'
   boxed: 'io.grpc.examples.routeguide.RouteNote'
@@ -115,9 +115,9 @@ java:
   hash: '%s.hashCode()'
 jni:
   translator: 'djinni::routeguide::v1::RouteNote::Translator'
-  header: '"routeguide/v1/route_guide.djinni.jni.h"'
+  header: '"routeguide/v1/message.djinni.jni.h"'
   typename: jobject
-  typeSignature: 'Lio/grpc/examples/routeguide.RouteNote;'
+  typeSignature: 'Lio/grpc/examples/routeguide/RouteNote;'
 
 ---
 name: pb_RouteSummary
@@ -136,7 +136,7 @@ objc:
   hash: '%s.hash()'
 objcpp:
   translator: 'djinni::routeguide::v1::RouteSummary::Translator'
-  header: '"routeguide/v1/route_guide.djinni.objc.h"'
+  header: '"routeguide/v1/message.djinni.objc.h"'
 java:
   typename: 'io.grpc.examples.routeguide.RouteSummary'
   boxed: 'io.grpc.examples.routeguide.RouteSummary'
@@ -145,7 +145,7 @@ java:
   hash: '%s.hashCode()'
 jni:
   translator: 'djinni::routeguide::v1::RouteSummary::Translator'
-  header: '"routeguide/v1/route_guide.djinni.jni.h"'
+  header: '"routeguide/v1/message.djinni.jni.h"'
   typename: jobject
-  typeSignature: 'Lio/grpc/examples/routeguide.RouteSummary;'
+  typeSignature: 'Lio/grpc/examples/routeguide/RouteSummary;'
 
