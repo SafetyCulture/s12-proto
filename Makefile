@@ -58,7 +58,7 @@ cruxclient: install-cruxclient
 	--cpp_out=:protobuf/protoc-gen-cruxclient/generated \
 	--grpc_out=:protobuf/protoc-gen-cruxclient/generated \
 	--cruxclient_out=:protobuf/protoc-gen-cruxclient/generated \
-	protobuf/protoc-gen-cruxclient/proto/routeguide/v1/route_guide.proto
+	protobuf/protoc-gen-cruxclient/proto/routeguide/v1/*.proto
 
 .PHONY: install-gogrpcmock
 install-gogrpcmock:
