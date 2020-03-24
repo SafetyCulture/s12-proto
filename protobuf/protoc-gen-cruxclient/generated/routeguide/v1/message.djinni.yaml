@@ -27,7 +27,7 @@ jni:
   translator: 'djinni::routeguide::v1::Point::Translator'
   header: '"routeguide/v1/message.djinni.jni.h"'
   typename: jobject
-  typeSignature: 'Lio/grpc/examples/routeguide.Point;'
+  typeSignature: 'Lio/grpc/examples/routeguide/Point;'
 
 ---
 name: pb_Rectangle
@@ -57,7 +57,7 @@ jni:
   translator: 'djinni::routeguide::v1::Rectangle::Translator'
   header: '"routeguide/v1/message.djinni.jni.h"'
   typename: jobject
-  typeSignature: 'Lio/grpc/examples/routeguide.Rectangle;'
+  typeSignature: 'Lio/grpc/examples/routeguide/Rectangle;'
 
 ---
 name: pb_Feature
@@ -87,7 +87,7 @@ jni:
   translator: 'djinni::routeguide::v1::Feature::Translator'
   header: '"routeguide/v1/message.djinni.jni.h"'
   typename: jobject
-  typeSignature: 'Lio/grpc/examples/routeguide.Feature;'
+  typeSignature: 'Lio/grpc/examples/routeguide/Feature;'
 
 ---
 name: pb_RouteNote
@@ -117,7 +117,7 @@ jni:
   translator: 'djinni::routeguide::v1::RouteNote::Translator'
   header: '"routeguide/v1/message.djinni.jni.h"'
   typename: jobject
-  typeSignature: 'Lio/grpc/examples/routeguide.RouteNote;'
+  typeSignature: 'Lio/grpc/examples/routeguide/RouteNote;'
 
 ---
 name: pb_RouteSummary
@@ -147,5 +147,5 @@ jni:
   translator: 'djinni::routeguide::v1::RouteSummary::Translator'
   header: '"routeguide/v1/message.djinni.jni.h"'
   typename: jobject
-  typeSignature: 'Lio/grpc/examples/routeguide.RouteSummary;'
+  typeSignature: 'Lio/grpc/examples/routeguide/RouteSummary;'
 

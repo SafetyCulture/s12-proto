@@ -430,7 +430,7 @@ void APIGenerator::PrintDjinniYAML(
     printer->Print(vars, "translator: 'djinni::$cpp_type_name$::Translator'\n");
     printer->Print(vars, "header: '\"$main_file_name$.djinni.jni.h\"'\n");
     printer->Print(vars, "typename: jobject\n");
-    printer->Print(vars, "typeSignature: 'L$java_package_slashes$.$message_name$;'\n");
+    printer->Print(vars, "typeSignature: 'L$java_package_slashes$/$message_name$;'\n");
     printer->Outdent();
 
     printer->Print("\n");
