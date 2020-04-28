@@ -53,6 +53,15 @@ message RouteNote {
 // detected features, and the total distance covered as the cumulative sum of
 // the distance between each point.
 message RouteSummary {
+  message Details {
+    message MoreDetails {
+      string body = 1;
+    }
+    string id  = 1;
+    string body = 2;
+    MoreDetails details = 3;
+  }
+
   // The number of points received.
   int32 point_count = 1;
 
@@ -64,4 +73,7 @@ message RouteSummary {
 
   // The duration of the traversal in seconds.
   int32 elapsed_time = 4;
+
+  // Details of the summary, use nested message
+  Details details = 5;
 }

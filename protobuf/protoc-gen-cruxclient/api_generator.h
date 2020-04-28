@@ -3,10 +3,12 @@
 #pragma once
 #include <string>
 #include <map>
+#include <vector>
 
 namespace google::protobuf {
 class FileDescriptor;
 class ServiceDescriptor;
+class Descriptor;
 
 namespace compiler {
 class GeneratorContext;
@@ -33,6 +35,10 @@ class APIGenerator {
     std::string *error) const;
 
  private:
+  std::vector<const google::protobuf::Descriptor*> GetMessagesFromFile(
+    const google::protobuf::FileDescriptor *file) const;
+  std::vector<const google::protobuf::Descriptor*> GetMessagesFromMessage(
+    const google::protobuf::Descriptor *message) const;
   void PrintPrologue(
     google::protobuf::io::Printer *printer,
     const google::protobuf::FileDescriptor *file) const;

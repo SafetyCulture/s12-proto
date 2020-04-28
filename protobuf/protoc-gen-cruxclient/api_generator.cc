@@ -362,6 +362,31 @@ void APIGenerator::GenerateDjinniObjcSupport(
   PrintDjinniObjcSupport(&printer, file);
 }
 
+std::vector<const Descriptor*> APIGenerator::GetMessagesFromFile(
+  const google::protobuf::FileDescriptor *file) const {
+  std::vector<const Descriptor*> result;
+  for (int message_index = 0; message_index < file->message_type_count();
+       ++message_index) {
+    auto message = file->message_type(message_index);
+    auto messages = GetMessagesFromMessage(message);
+    result.insert(result.end(), messages.begin(), messages.end());
+  }
+  return result;
+}
+
+std::vector<const google::protobuf::Descriptor*> APIGenerator::GetMessagesFromMessage(
+  const google::protobuf::Descriptor *message) const {
+  std::vector<const Descriptor*> messages;
+  messages.push_back(message);
+  for (int message_index = 0; message_index < message->nested_type_count();
+       ++message_index) {
+    auto nested = message->nested_type(message_index);
+    auto nested_messages = GetMessagesFromMessage(nested);
+    messages.insert(messages.end(), nested_messages.begin(), nested_messages.end());
+  }
+  return messages;
+}
+
 void APIGenerator::PrintDjinniYAML(
   google::protobuf::io::Printer *printer,
   const google::protobuf::FileDescriptor *file,
@@ -373,9 +398,8 @@ void APIGenerator::PrintDjinniYAML(
 
   std::map<string, string> vars;
   vars["dir"] = dir;
-  for (int message_index = 0; message_index < file->message_type_count();
-       ++message_index) {
-    const Descriptor *message = file->message_type(message_index);
+  auto messages = GetMessagesFromFile(file);
+  for (const auto message : messages) {
     vars["message_name"] = message->name();
     vars["cpp_type_name"] = DotsToColons(message->full_name());
     vars["objc_header"] = DotsToSlashs(message->full_name());
@@ -447,9 +471,8 @@ void APIGenerator::PrintDjinniObjcSupport(
 
   std::map<string, string> vars;
   vars["dir"] = dir;
-  for (int message_index = 0; message_index < file->message_type_count();
-       ++message_index) {
-    const Descriptor *message = file->message_type(message_index);
+  auto messages = GetMessagesFromFile(file);
+  for (const auto message : messages) {
     vars["message_name"] = message->name();
     vars["objc_file_name"] = ToCamelCase(tokenize(StripProto(file->name()), "/").back());
     vars["cpp_type_name"] = DotsToColons(message->full_name());
@@ -528,9 +551,8 @@ void APIGenerator::PrintDjinniJNISupport(
 
   std::map<string, string> vars;
   vars["dir"] = dir;
-  for (int message_index = 0; message_index < file->message_type_count();
-       ++message_index) {
-    const Descriptor *message = file->message_type(message_index);
+  auto messages = GetMessagesFromFile(file);
+  for (const auto message : messages) {
     vars["message_name"] = message->name();
     vars["cpp_type_name"] = DotsToColons(message->full_name());
     vars["file_name"] = StripProto(file->name());
