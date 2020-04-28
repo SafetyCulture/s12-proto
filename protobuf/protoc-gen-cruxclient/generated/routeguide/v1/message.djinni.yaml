@@ -149,3 +149,63 @@ jni:
   typename: jobject
   typeSignature: 'Lio/grpc/examples/routeguide/RouteSummary;'
 
+---
+name: pb_Details
+typedef: 'record deriving(eq, ord, parcelable)'
+params: []
+prefix: 'pb'
+cpp:
+  typename: 'routeguide::v1::RouteSummary::Details'
+  header: '"routeguide/v1/message.pb.h"'
+  byValue: false
+objc:
+  typename: 'RTGDetails'
+  header: '"routeguide_v1_Message.pbobjc.h"'
+  boxed: 'RTGDetails'
+  pointer: true
+  hash: '%s.hash()'
+objcpp:
+  translator: 'djinni::routeguide::v1::RouteSummary::Details::Translator'
+  header: '"routeguide/v1/message.djinni.objc.h"'
+java:
+  typename: 'io.grpc.examples.routeguide.Details'
+  boxed: 'io.grpc.examples.routeguide.Details'
+  reference: true
+  generic: false
+  hash: '%s.hashCode()'
+jni:
+  translator: 'djinni::routeguide::v1::RouteSummary::Details::Translator'
+  header: '"routeguide/v1/message.djinni.jni.h"'
+  typename: jobject
+  typeSignature: 'Lio/grpc/examples/routeguide/Details;'
+
+---
+name: pb_MoreDetails
+typedef: 'record deriving(eq, ord, parcelable)'
+params: []
+prefix: 'pb'
+cpp:
+  typename: 'routeguide::v1::RouteSummary::Details::MoreDetails'
+  header: '"routeguide/v1/message.pb.h"'
+  byValue: false
+objc:
+  typename: 'RTGMoreDetails'
+  header: '"routeguide_v1_Message.pbobjc.h"'
+  boxed: 'RTGMoreDetails'
+  pointer: true
+  hash: '%s.hash()'
+objcpp:
+  translator: 'djinni::routeguide::v1::RouteSummary::Details::MoreDetails::Translator'
+  header: '"routeguide/v1/message.djinni.objc.h"'
+java:
+  typename: 'io.grpc.examples.routeguide.MoreDetails'
+  boxed: 'io.grpc.examples.routeguide.MoreDetails'
+  reference: true
+  generic: false
+  hash: '%s.hashCode()'
+jni:
+  translator: 'djinni::routeguide::v1::RouteSummary::Details::MoreDetails::Translator'
+  header: '"routeguide/v1/message.djinni.jni.h"'
+  typename: jobject
+  typeSignature: 'Lio/grpc/examples/routeguide/MoreDetails;'
+

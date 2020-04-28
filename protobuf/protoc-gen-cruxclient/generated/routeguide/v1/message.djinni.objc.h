@@ -150,3 +150,63 @@ struct Translator {
 };
 }  //namespace djinni::routeguide::v1::RouteSummary
 
+#include "routeguide/v1/message.pb.h"
+#import "routeguide_v1_Message.pbobjc.h"
+
+namespace djinni::routeguide::v1::RouteSummary::Details {
+struct Translator {
+  using CppType = ::routeguide::v1::RouteSummary::Details;
+  using ObjcType = RTGDetails*;
+  using Boxed = Translator;
+
+  static CppType toCpp(ObjcType message) {
+    assert(message);
+    NSData * data = [message data];
+    const void *bytes = [data bytes];
+    int byte_len = (int)[data length];
+    CppType cpp_message;
+    cpp_message.ParseFromArray(bytes, byte_len);
+    return cpp_message;
+  }
+
+  static ObjcType fromCpp(const CppType& message) {
+    size_t byte_size = message.ByteSizeLong();
+    void *bytes = malloc(byte_size);
+    message.SerializeToArray(bytes, static_cast<int>(byte_size));
+    NSData *data = [NSData dataWithBytes: bytes length: (int)byte_size];
+    NSError *error;
+    return [RTGDetails parseFromData:data error:&error];
+  }
+};
+}  //namespace djinni::routeguide::v1::RouteSummary::Details
+
+#include "routeguide/v1/message.pb.h"
+#import "routeguide_v1_Message.pbobjc.h"
+
+namespace djinni::routeguide::v1::RouteSummary::Details::MoreDetails {
+struct Translator {
+  using CppType = ::routeguide::v1::RouteSummary::Details::MoreDetails;
+  using ObjcType = RTGMoreDetails*;
+  using Boxed = Translator;
+
+  static CppType toCpp(ObjcType message) {
+    assert(message);
+    NSData * data = [message data];
+    const void *bytes = [data bytes];
+    int byte_len = (int)[data length];
+    CppType cpp_message;
+    cpp_message.ParseFromArray(bytes, byte_len);
+    return cpp_message;
+  }
+
+  static ObjcType fromCpp(const CppType& message) {
+    size_t byte_size = message.ByteSizeLong();
+    void *bytes = malloc(byte_size);
+    message.SerializeToArray(bytes, static_cast<int>(byte_size));
+    NSData *data = [NSData dataWithBytes: bytes length: (int)byte_size];
+    NSError *error;
+    return [RTGMoreDetails parseFromData:data error:&error];
+  }
+};
+}  //namespace djinni::routeguide::v1::RouteSummary::Details::MoreDetails
+
