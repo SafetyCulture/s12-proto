@@ -150,7 +150,7 @@ jni:
   typeSignature: 'Lio/grpc/examples/routeguide/RouteSummary;'
 
 ---
-name: pb_Details
+name: pb_RouteSummary_Details
 typedef: 'record deriving(eq, ord, parcelable)'
 params: []
 prefix: 'pb'
@@ -159,17 +159,17 @@ cpp:
   header: '"routeguide/v1/message.pb.h"'
   byValue: false
 objc:
-  typename: 'RTGDetails'
+  typename: 'RTGRouteSummary_Details'
   header: '"routeguide_v1_Message.pbobjc.h"'
-  boxed: 'RTGDetails'
+  boxed: 'RTGRouteSummary_Details'
   pointer: true
   hash: '%s.hash()'
 objcpp:
   translator: 'djinni::routeguide::v1::RouteSummary::Details::Translator'
   header: '"routeguide/v1/message.djinni.objc.h"'
 java:
-  typename: 'io.grpc.examples.routeguide.Details'
-  boxed: 'io.grpc.examples.routeguide.Details'
+  typename: 'io.grpc.examples.routeguide.RouteSummary_Details'
+  boxed: 'io.grpc.examples.routeguide.RouteSummary_Details'
   reference: true
   generic: false
   hash: '%s.hashCode()'
@@ -177,10 +177,10 @@ jni:
   translator: 'djinni::routeguide::v1::RouteSummary::Details::Translator'
   header: '"routeguide/v1/message.djinni.jni.h"'
   typename: jobject
-  typeSignature: 'Lio/grpc/examples/routeguide/Details;'
+  typeSignature: 'Lio/grpc/examples/routeguide/RouteSummary_Details;'
 
 ---
-name: pb_MoreDetails
+name: pb_RouteSummary_Details_MoreDetails
 typedef: 'record deriving(eq, ord, parcelable)'
 params: []
 prefix: 'pb'
@@ -189,17 +189,17 @@ cpp:
   header: '"routeguide/v1/message.pb.h"'
   byValue: false
 objc:
-  typename: 'RTGMoreDetails'
+  typename: 'RTGRouteSummary_Details_MoreDetails'
   header: '"routeguide_v1_Message.pbobjc.h"'
-  boxed: 'RTGMoreDetails'
+  boxed: 'RTGRouteSummary_Details_MoreDetails'
   pointer: true
   hash: '%s.hash()'
 objcpp:
   translator: 'djinni::routeguide::v1::RouteSummary::Details::MoreDetails::Translator'
   header: '"routeguide/v1/message.djinni.objc.h"'
 java:
-  typename: 'io.grpc.examples.routeguide.MoreDetails'
-  boxed: 'io.grpc.examples.routeguide.MoreDetails'
+  typename: 'io.grpc.examples.routeguide.RouteSummary_Details_MoreDetails'
+  boxed: 'io.grpc.examples.routeguide.RouteSummary_Details_MoreDetails'
   reference: true
   generic: false
   hash: '%s.hashCode()'
@@ -207,5 +207,5 @@ jni:
   translator: 'djinni::routeguide::v1::RouteSummary::Details::MoreDetails::Translator'
   header: '"routeguide/v1/message.djinni.jni.h"'
   typename: jobject
-  typeSignature: 'Lio/grpc/examples/routeguide/MoreDetails;'
+  typeSignature: 'Lio/grpc/examples/routeguide/RouteSummary_Details_MoreDetails;'
 

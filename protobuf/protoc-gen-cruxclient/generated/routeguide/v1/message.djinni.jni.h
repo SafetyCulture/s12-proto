@@ -209,10 +209,10 @@ struct Translator {
 #include "routeguide/v1/message.pb.h"
 namespace djinni::routeguide::v1::RouteSummary::Details {
 struct JNIInfo {
-  const GlobalRef<jclass> clazz { jniFindClass("io/grpc/examples/routeguide/Details")  };
+  const GlobalRef<jclass> clazz { jniFindClass("io/grpc/examples/routeguide/RouteSummary_Details")  };
   const jmethodID method_toBytes { jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
   const jmethodID method_byteSize { jniGetMethodID(clazz.get(), "getSerializedSize", "()I") };
-  const jmethodID method_fromBytes { jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lio/grpc/examples/routeguide/Details;") };
+  const jmethodID method_fromBytes { jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lio/grpc/examples/routeguide/RouteSummary_Details;") };
 };
 
 struct Translator {
@@ -250,10 +250,10 @@ struct Translator {
 #include "routeguide/v1/message.pb.h"
 namespace djinni::routeguide::v1::RouteSummary::Details::MoreDetails {
 struct JNIInfo {
-  const GlobalRef<jclass> clazz { jniFindClass("io/grpc/examples/routeguide/MoreDetails")  };
+  const GlobalRef<jclass> clazz { jniFindClass("io/grpc/examples/routeguide/RouteSummary_Details_MoreDetails")  };
   const jmethodID method_toBytes { jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
   const jmethodID method_byteSize { jniGetMethodID(clazz.get(), "getSerializedSize", "()I") };
-  const jmethodID method_fromBytes { jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lio/grpc/examples/routeguide/MoreDetails;") };
+  const jmethodID method_fromBytes { jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lio/grpc/examples/routeguide/RouteSummary_Details_MoreDetails;") };
 };
 
 struct Translator {
