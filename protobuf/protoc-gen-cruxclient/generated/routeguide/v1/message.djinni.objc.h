@@ -156,7 +156,7 @@ struct Translator {
 namespace djinni::routeguide::v1::RouteSummary::Details {
 struct Translator {
   using CppType = ::routeguide::v1::RouteSummary::Details;
-  using ObjcType = RTGDetails*;
+  using ObjcType = RTGRouteSummary_Details*;
   using Boxed = Translator;
 
   static CppType toCpp(ObjcType message) {
@@ -175,7 +175,7 @@ struct Translator {
     message.SerializeToArray(bytes, static_cast<int>(byte_size));
     NSData *data = [NSData dataWithBytes: bytes length: (int)byte_size];
     NSError *error;
-    return [RTGDetails parseFromData:data error:&error];
+    return [RTGRouteSummary_Details parseFromData:data error:&error];
   }
 };
 }  //namespace djinni::routeguide::v1::RouteSummary::Details
@@ -186,7 +186,7 @@ struct Translator {
 namespace djinni::routeguide::v1::RouteSummary::Details::MoreDetails {
 struct Translator {
   using CppType = ::routeguide::v1::RouteSummary::Details::MoreDetails;
-  using ObjcType = RTGMoreDetails*;
+  using ObjcType = RTGRouteSummary_Details_MoreDetails*;
   using Boxed = Translator;
 
   static CppType toCpp(ObjcType message) {
@@ -205,7 +205,7 @@ struct Translator {
     message.SerializeToArray(bytes, static_cast<int>(byte_size));
     NSData *data = [NSData dataWithBytes: bytes length: (int)byte_size];
     NSError *error;
-    return [RTGMoreDetails parseFromData:data error:&error];
+    return [RTGRouteSummary_Details_MoreDetails parseFromData:data error:&error];
   }
 };
 }  //namespace djinni::routeguide::v1::RouteSummary::Details::MoreDetails
