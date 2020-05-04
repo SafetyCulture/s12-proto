@@ -510,6 +510,7 @@ void APIGenerator::PrintDjinniObjcSupport(
     printer->Print("void *bytes = malloc(byte_size);\n");
     printer->Print("message.SerializeToArray(bytes, static_cast<int>(byte_size));\n");
     printer->Print("NSData *data = [NSData dataWithBytes: bytes length: (int)byte_size];\n");
+    printer->Print("free(bytes);\n");
     printer->Print("NSError *error;\n");
     printer->Print(vars, "return [$objc_class_prefix$$message_name$ parseFromData:data error:&error];\n");
     printer->Outdent();
