@@ -24,6 +24,7 @@ struct Translator {
     void *bytes = malloc(byte_size);
     message.SerializeToArray(bytes, static_cast<int>(byte_size));
     NSData *data = [NSData dataWithBytes: bytes length: (int)byte_size];
+    free(bytes);
     NSError *error;
     return [RTGPoint parseFromData:data error:&error];
   }
@@ -54,6 +55,7 @@ struct Translator {
     void *bytes = malloc(byte_size);
     message.SerializeToArray(bytes, static_cast<int>(byte_size));
     NSData *data = [NSData dataWithBytes: bytes length: (int)byte_size];
+    free(bytes);
     NSError *error;
     return [RTGRectangle parseFromData:data error:&error];
   }
@@ -84,6 +86,7 @@ struct Translator {
     void *bytes = malloc(byte_size);
     message.SerializeToArray(bytes, static_cast<int>(byte_size));
     NSData *data = [NSData dataWithBytes: bytes length: (int)byte_size];
+    free(bytes);
     NSError *error;
     return [RTGFeature parseFromData:data error:&error];
   }
@@ -114,6 +117,7 @@ struct Translator {
     void *bytes = malloc(byte_size);
     message.SerializeToArray(bytes, static_cast<int>(byte_size));
     NSData *data = [NSData dataWithBytes: bytes length: (int)byte_size];
+    free(bytes);
     NSError *error;
     return [RTGRouteNote parseFromData:data error:&error];
   }
@@ -144,6 +148,7 @@ struct Translator {
     void *bytes = malloc(byte_size);
     message.SerializeToArray(bytes, static_cast<int>(byte_size));
     NSData *data = [NSData dataWithBytes: bytes length: (int)byte_size];
+    free(bytes);
     NSError *error;
     return [RTGRouteSummary parseFromData:data error:&error];
   }
@@ -174,6 +179,7 @@ struct Translator {
     void *bytes = malloc(byte_size);
     message.SerializeToArray(bytes, static_cast<int>(byte_size));
     NSData *data = [NSData dataWithBytes: bytes length: (int)byte_size];
+    free(bytes);
     NSError *error;
     return [RTGRouteSummary_Details parseFromData:data error:&error];
   }
@@ -204,6 +210,7 @@ struct Translator {
     void *bytes = malloc(byte_size);
     message.SerializeToArray(bytes, static_cast<int>(byte_size));
     NSData *data = [NSData dataWithBytes: bytes length: (int)byte_size];
+    free(bytes);
     NSError *error;
     return [RTGRouteSummary_Details_MoreDetails parseFromData:data error:&error];
   }
