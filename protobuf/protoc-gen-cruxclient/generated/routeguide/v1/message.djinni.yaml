@@ -168,8 +168,8 @@ objcpp:
   translator: 'djinni::routeguide::v1::RouteSummary::Details::Translator'
   header: '"routeguide/v1/message.djinni.objc.h"'
 java:
-  typename: 'io.grpc.examples.routeguide.RouteSummary_Details'
-  boxed: 'io.grpc.examples.routeguide.RouteSummary_Details'
+  typename: 'io.grpc.examples.routeguide.RouteSummary$Details'
+  boxed: 'io.grpc.examples.routeguide.RouteSummary$Details'
   reference: true
   generic: false
   hash: '%s.hashCode()'
@@ -177,7 +177,7 @@ jni:
   translator: 'djinni::routeguide::v1::RouteSummary::Details::Translator'
   header: '"routeguide/v1/message.djinni.jni.h"'
   typename: jobject
-  typeSignature: 'Lio/grpc/examples/routeguide/RouteSummary_Details;'
+  typeSignature: 'Lio/grpc/examples/routeguide/RouteSummary$Details;'
 
 ---
 name: pb_RouteSummary_Details_MoreDetails
@@ -198,8 +198,8 @@ objcpp:
   translator: 'djinni::routeguide::v1::RouteSummary::Details::MoreDetails::Translator'
   header: '"routeguide/v1/message.djinni.objc.h"'
 java:
-  typename: 'io.grpc.examples.routeguide.RouteSummary_Details_MoreDetails'
-  boxed: 'io.grpc.examples.routeguide.RouteSummary_Details_MoreDetails'
+  typename: 'io.grpc.examples.routeguide.RouteSummary$Details$MoreDetails'
+  boxed: 'io.grpc.examples.routeguide.RouteSummary$Details$MoreDetails'
   reference: true
   generic: false
   hash: '%s.hashCode()'
@@ -207,5 +207,5 @@ jni:
   translator: 'djinni::routeguide::v1::RouteSummary::Details::MoreDetails::Translator'
   header: '"routeguide/v1/message.djinni.jni.h"'
   typename: jobject
-  typeSignature: 'Lio/grpc/examples/routeguide/RouteSummary_Details_MoreDetails;'
+  typeSignature: 'Lio/grpc/examples/routeguide/RouteSummary$Details$MoreDetails;'
 

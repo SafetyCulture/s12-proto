@@ -401,6 +401,7 @@ void APIGenerator::PrintDjinniYAML(
   auto messages = GetMessagesFromFile(file);
   for (const auto message : messages) {
     vars["message_name"] = ClassName(message, false);
+    vars["java_message_name"] = UnderscoresToDollar(vars["message_name"]);
     vars["cpp_type_name"] = DotsToColons(message->full_name());
     vars["objc_header"] = DotsToSlashs(message->full_name());
     vars["file_name"] = StripProto(file->name());
@@ -442,8 +443,8 @@ void APIGenerator::PrintDjinniYAML(
 
     printer->Print("java:\n");
     printer->Indent();
-    printer->Print(vars, "typename: '$java_package$.$message_name$'\n");
-    printer->Print(vars, "boxed: '$java_package$.$message_name$'\n");
+    printer->Print(vars, "typename: '$java_package$.$java_message_name$'\n");
+    printer->Print(vars, "boxed: '$java_package$.$java_message_name$'\n");
     printer->Print("reference: true\n");
     printer->Print("generic: false\n");
     printer->Print("hash: '%s.hashCode()'\n");
@@ -454,7 +455,7 @@ void APIGenerator::PrintDjinniYAML(
     printer->Print(vars, "translator: 'djinni::$cpp_type_name$::Translator'\n");
     printer->Print(vars, "header: '\"$main_file_name$.djinni.jni.h\"'\n");
     printer->Print(vars, "typename: jobject\n");
-    printer->Print(vars, "typeSignature: 'L$java_package_slashes$/$message_name$;'\n");
+    printer->Print(vars, "typeSignature: 'L$java_package_slashes$/$java_message_name$;'\n");
     printer->Outdent();
 
     printer->Print("\n");
