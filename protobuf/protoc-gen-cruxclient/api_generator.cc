@@ -554,7 +554,7 @@ void APIGenerator::PrintDjinniJNISupport(
   vars["dir"] = dir;
   auto messages = GetMessagesFromFile(file);
   for (const auto message : messages) {
-    vars["message_name"] = ClassName(message, false);
+    vars["message_name"] = UnderscoresToDollar(ClassName(message, false));
     vars["cpp_type_name"] = DotsToColons(message->full_name());
     vars["file_name"] = StripProto(file->name());
     vars["cpp_header"] = DotsToSlashs(ToLower(message->full_name()));
