@@ -20,6 +20,10 @@ install-govalidator:
 .PHONY: install-logger
 	go install github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-logger
 
+.PHONY: install-s12perm
+install-s12perm:
+	go install ./protobuf/protoc-gen-s12perm
+
 .PHONY: install-cruxclient
 install-cruxclient: protoc-gen-cruxclient
 	install protoc-gen-cruxclient /usr/local/bin/protoc-gen-cruxclient
