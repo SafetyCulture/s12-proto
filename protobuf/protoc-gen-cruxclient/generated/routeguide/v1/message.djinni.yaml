@@ -169,7 +169,7 @@ objcpp:
   header: '"routeguide/v1/message.djinni.objc.h"'
 java:
   typename: 'io.grpc.examples.routeguide.RouteSummary$Details'
-  boxed: 'io.grpc.examples.routeguide.RouteSummary$Details'
+  boxed: 'io.grpc.examples.routeguide.RouteSummary.Details'
   reference: true
   generic: false
   hash: '%s.hashCode()'
@@ -199,7 +199,7 @@ objcpp:
   header: '"routeguide/v1/message.djinni.objc.h"'
 java:
   typename: 'io.grpc.examples.routeguide.RouteSummary$Details$MoreDetails'
-  boxed: 'io.grpc.examples.routeguide.RouteSummary$Details$MoreDetails'
+  boxed: 'io.grpc.examples.routeguide.RouteSummary.Details.MoreDetails'
   reference: true
   generic: false
   hash: '%s.hashCode()'
