@@ -137,6 +137,10 @@ inline std::string UnderscoresToDollar(const std::string &name) {
   return StringReplace(name, "_", "$");
 }
 
+inline std::string UnderscoresToDots(const std::string &name) {
+  return StringReplace(name, "_", ".");
+}
+
 inline std::string ToLower(const std::string &input) {
   std::string output = input;
   std::transform(output.begin(), output.end(), output.begin(),
