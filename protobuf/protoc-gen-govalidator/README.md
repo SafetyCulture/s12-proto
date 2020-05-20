@@ -37,8 +37,6 @@ message ExampleMessage {
   string password = 11 [(validator.length_gte) = 8];
   // You don't need to validate everything
   string no_validation = 12;
-  // Trim leading and trailing whitespaces (as defined by Unicode) before doing length check
-  string name = 13 [(validator.length_gte) = 6, (validator.length_lte) = 10, (validator.trim_len_check) = true];
 }
 
 message InnerMessage {

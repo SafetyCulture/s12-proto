@@ -10,7 +10,6 @@ import (
 	_ "github.com/gogo/protobuf/gogoproto"
 	_ "github.com/SafetyCulture/s12-proto/protobuf/s12proto"
 	regexp "regexp"
-	strings "strings"
 	github_com_SafetyCulture_s12_proto_protobuf_s12proto "github.com/SafetyCulture/s12-proto/protobuf/s12proto"
 )
 
@@ -86,12 +85,6 @@ func (m *ExampleMessage) Validate() error {
 				return github_com_SafetyCulture_s12_proto_protobuf_s12proto.FieldError("InnerLegacyId", err)
 			}
 		}
-	}
-	if !(len(strings.TrimSpace(m.Name)) >= 6) {
-		return fmt.Errorf(`Name: value '%v' must have length greater than or equal to '6'`, strings.TrimSpace(m.Name))
-	}
-	if !(len(strings.TrimSpace(m.Name)) <= 10) {
-		return fmt.Errorf(`Name: value '%v' must have length less than or equal to '10'`, strings.TrimSpace(m.Name))
 	}
 	return nil
 }
