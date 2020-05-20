@@ -19,6 +19,7 @@ type plugin struct {
 	generator.PluginImports
 	regexPkg    generator.Single
 	fmtPkg      generator.Single
+	stringsPkg  generator.Single
 	s12protoPkg generator.Single
 }
 
@@ -39,6 +40,7 @@ func (p *plugin) Generate(file *generator.FileDescriptor) {
 	p.PluginImports = generator.NewPluginImports(p.Generator)
 	p.fmtPkg = p.NewImport("fmt")
 	p.regexPkg = p.NewImport("regexp")
+	p.stringsPkg = p.NewImport("strings")
 	p.s12protoPkg = p.NewImport("github.com/SafetyCulture/s12-proto/protobuf/s12proto")
 
 	for _, msg := range file.Messages() {
@@ -151,7 +153,7 @@ func (p *plugin) generateStringValidator(variableName string, ccTypeName string,
 		p.P(`}`)
 	}
 
-	p.generateLengthValidator(variableName, ccTypeName, fieldName, field)
+	p.generateLengthValidator(variableName, ccTypeName, fieldName, field, getTrimOnLenCheckValue(field))
 
 	if optional {
 		p.Out()
@@ -175,7 +177,7 @@ func (p *plugin) generateBytesValidator(variableName string, ccTypeName string, 
 		p.P(`}`)
 	}
 
-	p.generateLengthValidator(variableName, ccTypeName, fieldName, field)
+	p.generateLengthValidator(variableName, ccTypeName, fieldName, field, false)
 
 	if optional {
 		p.Out()
@@ -229,20 +231,25 @@ func (p *plugin) generateIntegerValidator(variableName string, ccTypeName string
 	}
 }
 
-func (p *plugin) generateLengthValidator(variableName string, ccTypeName string, fieldName string, field *descriptor.FieldDescriptorProto) {
+func (p *plugin) generateLengthValidator(variableName string, ccTypeName string, fieldName string, field *descriptor.FieldDescriptorProto, trimOnCheck bool) {
+	varOnCheck := variableName
+	if trimOnCheck {
+		varOnCheck = fmt.Sprintf(`%s.TrimSpace(%s)`, p.stringsPkg.Use(), variableName)
+	}
+
 	if v := getLengthGteValue(field); v != nil {
-		p.P(`if !(len(`, variableName, `) >= `, v, `) {`)
+		p.P(`if !(len(`, varOnCheck, `) >= `, v, `) {`)
 		p.In()
 		errorStr := fmt.Sprintf(`have length greater than or equal to '%d'`, *v)
-		p.generateErrorString(variableName, fieldName, errorStr)
+		p.generateErrorString(varOnCheck, fieldName, errorStr)
 		p.Out()
 		p.P(`}`)
 	}
 	if v := getLengthLteValue(field); v != nil {
-		p.P(`if !(len(`, variableName, `) <= `, v, `) {`)
+		p.P(`if !(len(`, varOnCheck, `) <= `, v, `) {`)
 		p.In()
 		errorStr := fmt.Sprintf(`have length less than or equal to '%d'`, *v)
-		p.generateErrorString(variableName, fieldName, errorStr)
+		p.generateErrorString(varOnCheck, fieldName, errorStr)
 		p.Out()
 		p.P(`}`)
 	}
@@ -343,6 +350,7 @@ func hasValidationExtensions(field *descriptor.FieldDescriptorProto) bool {
 			validator.E_Optional,
 			validator.E_MsgRequired,
 			validator.E_LegacyId,
+			validator.E_TrimLenCheck,
 		}
 		for _, ext := range validExts {
 			if proto.HasExtension(field.Options, ext) {
@@ -369,6 +377,10 @@ func getUUIDValue(field *descriptor.FieldDescriptorProto) bool {
 
 func getLegacyIDValue(field *descriptor.FieldDescriptorProto) bool {
 	return proto.GetBoolExtension(field.Options, validator.E_LegacyId, false)
+}
+
+func getTrimOnLenCheckValue(field *descriptor.FieldDescriptorProto) bool {
+	return proto.GetBoolExtension(field.Options, validator.E_TrimLenCheck, false)
 }
 
 func getIntGtValue(field *descriptor.FieldDescriptorProto) *int64 {

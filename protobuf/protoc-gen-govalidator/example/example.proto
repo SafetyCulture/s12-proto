@@ -45,6 +45,9 @@ message ExampleMessage {
 
   // InnerMessage can contain a legacy id too
   InnerMessageWithLegacyId  inner_legacy_id = 17;
+
+  // Trim leading and trailing whitespaces (as defined by Unicode) before doing length check
+  string name = 18 [(validator.length_gte) = 6, (validator.length_lte) = 10, (validator.trim_len_check) = true];
 }
 
 message InnerMessage {
