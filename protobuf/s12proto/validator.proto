@@ -30,4 +30,6 @@ extend google.protobuf.FieldOptions {
   optional bool msg_required = 65209;
   // Field value that caters to an upper case universally unique identifier, uuid or a long id
   optional bool legacy_id = 65210;
+  // Supplementary validation option to trim leading and trailing whitespaces (as defined by Unicode) before doing length check
+  optional bool trim_len_check = 65211;
 }
