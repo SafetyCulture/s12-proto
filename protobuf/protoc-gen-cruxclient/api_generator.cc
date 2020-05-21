@@ -588,7 +588,7 @@ void APIGenerator::PrintDjinniJNISupport(
     printer->Print("assert(j != nullptr);\n");
     printer->Print("const auto& data = JniClass<JNIInfo>::get();\n");
     printer->Print("assert(jniEnv->IsInstanceOf(j, data.clazz.get()));\n");
-    printer->Print("jbyte b = jniEnv->CallByteMethod(j, data.method_toBytes);\n");
+    printer->Print("jobject b = jniEnv->CallObjectMethod(j, data.method_toBytes);\n");
     printer->Print("auto byte_len = jniEnv->CallIntMethod(j, data.method_byteSize);\n");
     printer->Print("jniExceptionCheck(jniEnv);\n");
     printer->Print("CppType cpp_message;\n");
