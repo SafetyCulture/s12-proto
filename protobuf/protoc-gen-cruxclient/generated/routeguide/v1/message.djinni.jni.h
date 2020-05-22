@@ -19,7 +19,7 @@ struct Translator {
     assert(j != nullptr);
     const auto& data = JniClass<JNIInfo>::get();
     assert(jniEnv->IsInstanceOf(j, data.clazz.get()));
-    jbyte b = jniEnv->CallByteMethod(j, data.method_toBytes);
+    jobject b = jniEnv->CallObjectMethod(j, data.method_toBytes);
     auto byte_len = jniEnv->CallIntMethod(j, data.method_byteSize);
     jniExceptionCheck(jniEnv);
     CppType cpp_message;
@@ -60,7 +60,7 @@ struct Translator {
     assert(j != nullptr);
     const auto& data = JniClass<JNIInfo>::get();
     assert(jniEnv->IsInstanceOf(j, data.clazz.get()));
-    jbyte b = jniEnv->CallByteMethod(j, data.method_toBytes);
+    jobject b = jniEnv->CallObjectMethod(j, data.method_toBytes);
     auto byte_len = jniEnv->CallIntMethod(j, data.method_byteSize);
     jniExceptionCheck(jniEnv);
     CppType cpp_message;
@@ -101,7 +101,7 @@ struct Translator {
     assert(j != nullptr);
     const auto& data = JniClass<JNIInfo>::get();
     assert(jniEnv->IsInstanceOf(j, data.clazz.get()));
-    jbyte b = jniEnv->CallByteMethod(j, data.method_toBytes);
+    jobject b = jniEnv->CallObjectMethod(j, data.method_toBytes);
     auto byte_len = jniEnv->CallIntMethod(j, data.method_byteSize);
     jniExceptionCheck(jniEnv);
     CppType cpp_message;
@@ -142,7 +142,7 @@ struct Translator {
     assert(j != nullptr);
     const auto& data = JniClass<JNIInfo>::get();
     assert(jniEnv->IsInstanceOf(j, data.clazz.get()));
-    jbyte b = jniEnv->CallByteMethod(j, data.method_toBytes);
+    jobject b = jniEnv->CallObjectMethod(j, data.method_toBytes);
     auto byte_len = jniEnv->CallIntMethod(j, data.method_byteSize);
     jniExceptionCheck(jniEnv);
     CppType cpp_message;
@@ -183,7 +183,7 @@ struct Translator {
     assert(j != nullptr);
     const auto& data = JniClass<JNIInfo>::get();
     assert(jniEnv->IsInstanceOf(j, data.clazz.get()));
-    jbyte b = jniEnv->CallByteMethod(j, data.method_toBytes);
+    jobject b = jniEnv->CallObjectMethod(j, data.method_toBytes);
     auto byte_len = jniEnv->CallIntMethod(j, data.method_byteSize);
     jniExceptionCheck(jniEnv);
     CppType cpp_message;
@@ -224,7 +224,7 @@ struct Translator {
     assert(j != nullptr);
     const auto& data = JniClass<JNIInfo>::get();
     assert(jniEnv->IsInstanceOf(j, data.clazz.get()));
-    jbyte b = jniEnv->CallByteMethod(j, data.method_toBytes);
+    jobject b = jniEnv->CallObjectMethod(j, data.method_toBytes);
     auto byte_len = jniEnv->CallIntMethod(j, data.method_byteSize);
     jniExceptionCheck(jniEnv);
     CppType cpp_message;
@@ -265,7 +265,7 @@ struct Translator {
     assert(j != nullptr);
     const auto& data = JniClass<JNIInfo>::get();
     assert(jniEnv->IsInstanceOf(j, data.clazz.get()));
-    jbyte b = jniEnv->CallByteMethod(j, data.method_toBytes);
+    jobject b = jniEnv->CallObjectMethod(j, data.method_toBytes);
     auto byte_len = jniEnv->CallIntMethod(j, data.method_byteSize);
     jniExceptionCheck(jniEnv);
     CppType cpp_message;
@@ -287,3 +287,4 @@ struct Translator {
   }
 };
 }  //namespace djinni::routeguide::v1::RouteSummary::Details::MoreDetails
+
