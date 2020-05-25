@@ -588,11 +588,13 @@ void APIGenerator::PrintDjinniJNISupport(
     printer->Print("assert(j != nullptr);\n");
     printer->Print("const auto& data = JniClass<JNIInfo>::get();\n");
     printer->Print("assert(jniEnv->IsInstanceOf(j, data.clazz.get()));\n");
-    printer->Print("jobject b = jniEnv->CallObjectMethod(j, data.method_toBytes);\n");
+    printer->Print("jbyteArray byteArray = static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes));\n");
     printer->Print("auto byte_len = jniEnv->CallIntMethod(j, data.method_byteSize);\n");
-    printer->Print("jniExceptionCheck(jniEnv);\n");
+    printer->Print("jbyte* byte = jniEnv->GetByteArrayElements(byteArray, NULL);\n");
     printer->Print("CppType cpp_message;\n");
-    printer->Print("cpp_message.ParseFromArray(&b, byte_len);\n");
+    printer->Print("cpp_message.ParseFromArray(byte, byte_len);\n");
+    printer->Print("jniEnv->ReleaseByteArrayElements(byteArray, byte, JNI_ABORT);\n");
+    printer->Print("jniExceptionCheck(jniEnv);\n");
     printer->Print("return cpp_message;\n");
     printer->Outdent();
     printer->Print("}\n\n");
