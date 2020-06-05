@@ -444,7 +444,7 @@ void APIGenerator::PrintDjinniYAML(
 
     printer->Print("java:\n");
     printer->Indent();
-    printer->Print(vars, "typename: '$java_package$.$java_message_name$'\n");
+    printer->Print(vars, "typename: '$java_package$.$java_message_box_name$'\n");
     printer->Print(vars, "boxed: '$java_package$.$java_message_box_name$'\n");
     printer->Print("reference: true\n");
     printer->Print("generic: false\n");

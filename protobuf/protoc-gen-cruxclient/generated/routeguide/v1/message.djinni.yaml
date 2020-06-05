@@ -168,7 +168,7 @@ objcpp:
   translator: 'djinni::routeguide::v1::RouteSummary::Details::Translator'
   header: '"routeguide/v1/message.djinni.objc.h"'
 java:
-  typename: 'io.grpc.examples.routeguide.RouteSummary$Details'
+  typename: 'io.grpc.examples.routeguide.RouteSummary.Details'
   boxed: 'io.grpc.examples.routeguide.RouteSummary.Details'
   reference: true
   generic: false
@@ -198,7 +198,7 @@ objcpp:
   translator: 'djinni::routeguide::v1::RouteSummary::Details::MoreDetails::Translator'
   header: '"routeguide/v1/message.djinni.objc.h"'
 java:
-  typename: 'io.grpc.examples.routeguide.RouteSummary$Details$MoreDetails'
+  typename: 'io.grpc.examples.routeguide.RouteSummary.Details.MoreDetails'
   boxed: 'io.grpc.examples.routeguide.RouteSummary.Details.MoreDetails'
   reference: true
   generic: false
