@@ -1,4 +1,4 @@
-// Copyright (c) 2019 SafetyCulture Pty Ltd. All Rights Reserved.
+// Copyright (c) 2020 SafetyCulture Pty Ltd. All Rights Reserved.
 
 package proto
 
