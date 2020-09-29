@@ -3,14 +3,15 @@
 syntax = "proto3";
 package example;
 
-import "github.com/gogo/protobuf/gogoproto/gogo.proto";
-import "s12proto/validator.proto";
+import "s12/protobuf/proto/validator.proto";
+
+option go_package = "github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-govalidator/example";
 
 message ExampleMessage {
   // returns an error if the string cannot be parsed as a UUID
   string id = 1 [(validator.uuid) = true];
   // bytes can also be parsed as UUID with support for gogo
-  bytes user_id = 2 [(gogoproto.customname) = "UserID", (validator.uuid) = true];
+  bytes user_id = 2 [(validator.uuid) = true];
   // strings can validate against a regular expresion
   string email = 3 [(validator.regex) = ".+\\@.+\\..+"];
   // integers can be greater than a value
@@ -41,7 +42,7 @@ message ExampleMessage {
   InnerMessage msg_required = 15 [(validator.msg_required) = true];
 
   // returns an error if the string cannot be parsed as a legacy id
-  string legacy_id = 16 [(gogoproto.customname) = "LegacyID", (validator.legacy_id) = true];
+  string legacy_id = 16 [(validator.legacy_id) = true];
 
   // InnerMessage can contain a legacy id too
   InnerMessageWithLegacyId  inner_legacy_id = 17;

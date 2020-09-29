@@ -1,7 +1,6 @@
-// Copyright (c) 2019 SafetyCulture Pty Ltd. All Rights Reserved.
+// Copyright (c) 2020 SafetyCulture Pty Ltd. All Rights Reserved.
 
-// Deprecated: Use the "github.com/SafetyCulture/s12-proto/s12/protobuf/proto" package instead.
-package s12proto
+package proto
 
 import (
 	"regexp"
