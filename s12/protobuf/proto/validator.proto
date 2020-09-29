@@ -5,10 +5,7 @@ package validator;
 
 import "google/protobuf/descriptor.proto";
 
-// Deprecated. Use s12/protobuf/proto/validator.proto
-option deprecated = true;
-
-option go_package = "github.com/SafetyCulture/s12-proto/protobuf/s12proto";
+option go_package = "github.com/SafetyCulture/s12-proto/s12/protobuf/proto";
 
 extend google.protobuf.FieldOptions {
   // Field value validates to a 128 bit universally unique identifier
