@@ -37,6 +37,10 @@ func GenerateFile(p *protogen.Plugin, file *protogen.File) *protogen.GeneratedFi
 	g.P("package ", file.GoPackageName)
 	g.P()
 
+	// Generate a blank import statement if not used by any validation functions,
+	// as we still want to register the protobuf validation types for the Reflection API.
+	g.Import(s12protoPackage)
+
 	for _, msg := range file.Messages {
 		if opts, ok := msg.Desc.Options().(*descriptorpb.MessageOptions); !ok || opts.GetMapEntry() {
 			continue
