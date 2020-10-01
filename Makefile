@@ -4,7 +4,7 @@ generate:
 	protoc \
 	-I. \
 	--go_out=paths=source_relative:. \
-	s12/protobuf/proto/*.proto
+	s12/protobuf/proto/*.proto s12/flags/permissions/*.proto
 
 CXX = g++
 CPPFLAGS += -I/usr/local/include -pthread
@@ -44,6 +44,15 @@ govalidator: install-govalidator
 .PHONY: govalidator-test
 govalidator-test:
 	go test github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-govalidator/example -v
+
+.PHONY: s12perm
+s12perm: install-s12perm
+	protoc \
+	-I./protobuf/protoc-gen-s12perm/example \
+	-I$(GOPATH)/src \
+	-I. \
+	--s12perm_out=paths=source_relative:protobuf/protoc-gen-s12perm/example \
+	protobuf/protoc-gen-s12perm/example/*proto
 
 .PHONY: logger
 logger: install-logger
