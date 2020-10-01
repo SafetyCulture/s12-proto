@@ -3,57 +3,25 @@
 package main
 
 import (
-	"io/ioutil"
-	"log"
-	"os"
-	"strings"
+	"flag"
+
+	"google.golang.org/protobuf/compiler/protogen"
 
 	"github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-s12perm/plugin"
-	"github.com/gogo/protobuf/proto"
-	"github.com/gogo/protobuf/protoc-gen-gogo/generator"
 )
 
 func main() {
-	gen := generator.New()
-	data, err := ioutil.ReadAll(os.Stdin)
-	if err != nil {
-		gen.Error(err, "gogrpcmock: reading input")
-	}
-	if err := proto.Unmarshal(data, gen.Request); err != nil {
-		gen.Error(err, "gogrpcmock: parsing input proto")
+	var flags flag.FlagSet
+	opts := &protogen.Options{
+		ParamFunc: flags.Set,
 	}
 
-	filesToGenerate := make([]string, 0, len(gen.Request.ProtoFile))
-	for _, file := range gen.Request.ProtoFile {
-		if len(file.Service) > 0 {
-			filesToGenerate = append(filesToGenerate, *file.Name)
+	opts.Run(func(p *protogen.Plugin) error {
+		for _, f := range p.Files {
+			if f.Generate {
+				plugin.GenerateFile(p, f)
+			}
 		}
-	}
-	gen.Request.FileToGenerate = filesToGenerate
-
-	if len(gen.Request.FileToGenerate) == 0 {
-		log.Println("gogrpcmock: no files to generate")
-		return
-	}
-
-	gen.CommandLineParameters(gen.Request.GetParameter())
-	gen.WrapTypes()
-	gen.SetPackageNames()
-	gen.BuildTypeNameMap()
-
-	gen.GeneratePlugin(plugin.New())
-
-	for i := 0; i < len(gen.Response.File); i++ {
-		gen.Response.File[i].Name = proto.String(strings.Replace(*gen.Response.File[i].Name, ".pb.go", ".perm.go", -1))
-	}
-
-	data, err = proto.Marshal(gen.Response)
-	if err != nil {
-		gen.Error(err, "s12perm: failed to marshal output proto")
-	}
-
-	_, err = os.Stdout.Write(data)
-	if err != nil {
-		gen.Error(err, "s12perm: failed to write output proto")
-	}
+		return nil
+	})
 }

@@ -2,10 +2,7 @@ syntax = "proto2";
 
 package s12.flags.permissions;
 
-// Deprecated. Use s12/flags/permissions/permissions.proto
-option deprecated = true;
-
-option go_package = "github.com/SafetyCulture/s12-proto/protobuf/s12proto";
+option go_package = "github.com/SafetyCulture/s12-proto/s12/flags/permissions";
 
 import "google/protobuf/descriptor.proto";
 

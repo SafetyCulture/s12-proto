@@ -1,0 +1,25 @@
+// Copyright (c) 2020 SafetyCulture Pty Ltd. All Rights Reserved.
+syntax = "proto3";
+package example;
+
+import "s12/flags/permissions/permissions.proto";
+
+
+option go_package = "github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-s12perm/example";
+
+service Example {
+    rpc Unary(Request) returns (Response) {
+        option (s12.flags.permissions.required_flags) = "write:users";
+    }
+    rpc ServerStream(Request) returns (stream Response) {
+        option (s12.flags.permissions.required_flags) = "write:users";
+    }
+}
+
+service NoPermissions {
+    rpc Unary(Request) returns (Response) {}
+}
+
+message Request {}
+
+message Response {}
