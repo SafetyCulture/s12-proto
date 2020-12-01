@@ -49,6 +49,20 @@ message ExampleMessage {
 
   // Trim leading and trailing whitespaces (as defined by Unicode) before doing length check
   string name = 18 [(validator.length_gte) = 6, (validator.length_lte) = 10, (validator.trim_len_check) = true];
+
+  message NestedMessage {
+    string val = 1 [
+      (validator.length_gte) = 1,
+      (validator.length_lte) = 40,
+      (validator.trim_len_check) = true
+    ];
+  }
+
+  NestedMessage nested_message = 19;
+}
+
+message OuterMessageUsingNestedMessage {
+  ExampleMessage.NestedMessage some_messge = 1;
 }
 
 message InnerMessage {
