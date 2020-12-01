@@ -62,7 +62,7 @@ message ExampleMessage {
 }
 
 message OuterMessageUsingNestedMessage {
-  ExampleMessage.NestedMessage some_messge = 1;
+  ExampleMessage.NestedMessage some_message = 1;
 }
 
 message InnerMessage {

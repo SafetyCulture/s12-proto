@@ -108,10 +108,10 @@ func (m *ExampleMessage_NestedMessage) Validate() error {
 }
 
 func (m *OuterMessageUsingNestedMessage) Validate() error {
-	if m.SomeMessge != nil {
-		if v, ok := interface{}(m.SomeMessge).(proto.Validator); ok {
+	if m.SomeMessage != nil {
+		if v, ok := interface{}(m.SomeMessage).(proto.Validator); ok {
 			if err := v.Validate(); err != nil {
-				return proto.FieldError("some_messge", err)
+				return proto.FieldError("some_message", err)
 			}
 		}
 	}

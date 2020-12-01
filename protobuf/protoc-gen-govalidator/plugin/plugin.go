@@ -68,10 +68,7 @@ func genRegexVars(g *protogen.GeneratedFile, msg *protogen.Message) {
 
 func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 	g.P("func (m *", msg.GoIdent.GoName, `) Validate() error {`)
-
 	for _, f := range msg.Fields {
-		// fmt.Printf("mike test[%d]: %+v\n", idx, *f)
-
 		hasExt := hasValidationExtensions(f)
 		if !hasExt && f.Message == nil {
 			continue
@@ -94,8 +91,6 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 			g.P(`// Validation of oneof fields is unsupported.`)
 			continue
 		}
-
-		// g.P(fmt.Sprintf("f.Desc.Kind(): %+v, varname: %+v", f.Desc.Kind(), varName))
 
 		switch f.Desc.Kind() {
 		case protoreflect.StringKind:
