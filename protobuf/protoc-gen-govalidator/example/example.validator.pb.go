@@ -85,6 +85,48 @@ func (m *ExampleMessage) Validate() error {
 	if !(len(_trim_ExampleMessage_Name) <= 10) {
 		return fmt.Errorf(`name: value '%v' must have length less than or equal to '10'`, _trim_ExampleMessage_Name)
 	}
+	if m.NestedMessage != nil {
+		if v, ok := interface{}(m.NestedMessage).(proto.Validator); ok {
+			if err := v.Validate(); err != nil {
+				return proto.FieldError("nested_message", err)
+			}
+		}
+	}
+	return nil
+}
+
+func (m *ExampleMessage_NestedMessage) Validate() error {
+	_trim_ExampleMessage_NestedMessage_Val := strings.TrimSpace(m.Val)
+	_ = _trim_ExampleMessage_NestedMessage_Val
+	if !(len(_trim_ExampleMessage_NestedMessage_Val) >= 1) {
+		return fmt.Errorf(`val: value '%v' must have length greater than or equal to '1'`, _trim_ExampleMessage_NestedMessage_Val)
+	}
+	if !(len(_trim_ExampleMessage_NestedMessage_Val) <= 40) {
+		return fmt.Errorf(`val: value '%v' must have length less than or equal to '40'`, _trim_ExampleMessage_NestedMessage_Val)
+	}
+	return nil
+}
+
+func (m *ExampleMessage_NestedMessage_InnerNestedMessage) Validate() error {
+	_trim_ExampleMessage_NestedMessage_InnerNestedMessage_InnerVal := strings.TrimSpace(m.InnerVal)
+	_ = _trim_ExampleMessage_NestedMessage_InnerNestedMessage_InnerVal
+	if !(len(_trim_ExampleMessage_NestedMessage_InnerNestedMessage_InnerVal) >= 1) {
+		return fmt.Errorf(`inner_val: value '%v' must have length greater than or equal to '1'`, _trim_ExampleMessage_NestedMessage_InnerNestedMessage_InnerVal)
+	}
+	if !(len(_trim_ExampleMessage_NestedMessage_InnerNestedMessage_InnerVal) <= 40) {
+		return fmt.Errorf(`inner_val: value '%v' must have length less than or equal to '40'`, _trim_ExampleMessage_NestedMessage_InnerNestedMessage_InnerVal)
+	}
+	return nil
+}
+
+func (m *OuterMessageUsingNestedMessage) Validate() error {
+	if m.SomeMessage != nil {
+		if v, ok := interface{}(m.SomeMessage).(proto.Validator); ok {
+			if err := v.Validate(); err != nil {
+				return proto.FieldError("some_message", err)
+			}
+		}
+	}
 	return nil
 }
 

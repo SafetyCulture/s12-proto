@@ -107,6 +107,11 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 
 	g.P(`return nil`)
 	g.P(`}`)
+
+	for _, innerMsg := range msg.Messages {
+		g.P()
+		genValidateFunc(g, innerMsg)
+	}
 }
 
 func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string) {
