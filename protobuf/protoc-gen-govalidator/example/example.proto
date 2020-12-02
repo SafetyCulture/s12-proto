@@ -56,6 +56,14 @@ message ExampleMessage {
       (validator.length_lte) = 40,
       (validator.trim_len_check) = true
     ];
+
+    message InnerNestedMessage {
+      string inner_val = 1 [
+        (validator.length_gte) = 1,
+        (validator.length_lte) = 40,
+        (validator.trim_len_check) = true
+      ];
+    }
   }
 
   NestedMessage nested_message = 19;

@@ -107,6 +107,18 @@ func (m *ExampleMessage_NestedMessage) Validate() error {
 	return nil
 }
 
+func (m *ExampleMessage_NestedMessage_InnerNestedMessage) Validate() error {
+	_trim_ExampleMessage_NestedMessage_InnerNestedMessage_InnerVal := strings.TrimSpace(m.InnerVal)
+	_ = _trim_ExampleMessage_NestedMessage_InnerNestedMessage_InnerVal
+	if !(len(_trim_ExampleMessage_NestedMessage_InnerNestedMessage_InnerVal) >= 1) {
+		return fmt.Errorf(`inner_val: value '%v' must have length greater than or equal to '1'`, _trim_ExampleMessage_NestedMessage_InnerNestedMessage_InnerVal)
+	}
+	if !(len(_trim_ExampleMessage_NestedMessage_InnerNestedMessage_InnerVal) <= 40) {
+		return fmt.Errorf(`inner_val: value '%v' must have length less than or equal to '40'`, _trim_ExampleMessage_NestedMessage_InnerNestedMessage_InnerVal)
+	}
+	return nil
+}
+
 func (m *OuterMessageUsingNestedMessage) Validate() error {
 	if m.SomeMessage != nil {
 		if v, ok := interface{}(m.SomeMessage).(proto.Validator); ok {

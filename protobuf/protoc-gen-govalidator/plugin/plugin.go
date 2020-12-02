@@ -48,11 +48,6 @@ func GenerateFile(p *protogen.Plugin, file *protogen.File) *protogen.GeneratedFi
 		genRegexVars(g, msg)
 		genValidateFunc(g, msg)
 		g.P()
-
-		for _, innerMsg := range msg.Messages {
-			genValidateFunc(g, innerMsg)
-			g.P()
-		}
 	}
 
 	return g
@@ -112,6 +107,11 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 
 	g.P(`return nil`)
 	g.P(`}`)
+
+	for _, innerMsg := range msg.Messages {
+		g.P()
+		genValidateFunc(g, innerMsg)
+	}
 }
 
 func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string) {
