@@ -109,6 +109,10 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 	g.P(`}`)
 
 	for _, innerMsg := range msg.Messages {
+		if innerMsg.Desc.IsMapEntry() {
+			// Do not generate validation func for map entry type
+			continue
+		}
 		g.P()
 		genValidateFunc(g, innerMsg)
 	}
