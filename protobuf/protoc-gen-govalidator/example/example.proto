@@ -67,6 +67,8 @@ message ExampleMessage {
   }
 
   NestedMessage nested_message = 19;
+
+  map<string, string> not_supported = 100;
 }
 
 message OuterMessageUsingNestedMessage {

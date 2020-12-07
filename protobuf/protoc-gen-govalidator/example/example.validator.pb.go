@@ -92,6 +92,7 @@ func (m *ExampleMessage) Validate() error {
 			}
 		}
 	}
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 
