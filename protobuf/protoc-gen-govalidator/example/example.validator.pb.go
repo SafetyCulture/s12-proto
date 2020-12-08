@@ -10,6 +10,7 @@ import (
 )
 
 var _regex_ExampleMessage_Email = regexp.MustCompile(`.+\@.+\..+`)
+var _regex_ExampleMessage_NestedMessage_NestedEmail = regexp.MustCompile(`.+\@.+\..+`)
 
 func (m *ExampleMessage) Validate() error {
 	if !proto.IsUUID(m.Id) {
@@ -104,6 +105,9 @@ func (m *ExampleMessage_NestedMessage) Validate() error {
 	}
 	if !(len(_trim_ExampleMessage_NestedMessage_Val) <= 40) {
 		return fmt.Errorf(`val: value '%v' must have length less than or equal to '40'`, _trim_ExampleMessage_NestedMessage_Val)
+	}
+	if !_regex_ExampleMessage_NestedMessage_NestedEmail.MatchString(m.NestedEmail) {
+		return fmt.Errorf(`nested_email: value '%v' must be a string conforming to regex ".+\\@.+\\..+"`, m.NestedEmail)
 	}
 	return nil
 }

@@ -59,6 +59,9 @@ func genRegexVars(g *protogen.GeneratedFile, msg *protogen.Message) {
 			g.P("var ", "_regex_", field.GoIdent, " = ", regexpPackage.Ident("MustCompile"), "(`", regex, "`)")
 		}
 	}
+	for _, innerMsg := range msg.Messages {
+		genRegexVars(g, innerMsg)
+	}
 }
 
 func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
