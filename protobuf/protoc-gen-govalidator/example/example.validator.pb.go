@@ -11,6 +11,7 @@ import (
 
 var _regex_ExampleMessage_Email = regexp.MustCompile(`.+\@.+\..+`)
 var _regex_ExampleMessage_NestedMessage_NestedEmail = regexp.MustCompile(`.+\@.+\..+`)
+var _regex_ExampleMessage_NestedMessage_MemberEmails = regexp.MustCompile(`[a-z0-9!#$&'*+/=?^_{|}~-]+(?:\.[a-z0-9!#$&'*+/=?^_{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?`)
 
 func (m *ExampleMessage) Validate() error {
 	if !proto.IsUUID(m.Id) {
@@ -108,6 +109,20 @@ func (m *ExampleMessage_NestedMessage) Validate() error {
 	}
 	if !_regex_ExampleMessage_NestedMessage_NestedEmail.MatchString(m.NestedEmail) {
 		return fmt.Errorf(`nested_email: value '%v' must be a string conforming to regex ".+\\@.+\\..+"`, m.NestedEmail)
+	}
+	if !(len(m.MemberEmails) >= 2) {
+		return fmt.Errorf(`member_emails: length '%v' must be greater than or equal to '2'`, len(m.MemberEmails))
+	}
+	if !(len(m.MemberEmails) <= 5) {
+		return fmt.Errorf(`member_emails: length '%v' must be lesser than or equal to '5'`, len(m.MemberEmails))
+	}
+	for _, item := range m.MemberEmails {
+		if !_regex_ExampleMessage_NestedMessage_MemberEmails.MatchString(item) {
+			return fmt.Errorf(`member_emails: value '%v' must be a string conforming to regex "[a-z0-9!#$&'*+/=?^_{|}~-]+(?:\\.[a-z0-9!#$&'*+/=?^_{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"`, item)
+		}
+		if !(len(item) <= 200) {
+			return fmt.Errorf(`member_emails: value '%v' must have length less than or equal to '200'`, item)
+		}
 	}
 	return nil
 }
