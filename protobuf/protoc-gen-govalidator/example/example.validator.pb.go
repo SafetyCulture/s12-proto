@@ -9,7 +9,8 @@ import (
 	strings "strings"
 )
 
-var _regex_ExampleMessage_Email = regexp.MustCompile(`.+\@.+\..+`)
+var _regex_val_ExampleMessage_Email = `[a-z0-9!#$%&'*+/=?^_{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?`
+var _regex_ExampleMessage_Email = regexp.MustCompile(_regex_val_ExampleMessage_Email)
 
 func (m *ExampleMessage) Validate() error {
 	if !proto.IsUUID(m.Id) {
@@ -19,7 +20,7 @@ func (m *ExampleMessage) Validate() error {
 		return fmt.Errorf(`user_id: value '%v' must be exactly 16 bytes long to be a valid UUID`, m.UserId)
 	}
 	if !_regex_ExampleMessage_Email.MatchString(m.Email) {
-		return fmt.Errorf(`email: value '%v' must be a string conforming to regex ".+\\@.+\\..+"`, m.Email)
+		return fmt.Errorf(`email: value '%v' must be a string conforming to regex '%s'`, m.Email, _regex_val_ExampleMessage_Email)
 	}
 	if !(m.Age > 0) {
 		return fmt.Errorf(`age: value '%v' must be greater than '0'`, m.Age)
