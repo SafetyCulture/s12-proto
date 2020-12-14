@@ -11,6 +11,8 @@ import (
 
 var _regex_val_ExampleMessage_Email = `[a-z0-9!#$%&'*+/=?^_{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?`
 var _regex_ExampleMessage_Email = regexp.MustCompile(_regex_val_ExampleMessage_Email)
+var _regex_val_ExampleMessage_NestedMessage_NestedEmail = `.+\@.+\..+`
+var _regex_ExampleMessage_NestedMessage_NestedEmail = regexp.MustCompile(_regex_val_ExampleMessage_NestedMessage_NestedEmail)
 
 func (m *ExampleMessage) Validate() error {
 	if !proto.IsUUID(m.Id) {
@@ -93,6 +95,7 @@ func (m *ExampleMessage) Validate() error {
 			}
 		}
 	}
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 
@@ -104,6 +107,9 @@ func (m *ExampleMessage_NestedMessage) Validate() error {
 	}
 	if !(len(_trim_ExampleMessage_NestedMessage_Val) <= 40) {
 		return fmt.Errorf(`val: value '%v' must have length less than or equal to '40'`, _trim_ExampleMessage_NestedMessage_Val)
+	}
+	if !_regex_ExampleMessage_NestedMessage_NestedEmail.MatchString(m.NestedEmail) {
+		return fmt.Errorf(`nested_email: value '%v' must be a string conforming to regex '%s'`, m.NestedEmail, _regex_val_ExampleMessage_NestedMessage_NestedEmail)
 	}
 	return nil
 }

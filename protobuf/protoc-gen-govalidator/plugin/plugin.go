@@ -60,6 +60,9 @@ func genRegexVars(g *protogen.GeneratedFile, msg *protogen.Message) {
 			g.P("var ", "_regex_", field.GoIdent, " = ", regexpPackage.Ident("MustCompile"), "(_regex_val_", field.GoIdent, ")")
 		}
 	}
+	for _, innerMsg := range msg.Messages {
+		genRegexVars(g, innerMsg)
+	}
 }
 
 func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
@@ -110,6 +113,10 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 	g.P(`}`)
 
 	for _, innerMsg := range msg.Messages {
+		if innerMsg.Desc.IsMapEntry() {
+			// Do not generate validation func for map entry type
+			continue
+		}
 		g.P()
 		genValidateFunc(g, innerMsg)
 	}

@@ -64,9 +64,13 @@ message ExampleMessage {
         (validator.trim_len_check) = true
       ];
     }
+
+   string nested_email = 2 [(validator.regex) = ".+\\@.+\\..+"];
   }
 
   NestedMessage nested_message = 19;
+
+  map<string, string> not_supported = 100;
 }
 
 message OuterMessageUsingNestedMessage {
