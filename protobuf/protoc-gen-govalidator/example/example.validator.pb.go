@@ -120,9 +120,6 @@ func (m *ExampleMessage_NestedMessage) Validate() error {
 		if !_regex_ExampleMessage_NestedMessage_MemberEmails.MatchString(item) {
 			return fmt.Errorf(`member_emails: value '%v' must be a string conforming to regex "[a-z0-9!#$&'*+/=?^_{|}~-]+(?:\\.[a-z0-9!#$&'*+/=?^_{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"`, item)
 		}
-		if !(len(item) <= 200) {
-			return fmt.Errorf(`member_emails: value '%v' must have length less than or equal to '200'`, item)
-		}
 	}
 	return nil
 }

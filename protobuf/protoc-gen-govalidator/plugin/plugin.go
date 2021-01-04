@@ -76,14 +76,14 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 		repeated := f.Desc.Cardinality() == protoreflect.Repeated
 
 		if hasExt && repeated {
-			if v := getIntExtention(f, validator.E_CollectionSizeGte); v >= 0 {
+			if v := getIntExtention(f, validator.E_RepeatedLenGte); v >= 0 {
 				g.P("if !(len(", varName, ") >= ", v, ") {")
 				errStr := fmt.Sprintf(`be greater than or equal to '%d'`, v)
 				genLenErrorString(g, varName, string(f.Desc.Name()), errStr)
 				g.P("}")
 			}
 
-			if v := getIntExtention(f, validator.E_CollectionSizeLte); v >= 0 {
+			if v := getIntExtention(f, validator.E_RepeatedLenLte); v >= 0 {
 				g.P("if !(len(", varName, ") <= ", v, ") {")
 				errStr := fmt.Sprintf(`be lesser than or equal to '%d'`, v)
 				genLenErrorString(g, varName, string(f.Desc.Name()), errStr)
@@ -287,8 +287,8 @@ var validExts = []protoreflect.ExtensionType{
 	validator.E_MsgRequired,
 	validator.E_LegacyId,
 	validator.E_TrimLenCheck,
-	validator.E_CollectionSizeGte,
-	validator.E_CollectionSizeLte,
+	validator.E_RepeatedLenGte,
+	validator.E_RepeatedLenLte,
 }
 
 func hasValidationExtensions(f *protogen.Field) bool {
