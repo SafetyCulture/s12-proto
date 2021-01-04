@@ -56,7 +56,7 @@ func GenerateFile(p *protogen.Plugin, file *protogen.File) *protogen.GeneratedFi
 func genRegexVars(g *protogen.GeneratedFile, msg *protogen.Message) {
 	for _, field := range msg.Fields {
 		if regex := getRegexValue(field); regex != "" {
-			g.P("var ", "_regex_val_", field.GoIdent, " = `", regex, "`")
+			g.P("const ", "_regex_val_", field.GoIdent, " = `", regex, "`")
 			g.P("var ", "_regex_", field.GoIdent, " = ", regexpPackage.Ident("MustCompile"), "(_regex_val_", field.GoIdent, ")")
 		}
 	}
@@ -132,7 +132,7 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 	if regex := getRegexValue(f); regex != "" {
 		g.P("if !_regex_", f.GoIdent, ".MatchString(", varName, ") {")
 		errStr := "be a string conforming to regex '%s'"
-		genErrorStringWithParams(g, varName, string(f.Desc.Name()), errStr, []string{"_regex_val_" + f.GoIdent.GoName})
+		genErrorStringWithParams(g, varName, string(f.Desc.Name()), errStr, "_regex_val_"+f.GoIdent.GoName)
 		g.P("}")
 	}
 
@@ -257,7 +257,7 @@ func genErrorString(g *protogen.GeneratedFile, varName, fieldName, specificErr s
 	g.P(`return `, fmtPackage.Ident("Errorf"), "(`", fieldName, `: value '%v' must `, specificErr, "`, ", varName, `)`)
 }
 
-func genErrorStringWithParams(g *protogen.GeneratedFile, varName, fieldName, specificErr string, errParams []string) {
+func genErrorStringWithParams(g *protogen.GeneratedFile, varName, fieldName, specificErr string, errParams ...string) {
 	g.P(`return `, fmtPackage.Ident("Errorf"), "(`", fieldName, `: value '%v' must `, specificErr, "`, ", varName, ", ", strings.Join(errParams, ", "), `)`)
 }
 

@@ -9,9 +9,12 @@ import (
 	strings "strings"
 )
 
-var _regex_val_ExampleMessage_Email = `[a-z0-9!#$%&'*+/=?^_{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?`
+const _regex_val_ExampleMessage_Email = `[a-z0-9!#$%&'*+/=?^_{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?`
+
 var _regex_ExampleMessage_Email = regexp.MustCompile(_regex_val_ExampleMessage_Email)
-var _regex_val_ExampleMessage_NestedMessage_NestedEmail = `.+\@.+\..+`
+
+const _regex_val_ExampleMessage_NestedMessage_NestedEmail = `.+\@.+\..+`
+
 var _regex_ExampleMessage_NestedMessage_NestedEmail = regexp.MustCompile(_regex_val_ExampleMessage_NestedMessage_NestedEmail)
 
 func (m *ExampleMessage) Validate() error {
