@@ -388,7 +388,7 @@ func TestValidationRules(t *testing.T) {
 			},
 			false,
 		}, {
-			"InalidOptional",
+			"InvalidOptional",
 			&ExampleMessage{
 				Id:          id,
 				UserId:      byteID,
@@ -822,6 +822,73 @@ func TestValidationRules(t *testing.T) {
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyId},
 			},
 			false,
+		}, {
+			"RepeatedSizeInRange",
+			&ExampleMessage{
+				Id:          id,
+				UserId:      byteID,
+				Email:       email,
+				Age:         18,
+				Password:    password,
+				MsgRequired: &InnerMessage{Id: id},
+				LegacyId:    legacyLongId1,
+				Name:        name,
+				NestedMessage: &ExampleMessage_NestedMessage{
+					Val:         "inner val",
+					NestedEmail: email,
+					MemberEmails: []string{
+						email,
+						email,
+					},
+				},
+			},
+			false,
+		}, {
+			"RepeatedSizeLessThanMinimum",
+			&ExampleMessage{
+				Id:          id,
+				UserId:      byteID,
+				Email:       email,
+				Age:         18,
+				Password:    password,
+				MsgRequired: &InnerMessage{Id: id},
+				LegacyId:    legacyLongId1,
+				Name:        name,
+				NestedMessage: &ExampleMessage_NestedMessage{
+					Val:         "inner val",
+					NestedEmail: email,
+					MemberEmails: []string{
+						email,
+					},
+				},
+			},
+			true,
+		},
+		{
+			"RepeatedSizeExceedsMaximum",
+			&ExampleMessage{
+				Id:          id,
+				UserId:      byteID,
+				Email:       email,
+				Age:         18,
+				Password:    password,
+				MsgRequired: &InnerMessage{Id: id},
+				LegacyId:    legacyLongId1,
+				Name:        name,
+				NestedMessage: &ExampleMessage_NestedMessage{
+					Val:         "inner val",
+					NestedEmail: email,
+					MemberEmails: []string{
+						email,
+						email,
+						email,
+						email,
+						email,
+						email,
+					},
+				},
+			},
+			true,
 		},
 	}
 

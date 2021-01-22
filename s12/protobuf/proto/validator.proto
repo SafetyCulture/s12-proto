@@ -32,4 +32,8 @@ extend google.protobuf.FieldOptions {
   optional bool legacy_id = 65210;
   // Supplementary validation option to trim leading and trailing whitespaces (as defined by Unicode) before doing length check
   optional bool trim_len_check = 65211;
+  // collection size lesser than or equal this value
+  optional int64 repeated_len_gte = 65212;
+  // collection size greater that or equal to this value
+  optional int64 repeated_len_lte = 65213;
 }

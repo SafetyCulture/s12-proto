@@ -66,6 +66,13 @@ message ExampleMessage {
     }
 
    string nested_email = 2 [(validator.regex) = ".+\\@.+\\..+"];
+
+   repeated string member_emails = 3 [
+      (validator.regex) =
+          "[a-z0-9!#$&'*+/=?^_{|}~-]+(?:\\.[a-z0-9!#$&'*+/=?^_{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?",
+      (validator.repeated_len_gte) = 2,
+      (validator.repeated_len_lte) = 5
+    ];
   }
 
   NestedMessage nested_message = 19;

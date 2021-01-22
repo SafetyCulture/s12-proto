@@ -77,6 +77,20 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 		repeated := f.Desc.Cardinality() == protoreflect.Repeated
 
 		if hasExt && repeated {
+			if v := getIntExtention(f, validator.E_RepeatedLenGte); v >= 0 {
+				g.P("if !(len(", varName, ") >= ", v, ") {")
+				errStr := fmt.Sprintf(`be greater than or equal to '%d'`, v)
+				genLenErrorString(g, varName, string(f.Desc.Name()), errStr)
+				g.P("}")
+			}
+
+			if v := getIntExtention(f, validator.E_RepeatedLenLte); v >= 0 {
+				g.P("if !(len(", varName, ") <= ", v, ") {")
+				errStr := fmt.Sprintf(`be lesser than or equal to '%d'`, v)
+				genLenErrorString(g, varName, string(f.Desc.Name()), errStr)
+				g.P("}")
+			}
+
 			g.P("for _, item := range ", varName, "{")
 			varName = "item"
 		}
@@ -261,6 +275,10 @@ func genErrorStringWithParams(g *protogen.GeneratedFile, varName, fieldName, spe
 	g.P(`return `, fmtPackage.Ident("Errorf"), "(`", fieldName, `: value '%v' must `, specificErr, "`, ", varName, ", ", strings.Join(errParams, ", "), `)`)
 }
 
+func genLenErrorString(g *protogen.GeneratedFile, varName, fieldName, specificErr string) {
+	g.P(`return `, fmtPackage.Ident("Errorf"), "(`", fieldName, `: length '%v' must `, specificErr, "`, len(", varName, `))`)
+}
+
 var validExts = []protoreflect.ExtensionType{
 	validator.E_Regex,
 	validator.E_Uuid,
@@ -274,6 +292,8 @@ var validExts = []protoreflect.ExtensionType{
 	validator.E_MsgRequired,
 	validator.E_LegacyId,
 	validator.E_TrimLenCheck,
+	validator.E_RepeatedLenGte,
+	validator.E_RepeatedLenLte,
 }
 
 func hasValidationExtensions(f *protogen.Field) bool {
