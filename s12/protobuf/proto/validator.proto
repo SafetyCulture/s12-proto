@@ -8,7 +8,7 @@ import "google/protobuf/descriptor.proto";
 option go_package = "github.com/SafetyCulture/s12-proto/s12/protobuf/proto";
 
 extend google.protobuf.FieldOptions {
-  // Field value validates to a 128 bit universally unique identifier
+  // Field value validates to a 128 bit universally unique identifier.
   optional bool uuid = 65200;
   // Uses a Golang RE2-syntax regex to match the field contents.
   optional string regex = 65201;
@@ -16,9 +16,9 @@ extend google.protobuf.FieldOptions {
   optional int64 int_gt = 65202;
   // Field value of integer strictly smaller than this value.
   optional int64 int_lt = 65203;
-  // Field value of integer greater or equal than this value.
+  // Field value of integer greater than or equal to this value.
   optional int64 int_gte = 65204;
-  // Field value of integer smaller or equal than this value.
+  // Field value of integer smaller than or equal to this value.
   optional int64 int_lte = 65205;
   // Field value of length greater than this value.
   optional int64 length_gte = 65206;
@@ -28,12 +28,12 @@ extend google.protobuf.FieldOptions {
   optional bool optional = 65208;
   // Validates that an inner message is required.
   optional bool msg_required = 65209;
-  // Field value that caters to an upper case universally unique identifier, uuid or a long id
+  // Field value that caters to an upper case universally unique identifier, uuid or a long id.
   optional bool legacy_id = 65210;
-  // Supplementary validation option to trim leading and trailing whitespaces (as defined by Unicode) before doing length check
+  // Supplementary validation option to trim leading and trailing whitespaces (as defined by Unicode) before doing length check.
   optional bool trim_len_check = 65211;
-  // collection size lesser than or equal this value
+  // collection size greater than or equal to this value.
   optional int64 repeated_len_gte = 65212;
-  // collection size greater that or equal to this value
+  // collection size lesser than or equal to this value.
   optional int64 repeated_len_lte = 65213;
 }
