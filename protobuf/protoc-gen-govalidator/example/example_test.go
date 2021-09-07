@@ -20,6 +20,7 @@ func TestValidationRules(t *testing.T) {
 		email            string = "email@address.co"
 		password         string = "12345678"
 		name             string = "safety"
+		url              string = "https://www.safetyculture.io"
 	)
 	var (
 		byteID []byte = []byte{53, 30, 208, 165, 196, 219, 75, 61, 142, 60, 101, 84, 229, 43, 61, 108}
@@ -46,6 +47,7 @@ func TestValidationRules(t *testing.T) {
 				MsgRequired: &InnerMessage{Id: id},
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			false,
 		}, {
@@ -59,6 +61,7 @@ func TestValidationRules(t *testing.T) {
 				MsgRequired: &InnerMessage{Id: id},
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			false,
 		}, {
@@ -72,6 +75,7 @@ func TestValidationRules(t *testing.T) {
 				MsgRequired: &InnerMessage{Id: id},
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			true,
 		}, {
@@ -85,6 +89,7 @@ func TestValidationRules(t *testing.T) {
 				MsgRequired: &InnerMessage{Id: id},
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			true,
 		}, {
@@ -98,6 +103,7 @@ func TestValidationRules(t *testing.T) {
 				MsgRequired: &InnerMessage{Id: id},
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			true,
 		}, {
@@ -111,6 +117,7 @@ func TestValidationRules(t *testing.T) {
 				MsgRequired: &InnerMessage{Id: id},
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			true,
 		}, {
@@ -124,6 +131,7 @@ func TestValidationRules(t *testing.T) {
 				MsgRequired: &InnerMessage{Id: id},
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			true,
 		}, {
@@ -137,6 +145,7 @@ func TestValidationRules(t *testing.T) {
 				MsgRequired: &InnerMessage{Id: id},
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			true,
 		}, {
@@ -150,6 +159,7 @@ func TestValidationRules(t *testing.T) {
 				MsgRequired: &InnerMessage{Id: id},
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			true,
 		}, {
@@ -157,12 +167,13 @@ func TestValidationRules(t *testing.T) {
 			&ExampleMessage{
 				Id:          id,
 				UserId:      byteID,
-				Email:       "",
+				Email:       email,
 				Age:         18,
 				Password:    password,
 				MsgRequired: &InnerMessage{Id: id},
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         "",
 			},
 			true,
 		}, {
@@ -170,12 +181,13 @@ func TestValidationRules(t *testing.T) {
 			&ExampleMessage{
 				Id:          id,
 				UserId:      byteID,
-				Email:       "something@else",
+				Email:       email,
 				Age:         18,
 				Password:    password,
 				MsgRequired: &InnerMessage{Id: id},
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         "https://www.safetyculture.net",
 			},
 			true,
 		}, {
@@ -189,6 +201,7 @@ func TestValidationRules(t *testing.T) {
 				MsgRequired: &InnerMessage{Id: id},
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			true,
 		}, {
@@ -203,6 +216,7 @@ func TestValidationRules(t *testing.T) {
 				Speed:       10,
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			false,
 		}, {
@@ -217,6 +231,7 @@ func TestValidationRules(t *testing.T) {
 				Speed:       -10,
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			false,
 		}, {
@@ -231,6 +246,7 @@ func TestValidationRules(t *testing.T) {
 				Speed:       120,
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			true,
 		}, {
@@ -245,6 +261,7 @@ func TestValidationRules(t *testing.T) {
 				Score:       1,
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			false,
 		}, {
@@ -259,6 +276,7 @@ func TestValidationRules(t *testing.T) {
 				Score:       -1,
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			true,
 		}, {
@@ -273,6 +291,7 @@ func TestValidationRules(t *testing.T) {
 				Score:       100,
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			false,
 		}, {
@@ -287,6 +306,7 @@ func TestValidationRules(t *testing.T) {
 				Score:       99,
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			false,
 		}, {
@@ -301,6 +321,7 @@ func TestValidationRules(t *testing.T) {
 				Score:       111,
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			true,
 		}, {
@@ -315,6 +336,7 @@ func TestValidationRules(t *testing.T) {
 				Ids:         [][]byte{byteID},
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			false,
 		}, {
@@ -329,6 +351,7 @@ func TestValidationRules(t *testing.T) {
 				Ids:         [][]byte{byteID, byteID},
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			false,
 		}, {
@@ -343,6 +366,7 @@ func TestValidationRules(t *testing.T) {
 				Ids:         [][]byte{[]byte{}},
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			true,
 		}, {
@@ -357,6 +381,7 @@ func TestValidationRules(t *testing.T) {
 				Ids:         [][]byte{[]byte{121}},
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			true,
 		}, {
@@ -371,6 +396,7 @@ func TestValidationRules(t *testing.T) {
 				Ids:         [][]byte{byteID, []byte{121}},
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			true,
 		}, {
@@ -385,6 +411,7 @@ func TestValidationRules(t *testing.T) {
 				MediaId:     "",
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			false,
 		}, {
@@ -399,6 +426,7 @@ func TestValidationRules(t *testing.T) {
 				MediaId:     "notauuid",
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			true,
 		}, {
@@ -413,6 +441,7 @@ func TestValidationRules(t *testing.T) {
 				Description: "",
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			false,
 		}, {
@@ -427,6 +456,7 @@ func TestValidationRules(t *testing.T) {
 				Description: "Some text here",
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			false,
 		}, {
@@ -441,6 +471,7 @@ func TestValidationRules(t *testing.T) {
 				Description: sb.String(),
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			true,
 		}, {
@@ -454,6 +485,7 @@ func TestValidationRules(t *testing.T) {
 				MsgRequired: &InnerMessage{Id: id},
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			true,
 		}, {
@@ -467,6 +499,7 @@ func TestValidationRules(t *testing.T) {
 				MsgRequired: &InnerMessage{Id: id},
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			true,
 		}, {
@@ -481,6 +514,7 @@ func TestValidationRules(t *testing.T) {
 				Inner:       &InnerMessage{Id: id},
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			false,
 		}, {
@@ -495,6 +529,7 @@ func TestValidationRules(t *testing.T) {
 				Inner:       &InnerMessage{},
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			true,
 		}, {
@@ -509,6 +544,7 @@ func TestValidationRules(t *testing.T) {
 				Inner:       &InnerMessage{Id: "notauuid"},
 				LegacyId:    legacyId,
 				Name:        name,
+				Url:         url,
 			},
 			true,
 		}, {
@@ -521,6 +557,7 @@ func TestValidationRules(t *testing.T) {
 				Password: password,
 				LegacyId: legacyId,
 				Name:     name,
+				Url:      url,
 			},
 			true,
 		}, {
@@ -535,6 +572,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:      legacyId,
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyId},
+				Url:           url,
 			},
 			false,
 		}, {
@@ -549,6 +587,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:      id,
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: id},
+				Url:           url,
 			},
 			false,
 		}, {
@@ -563,6 +602,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:      strings.Replace(legacyId, "-", "", -1),
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyId},
+				Url:           url,
 			},
 			false,
 		}, {
@@ -577,6 +617,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:      "",
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyId},
+				Url:           url,
 			},
 			true,
 		}, {
@@ -591,6 +632,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:      "totally-invalid",
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyId},
+				Url:           url,
 			},
 			true,
 		}, {
@@ -605,6 +647,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:      legacyId + "1",
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyId},
+				Url:           url,
 			},
 			true,
 		}, {
@@ -619,6 +662,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:      legacyId,
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyId + "a"},
+				Url:           url,
 			},
 			true,
 		}, {
@@ -633,6 +677,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:      legacyLongIdFail,
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyLongId1},
+				Url:           url,
 			},
 			true,
 		}, {
@@ -647,6 +692,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:      legacyLongId1,
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyLongId1},
+				Url:           url,
 			},
 			false,
 		},
@@ -662,6 +708,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:      legacyLongId2,
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyLongId1},
+				Url:           url,
 			},
 			false,
 		},
@@ -677,6 +724,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:      legacyLongId3,
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyLongId1},
+				Url:           url,
 			},
 			false,
 		},
@@ -692,6 +740,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:      legacyLongId4,
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyLongId1},
+				Url:           url,
 			},
 			false,
 		},
@@ -707,6 +756,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:      legacyLongId4 + "1",
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyLongId1},
+				Url:           url,
 			},
 			true,
 		},
@@ -722,6 +772,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:      strings.Replace(legacyLongId1, "-", "", -1),
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyLongId1},
+				Url:           url,
 			},
 			false,
 		}, {
@@ -736,6 +787,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:      legacyLongId1 + "1",
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyLongId1},
+				Url:           url,
 			},
 			true,
 		}, {
@@ -750,6 +802,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:      legacyLongId1,
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyLongId1 + "a"},
+				Url:           url,
 			},
 			true,
 		}, {
@@ -764,6 +817,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:      legacyId,
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyLongId1},
+				Url:           url,
 			},
 			false,
 		}, {
@@ -778,6 +832,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:      legacyLongId1,
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyId},
+				Url:           url,
 			},
 			false,
 		}, {
@@ -792,6 +847,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:      legacyLongId1,
 				Name:          "  \n\t\r  ",
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyId},
+				Url:           url,
 			},
 			true,
 		}, {
@@ -806,6 +862,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:      legacyLongId1,
 				Name:          " \t\t12345  ", // min is 6
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyId},
+				Url:           url,
 			},
 			true,
 		}, {
@@ -820,6 +877,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:      legacyLongId1,
 				Name:          " \t\t1234567890\t\t\t\r  ", // min is 6, max 10
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyId},
+				Url:           url,
 			},
 			false,
 		}, {
@@ -841,6 +899,7 @@ func TestValidationRules(t *testing.T) {
 						email,
 					},
 				},
+				Url: url,
 			},
 			false,
 		}, {
@@ -861,6 +920,7 @@ func TestValidationRules(t *testing.T) {
 						email,
 					},
 				},
+				Url: url,
 			},
 			true,
 		},
@@ -887,6 +947,36 @@ func TestValidationRules(t *testing.T) {
 						email,
 					},
 				},
+				Url: url,
+			},
+			true,
+		}, {
+			"ValidEmailAddress",
+			&ExampleMessage{
+				Id:          id,
+				UserId:      byteID,
+				Email:       email,
+				Age:         18,
+				Password:    password,
+				MsgRequired: &InnerMessage{Id: id},
+				LegacyId:    legacyId,
+				Name:        name,
+				Url:         url,
+			},
+			false,
+		},
+		{
+			"InvalidEmailAddress",
+			&ExampleMessage{
+				Id:          id,
+				UserId:      byteID,
+				Email:       "test.invalid.test.com",
+				Age:         18,
+				Password:    password,
+				MsgRequired: &InnerMessage{Id: id},
+				LegacyId:    legacyId,
+				Name:        name,
+				Url:         url,
 			},
 			true,
 		},

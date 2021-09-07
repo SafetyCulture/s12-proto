@@ -164,6 +164,13 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 		g.P("}")
 	}
 
+	if getBoolExtension(f, validator.E_Email) {
+		g.P("if !", s12protoPackage.Ident("IsValidEmail"), "(", varName, ") {")
+		errStr := "be parsable as a valid email address"
+		genErrorString(g, varName, string(f.Desc.Name()), errStr)
+		g.P("}")
+	}
+
 	genLenValidator(g, f, varName)
 
 	if optional {
@@ -294,6 +301,7 @@ var validExts = []protoreflect.ExtensionType{
 	validator.E_TrimLenCheck,
 	validator.E_RepeatedLenGte,
 	validator.E_RepeatedLenLte,
+	validator.E_Email,
 }
 
 func hasValidationExtensions(f *protogen.Field) bool {
