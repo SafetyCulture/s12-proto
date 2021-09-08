@@ -3,9 +3,10 @@
 package proto
 
 import (
-	"net/mail"
 	"regexp"
 	"strings"
+
+	"github.com/asaskevich/govalidator"
 )
 
 const (
@@ -35,8 +36,7 @@ func IsLegacyID(str string) bool {
 
 // IsValidEmail checks if an email address is a valid RFC 5322 address
 func IsValidEmail(str string) bool {
-	_, err := mail.ParseAddress(str)
-	return err == nil
+	return govalidator.IsEmail(str)
 }
 
 type Validator interface {
