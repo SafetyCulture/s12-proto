@@ -174,7 +174,6 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 
 func genEmailValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string) {
 
-	// Email validator using ozzo validation package
 	rules := getEmailExtension(f, validator.E_Email)
 	if rules == nil {
 		return
@@ -184,7 +183,7 @@ func genEmailValidator(g *protogen.GeneratedFile, f *protogen.Field, varName str
 		g.P("if ", varName, " != \"\" {")
 	}
 
-	// Validate the value for valid email
+	// Validate the value for valid email using govalidator validation package
 	g.P("if !", s12protoPackage.Ident("IsValidEmail"), "(", varName, ") {")
 	errStr := "be parsable as a valid email address"
 	genErrorString(g, varName, string(f.Desc.Name()), errStr)
