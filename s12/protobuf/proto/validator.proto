@@ -37,5 +37,12 @@ extend google.protobuf.FieldOptions {
   // collection size lesser than or equal to this value.
   optional int64 repeated_len_lte = 65213;
   // Uses a go-validator to determine a email address is a valid RFC 5322 address
-  optional bool email = 65214;
+  optional EmailRules email = 65214;
+}
+
+// EmailRules describe the constraints applied to `email` values
+message EmailRules {
+  // Set this as optional field (not required)
+  // default = false
+  optional bool optional = 1 [default = false];
 }

@@ -13,7 +13,7 @@ message ExampleMessage {
   // bytes can also be parsed as UUID with support for gogo
   bytes user_id = 2 [(validator.uuid) = true];
   // should be a valid email address
-  string email = 3 [(validator.email) = true];
+  string email = 3 [(validator.email) = {}];
   // integers can be greater than a value
   int32 age = 4 [(validator.int_gt) = 0];
   // integers can be less than a value

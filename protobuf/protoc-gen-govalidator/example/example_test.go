@@ -17,7 +17,7 @@ func TestValidationRules(t *testing.T) {
 		legacyLongId2    string = "005F2E38-8426-48AF-94DE-5FEA3A396EEA-891-00000153F68896DC"   // length = 51 (without dashes)
 		legacyLongId3    string = "007B516E-53F1-4AA0-ABAF-8C78342A2C82-2388-00000221F1C2BD1E"  // length = 52 (without dashes)
 		legacyLongId4    string = "00709A17-151F-4CFC-B412-F080343ED84D-11977-000010227B4C60A9" // length = 53 (without dashes)
-		email            string = "email@address.co"
+		email            string = "email@example.com"
 		password         string = "12345678"
 		name             string = "safety"
 		url              string = "https://www.safetyculture.io"

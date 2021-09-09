@@ -108,6 +108,7 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 		switch f.Desc.Kind() {
 		case protoreflect.StringKind:
 			genStringValidator(g, f, varName)
+			genEmailValidator(g, f, varName)
 		case protoreflect.BytesKind:
 			genBytesValidator(g, f, varName)
 		case protoreflect.Int32Kind, protoreflect.Int64Kind,
@@ -164,16 +165,32 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 		g.P("}")
 	}
 
-	if getBoolExtension(f, validator.E_Email) {
-		g.P("if !", s12protoPackage.Ident("IsValidEmail"), "(", varName, ") {")
-		errStr := "be parsable as a valid email address"
-		genErrorString(g, varName, string(f.Desc.Name()), errStr)
-		g.P("}")
-	}
-
 	genLenValidator(g, f, varName)
 
 	if optional {
+		g.P("}")
+	}
+}
+
+func genEmailValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string) {
+
+	// Email validator using ozzo validation package
+	rules := getEmailExtension(f, validator.E_Email)
+	if rules == nil {
+		return
+	}
+
+	if rules.GetOptional() {
+		g.P("if ", varName, " != \"\" {")
+	}
+
+	// Validate the value for valid email
+	g.P("if !", s12protoPackage.Ident("IsValidEmail"), "(", varName, ") {")
+	errStr := "be parsable as a valid email address"
+	genErrorString(g, varName, string(f.Desc.Name()), errStr)
+	g.P("}")
+
+	if rules.GetOptional() {
 		g.P("}")
 	}
 }
@@ -323,6 +340,16 @@ func getRegexValue(f *protogen.Field) string {
 		}
 	}
 	return ""
+}
+
+func getEmailExtension(f *protogen.Field, xt protoreflect.ExtensionType) *validator.EmailRules {
+	if opts := f.Desc.Options(); opts != nil {
+		ext := proto.GetExtension(opts, xt)
+		if v, ok := ext.(*validator.EmailRules); ok {
+			return v
+		}
+	}
+	return nil
 }
 
 func getBoolExtension(f *protogen.Field, xt protoreflect.ExtensionType) bool {
