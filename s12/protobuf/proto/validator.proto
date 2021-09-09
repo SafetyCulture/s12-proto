@@ -36,6 +36,6 @@ extend google.protobuf.FieldOptions {
   optional int64 repeated_len_gte = 65212;
   // collection size lesser than or equal to this value.
   optional int64 repeated_len_lte = 65213;
-  // Uses a Golang's mail.ParseAddress to determine a email address is a valid RFC 5322 address
+  // Uses a go-validator to determine a email address is a valid RFC 5322 address
   optional bool email = 65214;
 }
