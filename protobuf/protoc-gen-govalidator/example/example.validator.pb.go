@@ -9,9 +9,9 @@ import (
 	strings "strings"
 )
 
-const _regex_val_ExampleMessage_Email = `[a-z0-9!#$%&'*+/=?^_{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?`
+const _regex_val_ExampleMessage_Url = `https:\/\/www\.safetyculture\.(io|com)`
 
-var _regex_ExampleMessage_Email = regexp.MustCompile(_regex_val_ExampleMessage_Email)
+var _regex_ExampleMessage_Url = regexp.MustCompile(_regex_val_ExampleMessage_Url)
 
 const _regex_val_ExampleMessage_NestedMessage_NestedEmail = `.+\@.+\..+`
 
@@ -28,8 +28,8 @@ func (m *ExampleMessage) Validate() error {
 	if len(m.UserId) != proto.UUIDSize {
 		return fmt.Errorf(`user_id: value '%v' must be exactly 16 bytes long to be a valid UUID`, m.UserId)
 	}
-	if !_regex_ExampleMessage_Email.MatchString(m.Email) {
-		return fmt.Errorf(`email: value '%v' must be a string conforming to regex '%s'`, m.Email, _regex_val_ExampleMessage_Email)
+	if !proto.IsValidEmail(m.Email) {
+		return fmt.Errorf(`email: value '%v' must be parsable as a valid email address`, m.Email)
 	}
 	if !(m.Age > 0) {
 		return fmt.Errorf(`age: value '%v' must be greater than '0'`, m.Age)
@@ -103,6 +103,9 @@ func (m *ExampleMessage) Validate() error {
 		}
 	}
 	// Validation of proto3 map<> fields is unsupported.
+	if !_regex_ExampleMessage_Url.MatchString(m.Url) {
+		return fmt.Errorf(`url: value '%v' must be a string conforming to regex '%s'`, m.Url, _regex_val_ExampleMessage_Url)
+	}
 	return nil
 }
 

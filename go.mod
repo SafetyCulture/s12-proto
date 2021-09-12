@@ -10,4 +10,7 @@ require (
 	google.golang.org/protobuf v1.27.1
 )
 
-require github.com/corpix/uarand v0.1.1 // indirect
+require (
+	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
+	github.com/corpix/uarand v0.1.1 // indirect
+)

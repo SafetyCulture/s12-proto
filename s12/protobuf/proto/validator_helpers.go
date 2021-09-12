@@ -5,6 +5,8 @@ package proto
 import (
 	"regexp"
 	"strings"
+
+	"github.com/asaskevich/govalidator"
 )
 
 const (
@@ -30,6 +32,11 @@ func IsUUID(str string) bool {
 // A legacyId does not contain the document prefix; the prefix is accounted for in the service implementation code
 func IsLegacyID(str string) bool {
 	return rxLegacyId.MatchString(str)
+}
+
+// IsValidEmail checks if an email address is a valid RFC 5322 address
+func IsValidEmail(str string) bool {
+	return govalidator.IsEmail(str)
 }
 
 type Validator interface {

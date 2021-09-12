@@ -12,8 +12,8 @@ message ExampleMessage {
   string id = 1 [(validator.uuid) = true];
   // bytes can also be parsed as UUID with support for gogo
   bytes user_id = 2 [(validator.uuid) = true];
-  // strings can validate against a regular expresion
-  string email = 3 [(validator.regex) = "[a-z0-9!#$%&'*+/=?^_{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?"];
+  // should be a valid email address
+  string email = 3 [(validator.email) = { optional = true }];
   // integers can be greater than a value
   int32 age = 4 [(validator.int_gt) = 0];
   // integers can be less than a value
@@ -78,6 +78,9 @@ message ExampleMessage {
   NestedMessage nested_message = 19;
 
   map<string, string> not_supported = 100;
+
+  // strings can validate against a regular expresion
+  string url = 21 [(validator.regex) = "https:\\/\\/www\\.safetyculture\\.(io|com)"];
 }
 
 message OuterMessageUsingNestedMessage {
