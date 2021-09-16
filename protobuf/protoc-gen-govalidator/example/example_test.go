@@ -966,7 +966,7 @@ func TestValidationRules(t *testing.T) {
 			false,
 		},
 		{
-			"InvalidEmailAddress-1",
+			"InvalidEmailAddress - Invalid email address format",
 			&ExampleMessage{
 				Id:          id,
 				UserId:      byteID,
@@ -981,11 +981,11 @@ func TestValidationRules(t *testing.T) {
 			true,
 		},
 		{
-			"InvalidEmailAddress-2",
+			"InvalidEmailAddress-Invalid Domain",
 			&ExampleMessage{
 				Id:          id,
 				UserId:      byteID,
-				Email:       "a@b",
+				Email:       "test@gmail.cmo",
 				Age:         18,
 				Password:    password,
 				MsgRequired: &InnerMessage{Id: id},

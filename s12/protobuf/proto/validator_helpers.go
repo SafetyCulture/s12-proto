@@ -34,9 +34,9 @@ func IsLegacyID(str string) bool {
 	return rxLegacyId.MatchString(str)
 }
 
-// IsValidEmail checks if an email address is a valid RFC 5322 address
+// IsValidEmail checks if an email address is a valid email address that can be delivered
 func IsValidEmail(str string) bool {
-	return govalidator.IsEmail(str)
+	return govalidator.IsExistingEmail(str)
 }
 
 type Validator interface {
