@@ -186,7 +186,7 @@ func genEmailValidator(g *protogen.GeneratedFile, f *protogen.Field, varName str
 	// Validate the value for valid email using govalidator validation package
 	g.P("if !", s12protoPackage.Ident("IsValidEmail"), "(", varName, ") {")
 	errStr := "be parsable as a valid email address"
-	genErrorString(g, varName, string(f.Desc.Name()), errStr)
+	genErrorStringWithoutValue(g, varName, string(f.Desc.Name()), errStr)
 	g.P("}")
 
 	if rules.GetOptional() {
@@ -288,6 +288,10 @@ func genMsgValidator(g *protogen.GeneratedFile, f *protogen.Field, varName strin
 	g.P("}")
 	g.P("}")
 	g.P("}")
+}
+
+func genErrorStringWithoutValue(g *protogen.GeneratedFile, varName, fieldName, specificErr string) {
+	g.P(`return `, fmtPackage.Ident("Errorf"), "(`", fieldName, `: must `, specificErr, "`", `)`)
 }
 
 func genErrorString(g *protogen.GeneratedFile, varName, fieldName, specificErr string) {

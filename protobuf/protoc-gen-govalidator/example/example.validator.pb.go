@@ -28,8 +28,10 @@ func (m *ExampleMessage) Validate() error {
 	if len(m.UserId) != proto.UUIDSize {
 		return fmt.Errorf(`user_id: value '%v' must be exactly 16 bytes long to be a valid UUID`, m.UserId)
 	}
-	if !proto.IsValidEmail(m.Email) {
-		return fmt.Errorf(`email: value '%v' must be parsable as a valid email address`, m.Email)
+	if m.Email != "" {
+		if !proto.IsValidEmail(m.Email) {
+			return fmt.Errorf(`email: must be parsable as a valid email address`)
+		}
 	}
 	if !(m.Age > 0) {
 		return fmt.Errorf(`age: value '%v' must be greater than '0'`, m.Age)
