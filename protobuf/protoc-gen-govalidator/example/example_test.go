@@ -1,7 +1,6 @@
 package example
 
 import (
-	fmt "fmt"
 	"strings"
 	"testing"
 
@@ -1003,7 +1002,6 @@ func TestValidationRules(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 			err := test.input.Validate()
-			fmt.Println(111, err)
 			if test.shouldError && err == nil {
 				t.Error("expected error, but nil")
 			}
