@@ -21,9 +21,9 @@ const (
 
 // Other library dependencies.
 const (
-	grpcPackage     = protogen.GoImportPath("google.golang.org/grpc")
-	s12permPackage  = protogen.GoImportPath("github.com/SafetyCulture/s12-proto/s12/flags/permissions")
-	s12utilsPackage = protogen.GoImportPath("github.com/SafetyCulture/s12-utils-go/utils")
+	grpcPackage      = protogen.GoImportPath("google.golang.org/grpc")
+	s12permPackage   = protogen.GoImportPath("github.com/SafetyCulture/s12-proto/s12/flags/permissions")
+	jwtclaimsPackage = protogen.GoImportPath("sc-go.io/pkg/jwtclaims")
 )
 
 // GenerateFile generates the .perm.pb.go file
@@ -60,7 +60,7 @@ func genUnaryInterceptor(g *protogen.GeneratedFile, srv *protogen.Service) {
 	g.P("// for defined permissions for a service method. Returns PermissionDenied status on permission error.")
 	g.P("func ", srv.GoName, "PermissionsUnaryInterceptor() ", grpcPackage.Ident("UnaryServerInterceptor"), " {")
 	g.P("return func(ctx ", contextPackage.Ident("Context"), ", req interface{}, info *", grpcPackage.Ident("UnaryServerInfo"), ", handler ", grpcPackage.Ident("UnaryHandler"), ") (interface{}, error) {")
-	g.P("c, _ := ctx.Value(", s12utilsPackage.Ident("ContextKeyS12JWTClaims"), ").(", s12utilsPackage.Ident("S12JWTClaims"), ")")
+	g.P("c, _ := ctx.Value(", jwtclaimsPackage.Ident("ContextKeyS12JWTClaims"), ").(", jwtclaimsPackage.Ident("S12JWTClaims"), ")")
 	g.P("_ = c")
 
 	for _, md := range srv.Methods {
@@ -76,11 +76,11 @@ func genUnaryInterceptor(g *protogen.GeneratedFile, srv *protogen.Service) {
 		g.P("if info.FullMethod == \"", sname, "\" {")
 		var perms []string
 		for _, perm := range flags {
-			perms = append(perms, fmt.Sprintf("%s(%q)", g.QualifiedGoIdent(s12utilsPackage.Ident("Permission")), perm))
+			perms = append(perms, fmt.Sprintf("%s(%q)", g.QualifiedGoIdent(jwtclaimsPackage.Ident("Permission")), perm))
 		}
 		g.P("if !c.HasPermission(", strings.Join(perms, ", "), ") {")
 		g.P(logPackage.Ident("Println"), "(\"s12perm: claims does contain the required permissions\")")
-		g.P("return ctx, ", s12utilsPackage.Ident("ErrPermissionDenied"))
+		g.P("return ctx, ", jwtclaimsPackage.Ident("ErrPermissionDenied"))
 		g.P("}")
 		g.P("}")
 	}
@@ -96,7 +96,7 @@ func genStreamInterceptor(g *protogen.GeneratedFile, srv *protogen.Service) {
 	g.P("// for defined permissions for a service method. Returns PermissionDenied status on permission error.")
 	g.P("func ", srv.GoName, "PermissionsStreamInterceptor() ", grpcPackage.Ident("StreamServerInterceptor"), " {")
 	g.P("return func(srv interface{}, stream ", grpcPackage.Ident("ServerStream"), ", info *", grpcPackage.Ident("StreamServerInfo"), ", handler ", grpcPackage.Ident("StreamHandler"), ") error {")
-	g.P("c, _ := stream.Context().Value(", s12utilsPackage.Ident("ContextKeyS12JWTClaims"), ").(", s12utilsPackage.Ident("S12JWTClaims"), ")")
+	g.P("c, _ := stream.Context().Value(", jwtclaimsPackage.Ident("ContextKeyS12JWTClaims"), ").(", jwtclaimsPackage.Ident("S12JWTClaims"), ")")
 	g.P("_ = c")
 
 	// (rogchap) A lot of this is repeated from the unary interceptor; a refactor to make this more DRY
@@ -114,11 +114,11 @@ func genStreamInterceptor(g *protogen.GeneratedFile, srv *protogen.Service) {
 		g.P("if info.FullMethod == \"", sname, "\" {")
 		var perms []string
 		for _, perm := range flags {
-			perms = append(perms, fmt.Sprintf("%s(%q)", g.QualifiedGoIdent(s12utilsPackage.Ident("Permission")), perm))
+			perms = append(perms, fmt.Sprintf("%s(%q)", g.QualifiedGoIdent(jwtclaimsPackage.Ident("Permission")), perm))
 		}
 		g.P("if !c.HasPermission(", strings.Join(perms, ", "), ") {")
 		g.P(logPackage.Ident("Println"), "(\"s12perm: claims does contain the required permissions\")")
-		g.P("return ", s12utilsPackage.Ident("ErrPermissionDenied"))
+		g.P("return ", jwtclaimsPackage.Ident("ErrPermissionDenied"))
 		g.P("}")
 		g.P("}")
 	}

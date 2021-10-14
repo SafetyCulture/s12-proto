@@ -5,21 +5,21 @@ package example
 import (
 	context "context"
 	_ "github.com/SafetyCulture/s12-proto/s12/flags/permissions"
-	utils "github.com/SafetyCulture/s12-utils-go/utils"
 	grpc "google.golang.org/grpc"
 	log "log"
+	jwtclaims "sc-go.io/pkg/jwtclaims"
 )
 
 // ExamplePermissionsUnaryInterceptor is a gRPC unary server interceptor that validates the S12 JWT claims
 // for defined permissions for a service method. Returns PermissionDenied status on permission error.
 func ExamplePermissionsUnaryInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-		c, _ := ctx.Value(utils.ContextKeyS12JWTClaims).(utils.S12JWTClaims)
+		c, _ := ctx.Value(jwtclaims.ContextKeyS12JWTClaims).(jwtclaims.S12JWTClaims)
 		_ = c
 		if info.FullMethod == "/example.Example/Unary" {
-			if !c.HasPermission(utils.Permission("write:users")) {
+			if !c.HasPermission(jwtclaims.Permission("write:users")) {
 				log.Println("s12perm: claims does contain the required permissions")
-				return ctx, utils.ErrPermissionDenied
+				return ctx, jwtclaims.ErrPermissionDenied
 			}
 		}
 		return handler(ctx, req)
@@ -30,12 +30,12 @@ func ExamplePermissionsUnaryInterceptor() grpc.UnaryServerInterceptor {
 // for defined permissions for a service method. Returns PermissionDenied status on permission error.
 func ExamplePermissionsStreamInterceptor() grpc.StreamServerInterceptor {
 	return func(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-		c, _ := stream.Context().Value(utils.ContextKeyS12JWTClaims).(utils.S12JWTClaims)
+		c, _ := stream.Context().Value(jwtclaims.ContextKeyS12JWTClaims).(jwtclaims.S12JWTClaims)
 		_ = c
 		if info.FullMethod == "/example.Example/ServerStream" {
-			if !c.HasPermission(utils.Permission("write:users")) {
+			if !c.HasPermission(jwtclaims.Permission("write:users")) {
 				log.Println("s12perm: claims does contain the required permissions")
-				return utils.ErrPermissionDenied
+				return jwtclaims.ErrPermissionDenied
 			}
 		}
 		return handler(srv, stream)
@@ -46,7 +46,7 @@ func ExamplePermissionsStreamInterceptor() grpc.StreamServerInterceptor {
 // for defined permissions for a service method. Returns PermissionDenied status on permission error.
 func NoPermissionsPermissionsUnaryInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-		c, _ := ctx.Value(utils.ContextKeyS12JWTClaims).(utils.S12JWTClaims)
+		c, _ := ctx.Value(jwtclaims.ContextKeyS12JWTClaims).(jwtclaims.S12JWTClaims)
 		_ = c
 		return handler(ctx, req)
 	}
@@ -56,7 +56,7 @@ func NoPermissionsPermissionsUnaryInterceptor() grpc.UnaryServerInterceptor {
 // for defined permissions for a service method. Returns PermissionDenied status on permission error.
 func NoPermissionsPermissionsStreamInterceptor() grpc.StreamServerInterceptor {
 	return func(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-		c, _ := stream.Context().Value(utils.ContextKeyS12JWTClaims).(utils.S12JWTClaims)
+		c, _ := stream.Context().Value(jwtclaims.ContextKeyS12JWTClaims).(jwtclaims.S12JWTClaims)
 		_ = c
 		return handler(srv, stream)
 	}
