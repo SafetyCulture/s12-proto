@@ -23,6 +23,7 @@ const (
 const (
 	grpcPackage      = protogen.GoImportPath("google.golang.org/grpc")
 	s12permPackage   = protogen.GoImportPath("github.com/SafetyCulture/s12-proto/s12/flags/permissions")
+	s12utilsPackage  = protogen.GoImportPath("github.com/SafetyCulture/s12-utils-go/utils")
 	jwtclaimsPackage = protogen.GoImportPath("sc-go.io/pkg/jwtclaims")
 )
 
@@ -80,7 +81,7 @@ func genUnaryInterceptor(g *protogen.GeneratedFile, srv *protogen.Service) {
 		}
 		g.P("if !c.HasPermission(", strings.Join(perms, ", "), ") {")
 		g.P(logPackage.Ident("Println"), "(\"s12perm: claims does contain the required permissions\")")
-		g.P("return ctx, ", jwtclaimsPackage.Ident("ErrPermissionDenied"))
+		g.P("return ctx, ", s12utilsPackage.Ident("ErrPermissionDenied"))
 		g.P("}")
 		g.P("}")
 	}
@@ -118,7 +119,7 @@ func genStreamInterceptor(g *protogen.GeneratedFile, srv *protogen.Service) {
 		}
 		g.P("if !c.HasPermission(", strings.Join(perms, ", "), ") {")
 		g.P(logPackage.Ident("Println"), "(\"s12perm: claims does contain the required permissions\")")
-		g.P("return ", jwtclaimsPackage.Ident("ErrPermissionDenied"))
+		g.P("return ", s12utilsPackage.Ident("ErrPermissionDenied"))
 		g.P("}")
 		g.P("}")
 	}
