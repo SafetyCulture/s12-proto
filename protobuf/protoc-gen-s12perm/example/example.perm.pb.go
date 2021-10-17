@@ -6,6 +6,8 @@ import (
 	context "context"
 	_ "github.com/SafetyCulture/s12-proto/s12/flags/permissions"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	log "log"
 	jwtclaims "sc-go.io/pkg/jwtclaims"
 )
@@ -19,7 +21,7 @@ func ExamplePermissionsUnaryInterceptor() grpc.UnaryServerInterceptor {
 		if info.FullMethod == "/example.Example/Unary" {
 			if !c.HasPermission(jwtclaims.Permission("write:users")) {
 				log.Println("s12perm: claims does contain the required permissions")
-				return ctx, jwtclaims.ErrPermissionDenied
+				return ctx, status.Errorf(codes.PermissionDenied, "Permission Denied")
 			}
 		}
 		return handler(ctx, req)
@@ -35,7 +37,7 @@ func ExamplePermissionsStreamInterceptor() grpc.StreamServerInterceptor {
 		if info.FullMethod == "/example.Example/ServerStream" {
 			if !c.HasPermission(jwtclaims.Permission("write:users")) {
 				log.Println("s12perm: claims does contain the required permissions")
-				return jwtclaims.ErrPermissionDenied
+				return status.Errorf(codes.PermissionDenied, "Permission Denied")
 			}
 		}
 		return handler(srv, stream)
