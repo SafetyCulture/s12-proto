@@ -13,6 +13,7 @@ $ protoc -I. --gogo_out=:. --govalidator_out=. example.proto
 - [Email validation: validator.email](#validator.email)
 - [ID validation: validator.id](#validator.id)
 - [String validation: validator.string and validator.unsafe_string](#validator.string)
+- [Testing](#validator.testing)
 - [Legacy Validator Fields](#validator.legacy)
 
 &nbsp;
@@ -228,6 +229,14 @@ String validation comprises of the following steps:
 1. Validation (in this order)
    1. Validate length using `len` or `utf8.RuneCountInString` when `runes` option is enabled. Error message: `value must have length X` or `value must have length between X and Y`.
    1. Validate input data against the allow list using `regex.MatchString`. The regex pattern is dynamically generated (based on validator options and `allow`) and then written to `<package>.validator_regex.pb.go`. Patterns are reused for other fields if possible. Error message: `value must only have valid characters`.
+
+### Testing <a name="validator.testing"></a>
+There is a new testing suite available in the [valtest](valtest/) folder that can be invoked to test almost any of the validator options. Run it as follows:
+
+```make generate && make govalidator-valtest && make govalidator-valtest-test```
+
+Only errors are displayed. Add the verbose (`-v`) flag in the `Makefile` for more details. It is possible to add additional test payloads, read from a file (one test case per line). Check [valtest_test.go](valtest/valtest_test.go) for details and examples.
+
 
 ## Legacy Validator Fields <a name="validator.legacy"></a>
 
