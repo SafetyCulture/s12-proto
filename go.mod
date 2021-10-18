@@ -13,4 +13,5 @@ require (
 require (
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
 	github.com/corpix/uarand v0.1.1 // indirect
+	golang.org/x/text v0.3.7 // indirect
 )
