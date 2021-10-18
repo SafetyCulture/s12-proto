@@ -45,6 +45,20 @@ govalidator: install-govalidator
 govalidator-test:
 	go test github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-govalidator/example -v
 
+.PHONY: govalidator-valtest
+govalidator-valtest: install-govalidator
+	protoc \
+	-I./protobuf/protoc-gen-govalidator/valtest \
+	-I$(GOPATH)/src \
+	-I. \
+	--go_out=paths=source_relative:protobuf/protoc-gen-govalidator/valtest \
+	--govalidator_out=paths=source_relative:protobuf/protoc-gen-govalidator/valtest \
+	protobuf/protoc-gen-govalidator/valtest/*.proto
+
+.PHONY: govalidator-valtest-test
+govalidator-valtest-test:
+	go test github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-govalidator/valtest
+
 .PHONY: s12perm
 s12perm: install-s12perm
 	protoc \
