@@ -124,7 +124,7 @@ func genStringGenerics(g *protogen.GeneratedFile) {
 	stringReDefaultUnsafe = append(stringReDefaultSafe, stringReDefaultUnsafe...)
 
 	// Prepare the PUA regex
-	regexGeneratedFile.P("// Pattern for PAU sanitiser")
+	regexGeneratedFile.P("// Pattern for PUA sanitiser")
 	regexGeneratedFile.P("var ", "_regex_pua = ", regexpPackage.Ident("MustCompile"), "(`", rePUA, "`)")
 }
 
