@@ -1,0 +1,3 @@
+# https://help.github.com/articles/about-codeowners/
+
+protobuf/protoc-gen-govalidator/plugin/ @SafetyCulture/security

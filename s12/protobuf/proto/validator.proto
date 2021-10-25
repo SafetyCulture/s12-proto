@@ -37,7 +37,135 @@ extend google.protobuf.FieldOptions {
   // collection size lesser than or equal to this value.
   optional int64 repeated_len_lte = 65213;
   // Uses a go-validator to determine a email address is a valid RFC 5322 address
+  // Email validation using IsEmail helper
   optional EmailRules email = 65214;
+  // New string validators
+  // String should be used wherever possible; it does not allow many unsafe inputs by default (can be overriden for limited chars)
+  optional StringRules string = 65215; // == safe_string
+  // Unsafe_string is less strict (and less secure) by default, but still does not just accept any values - has to be valid printable ASCII or Unicode letters
+  optional StringRules unsafe_string = 65216;
+  // Field value validates to a 128 bit universally unique identifier v4, validated using IsUUID or a legacy id
+  optional IdRules id = 65217;
+}
+
+// SymbolCategory defines which special characters (Unicode symbols and the like) are allowed
+// See validation_definitions.go for full details
+enum SymbolCategory {
+  // No symbols; not really useful
+  // NONE = 0; 
+
+  // Sm - any mathematical symbol, e.g. + < > = | ~ 𝛁 https://www.fileformat.info/info/unicode/category/Sm/list.htm
+  // Punctuation, other
+  // Only allowed for string with replace_unsafe option
+  PUNCTUATION = 1;
+
+  // Sc - any currency sign, e.g. $ £ ¥ €
+  // https://www.fileformat.info/info/unicode/category/Sc/list.htm
+  CURRENCY = 2; 
+
+  // Sk - a combining character (mark) as a full character on its own, e.g. ^ ` ¯
+  // Only allowed for string with replace_unsafe option
+  // https://www.fileformat.info/info/unicode/category/Sk/list.htm
+  MODIFIER = 3; 
+
+  // So - various symbols not in the categories above, e.g. © ↖ 🌏 💯
+  // https://www.fileformat.info/info/unicode/category/So/list.htm
+  OTHER = 4;
+  
+  // Mark - characters intended to be combined with another character (e.g. accents, umlauts, enclosing boxes, etc.)
+  // all categories (Mn, Mc, ...)
+  MARK = 5;
+
+  // Common symbols only
+  // SC defined list of common symbols we need
+  // See validation_definitinos.go for the current chars
+  COMMON = 6;
+}
+
+// StringRules describe the constraints applied to `string` values (for both string and unsafe_string)
+message StringRules {
+  // Set this as optional field (not required)
+  // default = false
+  optional bool optional = 1 [default = false];
+  
+  // Trim whitespace before validation - WARNING: this will mutate the data permanently
+  // Any leading and trailing whitespace will be removed (this can't be undone)
+  // default = false
+  optional bool trim = 2 [default = false];
+  
+  // Length (range), eg "5:100" must be 1 minimum (0:50 is invalid, if 0 accepted, should set optional)
+  // Can be set to a single value for fixed length strings, eg "16" 
+  // default = 1:130
+  optional string len = 3;
+  
+  // Validate the length in rune length (number of Unicode codepoints) instead of bytes
+  optional bool runes = 4 [default = false];
+  
+  // Replace common unsafe characters with an alternative representation
+  // Will replace some potentially unsafe characters like ' with a compatible, safe equivalent
+  // WARNING: this will permanently mutate the data (this can be undone by reversing the replace logic)
+  // NOTE: this is NOT a suitable replacement for output encoding and the use of safe APIs
+  optional bool replace_unsafe = 5 [default = false];
+  
+  // Replace other symbols with more common alternatives
+  optional bool replace_other = 6 [default = false];
+  
+  // Allow default + additional whitelist of defined characters, eg ",/*"
+  // Can change this to repeated string if that is better readable, eg. [",", "/", "*"] but that's annoying to type
+  // default = predefined safe_string_regex for string or unsafe_string_regex for unsafe_string
+  optional string allow = 7;
+
+  // Allow symbol categories
+  // default = no symbols except for default characters in string_regex or unsafe_string_regex
+  repeated SymbolCategory symbols = 8;
+  
+  // Allow newline characters (can also be defined via allow = "\n\r")
+  // NOTE: \r will be stripped if this option is used
+  // default = false (no newline characters allowed)
+  optional bool multiline = 9;
+
+  // Check for invalid encoding
+  // default = true (will reject the input if invalid encoding is detected)
+  optional bool validate_encoding = 10 [default = true];
+
+  // Sanitise (remove) Private Use Area Codepoints in the Basic Multilingual Plane
+  optional bool sanitise_pua = 11 [default = false];
+
+  // Unicode Bidirectional Algorithm
+  // Do not support this at this point, use allow: "\u200e" or "\u200f" to support LtR and RtL
+  
+  // Sanitise the data by stripping all not allowed chars
+  // This always results in a positive validation result but might corrupt data
+  // as it will remove any chars that have not been explicitly allowed
+  // optional bool sanitise = X [default = false];
+  
+  // Prefix specifies that this field must have the specified substring at
+  // the beginning of the string.
+  // @TODO: implement if we need this
+  // optional string prefix   = X;
+
+  // Suffix specifies that this field must have the specified substring at
+  // the end of the string.
+  // @TODO: implement if we need this
+  // optional string suffix   = X;
+
+  // Contains specifies that this field must have the specified substring
+  // anywhere in the string.
+  // @TODO: implement if we need this
+  // optional string contains = X;
+
+  // NotContains specifies that this field cannot have the specified substring
+  // anywhere in the string.
+  // @TODO: implement if we need this
+  // optional string not_contains = X;
+
+  // In specifies that this field must be equal to one of the specified values
+  // @TODO: implement if we need this
+  // repeated string in = X;
+
+  // NotIn specifies that this field cannot be equal to one of the specified values
+  // @TODO: implement if we need this
+  // repeated string not_in = X;
 }
 
 // EmailRules describe the constraints applied to `email` values
@@ -45,4 +173,32 @@ message EmailRules {
   // Set this as optional field (not required)
   // default = false
   optional bool optional = 1 [default = false];
+
+  // require a certain domain, like @safetyculture.com
+  // basically how suffix works for stringrules
+  //optional string domain = 2;
+
+  // check if the domain has MX records via IsExistingEmail
+  // this might not perform well or work reliable if egress DNS is blocked
+  // do not use at this point
+  // optional bool check_domain = 3 [default = false];
+}
+
+// IdRules describes the constraints applied to `Id` values such as UUIDv4 and legacy_id
+message IdRules {
+  // Set this as optional field (not required)
+  // default = false
+  optional bool optional = 1 [default = false];
+
+  // The UUID version that is expected, v4 by default but allows us to upgrade if we need to later
+  optional string version = 2 [default = "v4"];
+
+  // Also allow legacy_id format, similar to validator.legacy_id
+  // Normal UUID validation will be attempted first, if it fails it will fall back to IsLegacyID method
+  optional bool legacy = 3 [default = false];
+
+  // Prefix specifies that this field could also have the specified substring at
+  // the beginning of the string.
+  // @TODO: implement if we need this, e.g. for user_UUID, org_UUID or use a dedicated validation type for this
+  // optional string prefix = 4;
 }

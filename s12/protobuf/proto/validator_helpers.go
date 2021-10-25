@@ -29,14 +29,23 @@ func IsUUID(str string) bool {
 	return rxUUID.MatchString(str)
 }
 
+// IsUUID checks if the string is a UUIDv4
+func IsUUIDv4(str string) bool {
+	return govalidator.IsUUIDv4(str)
+}
+
 // A legacyId does not contain the document prefix; the prefix is accounted for in the service implementation code
 func IsLegacyID(str string) bool {
 	return rxLegacyId.MatchString(str)
 }
 
 // IsValidEmail checks if an email address is a valid RFC 5322 address
-func IsValidEmail(str string) bool {
-	return govalidator.IsEmail(str)
+func IsValidEmail(str string, checkDomain bool) bool {
+	valid := govalidator.IsEmail(str)
+	if valid && checkDomain {
+		return govalidator.IsExistingEmail(str)
+	}
+	return valid
 }
 
 type Validator interface {
