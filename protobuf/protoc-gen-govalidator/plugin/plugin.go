@@ -348,7 +348,6 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 				if _, isUnsafe := stringUnsafeReplacerMap[`\u`+unicodeValue]; isUnsafe {
 					// need to replace this one, replace case by case instead of using the replacer
 					replacedUnicodeValue := stringUnsafeReplacerMap[`\u`+unicodeValue]
-					// g.P(varName, " = ", stringsPackage.Ident("ReplaceAll"),  (", varName, ")")
 					g.P(varName, " = ", stringsPackage.Ident("ReplaceAll"), "(", varName, `, "\u`, unicodeValue, `", "`, replacedUnicodeValue, `")`)
 
 					// and add it to the regex
