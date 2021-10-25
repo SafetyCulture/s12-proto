@@ -100,7 +100,7 @@ func addRegexVar(fieldName, regexId string) string {
 	regexGeneratedFile.P("var ", "_regex_", name, " = ", regexpPackage.Ident("MustCompile"), "(_regex_val_", name, ")")
 
 	// Keep track of this regex to avoid duplicates
-	if _, ok := regexHashLib[name]; !ok {
+	if _, found := regexHashLib[name]; !found {
 		regexHashLib[name] = true
 	}
 	return name
