@@ -1,7 +1,6 @@
 package plugin
 
 import (
-	"errors"
 	"fmt"
 	"sort"
 	"strings"
@@ -207,7 +206,7 @@ func getPreparedRegex(regexId string) (string, error) {
 		// regexId not initialised via prepareRegex
 		// might indicate typo, return a pattern that will always fail validation
 		// should not continue in the validator though, so just in case errors are not handled
-		return "^\b$", errors.New(fmt.Sprintf("invalid regexId %s - initialise the regex with prepareRegex first", regexId))
+		return "^\b$", fmt.Errorf("invalid regexId %s - initialise the regex with prepareRegex first", regexId)
 	}
 	// Sort the tokens so that we can consistent results
 	tokens := make([]string, 0, len(regexLib[regexId]))
