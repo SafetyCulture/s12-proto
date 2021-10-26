@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/SafetyCulture/s12-proto/protobuf/s12proto"
+	"github.com/SafetyCulture/s12-proto/s12/protobuf/proto"
 )
 
 const (
@@ -315,7 +315,7 @@ func TestValidationRules(t *testing.T) {
 
 	type TestSet struct {
 		name        string
-		input       s12proto.Validator
+		input       proto.Validator
 		shouldError bool
 	}
 

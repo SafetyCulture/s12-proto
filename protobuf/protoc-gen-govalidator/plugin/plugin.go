@@ -339,12 +339,12 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 		// U+FFFD in character indicates that the encoding was likely incorrect, resulting in � U+FFFD (RuneError)
 		// Test string: $\xa35 for Pepp\xe9 which is encoded as latin1
 		g.P("if ", stringsPackage.Ident("ContainsRune"), "(", varName, ", ", utfPackage.Ident("RuneError"), ") {")
-		errStr := fmt.Sprintf(`must have valid encoding`)
+		errStr := `must have valid encoding`
 		genErrorString(g, varName, string(f.Desc.Name()), errStr)
 
 		// Also validate using utf8.ValidString: reports whether string consists entirely of valid UTF-8-encoded runes
 		g.P("} else if !", utfPackage.Ident("ValidString"), "(", varName, ") {")
-		errStr = fmt.Sprintf(`must be a valid UTF-8-encoded string`)
+		errStr = `must be a valid UTF-8-encoded string`
 		genErrorString(g, varName, string(f.Desc.Name()), errStr)
 		g.P("}")
 	} else {
@@ -542,7 +542,7 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 
 	// Add symbols if defined
 	symbols := rules.GetSymbols()
-	if symbols != nil && len(symbols) > 0 {
+	if len(symbols) > 0 {
 		// Add the corresponding regex pattern to the allow list
 		for i := range symbols {
 			symbol := symbols[i]
