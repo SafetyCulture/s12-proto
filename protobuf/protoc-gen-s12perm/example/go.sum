@@ -9,11 +9,11 @@ github.com/Masterminds/vcs v1.13.0/go.mod h1:N09YCmOQr6RLxC6UNHzuVwAdodYbbnycGHS
 github.com/SafetyCulture/insightsmetrics v2.0.0+incompatible/go.mod h1:QNzdB7USod3gt9XLI4bK0yna34HDeumI32Nzd6Bwppw=
 github.com/SafetyCulture/s12-proto v1.12.5/go.mod h1:GeOSZpNzE648JPZzbmMrcEBToUqhHZznPlNV8CZVPMo=
 github.com/SafetyCulture/s12-proto v1.13.1/go.mod h1:rEktP38Ka9oeoC/bY1aydo2k+vtDcB/1w4fGc+vT9FQ=
-github.com/SafetyCulture/s12-proto v1.14.0 h1:Osfsv3QwXGIVXUTeM9DWvHE3UueQmtb6jW4Jtm1WYvI=
-github.com/SafetyCulture/s12-proto v1.14.0/go.mod h1:rEktP38Ka9oeoC/bY1aydo2k+vtDcB/1w4fGc+vT9FQ=
+github.com/SafetyCulture/s12-proto v1.15.0 h1:4FmZEWlTvhvKNEvptuSOrCB7GbCy9toNapEP0/TLUMw=
+github.com/SafetyCulture/s12-proto v1.15.0/go.mod h1:WJEAdR3TwYvZG48wUgMUwh7lmKZtMGJrR0IWhvTATXE=
 github.com/SafetyCulture/s12-utils-go v1.22.7/go.mod h1:1ObCXUgFj2OwEHlsIH0+xVvEoJIGaa9SjN7EyT5K8ug=
-github.com/SafetyCulture/s12-utils-go v1.23.5 h1:FXfiQuWNWMssq0l/+Og1tmDHcdoST6ZBAIZbJqucU+g=
-github.com/SafetyCulture/s12-utils-go v1.23.5/go.mod h1:v/Ys2sc1iZ1JqqTfg8qe5cuEEcbKwaGAXPk7aa/yJVo=
+github.com/SafetyCulture/s12-utils-go v1.23.8 h1:AjvZWhKVG/5eUGwrhkxYXHTyNG8CL2ypIt2x2glEQ0g=
+github.com/SafetyCulture/s12-utils-go v1.23.8/go.mod h1:v/Ys2sc1iZ1JqqTfg8qe5cuEEcbKwaGAXPk7aa/yJVo=
 github.com/SafetyCulture/soter-jwt-go/v3 v3.5.2 h1:dZ5p6CZcJz7SKM0tz4ZVksnoY1xuj4r9gP70jU/mEXM=
 github.com/SafetyCulture/soter-jwt-go/v3 v3.5.2/go.mod h1:QDTeE3uS/1kDU61tOh87NWFfLS2LMOlY0qycG3Y8X9M=
 github.com/SermoDigital/jose v0.9.2-0.20161205224733-f6df55f235c2 h1:koK7z0nSsRiRiBWwa+E714Puh+DO+ZRdIyAXiXzL+lg=
@@ -167,8 +167,9 @@ golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1/go.mod h1:bj7SfCRtBDWHUb9sn
 golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
 golang.org/x/text v0.3.2/go.mod h1:bEr9sfX3Q8Zfm5fL9x+3itogRgK3+ptLWKqgva+5dAk=
 golang.org/x/text v0.3.3/go.mod h1:5Zoc/QRtKVWzQhOtBMvqHzDpF6irO9z98xDceosuGiQ=
-golang.org/x/text v0.3.6 h1:aRYxNxv6iGQlyVaZmk6ZgYEDa+Jg18DxebPSrd6bg1M=
 golang.org/x/text v0.3.6/go.mod h1:5Zoc/QRtKVWzQhOtBMvqHzDpF6irO9z98xDceosuGiQ=
+golang.org/x/text v0.3.7 h1:olpwvP2KacW1ZWvsR7uQhoyTYvKAupfQrRGBFM352Gk=
+golang.org/x/text v0.3.7/go.mod h1:u+2+/6zg+i71rQMx5EYifcz6MCKuco9NR6JIITiCfzQ=
 golang.org/x/tools v0.0.0-20180917221912-90fa682c2a6e/go.mod h1:n7NCudcB/nEzxVGmLbDWY5pfWTLqBcC2KZ6jyYvM4mQ=
 golang.org/x/tools v0.0.0-20181030221726-6c7e314b6563/go.mod h1:n7NCudcB/nEzxVGmLbDWY5pfWTLqBcC2KZ6jyYvM4mQ=
 golang.org/x/tools v0.0.0-20190114222345-bf090417da8b/go.mod h1:n7NCudcB/nEzxVGmLbDWY5pfWTLqBcC2KZ6jyYvM4mQ=
@@ -222,6 +223,6 @@ honnef.co/go/tools v0.0.0-20190102054323-c2f93a96b099/go.mod h1:rf3lG4BRIbNafJWh
 honnef.co/go/tools v0.0.0-20190523083050-ea95bdfd59fc/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
 howett.net/plist v0.0.0-20181124034731-591f970eefbb/go.mod h1:vMygbs4qMhSZSc4lCUl2OEE+rDiIIJAIdR4m7MiMcm0=
 sc-go.io/pkg/jwtclaims v1.1.2/go.mod h1:6TWGecjHeSepxZWMdhKc16V0IFYXutQ5CRY9n14pGFY=
-sc-go.io/pkg/jwtclaims v1.1.5 h1:Sw/iZMIvPsSvZ5CcSzem85ISzEmoucqC1okQgAlGuNE=
-sc-go.io/pkg/jwtclaims v1.1.5/go.mod h1:xZ3RE6T6kpVFW9BKDCsyHBd0t+jfiHYUZkeVzWVv/gI=
+sc-go.io/pkg/jwtclaims v1.1.6 h1:U562RFPhisqpCGgaHVo0TbtTdeiCSx1Bit/EjuzzrVk=
+sc-go.io/pkg/jwtclaims v1.1.6/go.mod h1:tryvOgKPI6KT8JNevgkbuLiznqQ5vmQTALybMXNA+6I=
 sc-go.io/pkg/trace v1.0.1/go.mod h1:PuLIdNtqQWUcR8Q2oGxddTRq6wBvuOUo+pCc4bN8kLk=
