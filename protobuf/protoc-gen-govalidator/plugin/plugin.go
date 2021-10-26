@@ -36,7 +36,7 @@ const (
 
 // Some global vars for regex generations
 var regexGeneratedFile *protogen.GeneratedFile
-var regexHashLib = make(map[string]bool)
+var regexHashLib = make(map[string]struct{})
 
 // Validator plugin version
 var validatorVersion = "v2.0.0"
@@ -119,7 +119,7 @@ func addRegexVar(fieldName, regexId string) string {
 	name := hex.EncodeToString(hash.Sum(nil))
 
 	// Check if this is a duplicate regex pattern in which case we can reuse the regex
-	if _, ok := regexHashLib[name]; ok {
+	if _, found := regexHashLib[name]; found {
 		regexGeneratedFile.P("// " + fieldName + " is using regex " + name)
 		return name
 	}
@@ -130,7 +130,7 @@ func addRegexVar(fieldName, regexId string) string {
 
 	// Keep track of this regex to avoid duplicates
 	if _, found := regexHashLib[name]; !found {
-		regexHashLib[name] = true
+		regexHashLib[name] = struct{}{}
 	}
 	return name
 }
