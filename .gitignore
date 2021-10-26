@@ -5,4 +5,3 @@
 /protoc-gen-cruxclient
 *.o
 .DS_Store
-protobuf/protoc-gen-govalidator/valtest/test-data/

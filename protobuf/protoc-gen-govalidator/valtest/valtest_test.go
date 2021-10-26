@@ -67,12 +67,12 @@ var validReplaceUnsafeStrings = []string{
 }
 
 var testTitles = []string{
-	// "file:///test-data/NOCOMMIT_valid_strings.txt",
+	// "file:///testdata/NOCOMMIT_valid_strings.txt",
 }
 
 var testPermissive = []string{
-	// "file:///test-data/NOCOMMIT_emoticon_strings.txt",
-	// "file:///test-data/NOCOMMIT_actions-issues-PUA.txt",
+	// "file:///testdata/NOCOMMIT_emoticon_strings.txt",
+	// "file:///testdata/NOCOMMIT_actions-issues-PUA.txt",
 }
 
 var invalidSafeStrings = []string{
