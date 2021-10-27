@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/SafetyCulture/s12-proto/protobuf/s12proto"
+	"github.com/SafetyCulture/s12-proto/s12/protobuf/proto"
 )
 
 const (
@@ -67,12 +67,12 @@ var validReplaceUnsafeStrings = []string{
 }
 
 var testTitles = []string{
-	// "file:///test-data/NOCOMMIT_valid_strings.txt",
+	// "file:///testdata/NOCOMMIT_valid_strings.txt",
 }
 
 var testPermissive = []string{
-	// "file:///test-data/NOCOMMIT_emoticon_strings.txt",
-	// "file:///test-data/NOCOMMIT_actions-issues-PUA.txt",
+	// "file:///testdata/NOCOMMIT_emoticon_strings.txt",
+	// "file:///testdata/NOCOMMIT_actions-issues-PUA.txt",
 }
 
 var invalidSafeStrings = []string{
@@ -315,7 +315,7 @@ func TestValidationRules(t *testing.T) {
 
 	type TestSet struct {
 		name        string
-		input       s12proto.Validator
+		input       proto.Validator
 		shouldError bool
 	}
 
@@ -509,6 +509,31 @@ func TestValidationRules(t *testing.T) {
 			"ValidTrimStringCustomTest",
 			getValMsg(ValTestMessage{TrimString: " \t 1 2 3 \n\t"}), // expected result is 1 2 3
 			valid,
+		}, {
+			// Custom test for deeply nested messages; these should still be validated, expecting an error at level 3
+			"CustomNestedMessage",
+			&MyReqMessage{
+				UserId: "12",
+				OrgNested: &NestedLevel1Message{
+					OrgId3: "123",
+					OrgNested: &NestedLevel2Message{
+						OrgId4: "1234",
+						OrgNested: &NestedLevel3Message{
+							OrgId5: "123456", // length should be 5, 6 given
+						},
+					},
+				},
+			},
+			invalid,
+		}, {
+			"ScimUser",
+			&ScimUser{
+				Emails: []*ScimEmail{
+					{Value: "valid@example.com"},
+					{Value: "invalid_email"},
+				},
+			},
+			invalid,
 		},
 	}
 

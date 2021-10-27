@@ -134,3 +134,27 @@ message InnerMessage {
 message InnerMessageWithLegacyId {
   string id = 1 [(validator.id) = { legacy: true }];
 }
+
+message NestedLevel3Message {
+  string org_id5 = 1 [(validator.string) = { len: "5"}]; 
+}
+message NestedLevel2Message {
+  string org_id4 = 1 [(validator.string) = { len: "4"}]; 
+  NestedLevel3Message org_nested = 2;
+}
+message NestedLevel1Message {
+  string org_id3 = 1 [(validator.string) = { len: "3"}]; 
+  NestedLevel2Message org_nested = 2;
+}
+message MyReqMessage {
+  string user_id = 1 [(validator.string) = { len: "2"}]; 
+  NestedLevel1Message org_nested = 2;
+}
+
+message ScimEmail {
+  string value = 3 [ (validator.email) = {} ];
+}
+
+message ScimUser {
+  repeated ScimEmail emails = 5;
+}
