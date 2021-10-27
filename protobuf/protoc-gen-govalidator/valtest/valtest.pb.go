@@ -529,6 +529,313 @@ func (x *InnerMessageWithLegacyId) GetId() string {
 	return ""
 }
 
+type NestedLevel3Message struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	OrgId5 string `protobuf:"bytes,1,opt,name=org_id5,json=orgId5,proto3" json:"org_id5,omitempty"`
+}
+
+func (x *NestedLevel3Message) Reset() {
+	*x = NestedLevel3Message{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_valtest_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *NestedLevel3Message) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NestedLevel3Message) ProtoMessage() {}
+
+func (x *NestedLevel3Message) ProtoReflect() protoreflect.Message {
+	mi := &file_valtest_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NestedLevel3Message.ProtoReflect.Descriptor instead.
+func (*NestedLevel3Message) Descriptor() ([]byte, []int) {
+	return file_valtest_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *NestedLevel3Message) GetOrgId5() string {
+	if x != nil {
+		return x.OrgId5
+	}
+	return ""
+}
+
+type NestedLevel2Message struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	OrgId4    string               `protobuf:"bytes,1,opt,name=org_id4,json=orgId4,proto3" json:"org_id4,omitempty"`
+	OrgNested *NestedLevel3Message `protobuf:"bytes,2,opt,name=org_nested,json=orgNested,proto3" json:"org_nested,omitempty"`
+}
+
+func (x *NestedLevel2Message) Reset() {
+	*x = NestedLevel2Message{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_valtest_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *NestedLevel2Message) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NestedLevel2Message) ProtoMessage() {}
+
+func (x *NestedLevel2Message) ProtoReflect() protoreflect.Message {
+	mi := &file_valtest_proto_msgTypes[5]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NestedLevel2Message.ProtoReflect.Descriptor instead.
+func (*NestedLevel2Message) Descriptor() ([]byte, []int) {
+	return file_valtest_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *NestedLevel2Message) GetOrgId4() string {
+	if x != nil {
+		return x.OrgId4
+	}
+	return ""
+}
+
+func (x *NestedLevel2Message) GetOrgNested() *NestedLevel3Message {
+	if x != nil {
+		return x.OrgNested
+	}
+	return nil
+}
+
+type NestedLevel1Message struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	OrgId3    string               `protobuf:"bytes,1,opt,name=org_id3,json=orgId3,proto3" json:"org_id3,omitempty"`
+	OrgNested *NestedLevel2Message `protobuf:"bytes,2,opt,name=org_nested,json=orgNested,proto3" json:"org_nested,omitempty"`
+}
+
+func (x *NestedLevel1Message) Reset() {
+	*x = NestedLevel1Message{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_valtest_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *NestedLevel1Message) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NestedLevel1Message) ProtoMessage() {}
+
+func (x *NestedLevel1Message) ProtoReflect() protoreflect.Message {
+	mi := &file_valtest_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NestedLevel1Message.ProtoReflect.Descriptor instead.
+func (*NestedLevel1Message) Descriptor() ([]byte, []int) {
+	return file_valtest_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *NestedLevel1Message) GetOrgId3() string {
+	if x != nil {
+		return x.OrgId3
+	}
+	return ""
+}
+
+func (x *NestedLevel1Message) GetOrgNested() *NestedLevel2Message {
+	if x != nil {
+		return x.OrgNested
+	}
+	return nil
+}
+
+type MyReqMessage struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	UserId    string               `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	OrgNested *NestedLevel1Message `protobuf:"bytes,2,opt,name=org_nested,json=orgNested,proto3" json:"org_nested,omitempty"`
+}
+
+func (x *MyReqMessage) Reset() {
+	*x = MyReqMessage{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_valtest_proto_msgTypes[7]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MyReqMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MyReqMessage) ProtoMessage() {}
+
+func (x *MyReqMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_valtest_proto_msgTypes[7]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MyReqMessage.ProtoReflect.Descriptor instead.
+func (*MyReqMessage) Descriptor() ([]byte, []int) {
+	return file_valtest_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *MyReqMessage) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *MyReqMessage) GetOrgNested() *NestedLevel1Message {
+	if x != nil {
+		return x.OrgNested
+	}
+	return nil
+}
+
+type ScimEmail struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Value string `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"` // string value = 3 [(validator.string) = { len: "2"}];
+}
+
+func (x *ScimEmail) Reset() {
+	*x = ScimEmail{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_valtest_proto_msgTypes[8]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ScimEmail) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ScimEmail) ProtoMessage() {}
+
+func (x *ScimEmail) ProtoReflect() protoreflect.Message {
+	mi := &file_valtest_proto_msgTypes[8]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ScimEmail.ProtoReflect.Descriptor instead.
+func (*ScimEmail) Descriptor() ([]byte, []int) {
+	return file_valtest_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *ScimEmail) GetValue() string {
+	if x != nil {
+		return x.Value
+	}
+	return ""
+}
+
+type ScimUser struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	//repeated string emails = 5;
+	Emails []*ScimEmail `protobuf:"bytes,5,rep,name=emails,proto3" json:"emails,omitempty"` // [ json_name = "emails" ];
+}
+
+func (x *ScimUser) Reset() {
+	*x = ScimUser{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_valtest_proto_msgTypes[9]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ScimUser) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ScimUser) ProtoMessage() {}
+
+func (x *ScimUser) ProtoReflect() protoreflect.Message {
+	mi := &file_valtest_proto_msgTypes[9]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ScimUser.ProtoReflect.Descriptor instead.
+func (*ScimUser) Descriptor() ([]byte, []int) {
+	return file_valtest_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ScimUser) GetEmails() []*ScimEmail {
+	if x != nil {
+		return x.Emails
+	}
+	return nil
+}
+
 type ValTestMessage_NestedMessage struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -542,7 +849,7 @@ type ValTestMessage_NestedMessage struct {
 func (x *ValTestMessage_NestedMessage) Reset() {
 	*x = ValTestMessage_NestedMessage{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_valtest_proto_msgTypes[4]
+		mi := &file_valtest_proto_msgTypes[10]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -555,7 +862,7 @@ func (x *ValTestMessage_NestedMessage) String() string {
 func (*ValTestMessage_NestedMessage) ProtoMessage() {}
 
 func (x *ValTestMessage_NestedMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_valtest_proto_msgTypes[4]
+	mi := &file_valtest_proto_msgTypes[10]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -603,7 +910,7 @@ type ValTestMessage_NestedMessage_InnerNestedMessage struct {
 func (x *ValTestMessage_NestedMessage_InnerNestedMessage) Reset() {
 	*x = ValTestMessage_NestedMessage_InnerNestedMessage{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_valtest_proto_msgTypes[6]
+		mi := &file_valtest_proto_msgTypes[12]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -616,7 +923,7 @@ func (x *ValTestMessage_NestedMessage_InnerNestedMessage) String() string {
 func (*ValTestMessage_NestedMessage_InnerNestedMessage) ProtoMessage() {}
 
 func (x *ValTestMessage_NestedMessage_InnerNestedMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_valtest_proto_msgTypes[6]
+	mi := &file_valtest_proto_msgTypes[12]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -777,12 +1084,43 @@ var file_valtest_proto_rawDesc = []byte{
 	0x64, 0x22, 0x32, 0x0a, 0x18, 0x49, 0x6e, 0x6e, 0x65, 0x72, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67,
 	0x65, 0x57, 0x69, 0x74, 0x68, 0x4c, 0x65, 0x67, 0x61, 0x63, 0x79, 0x49, 0x64, 0x12, 0x16, 0x0a,
 	0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x06, 0x8a, 0xec, 0x1f, 0x02, 0x18,
-	0x01, 0x52, 0x02, 0x69, 0x64, 0x42, 0x4c, 0x5a, 0x4a, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e,
-	0x63, 0x6f, 0x6d, 0x2f, 0x53, 0x61, 0x66, 0x65, 0x74, 0x79, 0x43, 0x75, 0x6c, 0x74, 0x75, 0x72,
-	0x65, 0x2f, 0x73, 0x31, 0x32, 0x2d, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x70, 0x72, 0x6f, 0x74,
-	0x6f, 0x62, 0x75, 0x66, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x2d, 0x67, 0x65, 0x6e, 0x2d,
-	0x67, 0x6f, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2f, 0x76, 0x61, 0x6c, 0x74,
-	0x65, 0x73, 0x74, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x01, 0x52, 0x02, 0x69, 0x64, 0x22, 0x37, 0x0a, 0x13, 0x4e, 0x65, 0x73, 0x74, 0x65, 0x64, 0x4c,
+	0x65, 0x76, 0x65, 0x6c, 0x33, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x12, 0x20, 0x0a, 0x07,
+	0x6f, 0x72, 0x67, 0x5f, 0x69, 0x64, 0x35, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x07, 0xfa,
+	0xeb, 0x1f, 0x03, 0x1a, 0x01, 0x35, 0x52, 0x06, 0x6f, 0x72, 0x67, 0x49, 0x64, 0x35, 0x22, 0x74,
+	0x0a, 0x13, 0x4e, 0x65, 0x73, 0x74, 0x65, 0x64, 0x4c, 0x65, 0x76, 0x65, 0x6c, 0x32, 0x4d, 0x65,
+	0x73, 0x73, 0x61, 0x67, 0x65, 0x12, 0x20, 0x0a, 0x07, 0x6f, 0x72, 0x67, 0x5f, 0x69, 0x64, 0x34,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x07, 0xfa, 0xeb, 0x1f, 0x03, 0x1a, 0x01, 0x34, 0x52,
+	0x06, 0x6f, 0x72, 0x67, 0x49, 0x64, 0x34, 0x12, 0x3b, 0x0a, 0x0a, 0x6f, 0x72, 0x67, 0x5f, 0x6e,
+	0x65, 0x73, 0x74, 0x65, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1c, 0x2e, 0x76, 0x61,
+	0x6c, 0x74, 0x65, 0x73, 0x74, 0x2e, 0x4e, 0x65, 0x73, 0x74, 0x65, 0x64, 0x4c, 0x65, 0x76, 0x65,
+	0x6c, 0x33, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x52, 0x09, 0x6f, 0x72, 0x67, 0x4e, 0x65,
+	0x73, 0x74, 0x65, 0x64, 0x22, 0x74, 0x0a, 0x13, 0x4e, 0x65, 0x73, 0x74, 0x65, 0x64, 0x4c, 0x65,
+	0x76, 0x65, 0x6c, 0x31, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x12, 0x20, 0x0a, 0x07, 0x6f,
+	0x72, 0x67, 0x5f, 0x69, 0x64, 0x33, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x07, 0xfa, 0xeb,
+	0x1f, 0x03, 0x1a, 0x01, 0x33, 0x52, 0x06, 0x6f, 0x72, 0x67, 0x49, 0x64, 0x33, 0x12, 0x3b, 0x0a,
+	0x0a, 0x6f, 0x72, 0x67, 0x5f, 0x6e, 0x65, 0x73, 0x74, 0x65, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x0b, 0x32, 0x1c, 0x2e, 0x76, 0x61, 0x6c, 0x74, 0x65, 0x73, 0x74, 0x2e, 0x4e, 0x65, 0x73, 0x74,
+	0x65, 0x64, 0x4c, 0x65, 0x76, 0x65, 0x6c, 0x32, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x52,
+	0x09, 0x6f, 0x72, 0x67, 0x4e, 0x65, 0x73, 0x74, 0x65, 0x64, 0x22, 0x6d, 0x0a, 0x0c, 0x4d, 0x79,
+	0x52, 0x65, 0x71, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x12, 0x20, 0x0a, 0x07, 0x75, 0x73,
+	0x65, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x07, 0xfa, 0xeb, 0x1f,
+	0x03, 0x1a, 0x01, 0x32, 0x52, 0x06, 0x75, 0x73, 0x65, 0x72, 0x49, 0x64, 0x12, 0x3b, 0x0a, 0x0a,
+	0x6f, 0x72, 0x67, 0x5f, 0x6e, 0x65, 0x73, 0x74, 0x65, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b,
+	0x32, 0x1c, 0x2e, 0x76, 0x61, 0x6c, 0x74, 0x65, 0x73, 0x74, 0x2e, 0x4e, 0x65, 0x73, 0x74, 0x65,
+	0x64, 0x4c, 0x65, 0x76, 0x65, 0x6c, 0x31, 0x4d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x52, 0x09,
+	0x6f, 0x72, 0x67, 0x4e, 0x65, 0x73, 0x74, 0x65, 0x64, 0x22, 0x27, 0x0a, 0x09, 0x53, 0x63, 0x69,
+	0x6d, 0x45, 0x6d, 0x61, 0x69, 0x6c, 0x12, 0x1a, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18,
+	0x03, 0x20, 0x01, 0x28, 0x09, 0x42, 0x04, 0xf2, 0xeb, 0x1f, 0x00, 0x52, 0x05, 0x76, 0x61, 0x6c,
+	0x75, 0x65, 0x22, 0x36, 0x0a, 0x08, 0x53, 0x63, 0x69, 0x6d, 0x55, 0x73, 0x65, 0x72, 0x12, 0x2a,
+	0x0a, 0x06, 0x65, 0x6d, 0x61, 0x69, 0x6c, 0x73, 0x18, 0x05, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x12,
+	0x2e, 0x76, 0x61, 0x6c, 0x74, 0x65, 0x73, 0x74, 0x2e, 0x53, 0x63, 0x69, 0x6d, 0x45, 0x6d, 0x61,
+	0x69, 0x6c, 0x52, 0x06, 0x65, 0x6d, 0x61, 0x69, 0x6c, 0x73, 0x42, 0x4c, 0x5a, 0x4a, 0x67, 0x69,
+	0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x53, 0x61, 0x66, 0x65, 0x74, 0x79, 0x43,
+	0x75, 0x6c, 0x74, 0x75, 0x72, 0x65, 0x2f, 0x73, 0x31, 0x32, 0x2d, 0x70, 0x72, 0x6f, 0x74, 0x6f,
+	0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63,
+	0x2d, 0x67, 0x65, 0x6e, 0x2d, 0x67, 0x6f, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72,
+	0x2f, 0x76, 0x61, 0x6c, 0x74, 0x65, 0x73, 0x74, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -797,27 +1135,37 @@ func file_valtest_proto_rawDescGZIP() []byte {
 	return file_valtest_proto_rawDescData
 }
 
-var file_valtest_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_valtest_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_valtest_proto_goTypes = []interface{}{
 	(*ValTestMessage)(nil),                 // 0: valtest.ValTestMessage
 	(*OuterMessageUsingNestedMessage)(nil), // 1: valtest.OuterMessageUsingNestedMessage
 	(*InnerMessage)(nil),                   // 2: valtest.InnerMessage
 	(*InnerMessageWithLegacyId)(nil),       // 3: valtest.InnerMessageWithLegacyId
-	(*ValTestMessage_NestedMessage)(nil),   // 4: valtest.ValTestMessage.NestedMessage
-	nil,                                    // 5: valtest.ValTestMessage.NotSupportedEntry
-	(*ValTestMessage_NestedMessage_InnerNestedMessage)(nil), // 6: valtest.ValTestMessage.NestedMessage.InnerNestedMessage
+	(*NestedLevel3Message)(nil),            // 4: valtest.NestedLevel3Message
+	(*NestedLevel2Message)(nil),            // 5: valtest.NestedLevel2Message
+	(*NestedLevel1Message)(nil),            // 6: valtest.NestedLevel1Message
+	(*MyReqMessage)(nil),                   // 7: valtest.MyReqMessage
+	(*ScimEmail)(nil),                      // 8: valtest.ScimEmail
+	(*ScimUser)(nil),                       // 9: valtest.ScimUser
+	(*ValTestMessage_NestedMessage)(nil),   // 10: valtest.ValTestMessage.NestedMessage
+	nil,                                    // 11: valtest.ValTestMessage.NotSupportedEntry
+	(*ValTestMessage_NestedMessage_InnerNestedMessage)(nil), // 12: valtest.ValTestMessage.NestedMessage.InnerNestedMessage
 }
 var file_valtest_proto_depIdxs = []int32{
-	3, // 0: valtest.ValTestMessage.inner_legacy_id:type_name -> valtest.InnerMessageWithLegacyId
-	2, // 1: valtest.ValTestMessage.msg_required:type_name -> valtest.InnerMessage
-	4, // 2: valtest.ValTestMessage.nested_message:type_name -> valtest.ValTestMessage.NestedMessage
-	5, // 3: valtest.ValTestMessage.not_supported:type_name -> valtest.ValTestMessage.NotSupportedEntry
-	4, // 4: valtest.OuterMessageUsingNestedMessage.some_message:type_name -> valtest.ValTestMessage.NestedMessage
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	3,  // 0: valtest.ValTestMessage.inner_legacy_id:type_name -> valtest.InnerMessageWithLegacyId
+	2,  // 1: valtest.ValTestMessage.msg_required:type_name -> valtest.InnerMessage
+	10, // 2: valtest.ValTestMessage.nested_message:type_name -> valtest.ValTestMessage.NestedMessage
+	11, // 3: valtest.ValTestMessage.not_supported:type_name -> valtest.ValTestMessage.NotSupportedEntry
+	10, // 4: valtest.OuterMessageUsingNestedMessage.some_message:type_name -> valtest.ValTestMessage.NestedMessage
+	4,  // 5: valtest.NestedLevel2Message.org_nested:type_name -> valtest.NestedLevel3Message
+	5,  // 6: valtest.NestedLevel1Message.org_nested:type_name -> valtest.NestedLevel2Message
+	6,  // 7: valtest.MyReqMessage.org_nested:type_name -> valtest.NestedLevel1Message
+	8,  // 8: valtest.ScimUser.emails:type_name -> valtest.ScimEmail
+	9,  // [9:9] is the sub-list for method output_type
+	9,  // [9:9] is the sub-list for method input_type
+	9,  // [9:9] is the sub-list for extension type_name
+	9,  // [9:9] is the sub-list for extension extendee
+	0,  // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_valtest_proto_init() }
@@ -875,7 +1223,19 @@ func file_valtest_proto_init() {
 			}
 		}
 		file_valtest_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ValTestMessage_NestedMessage); i {
+			switch v := v.(*NestedLevel3Message); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_valtest_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*NestedLevel2Message); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -887,6 +1247,66 @@ func file_valtest_proto_init() {
 			}
 		}
 		file_valtest_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*NestedLevel1Message); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_valtest_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*MyReqMessage); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_valtest_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ScimEmail); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_valtest_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ScimUser); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_valtest_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ValTestMessage_NestedMessage); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_valtest_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ValTestMessage_NestedMessage_InnerNestedMessage); i {
 			case 0:
 				return &v.state
@@ -909,7 +1329,7 @@ func file_valtest_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_valtest_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

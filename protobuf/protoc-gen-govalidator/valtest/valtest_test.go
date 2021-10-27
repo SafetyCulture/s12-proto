@@ -509,6 +509,31 @@ func TestValidationRules(t *testing.T) {
 			"ValidTrimStringCustomTest",
 			getValMsg(ValTestMessage{TrimString: " \t 1 2 3 \n\t"}), // expected result is 1 2 3
 			valid,
+		}, {
+			// Custom test for deeply nested messages; these should still be validated, expecting an error at level 3
+			"CustomNestedMessage",
+			&MyReqMessage{
+				UserId: "12",
+				OrgNested: &NestedLevel1Message{
+					OrgId3: "123",
+					OrgNested: &NestedLevel2Message{
+						OrgId4: "1234",
+						OrgNested: &NestedLevel3Message{
+							OrgId5: "123456", // length should be 5, 6 given
+						},
+					},
+				},
+			},
+			invalid,
+		}, {
+			"ScimUser",
+			&ScimUser{
+				Emails: []*ScimEmail{
+					{Value: "valid@example.com"},
+					{Value: "invalid_email"},
+				},
+			},
+			invalid,
 		},
 	}
 

@@ -15,9 +15,9 @@ import (
 	utf8 "unicode/utf8"
 )
 
-var _unsafe_char_replacer = strings.NewReplacer("\u0025", "\u2052", "\u0026", "\u0020", "\u002D", "\u2212", "\u0021", "\uFF01", "\u0023", "\u0020", "\u003D", "\u2E40", "\u007C", "\uFFE8", "\u002F", "\u2215", "\u003B", "\u037E", "\u003C", "\u02C2", "\u0060", "\u2019", "\u0022", "\u201D", "\u002A", "\u2217", "\u003E", "\u02C3", "\u005C", "\uFF3C", "\u0027", "\u2019", "\u002B", "\u2795")
-var _symbol_char_replacer = strings.NewReplacer("\u2004", "\u0020", "\u00A0", "\u0020", "\u3000", "\u0020", "\u2018", "\u2019", "\uFF0C", "\u002C", "\uFF1A", "\u003A", "\u202F", "\u0020", "\u3002", "\u002E", "\u2003", "\u0020", "\u2008", "\u0020", "\u2009", "\u0020", "\u200C", "", "\u1680", "\u0020", "\u2002", "\u0020", "\u200A", "\u0020", "\u2001", "\u0020", "\u2005", "\u0020", "\u200D", "", "\uFEFF", "", "\u000A", "\u0020", "\u2006", "\u0020", "\u205F", "\u0020", "\u000D", "\u0020", "\u2000", "\u0020", "\u2007", "\u0020", "\u2014", "\u2013", "\u0009", "\u0020")
-var _symbol_char_replacer_multiline = strings.NewReplacer("\u2004", "\u0020", "\u00A0", "\u0020", "\u3000", "\u0020", "\u2018", "\u2019", "\uFF0C", "\u002C", "\uFF1A", "\u003A", "\u202F", "\u0020", "\u3002", "\u002E", "\u2003", "\u0020", "\u2008", "\u0020", "\u2009", "\u0020", "\u200C", "", "\u1680", "\u0020", "\u2002", "\u0020", "\u200A", "\u0020", "\u2001", "\u0020", "\u2005", "\u0020", "\u200D", "", "\uFEFF", "", "\uE000", "\u0020", "\u2006", "\u0020", "\u205F", "\u0020", "\u000D", "\u0020", "\u2000", "\u0020", "\u2007", "\u0020", "\u2014", "\u2013", "\u0009", "\u0020")
+var _unsafe_char_replacer = strings.NewReplacer("\u0023", "\u0020", "\u0025", "\u2052", "\u0027", "\u2019", "\u0060", "\u2019", "\u002B", "\u2795", "\u002D", "\u2212", "\u003C", "\u02C2", "\u0022", "\u201D", "\u0026", "\u0020", "\u002A", "\u2217", "\u003E", "\u02C3", "\u0021", "\uFF01", "\u002F", "\u2215", "\u003B", "\u037E", "\u003D", "\u2E40", "\u005C", "\uFF3C", "\u007C", "\uFFE8")
+var _symbol_char_replacer = strings.NewReplacer("\u205F", "\u0020", "\u3002", "\u002E", "\u3000", "\u0020", "\u200C", "", "\u000A", "\u0020", "\u2002", "\u0020", "\u2006", "\u0020", "\u2008", "\u0020", "\u2018", "\u2019", "\u2003", "\u0020", "\u200A", "\u0020", "\u0009", "\u0020", "\u000D", "\u0020", "\u00A0", "\u0020", "\u2000", "\u0020", "\u2004", "\u0020", "\u2009", "\u0020", "\uFF1A", "\u003A", "\u2005", "\u0020", "\u200D", "", "\u2014", "\u2013", "\u1680", "\u0020", "\u2001", "\u0020", "\u2007", "\u0020", "\u202F", "\u0020", "\uFEFF", "", "\uFF0C", "\u002C")
+var _symbol_char_replacer_multiline = strings.NewReplacer("\u205F", "\u0020", "\u3002", "\u002E", "\u3000", "\u0020", "\u200C", "", "\uE000", "\u0020", "\u2002", "\u0020", "\u2006", "\u0020", "\u2008", "\u0020", "\u2018", "\u2019", "\u2003", "\u0020", "\u200A", "\u0020", "\u0009", "\u0020", "\u000D", "\u0020", "\u00A0", "\u0020", "\u2000", "\u0020", "\u2004", "\u0020", "\u2009", "\u0020", "\uFF1A", "\u003A", "\u2005", "\u0020", "\u200D", "", "\u2014", "\u2013", "\u1680", "\u0020", "\u2001", "\u0020", "\u2007", "\u0020", "\u202F", "\u0020", "\uFEFF", "", "\uFF0C", "\u002C")
 
 func (m *ValTestMessage) Validate() error {
 	if !proto.IsUUIDv4(m.Id) {
@@ -597,6 +597,145 @@ func (m *InnerMessageWithLegacyId) Validate() error {
 	if !proto.IsUUIDv4(m.Id) {
 		if !proto.IsLegacyID(m.Id) {
 			return fmt.Errorf(`id: value must be parsable as s12 UUID or legacy ID`)
+		}
+	}
+	return nil
+}
+
+func (m *NestedLevel3Message) Validate() error {
+	if !norm.NFC.IsNormalString(m.OrgId5) && norm.NFD.IsNormalString(m.OrgId5) {
+		// normalise NFD to NFC string
+		var normErr error
+		m.OrgId5, _, normErr = transform.String(transform.Chain(norm.NFD, norm.NFC), m.OrgId5)
+		if normErr != nil {
+			return fmt.Errorf(`org_id5: value must must be normalisable to NFC`)
+		}
+	}
+	if strings.ContainsRune(m.OrgId5, utf8.RuneError) {
+		return fmt.Errorf(`org_id5: value must must have valid encoding`)
+	} else if !utf8.ValidString(m.OrgId5) {
+		return fmt.Errorf(`org_id5: value must must be a valid UTF-8-encoded string`)
+	}
+	var _len_NestedLevel3Message_OrgId5 = len(m.OrgId5)
+	if !(_len_NestedLevel3Message_OrgId5 == 5) {
+		return fmt.Errorf(`org_id5: value must have length 5`)
+	}
+	if !_regex_d4db71516b8749dc594e5bf604c6a110.MatchString(m.OrgId5) {
+		return fmt.Errorf(`org_id5: value must only have valid characters`)
+	}
+	return nil
+}
+
+func (m *NestedLevel2Message) Validate() error {
+	if !norm.NFC.IsNormalString(m.OrgId4) && norm.NFD.IsNormalString(m.OrgId4) {
+		// normalise NFD to NFC string
+		var normErr error
+		m.OrgId4, _, normErr = transform.String(transform.Chain(norm.NFD, norm.NFC), m.OrgId4)
+		if normErr != nil {
+			return fmt.Errorf(`org_id4: value must must be normalisable to NFC`)
+		}
+	}
+	if strings.ContainsRune(m.OrgId4, utf8.RuneError) {
+		return fmt.Errorf(`org_id4: value must must have valid encoding`)
+	} else if !utf8.ValidString(m.OrgId4) {
+		return fmt.Errorf(`org_id4: value must must be a valid UTF-8-encoded string`)
+	}
+	var _len_NestedLevel2Message_OrgId4 = len(m.OrgId4)
+	if !(_len_NestedLevel2Message_OrgId4 == 4) {
+		return fmt.Errorf(`org_id4: value must have length 4`)
+	}
+	if !_regex_d4db71516b8749dc594e5bf604c6a110.MatchString(m.OrgId4) {
+		return fmt.Errorf(`org_id4: value must only have valid characters`)
+	}
+	if m.OrgNested != nil {
+		if v, ok := interface{}(m.OrgNested).(proto.Validator); ok {
+			if err := v.Validate(); err != nil {
+				return proto.FieldError("org_nested", err)
+			}
+		}
+	}
+	return nil
+}
+
+func (m *NestedLevel1Message) Validate() error {
+	if !norm.NFC.IsNormalString(m.OrgId3) && norm.NFD.IsNormalString(m.OrgId3) {
+		// normalise NFD to NFC string
+		var normErr error
+		m.OrgId3, _, normErr = transform.String(transform.Chain(norm.NFD, norm.NFC), m.OrgId3)
+		if normErr != nil {
+			return fmt.Errorf(`org_id3: value must must be normalisable to NFC`)
+		}
+	}
+	if strings.ContainsRune(m.OrgId3, utf8.RuneError) {
+		return fmt.Errorf(`org_id3: value must must have valid encoding`)
+	} else if !utf8.ValidString(m.OrgId3) {
+		return fmt.Errorf(`org_id3: value must must be a valid UTF-8-encoded string`)
+	}
+	var _len_NestedLevel1Message_OrgId3 = len(m.OrgId3)
+	if !(_len_NestedLevel1Message_OrgId3 == 3) {
+		return fmt.Errorf(`org_id3: value must have length 3`)
+	}
+	if !_regex_d4db71516b8749dc594e5bf604c6a110.MatchString(m.OrgId3) {
+		return fmt.Errorf(`org_id3: value must only have valid characters`)
+	}
+	if m.OrgNested != nil {
+		if v, ok := interface{}(m.OrgNested).(proto.Validator); ok {
+			if err := v.Validate(); err != nil {
+				return proto.FieldError("org_nested", err)
+			}
+		}
+	}
+	return nil
+}
+
+func (m *MyReqMessage) Validate() error {
+	if !norm.NFC.IsNormalString(m.UserId) && norm.NFD.IsNormalString(m.UserId) {
+		// normalise NFD to NFC string
+		var normErr error
+		m.UserId, _, normErr = transform.String(transform.Chain(norm.NFD, norm.NFC), m.UserId)
+		if normErr != nil {
+			return fmt.Errorf(`user_id: value must must be normalisable to NFC`)
+		}
+	}
+	if strings.ContainsRune(m.UserId, utf8.RuneError) {
+		return fmt.Errorf(`user_id: value must must have valid encoding`)
+	} else if !utf8.ValidString(m.UserId) {
+		return fmt.Errorf(`user_id: value must must be a valid UTF-8-encoded string`)
+	}
+	var _len_MyReqMessage_UserId = len(m.UserId)
+	if !(_len_MyReqMessage_UserId == 2) {
+		return fmt.Errorf(`user_id: value must have length 2`)
+	}
+	if !_regex_d4db71516b8749dc594e5bf604c6a110.MatchString(m.UserId) {
+		return fmt.Errorf(`user_id: value must only have valid characters`)
+	}
+	if m.OrgNested != nil {
+		if v, ok := interface{}(m.OrgNested).(proto.Validator); ok {
+			if err := v.Validate(); err != nil {
+				return proto.FieldError("org_nested", err)
+			}
+		}
+	}
+	return nil
+}
+
+func (m *ScimEmail) Validate() error {
+	if !proto.IsValidEmail(m.Value, false) {
+		return fmt.Errorf(`value: value must be parsable as an email address`)
+	}
+	return nil
+}
+
+func (m *ScimUser) Validate() error {
+	if len(m.Emails) > 0 {
+		for _, item := range m.Emails {
+			if item != nil {
+				if v, ok := interface{}(item).(proto.Validator); ok {
+					if err := v.Validate(); err != nil {
+						return proto.FieldError("emails", err)
+					}
+				}
+			}
 		}
 	}
 	return nil

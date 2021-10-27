@@ -729,6 +729,14 @@ func genMsgValidator(g *protogen.GeneratedFile, f *protogen.Field, varName strin
 		g.P("}")
 	}
 
+	// For repeated messages, we need to run the validator on each message instead of this field
+	repeated := f.Desc.Cardinality() == protoreflect.Repeated
+	if repeated {
+		g.P("if len(", varName, ") > 0 {")
+		g.P("for _, item := range ", varName, "{")
+		varName = "item"
+	}
+
 	g.P("if ", varName, " != nil {")
 	g.P("if v, ok := interface{}(", varName, ").(", s12protoPackage.Ident("Validator"), "); ok {")
 	g.P("if err := v.Validate(); err != nil {")
@@ -736,6 +744,11 @@ func genMsgValidator(g *protogen.GeneratedFile, f *protogen.Field, varName strin
 	g.P("}")
 	g.P("}")
 	g.P("}")
+
+	if repeated {
+		g.P("}") // if len
+		g.P("}") // for
+	}
 }
 
 func genErrorString(g *protogen.GeneratedFile, varName, fieldName, specificErr string) {
