@@ -746,7 +746,7 @@ type ScimEmail struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Value string `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"` // string value = 3 [(validator.string) = { len: "2"}];
+	Value string `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`
 }
 
 func (x *ScimEmail) Reset() {
@@ -793,8 +793,7 @@ type ScimUser struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	//repeated string emails = 5;
-	Emails []*ScimEmail `protobuf:"bytes,5,rep,name=emails,proto3" json:"emails,omitempty"` // [ json_name = "emails" ];
+	Emails []*ScimEmail `protobuf:"bytes,5,rep,name=emails,proto3" json:"emails,omitempty"`
 }
 
 func (x *ScimUser) Reset() {

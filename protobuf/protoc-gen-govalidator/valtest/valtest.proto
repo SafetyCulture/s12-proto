@@ -153,11 +153,8 @@ message MyReqMessage {
 
 message ScimEmail {
   string value = 3 [ (validator.email) = {} ];
-  // string value = 3 [(validator.string) = { len: "2"}]; 
 }
 
 message ScimUser {
-  //repeated string emails = 5;
   repeated ScimEmail emails = 5;
-  // [ json_name = "emails" ];
 }
