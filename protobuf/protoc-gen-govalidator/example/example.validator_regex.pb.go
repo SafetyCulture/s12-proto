@@ -8,8 +8,4 @@ package example
 
 import (
 	_ "github.com/SafetyCulture/s12-proto/s12/protobuf/proto"
-	regexp "regexp"
 )
-
-// Pattern for PUA sanitiser
-var _regex_pua = regexp.MustCompile(`[\x{E000}-\x{F8FF}]`)

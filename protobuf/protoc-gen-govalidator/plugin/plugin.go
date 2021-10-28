@@ -92,7 +92,7 @@ func GenerateFile(p *protogen.Plugin, file *protogen.File) *protogen.GeneratedFi
 	regexGeneratedFile.P()
 	regexGeneratedFile.Import(s12protoPackage)
 
-	genStringGenerics(g)
+	genStringGenerics()
 	for _, msg := range file.Messages {
 		if opts, ok := msg.Desc.Options().(*descriptorpb.MessageOptions); !ok || opts.GetMapEntry() {
 			continue
@@ -136,25 +136,14 @@ func addRegexVar(fieldName, regexId string) string {
 }
 
 // Generic preparations/initialisations for the string validator
-func genStringGenerics(g *protogen.GeneratedFile) {
+func genStringGenerics() {
 
-	// Initialise the string replacers once
-	// could be optimised as we might not need all replacers depending on what validator options are enabled
-	unsafeReplacerArgs := getStringReplacerArgs(stringUnsafeReplacerMap, "replacer_unsafe_allowed")
-	g.P("var _unsafe_char_replacer = ", stringsPackage.Ident("NewReplacer"), "(", strings.Join(unsafeReplacerArgs, ", "), ")")
-
-	symbolReplacerArgs := getStringReplacerArgs(stringSymbolReplacerMap, "replacer_symbol_allowed")
-	g.P("var _symbol_char_replacer = ", stringsPackage.Ident("NewReplacer"), "(", strings.Join(symbolReplacerArgs, ", "), ")")
-	// Do not replace \n (\u000A) for strings that have the multiline option enabled
-	// Swap \u000A with something that will not match usually (\uE000)
-	g.P("var _symbol_char_replacer_multiline = ", stringsPackage.Ident("NewReplacer"), "(", strings.ReplaceAll(strings.Join(symbolReplacerArgs, ", "), `\u000A`, `\uE000`), ")")
+	// Prepare the regex pattern to allow replaced chars
+	prepareStringReplacerRegex(stringUnsafeReplacerMap, "replacer_unsafe_allowed")
+	prepareStringReplacerRegex(stringSymbolReplacerMap, "replacer_symbol_allowed")
 
 	// Prepare the default `unsafe_string` pattern by adding tokens from `string`
 	stringReDefaultUnsafe = append(stringReDefaultSafe, stringReDefaultUnsafe...)
-
-	// Prepare the PUA regex
-	regexGeneratedFile.P("// Pattern for PUA sanitiser")
-	regexGeneratedFile.P("var ", "_regex_pua = ", regexpPackage.Ident("MustCompile"), "(`", rePUA, "`)")
 }
 
 // Generator for legacy regex validator
@@ -387,7 +376,7 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 			// Add the possible replaced characters to the allow list as they are not all allowed by default
 			mergeRegex(allowListReId, "replacer_unsafe_allowed")
 			// Replace the unsafe values
-			g.P(varName, " = _unsafe_char_replacer.Replace(", varName, ")")
+			g.P(varName, " = ", s12protoPackage.Ident("UnsafeCharReplacer"), ".Replace(", varName, ")")
 		}
 	}
 
@@ -404,9 +393,9 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 		// Replace the values
 		if rules.GetMultiline() {
 			// Should not replace \n as the normal symbol replacer does otherwise multiline breaks
-			g.P(varName, " = _symbol_char_replacer_multiline.Replace(", varName, ")")
+			g.P(varName, " = ", s12protoPackage.Ident("SymbolCharReplacerMultiline"), ".Replace(", varName, ")")
 		} else {
-			g.P(varName, " = _symbol_char_replacer.Replace(", varName, ")")
+			g.P(varName, " = ", s12protoPackage.Ident("SymbolCharReplacer"), ".Replace(", varName, ")")
 
 		}
 	}
@@ -414,7 +403,7 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 	// ##### 3E. Sanitise (remove) Private Use Area Codepoints in the Basic Multilingual Plane
 	// Note that we do not check for PUA in planes 15 and 16 currently
 	if rules.GetSanitisePua() {
-		g.P(varName, "= _regex_pua.ReplaceAllString(", varName, ", \"\")")
+		g.P(varName, "= ", s12protoPackage.Ident("RegexPua"), ".ReplaceAllString(", varName, ", \"\")")
 	}
 
 	// ### STEP 4: validate
