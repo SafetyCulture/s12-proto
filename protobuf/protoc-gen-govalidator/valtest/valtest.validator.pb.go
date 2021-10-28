@@ -15,10 +15,6 @@ import (
 	utf8 "unicode/utf8"
 )
 
-var _unsafe_char_replacer = strings.NewReplacer("\u007C", "\uFFE8", "\u0022", "\u201D", "\u002D", "\u2212", "\u003D", "\u2E40", "\u002F", "\u2215", "\u003B", "\u037E", "\u0060", "\u2019", "\u0023", "\u0020", "\u0026", "\u0020", "\u002A", "\u2217", "\u0025", "\u2052", "\u002B", "\u2795", "\u003E", "\u02C3", "\u005C", "\uFF3C", "\u0021", "\uFF01", "\u0027", "\u2019", "\u003C", "\u02C2")
-var _symbol_char_replacer = strings.NewReplacer("\u2004", "\u0020", "\u2008", "\u0020", "\u2009", "\u0020", "\u3000", "\u0020", "\u200C", "", "\u3002", "\u002E", "\u2018", "\u2019", "\uFF1A", "\u003A", "\u2002", "\u0020", "\uFF0C", "\u002C", "\u1680", "\u0020", "\u2001", "\u0020", "\u2006", "\u0020", "\u200A", "\u0020", "\u000D", "\u0020", "\u00A0", "\u0020", "\u202F", "\u0020", "\u2014", "\u2013", "\u2000", "\u0020", "\u000A", "\u0020", "\u2003", "\u0020", "\u2005", "\u0020", "\u2007", "\u0020", "\u205F", "\u0020", "\u200D", "", "\uFEFF", "", "\u0009", "\u0020")
-var _symbol_char_replacer_multiline = strings.NewReplacer("\u2004", "\u0020", "\u2008", "\u0020", "\u2009", "\u0020", "\u3000", "\u0020", "\u200C", "", "\u3002", "\u002E", "\u2018", "\u2019", "\uFF1A", "\u003A", "\u2002", "\u0020", "\uFF0C", "\u002C", "\u1680", "\u0020", "\u2001", "\u0020", "\u2006", "\u0020", "\u200A", "\u0020", "\u000D", "\u0020", "\u00A0", "\u0020", "\u202F", "\u0020", "\u2014", "\u2013", "\u2000", "\u0020", "\uE000", "\u0020", "\u2003", "\u0020", "\u2005", "\u0020", "\u2007", "\u0020", "\u205F", "\u0020", "\u200D", "", "\uFEFF", "", "\u0009", "\u0020")
-
 func (m *ValTestMessage) Validate() error {
 	if !proto.IsUUIDv4(m.Id) {
 		return fmt.Errorf(`id: value must be parsable as s12 UUID`)
@@ -166,7 +162,7 @@ func (m *ValTestMessage) Validate() error {
 	} else if !utf8.ValidString(m.ReplaceString) {
 		return fmt.Errorf(`replace_string: value must must be a valid UTF-8-encoded string`)
 	}
-	m.ReplaceString = _unsafe_char_replacer.Replace(m.ReplaceString)
+	m.ReplaceString = proto.UnsafeCharReplacer.Replace(m.ReplaceString)
 	var _len_ValTestMessage_ReplaceString = len(m.ReplaceString)
 	if !(_len_ValTestMessage_ReplaceString >= 1 && _len_ValTestMessage_ReplaceString <= 130) {
 		return fmt.Errorf(`replace_string: value must have length between 1 and 130`)
@@ -343,7 +339,7 @@ func (m *ValTestMessage) Validate() error {
 		}
 	}
 	m.AllString = strings.ReplaceAll(m.AllString, "\u003E", "\u02C3")
-	m.AllString = _symbol_char_replacer.Replace(m.AllString)
+	m.AllString = proto.SymbolCharReplacer.Replace(m.AllString)
 	var _len_ValTestMessage_AllString = len(m.AllString)
 	if !(_len_ValTestMessage_AllString >= 1 && _len_ValTestMessage_AllString <= 130) {
 		return fmt.Errorf(`all_string: value must have length between 1 and 130`)
@@ -389,7 +385,7 @@ func (m *ValTestMessage) Validate() error {
 		} else if !utf8.ValidString(m.ScTitle) {
 			return fmt.Errorf(`sc_title: value must must be a valid UTF-8-encoded string`)
 		}
-		m.ScTitle = _unsafe_char_replacer.Replace(m.ScTitle)
+		m.ScTitle = proto.UnsafeCharReplacer.Replace(m.ScTitle)
 		var _len_ValTestMessage_ScTitle = len(m.ScTitle)
 		if !(_len_ValTestMessage_ScTitle >= 1 && _len_ValTestMessage_ScTitle <= 500) {
 			return fmt.Errorf(`sc_title: value must have length between 1 and 500`)
@@ -412,9 +408,9 @@ func (m *ValTestMessage) Validate() error {
 		} else if !utf8.ValidString(m.ScPermissive) {
 			return fmt.Errorf(`sc_permissive: value must must be a valid UTF-8-encoded string`)
 		}
-		m.ScPermissive = _unsafe_char_replacer.Replace(m.ScPermissive)
-		m.ScPermissive = _symbol_char_replacer.Replace(m.ScPermissive)
-		m.ScPermissive = _regex_pua.ReplaceAllString(m.ScPermissive, "")
+		m.ScPermissive = proto.UnsafeCharReplacer.Replace(m.ScPermissive)
+		m.ScPermissive = proto.SymbolCharReplacer.Replace(m.ScPermissive)
+		m.ScPermissive = proto.RegexPua.ReplaceAllString(m.ScPermissive, "")
 		var _len_ValTestMessage_ScPermissive = len(m.ScPermissive)
 		if !(_len_ValTestMessage_ScPermissive >= 1 && _len_ValTestMessage_ScPermissive <= 1000) {
 			return fmt.Errorf(`sc_permissive: value must have length between 1 and 1000`)
@@ -459,7 +455,7 @@ func (m *ValTestMessage) Validate() error {
 		} else if !utf8.ValidString(m.SanitisePua) {
 			return fmt.Errorf(`sanitise_pua: value must must be a valid UTF-8-encoded string`)
 		}
-		m.SanitisePua = _regex_pua.ReplaceAllString(m.SanitisePua, "")
+		m.SanitisePua = proto.RegexPua.ReplaceAllString(m.SanitisePua, "")
 		var _len_ValTestMessage_SanitisePua = len(m.SanitisePua)
 		if !(_len_ValTestMessage_SanitisePua >= 1 && _len_ValTestMessage_SanitisePua <= 130) {
 			return fmt.Errorf(`sanitise_pua: value must have length between 1 and 130`)
@@ -482,7 +478,7 @@ func (m *ValTestMessage) Validate() error {
 		} else if !utf8.ValidString(m.SanitiseLength) {
 			return fmt.Errorf(`sanitise_length: value must must be a valid UTF-8-encoded string`)
 		}
-		m.SanitiseLength = _regex_pua.ReplaceAllString(m.SanitiseLength, "")
+		m.SanitiseLength = proto.RegexPua.ReplaceAllString(m.SanitiseLength, "")
 		var _len_ValTestMessage_SanitiseLength = len(m.SanitiseLength)
 		if !(_len_ValTestMessage_SanitiseLength == 2) {
 			return fmt.Errorf(`sanitise_length: value must have length 2`)

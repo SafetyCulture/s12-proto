@@ -18,7 +18,6 @@ const (
 	stringLenMaxUnsafe  = uint32(10000)
 	stringLenMinDefault = uint32(1)
 	stringLenMaxDefault = uint32(130)
-	rePUA               = `[\x{E000}-\x{F8FF}]` // Private Use Codepoints in the Basic Multilingual Plane (not including planes 15, 16)
 )
 
 // Default allowed regex tokens for validator.string (safe_string)
@@ -87,6 +86,7 @@ var stringUnsafeReplacerMap = map[string]string{
 	`\u005C`: `\uFF3C`, //  \ : ＼  REVERSE SOLIDUS to FULLWIDTH REVERSE SOLIDUS (alternative ⧵ U+29F5)
 	`\u0060`: `\u2019`, //  ` : ’   GRAVE ACCENT to RIGHT SINGLE QUOTATION MARK
 	`\u007C`: `\uFFE8`, //  | : ￨  VERTICAL LINE to HALFWIDTH FORMS LIGHT VERTICAL
+	// NOTE: when updating, also need to update UnsafeCharReplacer in validator_helpers.go (TODO PA: improve this)
 }
 
 // Unicode cats not allowed in safe_string without replace_unsafe option
@@ -165,16 +165,14 @@ var stringSymbolReplacerMap = map[string]string{
 	`\u0009`: `\u0020`, // <TAB> \t HORIZONTAL TAB
 	`\u000A`: `\u0020`, // \n LINE FEED (will not be replaced with multiline option enabled)
 	`\u000D`: `\u0020`, // \r CARRIAGE RETURN
+	// NOTE: when updating, also need to update SymbolCharReplacer and SymbolCharReplacerMultiline in validator_helpers.go (TODO PA: improve this)
 }
 
 // Prepare the string replacer arguments based on provided map contents
-func getStringReplacerArgs(replacerMap map[string]string, regexId string) []string {
+func prepareStringReplacerRegex(replacerMap map[string]string, regexId string) []string {
 	stringReplacerArguments := []string{}
-	for unsafe, safe := range replacerMap {
-		// String Replacer expects old, new string pairs
-		stringReplacerArguments = append(stringReplacerArguments, `"`+unsafe+`"`)
-		stringReplacerArguments = append(stringReplacerArguments, `"`+safe+`"`)
-		// Also add to whitelist regex so that the replaced characters are allowed in the validation pattern
+	for _, safe := range replacerMap {
+		// Add to whitelist regex so that the replaced characters are allowed in the validation pattern
 		r := strings.Replace(safe, `\u`, `\x{`, 1) + "}"
 		prepareRegex(regexId, r)
 	}

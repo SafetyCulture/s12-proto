@@ -11,9 +11,6 @@ import (
 	regexp "regexp"
 )
 
-// Pattern for PUA sanitiser
-var _regex_pua = regexp.MustCompile(`[\x{E000}-\x{F8FF}]`)
-
 // Pattern for ValTestMessage_Description
 const _regex_val_d4db71516b8749dc594e5bf604c6a110 = `^[\pL\pN\x{0020}\x{0028}\x{0029}\x{002C}\x{002E}\x{003A}\x{003F}\x{0040}\x{005B}\x{005D}\x{005F}\x{00BF}\x{2013}]+$`
 
