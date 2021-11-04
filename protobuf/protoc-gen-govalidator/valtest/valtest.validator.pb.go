@@ -723,13 +723,11 @@ func (m *ScimEmail) Validate() error {
 }
 
 func (m *ScimUser) Validate() error {
-	if len(m.Emails) > 0 {
-		for _, item := range m.Emails {
-			if item != nil {
-				if v, ok := interface{}(item).(proto.Validator); ok {
-					if err := v.Validate(); err != nil {
-						return proto.FieldError("emails", err)
-					}
+	for _, item := range m.Emails {
+		if item != nil {
+			if v, ok := interface{}(item).(proto.Validator); ok {
+				if err := v.Validate(); err != nil {
+					return proto.FieldError("emails", err)
 				}
 			}
 		}
