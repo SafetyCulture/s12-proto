@@ -406,7 +406,9 @@ void APIGenerator::PrintDjinniYAML(
     vars["cpp_type_name"] = DotsToColons(message->full_name());
     vars["objc_header"] = DotsToSlashs(message->full_name());
     vars["file_name"] = StripProto(file->name());
-    vars["objc_file_name"] = ToCamelCase(tokenize(StripProto(file->name()), "/").back());
+    const auto file_name_camel = ToCamelCase(tokenize(StripProto(file->name()), "/").back());
+    vars["file_name_camel"] = file_name_camel;
+    vars["objc_file_name"] = file_name_camel;
     vars["main_file_name"] = main_file_name;
 
     const auto options = file->options();
@@ -415,7 +417,7 @@ void APIGenerator::PrintDjinniYAML(
     vars["objc_class_prefix"] = options.objc_class_prefix();
 
     printer->Print("---\n");
-    printer->Print(vars, "name: pb_$message_name$\n");
+    printer->Print(vars, "name: pb_$file_name_camel$_$message_name$\n");
     printer->Print("typedef: 'record deriving(eq, ord, parcelable)'\n");
     printer->Print("params: []\n");
     printer->Print("prefix: 'pb'\n");
