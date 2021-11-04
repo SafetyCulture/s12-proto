@@ -506,6 +506,30 @@ func (m *ValTestMessage) Validate() error {
 		}
 	}
 	// Validation of proto3 map<> fields is unsupported.
+	if !(len(m.ContactsWithLengthConstraint) >= 1) {
+		return fmt.Errorf(`contacts_with_length_constraint: length must be greater than or equal to 1`)
+	}
+	if !(len(m.ContactsWithLengthConstraint) <= 10) {
+		return fmt.Errorf(`contacts_with_length_constraint: length must be lesser than or equal to 10`)
+	}
+	for _, item := range m.ContactsWithLengthConstraint {
+		if item != nil {
+			if v, ok := interface{}(item).(proto.Validator); ok {
+				if err := v.Validate(); err != nil {
+					return proto.FieldError("contacts_with_length_constraint", err)
+				}
+			}
+		}
+	}
+	for _, item := range m.ContactsWithoutLengthConstraint {
+		if item != nil {
+			if v, ok := interface{}(item).(proto.Validator); ok {
+				if err := v.Validate(); err != nil {
+					return proto.FieldError("contacts_without_length_constraint", err)
+				}
+			}
+		}
+	}
 	return nil
 }
 
@@ -567,6 +591,15 @@ func (m *ValTestMessage_NestedMessage_InnerNestedMessage) Validate() error {
 	}
 	if !_regex_d4db71516b8749dc594e5bf604c6a110.MatchString(m.InnerVal) {
 		return fmt.Errorf(`inner_val: value must only have valid characters`)
+	}
+	return nil
+}
+
+func (m *ValTestMessage_Contact) Validate() error {
+	if m.Phone != "" {
+	}
+	if !proto.IsValidEmail(m.Email, false) {
+		return fmt.Errorf(`email: value must be parsable as an email address`)
 	}
 	return nil
 }

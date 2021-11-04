@@ -125,6 +125,10 @@ var valMsg = ValTestMessage{
 			email,
 		},
 	},
+	ContactsWithLengthConstraint: []*ValTestMessage_Contact{
+		{Phone: "abc", Email: "test@example.com"},
+		{Phone: "", Email: "test2@example.com"},
+	},
 	// NotSupported: ,
 }
 
@@ -162,6 +166,9 @@ var valMsgOpts = ValTestMessage{
 			email,
 			email,
 		},
+	},
+	ContactsWithLengthConstraint: []*ValTestMessage_Contact{
+		{Phone: "abc", Email: "test@example.com"},
 	},
 	// NotSupported: ,
 }
@@ -536,6 +543,81 @@ func TestValidationRules(t *testing.T) {
 			invalid,
 		},
 	}
+
+	// Custom test for repeated contact
+	contactsMsgValid1 := valMsg
+	contactsMsgValid1.ContactsWithLengthConstraint = []*ValTestMessage_Contact{
+		{Phone: "1 message", Email: "test1@example.com"},
+	}
+	contactsMsgValid10 := valMsg
+	contactsMsgValid10.ContactsWithLengthConstraint = []*ValTestMessage_Contact{
+		{Phone: "10 messages", Email: "test1@example.com"},
+		{Phone: "", Email: "test2@example.com"},
+		{Phone: "", Email: "test3@example.com"},
+		{Phone: "", Email: "test4@example.com"},
+		{Phone: "", Email: "test5@example.com"},
+		{Phone: "", Email: "test6@example.com"},
+		{Phone: "", Email: "test7@example.com"},
+		{Phone: "", Email: "test8@example.com"},
+		{Phone: "", Email: "test9@example.com"},
+		{Phone: "", Email: "test10@example.com"},
+	}
+	contactsMsgInvalid0 := valMsg
+	contactsMsgInvalid0.ContactsWithLengthConstraint = []*ValTestMessage_Contact{}
+	contactsMsgInvalid11 := valMsg
+	contactsMsgInvalid11.ContactsWithLengthConstraint = []*ValTestMessage_Contact{
+		{Phone: "11 messages", Email: "test1@example.com"},
+		{Phone: "", Email: "test2@example.com"},
+		{Phone: "", Email: "test3@example.com"},
+		{Phone: "", Email: "test4@example.com"},
+		{Phone: "", Email: "test5@example.com"},
+		{Phone: "", Email: "test6@example.com"},
+		{Phone: "", Email: "test7@example.com"},
+		{Phone: "", Email: "test8@example.com"},
+		{Phone: "", Email: "test9@example.com"},
+		{Phone: "", Email: "test10@example.com"},
+		{Phone: "", Email: "test11@example.com"},
+	}
+	contactsMsgInvalidEmail := valMsg
+	contactsMsgInvalidEmail.ContactsWithLengthConstraint = []*ValTestMessage_Contact{
+		{Phone: "", Email: "test1@invalid"},
+	}
+	contactsMsgNoConstraintsValid0 := valMsg
+	contactsMsgNoConstraintsValid0.ContactsWithoutLengthConstraint = []*ValTestMessage_Contact{}
+	contactsMsgNoConstraintsValid2 := valMsg
+	contactsMsgNoConstraintsValid2.ContactsWithoutLengthConstraint = []*ValTestMessage_Contact{
+		{Phone: "2 messages", Email: "test1@example.com"},
+		{Phone: "", Email: "test2@example.com"},
+	}
+	tests = append(tests, TestSet{
+		"ContactWithLengthConstraintValid1",
+		&contactsMsgValid1,
+		valid,
+	}, TestSet{
+		"ContactWithLengthConstraintValid10",
+		&contactsMsgValid10,
+		valid,
+	}, TestSet{
+		"ContactWithLengthConstraintInvalid0",
+		&contactsMsgInvalid0,
+		invalid,
+	}, TestSet{
+		"ContactWithLengthConstraintInvalid11",
+		&contactsMsgInvalid11,
+		invalid,
+	}, TestSet{
+		"ContactWithLengthConstraintInvalidEmail",
+		&contactsMsgInvalidEmail,
+		invalid,
+	}, TestSet{
+		"ContactWithoutLengthConstraintValid0",
+		&contactsMsgNoConstraintsValid0,
+		valid,
+	}, TestSet{
+		"ContactWithoutLengthConstraintValid2",
+		&contactsMsgNoConstraintsValid0,
+		valid,
+	})
 
 	// Tests for emails
 	for _, invalidEmail := range invalidEmails {

@@ -121,6 +121,16 @@ message ValTestMessage {
   NestedMessage nested_message = 56;
 
   map<string, string> not_supported = 57;
+
+  message Contact {
+    string phone = 1 [(validator.optional) = true ];
+    string email = 2 [(validator.email) = {}];
+  }
+  repeated Contact contacts_with_length_constraint = 58 [
+    (validator.repeated_len_gte) = 1,
+    (validator.repeated_len_lte) = 10
+  ];
+  repeated Contact contacts_without_length_constraint = 59;
 }
 
 message OuterMessageUsingNestedMessage {

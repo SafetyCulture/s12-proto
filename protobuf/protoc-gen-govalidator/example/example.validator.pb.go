@@ -112,8 +112,8 @@ func (m *ExampleMessage) Validate() error {
 	if !_regex_ExampleMessage_Url.MatchString(m.Url) {
 		return fmt.Errorf(`url: value must be a string conforming to predefined pattern`)
 	}
-	if !(len(m.ContactsWithLengthConstraint) >= 1) {
-		return fmt.Errorf(`contacts_with_length_constraint: length must be greater than or equal to 1`)
+	if !(len(m.ContactsWithLengthConstraint) >= 0) {
+		return fmt.Errorf(`contacts_with_length_constraint: length must be greater than or equal to 0`)
 	}
 	if !(len(m.ContactsWithLengthConstraint) <= 10) {
 		return fmt.Errorf(`contacts_with_length_constraint: length must be lesser than or equal to 10`)

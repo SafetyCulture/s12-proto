@@ -87,7 +87,7 @@ message ExampleMessage {
     string email = 2 [(validator.email) = { optional: true }];
   }
   repeated Contact contacts_with_length_constraint = 22 [
-    (validator.repeated_len_gte) = 1,
+    (validator.repeated_len_gte) = 0,
     (validator.repeated_len_lte) = 10
   ];
   repeated Contact contacts_with_no_length_constraint = 23;
