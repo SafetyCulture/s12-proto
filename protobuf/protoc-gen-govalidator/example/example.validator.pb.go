@@ -140,6 +140,13 @@ func (m *ExampleMessage) Validate() error {
 			}
 		}
 	}
+	if m.ScheduledFor != nil {
+		if v, ok := interface{}(m.ScheduledFor).(proto.Validator); ok {
+			if err := v.Validate(); err != nil {
+				return proto.FieldError("scheduled_for", err)
+			}
+		}
+	}
 	return nil
 }
 
