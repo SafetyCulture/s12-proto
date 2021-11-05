@@ -747,6 +747,8 @@ func genMsgValidator(g *protogen.GeneratedFile, f *protogen.Field, varName strin
 	// For repeated messages, we need to run the validator on each message instead of this field
 	repeated := f.Desc.Cardinality() == protoreflect.Repeated
 	if repeated {
+		// Please leave the len check in place here as I have identified edge cases where it is required (will add test case for it later)
+		g.P("if len(", varName, ") > 0 {")
 		g.P("for _, item := range ", varName, "{")
 		varName = "item"
 	}
@@ -761,6 +763,7 @@ func genMsgValidator(g *protogen.GeneratedFile, f *protogen.Field, varName strin
 
 	if repeated {
 		g.P("}") // for
+		g.P("}") // if len
 	}
 }
 

@@ -118,20 +118,24 @@ func (m *ExampleMessage) Validate() error {
 	if !(len(m.ContactsWithLengthConstraint) <= 10) {
 		return fmt.Errorf(`contacts_with_length_constraint: length must be lesser than or equal to 10`)
 	}
-	for _, item := range m.ContactsWithLengthConstraint {
-		if item != nil {
-			if v, ok := interface{}(item).(proto.Validator); ok {
-				if err := v.Validate(); err != nil {
-					return proto.FieldError("contacts_with_length_constraint", err)
+	if len(m.ContactsWithLengthConstraint) > 0 {
+		for _, item := range m.ContactsWithLengthConstraint {
+			if item != nil {
+				if v, ok := interface{}(item).(proto.Validator); ok {
+					if err := v.Validate(); err != nil {
+						return proto.FieldError("contacts_with_length_constraint", err)
+					}
 				}
 			}
 		}
 	}
-	for _, item := range m.ContactsWithNoLengthConstraint {
-		if item != nil {
-			if v, ok := interface{}(item).(proto.Validator); ok {
-				if err := v.Validate(); err != nil {
-					return proto.FieldError("contacts_with_no_length_constraint", err)
+	if len(m.ContactsWithNoLengthConstraint) > 0 {
+		for _, item := range m.ContactsWithNoLengthConstraint {
+			if item != nil {
+				if v, ok := interface{}(item).(proto.Validator); ok {
+					if err := v.Validate(); err != nil {
+						return proto.FieldError("contacts_with_no_length_constraint", err)
+					}
 				}
 			}
 		}
