@@ -541,6 +541,10 @@ func TestValidationRules(t *testing.T) {
 				},
 			},
 			invalid,
+		}, {
+			"ScimUserEmpty",
+			&ScimUser{},
+			valid,
 		},
 	}
 

@@ -168,3 +168,9 @@ message ScimEmail {
 message ScimUser {
   repeated ScimEmail emails = 5;
 }
+
+// Uncomment to test invalid validator option for Message-type field
+// message InvalidMessageValidation {
+//   // Validation must be defined in ScimEmail.value field as it can't be applied on the message
+//   repeated ScimEmail invalid_val = 1 [(validator.string) = {}];
+// }
