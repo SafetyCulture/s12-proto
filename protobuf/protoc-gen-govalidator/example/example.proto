@@ -3,6 +3,7 @@
 syntax = "proto3";
 package example;
 
+import "google/protobuf/timestamp.proto";
 import "s12/protobuf/proto/validator.proto";
 
 option go_package = "github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-govalidator/example";
@@ -91,6 +92,10 @@ message ExampleMessage {
     (validator.repeated_len_lte) = 10
   ];
   repeated Contact contacts_with_no_length_constraint = 23;
+
+  google.protobuf.Timestamp scheduled_for = 24 [
+    (validator.optional) = true
+  ];
 }
 
 message OuterMessageUsingNestedMessage {

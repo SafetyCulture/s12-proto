@@ -723,27 +723,6 @@ func genMsgValidator(g *protogen.GeneratedFile, f *protogen.Field, varName strin
 		g.P("}")
 	}
 
-	// Message validators for repeated messages should be defined in the message, not as option here
-	// except for repeated_len_* and msg_required validators
-	var validMsgExts = map[protoreflect.ExtensionType]struct{}{
-		validator.E_RepeatedLenGte: {},
-		validator.E_RepeatedLenLte: {},
-		validator.E_MsgRequired:    {},
-	}
-	if opts := f.Desc.Options(); opts != nil {
-		// Re-use validExts so this also applies for future validators
-		for _, ext := range validExts {
-			if _, ignore := validMsgExts[ext]; ignore {
-				continue
-			}
-			if proto.HasExtension(opts, ext) {
-				// Panic as it might give a false sense of protection
-				// Any validations defined here (except for repeated_len_*) won't work when defined here
-				panic("invalid validator option for Message-type field " + f.GoIdent.GoName + ": validation must be defined as field option in " + string(f.Desc.Message().FullName()) + " instead.")
-			}
-		}
-	}
-
 	// For repeated messages, we need to run the validator on each message instead of this field
 	repeated := f.Desc.Cardinality() == protoreflect.Repeated
 	if repeated {
