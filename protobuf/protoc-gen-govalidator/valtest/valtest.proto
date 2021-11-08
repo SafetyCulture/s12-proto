@@ -197,3 +197,9 @@ message MyMessageWithRepeatedEnum {
     MY_ENUM_FIRST = 1;
   }
 }
+
+// MyMessageWithRepeatedField ...
+// gvalidator shouldn't generate empty for loop.
+message MyMessageWithRepeatedField {
+  repeated int32 my_int = 1 [(validator.repeated_len_lte) = 5];
+}

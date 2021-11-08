@@ -794,3 +794,10 @@ func (m *MyMessageWithRepeatedEnum) Validate() error {
 	}
 	return nil
 }
+
+func (m *MyMessageWithRepeatedField) Validate() error {
+	if !(len(m.MyInt) <= 5) {
+		return fmt.Errorf(`my_int: length must be lesser than or equal to 5`)
+	}
+	return nil
+}
