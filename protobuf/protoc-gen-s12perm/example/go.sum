@@ -9,8 +9,8 @@ github.com/Masterminds/vcs v1.13.0/go.mod h1:N09YCmOQr6RLxC6UNHzuVwAdodYbbnycGHS
 github.com/SafetyCulture/insightsmetrics v2.0.0+incompatible/go.mod h1:QNzdB7USod3gt9XLI4bK0yna34HDeumI32Nzd6Bwppw=
 github.com/SafetyCulture/s12-proto v1.12.5/go.mod h1:GeOSZpNzE648JPZzbmMrcEBToUqhHZznPlNV8CZVPMo=
 github.com/SafetyCulture/s12-proto v1.13.1/go.mod h1:rEktP38Ka9oeoC/bY1aydo2k+vtDcB/1w4fGc+vT9FQ=
-github.com/SafetyCulture/s12-proto v1.15.3 h1:GoBO/J4NZZJP5ZGNIJMWQiaebtTKMSqD+XfYiTe0N/g=
-github.com/SafetyCulture/s12-proto v1.15.3/go.mod h1:WJEAdR3TwYvZG48wUgMUwh7lmKZtMGJrR0IWhvTATXE=
+github.com/SafetyCulture/s12-proto v1.15.5 h1:bFnr8osPwOSK52V3pOY/odWqDB3Bx98Sn4czLi81JCI=
+github.com/SafetyCulture/s12-proto v1.15.5/go.mod h1:WJEAdR3TwYvZG48wUgMUwh7lmKZtMGJrR0IWhvTATXE=
 github.com/SafetyCulture/s12-utils-go v1.22.7/go.mod h1:1ObCXUgFj2OwEHlsIH0+xVvEoJIGaa9SjN7EyT5K8ug=
 github.com/SafetyCulture/s12-utils-go v1.23.8 h1:AjvZWhKVG/5eUGwrhkxYXHTyNG8CL2ypIt2x2glEQ0g=
 github.com/SafetyCulture/s12-utils-go v1.23.8/go.mod h1:v/Ys2sc1iZ1JqqTfg8qe5cuEEcbKwaGAXPk7aa/yJVo=
