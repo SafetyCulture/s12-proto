@@ -46,6 +46,8 @@ extend google.protobuf.FieldOptions {
   optional StringRules unsafe_string = 65216;
   // Field value validates to a 128 bit universally unique identifier v4, validated using IsUUID or a legacy id
   optional IdRules id = 65217;
+  // Validates that an enum value must be specified.
+  optional bool enum_specified = 65218;
 }
 
 // SymbolCategory defines which special characters (Unicode symbols and the like) are allowed

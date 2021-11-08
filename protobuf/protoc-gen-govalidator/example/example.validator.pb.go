@@ -223,3 +223,10 @@ func (m *InnerMessageWithLegacyId) Validate() error {
 	}
 	return nil
 }
+
+func (m *MyMessageWithEnum) Validate() error {
+	if int(m.Enum) == 0 {
+		return fmt.Errorf("field enum must be specified")
+	}
+	return nil
+}

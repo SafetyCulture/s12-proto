@@ -222,6 +222,8 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 			genIntValidator(g, f, varName)
 		case protoreflect.MessageKind:
 			genMsgValidator(g, f, varName)
+		case protoreflect.EnumKind:
+			genEnumValidator(g, f, varName)
 		}
 
 		if hasRepeatedExt && !isMessageField {
@@ -746,6 +748,16 @@ func genMsgValidator(g *protogen.GeneratedFile, f *protogen.Field, varName strin
 	}
 }
 
+func genEnumValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string) {
+	if !getBoolExtension(f, validator.E_EnumSpecified) {
+		return
+	}
+
+	g.P("if int(", varName, ") == 0 {")
+	g.P("return ", fmtPackage.Ident("Errorf"), "(\"field ", f.Desc.Name(), " must be specified\")")
+	g.P("}")
+}
+
 func genErrorString(g *protogen.GeneratedFile, varName, fieldName, specificErr string) {
 	// Do not reflect untrusted value in error, certainly not for sensitive fields like password or PII like email
 	g.P(`return `, fmtPackage.Ident("Errorf"), "(`", fieldName, `: value must `, specificErr, "`)")
@@ -779,6 +791,7 @@ var validExts = []protoreflect.ExtensionType{
 	validator.E_Id,
 	validator.E_String,
 	validator.E_UnsafeString,
+	validator.E_EnumSpecified,
 }
 
 func hasValidationExtensions(f *protogen.Field) bool {

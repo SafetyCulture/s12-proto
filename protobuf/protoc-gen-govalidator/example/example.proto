@@ -109,3 +109,14 @@ message InnerMessage {
 message InnerMessageWithLegacyId {
   string id = 1 [(validator.legacy_id) = true];
 }
+
+message MyMessageWithEnum {
+  MyEnum enum = 1 [(validator.enum_specified) = true];
+
+  enum MyEnum {
+    // Default is unspecified.
+    MY_ENUM_UNSPECIFIED = 0;
+    // First valid value.
+    MY_ENUM_FIRST = 1;
+  }
+}

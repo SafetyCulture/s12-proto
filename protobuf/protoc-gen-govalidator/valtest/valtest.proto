@@ -174,3 +174,15 @@ message ScimUser {
 //   // Validation must be defined in ScimEmail.value field as it can't be applied on the message
 //   repeated ScimEmail invalid_val = 1 [(validator.string) = {}];
 // }
+
+message MyMessageWithEnum {
+  MyEnum enum = 1 [(validator.enum_specified) = true];
+  repeated MyEnum enums = 2 [(validator.enum_specified) = true];
+
+  enum MyEnum {
+    // Default is unspecified.
+    MY_ENUM_UNSPECIFIED = 0;
+    // First valid value.
+    MY_ENUM_FIRST = 1;
+  }
+}
