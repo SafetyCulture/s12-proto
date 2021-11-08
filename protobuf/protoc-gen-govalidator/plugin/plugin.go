@@ -171,9 +171,10 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 		hasRepeatedExt := hasExt && f.Desc.Cardinality() == protoreflect.Repeated
 		isMessageField := f.Desc.Kind() == protoreflect.MessageKind
 
-		// - don't generate for loop for not an array of msg because it wil be handled differently
-		// - only generatae for loop if there are validations for each single elments otherwise
-		shouldGenerateFor := hasRepeatedExt && !isMessageField && hasNonRepeatedValidationExtensions(f)
+		// shouldLoopOverField decides whether to generate the for loop or not:
+		// - don't generate the for loop for an array of msg because it wil be handled differently
+		// - only generate the for loop if there are validations for each elment
+		shouldLoopOverField := hasRepeatedExt && !isMessageField && hasNonRepeatedValidationExtensions(f)
 
 		if hasRepeatedExt {
 			if v := getIntExtention(f, validator.E_RepeatedLenGte); v >= 0 {
@@ -756,7 +757,7 @@ func genEnumValidator(g *protogen.GeneratedFile, f *protogen.Field, varName stri
 	}
 
 	g.P("if int(", varName, ") == 0 {")
-	g.P("return ", fmtPackage.Ident("Errorf"), "(\"field ", f.Desc.Name(), " must be specified\")")
+	g.P("return ", fmtPackage.Ident("Errorf"), "(\"field ", f.Desc.Name(), " must be specified and a non-zero value\")")
 	g.P("}")
 }
 
