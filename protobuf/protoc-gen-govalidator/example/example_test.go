@@ -995,6 +995,18 @@ func TestValidationRules(t *testing.T) {
 			},
 			true,
 		},
+		{
+			"enum_required is failed",
+			&MyMessageWithEnum{},
+			true,
+		},
+		{
+			"enum_required is passed",
+			&MyMessageWithEnum{
+				Enum: MyMessageWithEnum_MY_ENUM_FIRST,
+			},
+			false,
+		},
 	}
 
 	for _, test := range tests {

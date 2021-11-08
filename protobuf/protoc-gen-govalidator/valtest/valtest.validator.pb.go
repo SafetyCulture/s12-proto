@@ -785,3 +785,12 @@ func (m *MyMessageWithEnum) Validate() error {
 	}
 	return nil
 }
+
+func (m *MyMessageWithRepeatedEnum) Validate() error {
+	for _, item := range m.Enums {
+		if int(item) == 0 {
+			return fmt.Errorf("field enums must be specified")
+		}
+	}
+	return nil
+}

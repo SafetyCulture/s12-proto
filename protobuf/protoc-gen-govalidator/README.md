@@ -15,6 +15,7 @@ $ protoc -I. --gogo_out=:. --govalidator_out=. example.proto
 - [String validation: validator.string and validator.unsafe_string](#validator.string)
 - [Testing](#validator.testing)
 - [Legacy Validator Fields](#validator.legacy)
+- [Enum validation: validator.enum_required](#validator.enum_required)
 
 &nbsp;
 
@@ -275,4 +276,16 @@ message ExampleMessage {
 message InnerMessage {
   string id = 1 [(validator.uuid) = true];
 }
+```
+
+## Enum validation <a name="validator.enum_required"></a>
+Validate enum values.
+
+| Option       | Type | Default | Description |
+|--------------|------|---------|-------------|
+| enum_required | bool | false  | Set this as an optional field. If it's false, the validation is skipped. If it's true, the value for the enum field is required or must be a non-zero value. |
+
+Example usage:
+```
+    MyEnum enum = 1 [(validator.enum_required) = true];
 ```

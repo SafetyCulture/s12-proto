@@ -71,6 +71,54 @@ func (MyMessageWithEnum_MyEnum) EnumDescriptor() ([]byte, []int) {
 	return file_valtest_proto_rawDescGZIP(), []int{10, 0}
 }
 
+type MyMessageWithRepeatedEnum_MyEnum int32
+
+const (
+	// Default is unspecified.
+	MyMessageWithRepeatedEnum_MY_ENUM_UNSPECIFIED MyMessageWithRepeatedEnum_MyEnum = 0
+	// First valid value.
+	MyMessageWithRepeatedEnum_MY_ENUM_FIRST MyMessageWithRepeatedEnum_MyEnum = 1
+)
+
+// Enum value maps for MyMessageWithRepeatedEnum_MyEnum.
+var (
+	MyMessageWithRepeatedEnum_MyEnum_name = map[int32]string{
+		0: "MY_ENUM_UNSPECIFIED",
+		1: "MY_ENUM_FIRST",
+	}
+	MyMessageWithRepeatedEnum_MyEnum_value = map[string]int32{
+		"MY_ENUM_UNSPECIFIED": 0,
+		"MY_ENUM_FIRST":       1,
+	}
+)
+
+func (x MyMessageWithRepeatedEnum_MyEnum) Enum() *MyMessageWithRepeatedEnum_MyEnum {
+	p := new(MyMessageWithRepeatedEnum_MyEnum)
+	*p = x
+	return p
+}
+
+func (x MyMessageWithRepeatedEnum_MyEnum) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (MyMessageWithRepeatedEnum_MyEnum) Descriptor() protoreflect.EnumDescriptor {
+	return file_valtest_proto_enumTypes[1].Descriptor()
+}
+
+func (MyMessageWithRepeatedEnum_MyEnum) Type() protoreflect.EnumType {
+	return &file_valtest_proto_enumTypes[1]
+}
+
+func (x MyMessageWithRepeatedEnum_MyEnum) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use MyMessageWithRepeatedEnum_MyEnum.Descriptor instead.
+func (MyMessageWithRepeatedEnum_MyEnum) EnumDescriptor() ([]byte, []int) {
+	return file_valtest_proto_rawDescGZIP(), []int{11, 0}
+}
+
 type ValTestMessage struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -954,6 +1002,53 @@ func (x *MyMessageWithEnum) GetEnums() []MyMessageWithEnum_MyEnum {
 	return nil
 }
 
+type MyMessageWithRepeatedEnum struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Enums []MyMessageWithRepeatedEnum_MyEnum `protobuf:"varint,1,rep,packed,name=enums,proto3,enum=valtest.MyMessageWithRepeatedEnum_MyEnum" json:"enums,omitempty"`
+}
+
+func (x *MyMessageWithRepeatedEnum) Reset() {
+	*x = MyMessageWithRepeatedEnum{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_valtest_proto_msgTypes[11]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MyMessageWithRepeatedEnum) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MyMessageWithRepeatedEnum) ProtoMessage() {}
+
+func (x *MyMessageWithRepeatedEnum) ProtoReflect() protoreflect.Message {
+	mi := &file_valtest_proto_msgTypes[11]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MyMessageWithRepeatedEnum.ProtoReflect.Descriptor instead.
+func (*MyMessageWithRepeatedEnum) Descriptor() ([]byte, []int) {
+	return file_valtest_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *MyMessageWithRepeatedEnum) GetEnums() []MyMessageWithRepeatedEnum_MyEnum {
+	if x != nil {
+		return x.Enums
+	}
+	return nil
+}
+
 type ValTestMessage_NestedMessage struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -967,7 +1062,7 @@ type ValTestMessage_NestedMessage struct {
 func (x *ValTestMessage_NestedMessage) Reset() {
 	*x = ValTestMessage_NestedMessage{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_valtest_proto_msgTypes[11]
+		mi := &file_valtest_proto_msgTypes[12]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -980,7 +1075,7 @@ func (x *ValTestMessage_NestedMessage) String() string {
 func (*ValTestMessage_NestedMessage) ProtoMessage() {}
 
 func (x *ValTestMessage_NestedMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_valtest_proto_msgTypes[11]
+	mi := &file_valtest_proto_msgTypes[12]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1029,7 +1124,7 @@ type ValTestMessage_Contact struct {
 func (x *ValTestMessage_Contact) Reset() {
 	*x = ValTestMessage_Contact{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_valtest_proto_msgTypes[13]
+		mi := &file_valtest_proto_msgTypes[14]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1042,7 +1137,7 @@ func (x *ValTestMessage_Contact) String() string {
 func (*ValTestMessage_Contact) ProtoMessage() {}
 
 func (x *ValTestMessage_Contact) ProtoReflect() protoreflect.Message {
-	mi := &file_valtest_proto_msgTypes[13]
+	mi := &file_valtest_proto_msgTypes[14]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1083,7 +1178,7 @@ type ValTestMessage_NestedMessage_InnerNestedMessage struct {
 func (x *ValTestMessage_NestedMessage_InnerNestedMessage) Reset() {
 	*x = ValTestMessage_NestedMessage_InnerNestedMessage{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_valtest_proto_msgTypes[14]
+		mi := &file_valtest_proto_msgTypes[15]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1096,7 +1191,7 @@ func (x *ValTestMessage_NestedMessage_InnerNestedMessage) String() string {
 func (*ValTestMessage_NestedMessage_InnerNestedMessage) ProtoMessage() {}
 
 func (x *ValTestMessage_NestedMessage_InnerNestedMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_valtest_proto_msgTypes[14]
+	mi := &file_valtest_proto_msgTypes[15]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1319,12 +1414,22 @@ var file_valtest_proto_rawDesc = []byte{
 	0x34, 0x0a, 0x06, 0x4d, 0x79, 0x45, 0x6e, 0x75, 0x6d, 0x12, 0x17, 0x0a, 0x13, 0x4d, 0x59, 0x5f,
 	0x45, 0x4e, 0x55, 0x4d, 0x5f, 0x55, 0x4e, 0x53, 0x50, 0x45, 0x43, 0x49, 0x46, 0x49, 0x45, 0x44,
 	0x10, 0x00, 0x12, 0x11, 0x0a, 0x0d, 0x4d, 0x59, 0x5f, 0x45, 0x4e, 0x55, 0x4d, 0x5f, 0x46, 0x49,
-	0x52, 0x53, 0x54, 0x10, 0x01, 0x42, 0x4c, 0x5a, 0x4a, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e,
-	0x63, 0x6f, 0x6d, 0x2f, 0x53, 0x61, 0x66, 0x65, 0x74, 0x79, 0x43, 0x75, 0x6c, 0x74, 0x75, 0x72,
-	0x65, 0x2f, 0x73, 0x31, 0x32, 0x2d, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x70, 0x72, 0x6f, 0x74,
-	0x6f, 0x62, 0x75, 0x66, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x2d, 0x67, 0x65, 0x6e, 0x2d,
-	0x67, 0x6f, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2f, 0x76, 0x61, 0x6c, 0x74,
-	0x65, 0x73, 0x74, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x52, 0x53, 0x54, 0x10, 0x01, 0x22, 0x98, 0x01, 0x0a, 0x19, 0x4d, 0x79, 0x4d, 0x65, 0x73, 0x73,
+	0x61, 0x67, 0x65, 0x57, 0x69, 0x74, 0x68, 0x52, 0x65, 0x70, 0x65, 0x61, 0x74, 0x65, 0x64, 0x45,
+	0x6e, 0x75, 0x6d, 0x12, 0x45, 0x0a, 0x05, 0x65, 0x6e, 0x75, 0x6d, 0x73, 0x18, 0x01, 0x20, 0x03,
+	0x28, 0x0e, 0x32, 0x29, 0x2e, 0x76, 0x61, 0x6c, 0x74, 0x65, 0x73, 0x74, 0x2e, 0x4d, 0x79, 0x4d,
+	0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x57, 0x69, 0x74, 0x68, 0x52, 0x65, 0x70, 0x65, 0x61, 0x74,
+	0x65, 0x64, 0x45, 0x6e, 0x75, 0x6d, 0x2e, 0x4d, 0x79, 0x45, 0x6e, 0x75, 0x6d, 0x42, 0x04, 0x90,
+	0xec, 0x1f, 0x01, 0x52, 0x05, 0x65, 0x6e, 0x75, 0x6d, 0x73, 0x22, 0x34, 0x0a, 0x06, 0x4d, 0x79,
+	0x45, 0x6e, 0x75, 0x6d, 0x12, 0x17, 0x0a, 0x13, 0x4d, 0x59, 0x5f, 0x45, 0x4e, 0x55, 0x4d, 0x5f,
+	0x55, 0x4e, 0x53, 0x50, 0x45, 0x43, 0x49, 0x46, 0x49, 0x45, 0x44, 0x10, 0x00, 0x12, 0x11, 0x0a,
+	0x0d, 0x4d, 0x59, 0x5f, 0x45, 0x4e, 0x55, 0x4d, 0x5f, 0x46, 0x49, 0x52, 0x53, 0x54, 0x10, 0x01,
+	0x42, 0x4c, 0x5a, 0x4a, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x53,
+	0x61, 0x66, 0x65, 0x74, 0x79, 0x43, 0x75, 0x6c, 0x74, 0x75, 0x72, 0x65, 0x2f, 0x73, 0x31, 0x32,
+	0x2d, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2f,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x2d, 0x67, 0x65, 0x6e, 0x2d, 0x67, 0x6f, 0x76, 0x61, 0x6c,
+	0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2f, 0x76, 0x61, 0x6c, 0x74, 0x65, 0x73, 0x74, 0x62, 0x06,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1339,45 +1444,48 @@ func file_valtest_proto_rawDescGZIP() []byte {
 	return file_valtest_proto_rawDescData
 }
 
-var file_valtest_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_valtest_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_valtest_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_valtest_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_valtest_proto_goTypes = []interface{}{
-	(MyMessageWithEnum_MyEnum)(0),          // 0: valtest.MyMessageWithEnum.MyEnum
-	(*ValTestMessage)(nil),                 // 1: valtest.ValTestMessage
-	(*OuterMessageUsingNestedMessage)(nil), // 2: valtest.OuterMessageUsingNestedMessage
-	(*InnerMessage)(nil),                   // 3: valtest.InnerMessage
-	(*InnerMessageWithLegacyId)(nil),       // 4: valtest.InnerMessageWithLegacyId
-	(*NestedLevel3Message)(nil),            // 5: valtest.NestedLevel3Message
-	(*NestedLevel2Message)(nil),            // 6: valtest.NestedLevel2Message
-	(*NestedLevel1Message)(nil),            // 7: valtest.NestedLevel1Message
-	(*MyReqMessage)(nil),                   // 8: valtest.MyReqMessage
-	(*ScimEmail)(nil),                      // 9: valtest.ScimEmail
-	(*ScimUser)(nil),                       // 10: valtest.ScimUser
-	(*MyMessageWithEnum)(nil),              // 11: valtest.MyMessageWithEnum
-	(*ValTestMessage_NestedMessage)(nil),   // 12: valtest.ValTestMessage.NestedMessage
-	nil,                                    // 13: valtest.ValTestMessage.NotSupportedEntry
-	(*ValTestMessage_Contact)(nil),         // 14: valtest.ValTestMessage.Contact
-	(*ValTestMessage_NestedMessage_InnerNestedMessage)(nil), // 15: valtest.ValTestMessage.NestedMessage.InnerNestedMessage
+	(MyMessageWithEnum_MyEnum)(0),                           // 0: valtest.MyMessageWithEnum.MyEnum
+	(MyMessageWithRepeatedEnum_MyEnum)(0),                   // 1: valtest.MyMessageWithRepeatedEnum.MyEnum
+	(*ValTestMessage)(nil),                                  // 2: valtest.ValTestMessage
+	(*OuterMessageUsingNestedMessage)(nil),                  // 3: valtest.OuterMessageUsingNestedMessage
+	(*InnerMessage)(nil),                                    // 4: valtest.InnerMessage
+	(*InnerMessageWithLegacyId)(nil),                        // 5: valtest.InnerMessageWithLegacyId
+	(*NestedLevel3Message)(nil),                             // 6: valtest.NestedLevel3Message
+	(*NestedLevel2Message)(nil),                             // 7: valtest.NestedLevel2Message
+	(*NestedLevel1Message)(nil),                             // 8: valtest.NestedLevel1Message
+	(*MyReqMessage)(nil),                                    // 9: valtest.MyReqMessage
+	(*ScimEmail)(nil),                                       // 10: valtest.ScimEmail
+	(*ScimUser)(nil),                                        // 11: valtest.ScimUser
+	(*MyMessageWithEnum)(nil),                               // 12: valtest.MyMessageWithEnum
+	(*MyMessageWithRepeatedEnum)(nil),                       // 13: valtest.MyMessageWithRepeatedEnum
+	(*ValTestMessage_NestedMessage)(nil),                    // 14: valtest.ValTestMessage.NestedMessage
+	nil,                                                     // 15: valtest.ValTestMessage.NotSupportedEntry
+	(*ValTestMessage_Contact)(nil),                          // 16: valtest.ValTestMessage.Contact
+	(*ValTestMessage_NestedMessage_InnerNestedMessage)(nil), // 17: valtest.ValTestMessage.NestedMessage.InnerNestedMessage
 }
 var file_valtest_proto_depIdxs = []int32{
-	4,  // 0: valtest.ValTestMessage.inner_legacy_id:type_name -> valtest.InnerMessageWithLegacyId
-	3,  // 1: valtest.ValTestMessage.msg_required:type_name -> valtest.InnerMessage
-	12, // 2: valtest.ValTestMessage.nested_message:type_name -> valtest.ValTestMessage.NestedMessage
-	13, // 3: valtest.ValTestMessage.not_supported:type_name -> valtest.ValTestMessage.NotSupportedEntry
-	14, // 4: valtest.ValTestMessage.contacts_with_length_constraint:type_name -> valtest.ValTestMessage.Contact
-	14, // 5: valtest.ValTestMessage.contacts_without_length_constraint:type_name -> valtest.ValTestMessage.Contact
-	12, // 6: valtest.OuterMessageUsingNestedMessage.some_message:type_name -> valtest.ValTestMessage.NestedMessage
-	5,  // 7: valtest.NestedLevel2Message.org_nested:type_name -> valtest.NestedLevel3Message
-	6,  // 8: valtest.NestedLevel1Message.org_nested:type_name -> valtest.NestedLevel2Message
-	7,  // 9: valtest.MyReqMessage.org_nested:type_name -> valtest.NestedLevel1Message
-	9,  // 10: valtest.ScimUser.emails:type_name -> valtest.ScimEmail
+	5,  // 0: valtest.ValTestMessage.inner_legacy_id:type_name -> valtest.InnerMessageWithLegacyId
+	4,  // 1: valtest.ValTestMessage.msg_required:type_name -> valtest.InnerMessage
+	14, // 2: valtest.ValTestMessage.nested_message:type_name -> valtest.ValTestMessage.NestedMessage
+	15, // 3: valtest.ValTestMessage.not_supported:type_name -> valtest.ValTestMessage.NotSupportedEntry
+	16, // 4: valtest.ValTestMessage.contacts_with_length_constraint:type_name -> valtest.ValTestMessage.Contact
+	16, // 5: valtest.ValTestMessage.contacts_without_length_constraint:type_name -> valtest.ValTestMessage.Contact
+	14, // 6: valtest.OuterMessageUsingNestedMessage.some_message:type_name -> valtest.ValTestMessage.NestedMessage
+	6,  // 7: valtest.NestedLevel2Message.org_nested:type_name -> valtest.NestedLevel3Message
+	7,  // 8: valtest.NestedLevel1Message.org_nested:type_name -> valtest.NestedLevel2Message
+	8,  // 9: valtest.MyReqMessage.org_nested:type_name -> valtest.NestedLevel1Message
+	10, // 10: valtest.ScimUser.emails:type_name -> valtest.ScimEmail
 	0,  // 11: valtest.MyMessageWithEnum.enum:type_name -> valtest.MyMessageWithEnum.MyEnum
 	0,  // 12: valtest.MyMessageWithEnum.enums:type_name -> valtest.MyMessageWithEnum.MyEnum
-	13, // [13:13] is the sub-list for method output_type
-	13, // [13:13] is the sub-list for method input_type
-	13, // [13:13] is the sub-list for extension type_name
-	13, // [13:13] is the sub-list for extension extendee
-	0,  // [0:13] is the sub-list for field type_name
+	1,  // 13: valtest.MyMessageWithRepeatedEnum.enums:type_name -> valtest.MyMessageWithRepeatedEnum.MyEnum
+	14, // [14:14] is the sub-list for method output_type
+	14, // [14:14] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_valtest_proto_init() }
@@ -1519,6 +1627,18 @@ func file_valtest_proto_init() {
 			}
 		}
 		file_valtest_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*MyMessageWithRepeatedEnum); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_valtest_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ValTestMessage_NestedMessage); i {
 			case 0:
 				return &v.state
@@ -1530,7 +1650,7 @@ func file_valtest_proto_init() {
 				return nil
 			}
 		}
-		file_valtest_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+		file_valtest_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ValTestMessage_Contact); i {
 			case 0:
 				return &v.state
@@ -1542,7 +1662,7 @@ func file_valtest_proto_init() {
 				return nil
 			}
 		}
-		file_valtest_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
+		file_valtest_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ValTestMessage_NestedMessage_InnerNestedMessage); i {
 			case 0:
 				return &v.state
@@ -1564,8 +1684,8 @@ func file_valtest_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_valtest_proto_rawDesc,
-			NumEnums:      1,
-			NumMessages:   15,
+			NumEnums:      2,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

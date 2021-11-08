@@ -111,7 +111,7 @@ message InnerMessageWithLegacyId {
 }
 
 message MyMessageWithEnum {
-  MyEnum enum = 1 [(validator.enum_specified) = true];
+  MyEnum enum = 1 [(validator.enum_required) = true];
 
   enum MyEnum {
     // Default is unspecified.

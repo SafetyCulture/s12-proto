@@ -176,8 +176,19 @@ message ScimUser {
 // }
 
 message MyMessageWithEnum {
-  MyEnum enum = 1 [(validator.enum_specified) = true];
-  repeated MyEnum enums = 2 [(validator.enum_specified) = true];
+  MyEnum enum = 1 [(validator.enum_required) = true];
+  repeated MyEnum enums = 2 [(validator.enum_required) = true];
+
+  enum MyEnum {
+    // Default is unspecified.
+    MY_ENUM_UNSPECIFIED = 0;
+    // First valid value.
+    MY_ENUM_FIRST = 1;
+  }
+}
+
+message MyMessageWithRepeatedEnum {
+  repeated MyEnum enums = 1 [(validator.enum_required) = true];
 
   enum MyEnum {
     // Default is unspecified.

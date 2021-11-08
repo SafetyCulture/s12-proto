@@ -749,7 +749,7 @@ func genMsgValidator(g *protogen.GeneratedFile, f *protogen.Field, varName strin
 }
 
 func genEnumValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string) {
-	if !getBoolExtension(f, validator.E_EnumSpecified) {
+	if !getBoolExtension(f, validator.E_EnumRequired) {
 		return
 	}
 
@@ -791,7 +791,7 @@ var validExts = []protoreflect.ExtensionType{
 	validator.E_Id,
 	validator.E_String,
 	validator.E_UnsafeString,
-	validator.E_EnumSpecified,
+	validator.E_EnumRequired,
 }
 
 func hasValidationExtensions(f *protogen.Field) bool {
