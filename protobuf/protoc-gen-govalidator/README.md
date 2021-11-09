@@ -11,8 +11,10 @@ $ protoc -I. --gogo_out=:. --govalidator_out=. example.proto
 
 ## Development
 
-Use these commands at the root folder for testing:
+Use these commands at the root folder of this repository for testing:
 ```bash
+cd s12-proto
+
 # regenerate examples and run tests
 make govalidator
 make govalidator-test
