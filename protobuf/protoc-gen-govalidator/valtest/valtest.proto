@@ -174,3 +174,32 @@ message ScimUser {
 //   // Validation must be defined in ScimEmail.value field as it can't be applied on the message
 //   repeated ScimEmail invalid_val = 1 [(validator.string) = {}];
 // }
+
+message MyMessageWithEnum {
+  MyEnum enum = 1 [(validator.enum_required) = true];
+  repeated MyEnum enums = 2 [(validator.enum_required) = true];
+
+  enum MyEnum {
+    // Default is unspecified.
+    MY_ENUM_UNSPECIFIED = 0;
+    // First valid value.
+    MY_ENUM_FIRST = 1;
+  }
+}
+
+message MyMessageWithRepeatedEnum {
+  repeated MyEnum enums = 1 [(validator.enum_required) = true];
+
+  enum MyEnum {
+    // Default is unspecified.
+    MY_ENUM_UNSPECIFIED = 0;
+    // First valid value.
+    MY_ENUM_FIRST = 1;
+  }
+}
+
+// MyMessageWithRepeatedField ...
+// gvalidator shouldn't generate empty for loop.
+message MyMessageWithRepeatedField {
+  repeated int32 my_int = 1 [(validator.repeated_len_lte) = 5];
+}

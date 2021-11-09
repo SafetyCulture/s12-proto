@@ -9,12 +9,28 @@ $ go get github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-govalidator
 $ protoc -I. --gogo_out=:. --govalidator_out=. example.proto
 ```
 
+## Development
+
+Use these commands at the root folder of this repository for testing:
+```bash
+cd s12-proto
+
+# regenerate examples and run tests
+make govalidator
+make govalidator-test
+
+# regenerate valtest and run tests
+make govalidator-valtest
+make govalidator-valtest-test
+```
+
 ## Table of Contents
 - [Email validation: validator.email](#validator.email)
 - [ID validation: validator.id](#validator.id)
 - [String validation: validator.string and validator.unsafe_string](#validator.string)
 - [Testing](#validator.testing)
 - [Legacy Validator Fields](#validator.legacy)
+- [Enum validation: validator.enum_required](#validator.enum_required)
 
 &nbsp;
 
@@ -275,4 +291,16 @@ message ExampleMessage {
 message InnerMessage {
   string id = 1 [(validator.uuid) = true];
 }
+```
+
+## Enum validation <a name="validator.enum_required"></a>
+Validate enum values.
+
+| Option       | Type | Default | Description |
+|--------------|------|---------|-------------|
+| enum_required | bool | false  | Set this as an optional field. If it's false, the validation is skipped. If it's true, the value for the enum field is required or must be a non-zero value. |
+
+Example usage:
+```
+    MyEnum enum = 1 [(validator.enum_required) = true];
 ```

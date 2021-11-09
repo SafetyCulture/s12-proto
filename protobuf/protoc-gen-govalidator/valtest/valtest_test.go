@@ -546,6 +546,36 @@ func TestValidationRules(t *testing.T) {
 			&ScimUser{},
 			valid,
 		},
+		{
+			"enum_required is failed",
+			&MyMessageWithEnum{},
+			invalid,
+		},
+		{
+			"enum_required is passed",
+			&MyMessageWithEnum{
+				Enum: MyMessageWithEnum_MY_ENUM_FIRST,
+			},
+			valid,
+		},
+		{
+			"repeated enum_required is failed",
+			&MyMessageWithRepeatedEnum{
+				Enums: []MyMessageWithRepeatedEnum_MyEnum{
+					MyMessageWithRepeatedEnum_MY_ENUM_UNSPECIFIED,
+				},
+			},
+			invalid,
+		},
+		{
+			"repeated enum_required is passed",
+			&MyMessageWithRepeatedEnum{
+				Enums: []MyMessageWithRepeatedEnum_MyEnum{
+					MyMessageWithRepeatedEnum_MY_ENUM_FIRST,
+				},
+			},
+			valid,
+		},
 	}
 
 	// Custom test for repeated contact
