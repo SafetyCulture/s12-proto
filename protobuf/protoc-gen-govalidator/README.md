@@ -9,6 +9,19 @@ $ go get github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-govalidator
 $ protoc -I. --gogo_out=:. --govalidator_out=. example.proto
 ```
 
+## Development
+
+Use these commands at the root folder for testing:
+```bash
+# regenerate examples and run tests
+make govalidator
+make govalidator-test
+
+# regenerate valtest and run tests
+make govalidator-valtest
+make govalidator-valtest-test
+```
+
 ## Table of Contents
 - [Email validation: validator.email](#validator.email)
 - [ID validation: validator.id](#validator.id)

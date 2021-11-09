@@ -192,7 +192,7 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 			}
 		}
 
-		if shouldGenerateFor {
+		if shouldLoopOverField {
 			g.P("for _, item := range ", varName, "{")
 			varName = "item"
 		}
@@ -229,7 +229,7 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 			genEnumValidator(g, f, varName)
 		}
 
-		if shouldGenerateFor {
+		if shouldLoopOverField {
 			g.P(`}`)
 		}
 	}

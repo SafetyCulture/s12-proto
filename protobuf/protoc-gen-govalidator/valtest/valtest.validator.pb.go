@@ -776,11 +776,11 @@ func (m *ScimUser) Validate() error {
 
 func (m *MyMessageWithEnum) Validate() error {
 	if int(m.Enum) == 0 {
-		return fmt.Errorf("field enum must be specified")
+		return fmt.Errorf("field enum must be specified and a non-zero value")
 	}
 	for _, item := range m.Enums {
 		if int(item) == 0 {
-			return fmt.Errorf("field enums must be specified")
+			return fmt.Errorf("field enums must be specified and a non-zero value")
 		}
 	}
 	return nil
@@ -789,7 +789,7 @@ func (m *MyMessageWithEnum) Validate() error {
 func (m *MyMessageWithRepeatedEnum) Validate() error {
 	for _, item := range m.Enums {
 		if int(item) == 0 {
-			return fmt.Errorf("field enums must be specified")
+			return fmt.Errorf("field enums must be specified and a non-zero value")
 		}
 	}
 	return nil

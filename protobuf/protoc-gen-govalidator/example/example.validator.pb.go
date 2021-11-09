@@ -226,7 +226,7 @@ func (m *InnerMessageWithLegacyId) Validate() error {
 
 func (m *MyMessageWithEnum) Validate() error {
 	if int(m.Enum) == 0 {
-		return fmt.Errorf("field enum must be specified")
+		return fmt.Errorf("field enum must be specified and a non-zero value")
 	}
 	return nil
 }
