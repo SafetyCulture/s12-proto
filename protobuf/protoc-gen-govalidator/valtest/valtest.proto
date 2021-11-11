@@ -205,7 +205,6 @@ message MyMessageWithRepeatedField {
 }
 
 message MyOneOfMsg {
-  // Specific tile, it can either be issues or actions.
   oneof my_field {
     FirstType my_first_field = 1;
     SecondType my_second_field = 2;
