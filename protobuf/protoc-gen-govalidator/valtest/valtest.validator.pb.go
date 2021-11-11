@@ -487,7 +487,13 @@ func (m *ValTestMessage) Validate() error {
 			return fmt.Errorf(`sanitise_length: value must only have valid characters`)
 		}
 	}
-	// Validation of oneof fields is unsupported.
+	if _, ok := m.ContactOneof.(*ValTestMessage_Phone); ok {
+		if v, ok := interface{}(m.GetPhone()).(proto.Validator); ok {
+			if err := v.Validate(); err != nil {
+				return proto.FieldError("phone", err)
+			}
+		}
+	}
 	if m.MsgRequired == nil {
 		return fmt.Errorf("field msg_required is required")
 	}
@@ -798,6 +804,38 @@ func (m *MyMessageWithRepeatedEnum) Validate() error {
 func (m *MyMessageWithRepeatedField) Validate() error {
 	if !(len(m.MyInt) <= 5) {
 		return fmt.Errorf(`my_int: length must be lesser than or equal to 5`)
+	}
+	return nil
+}
+
+func (m *MyOneOfMsg) Validate() error {
+	if _, ok := m.MyField.(*MyOneOfMsg_MyFirstField); ok {
+		if v, ok := interface{}(m.GetMyFirstField()).(proto.Validator); ok {
+			if err := v.Validate(); err != nil {
+				return proto.FieldError("my_first_field", err)
+			}
+		}
+	}
+	if _, ok := m.MyField.(*MyOneOfMsg_MySecondField); ok {
+		if v, ok := interface{}(m.GetMySecondField()).(proto.Validator); ok {
+			if err := v.Validate(); err != nil {
+				return proto.FieldError("my_second_field", err)
+			}
+		}
+	}
+	return nil
+}
+
+func (m *MyOneOfMsg_FirstType) Validate() error {
+	if !(m.Value > 1) {
+		return fmt.Errorf(`value: value must be greater than 1`)
+	}
+	return nil
+}
+
+func (m *MyOneOfMsg_SecondType) Validate() error {
+	if !(m.Value > 2) {
+		return fmt.Errorf(`value: value must be greater than 2`)
 	}
 	return nil
 }

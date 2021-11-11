@@ -576,6 +576,50 @@ func TestValidationRules(t *testing.T) {
 			},
 			valid,
 		},
+		{
+			"my_second_field validation is failed",
+			&MyOneOfMsg{
+				MyField: &MyOneOfMsg_MySecondField{
+					MySecondField: &MyOneOfMsg_SecondType{
+						Value: 2,
+					},
+				},
+			},
+			invalid,
+		},
+		{
+			"my_second_field validation is passed",
+			&MyOneOfMsg{
+				MyField: &MyOneOfMsg_MySecondField{
+					MySecondField: &MyOneOfMsg_SecondType{
+						Value: 3,
+					},
+				},
+			},
+			valid,
+		},
+		{
+			"my_first_field validation is passed",
+			&MyOneOfMsg{
+				MyField: &MyOneOfMsg_MyFirstField{
+					MyFirstField: &MyOneOfMsg_FirstType{
+						Value: 2,
+					},
+				},
+			},
+			valid,
+		},
+		{
+			"my_first_field validation is failed",
+			&MyOneOfMsg{
+				MyField: &MyOneOfMsg_MyFirstField{
+					MyFirstField: &MyOneOfMsg_FirstType{
+						Value: 0,
+					},
+				},
+			},
+			invalid,
+		},
 	}
 
 	// Custom test for repeated contact

@@ -203,7 +203,7 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 		}
 
 		if f.Oneof != nil {
-			g.P(`// Validation of oneof fields is unsupported.`)
+			genOneOf(g, f)
 			continue
 		}
 
@@ -886,4 +886,15 @@ func getIntExtention(f *protogen.Field, xt protoreflect.ExtensionType) int64 {
 		}
 	}
 	return -1
+}
+
+func genOneOf(g *protogen.GeneratedFile, f *protogen.Field) {
+	oneOf := f.Oneof
+	g.P("if _, ok := m.", oneOf.GoName, ".(*", g.QualifiedGoIdent(f.GoIdent), "); ok {")
+	g.P("if v, ok := interface{}(m.Get", f.GoName, "()).(", s12protoPackage.Ident("Validator"), "); ok {")
+	g.P("if err := v.Validate(); err != nil {")
+	g.P("return ", s12protoPackage.Ident("FieldError"), "(\"", f.Desc.Name(), "\", err)")
+	g.P("}")
+	g.P("}")
+	g.P("}")
 }
