@@ -208,6 +208,7 @@ message MyOneOfMsg {
   oneof my_field {
     FirstType my_first_field = 1;
     SecondType my_second_field = 2;
+    string my_third_field = 3 [(validator.length_gte) = 1];
   }
 
   message FirstType {

@@ -80,6 +80,7 @@ var _regex_7e459376a48770a5187a181a60489678 = regexp.MustCompile(_regex_val_7e45
 // ValTestMessage_NotSanitisePua is using regex d4db71516b8749dc594e5bf604c6a110
 // ValTestMessage_SanitisePua is using regex d4db71516b8749dc594e5bf604c6a110
 // ValTestMessage_SanitiseLength is using regex d4db71516b8749dc594e5bf604c6a110
+// ValTestMessage_Phone is using regex d4db71516b8749dc594e5bf604c6a110
 // ValTestMessage_NestedMessage_Val is using regex d4db71516b8749dc594e5bf604c6a110
 // ValTestMessage_NestedMessage_InnerNestedMessage_InnerVal is using regex d4db71516b8749dc594e5bf604c6a110
 // NestedLevel3Message_OrgId5 is using regex d4db71516b8749dc594e5bf604c6a110

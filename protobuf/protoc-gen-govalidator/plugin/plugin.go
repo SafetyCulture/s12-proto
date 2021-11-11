@@ -203,8 +203,8 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 		}
 
 		if f.Oneof != nil {
-			genOneOf(g, f)
-			continue
+			g.P("if x, ok := m.", f.Oneof.GoName, ".(*", g.QualifiedGoIdent(f.GoIdent), "); ok {")
+			varName = "x." + f.GoName
 		}
 
 		switch f.Desc.Kind() {
@@ -227,6 +227,10 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 			genMsgValidator(g, f, varName)
 		case protoreflect.EnumKind:
 			genEnumValidator(g, f, varName)
+		}
+
+		if f.Oneof != nil {
+			g.P("}")
 		}
 
 		if shouldLoopOverField {
@@ -886,15 +890,4 @@ func getIntExtention(f *protogen.Field, xt protoreflect.ExtensionType) int64 {
 		}
 	}
 	return -1
-}
-
-func genOneOf(g *protogen.GeneratedFile, f *protogen.Field) {
-	oneOf := f.Oneof
-	g.P("if _, ok := m.", oneOf.GoName, ".(*", g.QualifiedGoIdent(f.GoIdent), "); ok {")
-	g.P("if v, ok := interface{}(m.Get", f.GoName, "()).(", s12protoPackage.Ident("Validator"), "); ok {")
-	g.P("if err := v.Validate(); err != nil {")
-	g.P("return ", s12protoPackage.Ident("FieldError"), "(\"", f.Desc.Name(), "\", err)")
-	g.P("}")
-	g.P("}")
-	g.P("}")
 }

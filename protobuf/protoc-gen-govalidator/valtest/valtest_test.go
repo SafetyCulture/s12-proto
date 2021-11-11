@@ -112,7 +112,7 @@ var valMsg = ValTestMessage{
 	AllString:             " Lot of checks here>",
 	Name:                  "Sinéad O'Connor",
 	NoValidation:          "<really?>' OR 1=1",
-	ContactOneof:          &ValTestMessage_Phone{Phone: "145-456.123"},
+	ContactOneof:          &ValTestMessage_Phone{Phone: "14574560123"},
 	MsgRequired:           &InnerMessage{Id: id},
 	NestedMessage: &ValTestMessage_NestedMessage{
 		Val: "inner val",
@@ -154,7 +154,7 @@ var valMsgOpts = ValTestMessage{
 	TrimString:            "   Trim me   \t",
 	AllString:             " Lot of checks here>",
 	NoValidation:          "<really?>' OR 1=1",
-	ContactOneof:          &ValTestMessage_Phone{Phone: "145-456.123"},
+	ContactOneof:          &ValTestMessage_Phone{Phone: "14574560123"},
 	MsgRequired:           &InnerMessage{Id: id},
 	NestedMessage: &ValTestMessage_NestedMessage{
 		Val: "inner val",
@@ -619,6 +619,24 @@ func TestValidationRules(t *testing.T) {
 				},
 			},
 			invalid,
+		},
+		{
+			"my_third_field validation is failed",
+			&MyOneOfMsg{
+				MyField: &MyOneOfMsg_MyThirdField{
+					MyThirdField: "",
+				},
+			},
+			invalid,
+		},
+		{
+			"my_third_field validation is passed",
+			&MyOneOfMsg{
+				MyField: &MyOneOfMsg_MyThirdField{
+					MyThirdField: "abc",
+				},
+			},
+			valid,
 		},
 	}
 
