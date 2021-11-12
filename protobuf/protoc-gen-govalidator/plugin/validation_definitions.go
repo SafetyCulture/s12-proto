@@ -78,10 +78,10 @@ var stringUnsafeReplacerMap = map[string]string{
 	`\u002A`: `\u2217`, //  * : ∗   ASTERISK to ASTERISK OPERATOR
 	`\u002B`: `\u2795`, //  + : ➕  PLUS SIGN to HEAVY PLUS SIGN
 	`\u002D`: `\u2212`, //  - : −   HYPHEN-MINUS to MINUS SIGN (alternative ‐ U+2010)
-	`\u002F`: `\u2215`, //  / : ∕   SOLIDUS to DIVISION SLASH
+	`\u002F`: `\u2215`, //  / : ∕   SOLIDUS to DIVISION SLASH (alternative ／ U+FF0F)
 	`\u003B`: `\u037E`, //  ; : ;   SEMICOLON to GREEK QUESTION MARK
 	`\u003C`: `\u02C2`, //  < : ˂   LESS-THAN SIGN to MODIFIER LETTER LEFT ARROWHEAD (similar to >, alternative: U+1438)
-	`\u003D`: `\u2E40`, //  = : ⹀   EQUALS SIGN to DOUBLE HYPHEN  (alternative ゠U+30A0)
+	`\u003D`: `\u2E40`, //  = : ⹀   EQUALS SIGN to DOUBLE HYPHEN  (alternative ゠U+30A0 or ꓿ U+A4FF)
 	`\u003E`: `\u02C3`, //  > : ˃   GREATER-THAN SIGN to MODIFIER LETTER RIGHT ARROWHEAD (alternative in other script: U+16F3F)
 	`\u005C`: `\uFF3C`, //  \ : ＼  REVERSE SOLIDUS to FULLWIDTH REVERSE SOLIDUS (alternative ⧵ U+29F5)
 	`\u0060`: `\u2019`, //  ` : ’   GRAVE ACCENT to RIGHT SINGLE QUOTATION MARK
