@@ -76,7 +76,7 @@ var stringUnsafeReplacerMap = map[string]string{
 	`\u0026`: `\u0020`, // TODO  & : ?   AMPERSAND to TODO (not found an appropriate alternative, using space for now)
 	`\u0027`: `\u2019`, //  ' : ’   APOSTROPHE to RIGHT SINGLE QUOTATION MARK
 	`\u002A`: `\u2217`, //  * : ∗   ASTERISK to ASTERISK OPERATOR
-	`\u002B`: `\u2795`, //  + : ➕  PLUS SIGN to HEAVY PLUS SIGN
+	`\u002B`: `\uFF0B`, //  + : ＋  PLUS SIGN to FULLWIDTH PLUS SIGN (alternative ➕ U+2795)
 	`\u002D`: `\u2212`, //  - : −   HYPHEN-MINUS to MINUS SIGN (alternative ‐ U+2010)
 	`\u002F`: `\u2215`, //  / : ∕   SOLIDUS to DIVISION SLASH (alternative ／ U+FF0F)
 	`\u003B`: `\u037E`, //  ; : ;   SEMICOLON to GREEK QUESTION MARK
