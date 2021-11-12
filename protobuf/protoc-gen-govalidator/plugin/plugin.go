@@ -39,7 +39,7 @@ var regexGeneratedFile *protogen.GeneratedFile
 var regexHashLib = make(map[string]struct{})
 
 // Validator plugin version
-var validatorVersion = "v2.1.1"
+var validatorVersion = "v2.1.2"
 
 // Write a preamble in the auto generated files
 func genGeneratedHeader(gen *protogen.Plugin, g *protogen.GeneratedFile, f *protogen.File) {
