@@ -203,8 +203,8 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 		}
 
 		if f.Oneof != nil {
-			g.P(`// Validation of oneof fields is unsupported.`)
-			continue
+			g.P("if x, ok := m.", f.Oneof.GoName, ".(*", g.QualifiedGoIdent(f.GoIdent), "); ok {")
+			varName = "x." + f.GoName
 		}
 
 		switch f.Desc.Kind() {
@@ -227,6 +227,10 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 			genMsgValidator(g, f, varName)
 		case protoreflect.EnumKind:
 			genEnumValidator(g, f, varName)
+		}
+
+		if f.Oneof != nil {
+			g.P("}")
 		}
 
 		if shouldLoopOverField {

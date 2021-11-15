@@ -112,7 +112,7 @@ var valMsg = ValTestMessage{
 	AllString:             " Lot of checks here>",
 	Name:                  "Sinéad O'Connor",
 	NoValidation:          "<really?>' OR 1=1",
-	ContactOneof:          &ValTestMessage_Phone{Phone: "145-456.123"},
+	ContactOneof:          &ValTestMessage_Phone{Phone: "14574560123"},
 	MsgRequired:           &InnerMessage{Id: id},
 	NestedMessage: &ValTestMessage_NestedMessage{
 		Val: "inner val",
@@ -154,7 +154,7 @@ var valMsgOpts = ValTestMessage{
 	TrimString:            "   Trim me   \t",
 	AllString:             " Lot of checks here>",
 	NoValidation:          "<really?>' OR 1=1",
-	ContactOneof:          &ValTestMessage_Phone{Phone: "145-456.123"},
+	ContactOneof:          &ValTestMessage_Phone{Phone: "14574560123"},
 	MsgRequired:           &InnerMessage{Id: id},
 	NestedMessage: &ValTestMessage_NestedMessage{
 		Val: "inner val",
@@ -572,6 +572,68 @@ func TestValidationRules(t *testing.T) {
 			&MyMessageWithRepeatedEnum{
 				Enums: []MyMessageWithRepeatedEnum_MyEnum{
 					MyMessageWithRepeatedEnum_MY_ENUM_FIRST,
+				},
+			},
+			valid,
+		},
+		{
+			"my_second_field validation is failed",
+			&MyOneOfMsg{
+				MyField: &MyOneOfMsg_MySecondField{
+					MySecondField: &MyOneOfMsg_SecondType{
+						Value: 2,
+					},
+				},
+			},
+			invalid,
+		},
+		{
+			"my_second_field validation is passed",
+			&MyOneOfMsg{
+				MyField: &MyOneOfMsg_MySecondField{
+					MySecondField: &MyOneOfMsg_SecondType{
+						Value: 3,
+					},
+				},
+			},
+			valid,
+		},
+		{
+			"my_first_field validation is passed",
+			&MyOneOfMsg{
+				MyField: &MyOneOfMsg_MyFirstField{
+					MyFirstField: &MyOneOfMsg_FirstType{
+						Value: 2,
+					},
+				},
+			},
+			valid,
+		},
+		{
+			"my_first_field validation is failed",
+			&MyOneOfMsg{
+				MyField: &MyOneOfMsg_MyFirstField{
+					MyFirstField: &MyOneOfMsg_FirstType{
+						Value: 0,
+					},
+				},
+			},
+			invalid,
+		},
+		{
+			"my_third_field validation is failed",
+			&MyOneOfMsg{
+				MyField: &MyOneOfMsg_MyThirdField{
+					MyThirdField: "",
+				},
+			},
+			invalid,
+		},
+		{
+			"my_third_field validation is passed",
+			&MyOneOfMsg{
+				MyField: &MyOneOfMsg_MyThirdField{
+					MyThirdField: "abc",
 				},
 			},
 			valid,

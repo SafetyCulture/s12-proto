@@ -487,7 +487,28 @@ func (m *ValTestMessage) Validate() error {
 			return fmt.Errorf(`sanitise_length: value must only have valid characters`)
 		}
 	}
-	// Validation of oneof fields is unsupported.
+	if x, ok := m.ContactOneof.(*ValTestMessage_Phone); ok {
+		if !norm.NFC.IsNormalString(x.Phone) && norm.NFD.IsNormalString(x.Phone) {
+			// normalise NFD to NFC string
+			var normErr error
+			x.Phone, _, normErr = transform.String(transform.Chain(norm.NFD, norm.NFC), x.Phone)
+			if normErr != nil {
+				return fmt.Errorf(`phone: value must must be normalisable to NFC`)
+			}
+		}
+		if strings.ContainsRune(x.Phone, utf8.RuneError) {
+			return fmt.Errorf(`phone: value must must have valid encoding`)
+		} else if !utf8.ValidString(x.Phone) {
+			return fmt.Errorf(`phone: value must must be a valid UTF-8-encoded string`)
+		}
+		var _len_ValTestMessage_Phone = len(x.Phone)
+		if !(_len_ValTestMessage_Phone == 11) {
+			return fmt.Errorf(`phone: value must have length 11`)
+		}
+		if !_regex_d4db71516b8749dc594e5bf604c6a110.MatchString(x.Phone) {
+			return fmt.Errorf(`phone: value must only have valid characters`)
+		}
+	}
 	if m.MsgRequired == nil {
 		return fmt.Errorf("field msg_required is required")
 	}
@@ -798,6 +819,47 @@ func (m *MyMessageWithRepeatedEnum) Validate() error {
 func (m *MyMessageWithRepeatedField) Validate() error {
 	if !(len(m.MyInt) <= 5) {
 		return fmt.Errorf(`my_int: length must be lesser than or equal to 5`)
+	}
+	return nil
+}
+
+func (m *MyOneOfMsg) Validate() error {
+	if x, ok := m.MyField.(*MyOneOfMsg_MyFirstField); ok {
+		if x.MyFirstField != nil {
+			if v, ok := interface{}(x.MyFirstField).(proto.Validator); ok {
+				if err := v.Validate(); err != nil {
+					return proto.FieldError("my_first_field", err)
+				}
+			}
+		}
+	}
+	if x, ok := m.MyField.(*MyOneOfMsg_MySecondField); ok {
+		if x.MySecondField != nil {
+			if v, ok := interface{}(x.MySecondField).(proto.Validator); ok {
+				if err := v.Validate(); err != nil {
+					return proto.FieldError("my_second_field", err)
+				}
+			}
+		}
+	}
+	if x, ok := m.MyField.(*MyOneOfMsg_MyThirdField); ok {
+		if !(len(x.MyThirdField) >= 1) {
+			return fmt.Errorf(`my_third_field: value must have length greater than or equal to 1`)
+		}
+	}
+	return nil
+}
+
+func (m *MyOneOfMsg_FirstType) Validate() error {
+	if !(m.Value > 1) {
+		return fmt.Errorf(`value: value must be greater than 1`)
+	}
+	return nil
+}
+
+func (m *MyOneOfMsg_SecondType) Validate() error {
+	if !(m.Value > 2) {
+		return fmt.Errorf(`value: value must be greater than 2`)
 	}
 	return nil
 }
