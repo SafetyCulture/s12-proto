@@ -4,11 +4,12 @@ package example
 
 import (
 	context "context"
+	log "log"
+
 	_ "github.com/SafetyCulture/s12-proto/s12/flags/permissions"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	log "log"
 	jwtclaims "sc-go.io/pkg/jwtclaims"
 )
 
@@ -20,7 +21,7 @@ func ExamplePermissionsUnaryInterceptor() grpc.UnaryServerInterceptor {
 		_ = c
 		if info.FullMethod == "/example.Example/Unary" {
 			if !c.HasPermission(jwtclaims.Permission("write:users")) {
-				log.Println("s12perm: claims does contain the required permissions")
+				log.Println("s12perm: claims does not contain the required permissions")
 				return ctx, status.Errorf(codes.PermissionDenied, "Permission Denied")
 			}
 		}
