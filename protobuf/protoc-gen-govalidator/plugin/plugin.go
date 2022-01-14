@@ -592,20 +592,28 @@ func genIdValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string
 		g.P("if ", varName, " != \"\" {")
 	}
 
-	// Check if UUID version is set
 	if rules.GetVersion() == "v4" {
+		// Check if UUID version is set
 		// Validate the value for valid UUIDv4
 		g.P("if !", s12protoPackage.Ident("IsUUIDv4"), "(", varName, ") {")
 		// If fails, check for valid legacy id next if option enabled
 		if rules.GetLegacy() {
 			g.P("if !", s12protoPackage.Ident("IsLegacyID"), "(", varName, ") {")
-			errStr := "be parsable as s12 UUID or legacy ID"
+			errStr := "be parsable as UUID or legacy ID"
 			genErrorString(g, varName, string(f.Desc.Name()), errStr)
 			g.P("}")
 		} else {
-			errStr := "be parsable as s12 UUID"
+			errStr := "be parsable as s12 UUID or legacy long UUID"
 			genErrorString(g, varName, string(f.Desc.Name()), errStr)
 		}
+		g.P("}")
+	} else if rules.GetS12Id() {
+		// we want to check for S12IDs of format audit_f6dad1c9334040739b1e67ca70f4cf4d
+		// TODO: add support for prefix check as well.
+		// Now the regex doesn't care about the prefix_, only about the compressed UUID bit
+		g.P("if !", s12protoPackage.Ident("IsS12ID"), "(", varName, ") {")
+		errStr := "be parsable as s12 UUID"
+		genErrorString(g, varName, string(f.Desc.Name()), errStr)
 		g.P("}")
 	} else {
 		// Unsupported version

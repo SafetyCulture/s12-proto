@@ -54,7 +54,7 @@ extend google.protobuf.FieldOptions {
 // See validation_definitions.go for full details
 enum SymbolCategory {
   // No symbols; not really useful
-  // NONE = 0; 
+  // NONE = 0;
 
   // Sm - any mathematical symbol, e.g. + < > = | ~ 𝛁 https://www.fileformat.info/info/unicode/category/Sm/list.htm
   // Punctuation, other
@@ -63,17 +63,17 @@ enum SymbolCategory {
 
   // Sc - any currency sign, e.g. $ £ ¥ €
   // https://www.fileformat.info/info/unicode/category/Sc/list.htm
-  CURRENCY = 2; 
+  CURRENCY = 2;
 
   // Sk - a combining character (mark) as a full character on its own, e.g. ^ ` ¯
   // Only allowed for string with replace_unsafe option
   // https://www.fileformat.info/info/unicode/category/Sk/list.htm
-  MODIFIER = 3; 
+  MODIFIER = 3;
 
   // So - various symbols not in the categories above, e.g. © ↖ 🌏 💯
   // https://www.fileformat.info/info/unicode/category/So/list.htm
   OTHER = 4;
-  
+
   // Mark - characters intended to be combined with another character (e.g. accents, umlauts, enclosing boxes, etc.)
   // all categories (Mn, Mc, ...)
   MARK = 5;
@@ -89,29 +89,29 @@ message StringRules {
   // Set this as optional field (not required)
   // default = false
   optional bool optional = 1 [default = false];
-  
+
   // Trim whitespace before validation - WARNING: this will mutate the data permanently
   // Any leading and trailing whitespace will be removed (this can't be undone)
   // default = false
   optional bool trim = 2 [default = false];
-  
+
   // Length (range), eg "5:100" must be 1 minimum (0:50 is invalid, if 0 accepted, should set optional)
-  // Can be set to a single value for fixed length strings, eg "16" 
+  // Can be set to a single value for fixed length strings, eg "16"
   // default = 1:130
   optional string len = 3;
-  
+
   // Validate the length in rune length (number of Unicode codepoints) instead of bytes
   optional bool runes = 4 [default = false];
-  
+
   // Replace common unsafe characters with an alternative representation
   // Will replace some potentially unsafe characters like ' with a compatible, safe equivalent
   // WARNING: this will permanently mutate the data (this can be undone by reversing the replace logic)
   // NOTE: this is NOT a suitable replacement for output encoding and the use of safe APIs
   optional bool replace_unsafe = 5 [default = false];
-  
+
   // Replace other symbols with more common alternatives
   optional bool replace_other = 6 [default = false];
-  
+
   // Allow default + additional whitelist of defined characters, eg ",/*"
   // Can change this to repeated string if that is better readable, eg. [",", "/", "*"] but that's annoying to type
   // default = predefined safe_string_regex for string or unsafe_string_regex for unsafe_string
@@ -120,7 +120,7 @@ message StringRules {
   // Allow symbol categories
   // default = no symbols except for default characters in string_regex or unsafe_string_regex
   repeated SymbolCategory symbols = 8;
-  
+
   // Allow newline characters (can also be defined via allow = "\n\r")
   // NOTE: \r will be stripped if this option is used
   // default = false (no newline characters allowed)
@@ -135,12 +135,12 @@ message StringRules {
 
   // Unicode Bidirectional Algorithm
   // Do not support this at this point, use allow: "\u200e" or "\u200f" to support LtR and RtL
-  
+
   // Sanitise the data by stripping all not allowed chars
   // This always results in a positive validation result but might corrupt data
   // as it will remove any chars that have not been explicitly allowed
   // optional bool sanitise = X [default = false];
-  
+
   // Prefix specifies that this field must have the specified substring at
   // the beginning of the string.
   // @TODO: implement if we need this
@@ -203,4 +203,6 @@ message IdRules {
   // the beginning of the string.
   // @TODO: implement if we need this, e.g. for user_UUID, org_UUID or use a dedicated validation type for this
   // optional string prefix = 4;
+
+  optional bool s12id = 4 [default = false];
 }

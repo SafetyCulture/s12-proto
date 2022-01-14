@@ -12,6 +12,7 @@ func TestValidationRules(t *testing.T) {
 	const (
 		id               string = "92b6c2f9-abd8-48bc-a2c9-bf70e969751a"
 		legacyId         string = "56341C6E-35A7-4C97-9C5E-7AC79673EAB2"
+		s12Id            string = "audit_b43dd8bd50a94d76bd1fe94efce2b706"
 		legacyLongIdFail string = "00EAE67E-2160-4C2E-BEB1-E5558A2696A7-9-00000190327E0675"     // length = 49 (without dashes)
 		legacyLongId1    string = "00EAE67E-2160-4C2E-BEB1-E5558A2696A7-90-00000190327E0675"    // length = 50 (without dashes)
 		legacyLongId2    string = "005F2E38-8426-48AF-94DE-5FEA3A396EEA-891-00000153F68896DC"   // length = 51 (without dashes)
@@ -162,6 +163,20 @@ func TestValidationRules(t *testing.T) {
 				Url:         url,
 			},
 			true,
+		}, {
+			name: "Valid S12 UUID",
+			input: &ExampleMessage{
+				S12Id:       s12Id,
+				UserId:      byteID,
+				Email:       email,
+				Age:         18,
+				Password:    password,
+				MsgRequired: &InnerMessage{Id: id},
+				LegacyId:    legacyId,
+				Name:        name,
+				Url:         url,
+			},
+			shouldError: false,
 		}, {
 			"EmptyRegex",
 			&ExampleMessage{

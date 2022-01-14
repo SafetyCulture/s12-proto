@@ -13,6 +13,7 @@ import (
 const (
 	id               string = "92b6c2f9-abd8-48bc-a2c9-bf70e969751a"
 	legacyId         string = "56341C6E-35A7-4C97-9C5E-7AC79673EAB2"
+	s12Id            string = "audit_f6dad1c9334040739b1e67ca70f4cf4d"
 	legacyLongIdFail string = "00EAE67E-2160-4C2E-BEB1-E5558A2696A7-9-00000190327E0675"     // length = 49 (without dashes)
 	legacyLongId1    string = "00EAE67E-2160-4C2E-BEB1-E5558A2696A7-90-00000190327E0675"    // length = 50 (without dashes)
 	legacyLongId2    string = "005F2E38-8426-48AF-94DE-5FEA3A396EEA-891-00000153F68896DC"   // length = 51 (without dashes)
@@ -129,6 +130,7 @@ var valMsg = ValTestMessage{
 		{Phone: "abc", Email: "test@example.com"},
 		{Phone: "", Email: "test2@example.com"},
 	},
+	S12Id: s12Id,
 	// NotSupported: ,
 }
 
@@ -170,6 +172,7 @@ var valMsgOpts = ValTestMessage{
 	ContactsWithLengthConstraint: []*ValTestMessage_Contact{
 		{Phone: "abc", Email: "test@example.com"},
 	},
+	S12Id: s12Id,
 	// NotSupported: ,
 }
 
@@ -371,6 +374,16 @@ func TestValidationRules(t *testing.T) {
 			"InvalidIds",
 			getValMsg(ValTestMessage{Ids: []string{id, "audit_invalid", id}}),
 			invalid,
+		},
+		{
+			"ValidS12ID",
+			getValMsg(ValTestMessage{S12Id: s12Id}),
+			valid,
+		},
+		{
+			"InvalidS12ID",
+			getValMsg(ValTestMessage{S12Id: "fake_id"}),
+			valid,
 		},
 		{
 			"ValidEmail",
