@@ -562,8 +562,10 @@ func (m *ValTestMessage) Validate() error {
 			}
 		}
 	}
-	if !proto.IsS12ID(m.S12Id) {
-		return fmt.Errorf(`s12id: value must be parsable as s12 UUID`)
+	if !proto.IsUUIDv4(m.S12Id) {
+		if !proto.IsS12ID(m.S12Id) {
+			return fmt.Errorf(`s12id: value must be parsable as s12 UUID`)
+		}
 	}
 	return nil
 }
@@ -667,8 +669,10 @@ func (m *InnerMessageWithLegacyId) Validate() error {
 }
 
 func (m *InnerMessageWithS12Id) Validate() error {
-	if !proto.IsS12ID(m.Id) {
-		return fmt.Errorf(`id: value must be parsable as s12 UUID`)
+	if !proto.IsUUIDv4(m.Id) {
+		if !proto.IsS12ID(m.Id) {
+			return fmt.Errorf(`id: value must be parsable as s12 UUID`)
+		}
 	}
 	return nil
 }

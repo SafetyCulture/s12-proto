@@ -136,7 +136,7 @@ message ValTestMessage {
   InnerMessageWithS12Id inner_s12id = 60;
 
   // returns an error if the string cannot be parsed as a S12ID
-  string s12id = 61 [(validator.id) = { version: "", s12id: true }];
+  string s12id = 61 [(validator.id) = { s12id: true }];
 }
 
 message OuterMessageUsingNestedMessage {
@@ -152,7 +152,7 @@ message InnerMessageWithLegacyId {
 }
 
 message InnerMessageWithS12Id {
-  string id = 1 [(validator.id) = { version: "", s12id: true }];
+  string id = 1 [(validator.id) = { s12id: true }];
 }
 
 message NestedLevel3Message {
