@@ -130,7 +130,6 @@ var valMsg = ValTestMessage{
 		{Phone: "abc", Email: "test@example.com"},
 		{Phone: "", Email: "test2@example.com"},
 	},
-	S12Id: s12Id,
 	// NotSupported: ,
 }
 
@@ -172,7 +171,6 @@ var valMsgOpts = ValTestMessage{
 	ContactsWithLengthConstraint: []*ValTestMessage_Contact{
 		{Phone: "abc", Email: "test@example.com"},
 	},
-	S12Id: s12Id,
 	// NotSupported: ,
 }
 
@@ -377,13 +375,13 @@ func TestValidationRules(t *testing.T) {
 		},
 		{
 			"ValidS12ID",
-			getValMsg(ValTestMessage{S12Id: s12Id}),
+			getValMsg(ValTestMessage{LegacyId: s12Id}),
 			valid,
 		},
 		{
 			"InvalidS12ID",
-			getValMsg(ValTestMessage{S12Id: "fake_id"}),
-			valid,
+			getValMsg(ValTestMessage{LegacyId: "fake_id"}),
+			invalid,
 		},
 		{
 			"ValidEmail",

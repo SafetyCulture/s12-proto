@@ -42,8 +42,9 @@ func IsUUIDv4(str string) bool {
 }
 
 // IsLegacyID A legacyId does not contain the document prefix; the prefix is accounted for in the service implementation code
+// will validate LONG ID or S12ID
 func IsLegacyID(str string) bool {
-	return rxLegacyId.MatchString(str)
+	return rxLegacyId.MatchString(str) || IsS12ID(str)
 }
 
 // IsS12ID checks if the string has the format of S12ID or UUID

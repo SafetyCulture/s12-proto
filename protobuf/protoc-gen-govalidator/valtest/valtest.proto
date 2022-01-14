@@ -131,12 +131,6 @@ message ValTestMessage {
     (validator.repeated_len_lte) = 10
   ];
   repeated Contact contacts_without_length_constraint = 59;
-
-  // InnerMessage can contain a s12 id too
-  InnerMessageWithS12Id inner_s12id = 60;
-
-  // returns an error if the string cannot be parsed as a S12ID
-  string s12id = 61 [(validator.id) = { s12id: true }];
 }
 
 message OuterMessageUsingNestedMessage {
@@ -149,10 +143,6 @@ message InnerMessage {
 
 message InnerMessageWithLegacyId {
   string id = 1 [(validator.id) = { legacy: true }];
-}
-
-message InnerMessageWithS12Id {
-  string id = 1 [(validator.id) = { s12id: true }];
 }
 
 message NestedLevel3Message {
