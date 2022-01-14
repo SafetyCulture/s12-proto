@@ -4,12 +4,11 @@ package example
 
 import (
 	context "context"
-	log "log"
-
 	_ "github.com/SafetyCulture/s12-proto/s12/flags/permissions"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	log "log"
 	jwtclaims "sc-go.io/pkg/jwtclaims"
 )
 
