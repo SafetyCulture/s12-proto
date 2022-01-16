@@ -60,22 +60,16 @@ func (p *plugin) generateParseFunction(file *generator.FileDescriptor, message *
 				switch *getLevelValue(field) {
 				case logger.Level_PANIC:
 					p.P(`logger.Panic("`, ccTypeName, `_`, fieldNameOneOf, `",this.`, fieldName, `)`)
-					break
 				case logger.Level_DEBUG:
 					p.P(`logger.Debug("`, ccTypeName, `_`, fieldNameOneOf, `",this.`, fieldName, `)`)
-					break
 				case logger.Level_ERROR:
 					p.P(`logger.Error("`, ccTypeName, `_`, fieldNameOneOf, `",this.`, fieldName, `)`)
-					break
 				case logger.Level_FATAL:
 					p.P(`logger.Fatal("`, ccTypeName, `_`, fieldNameOneOf, `",this.`, fieldName, `)`)
-					break
 				case logger.Level_INFO:
 					p.P(`logger.Info("`, ccTypeName, `_`, fieldNameOneOf, `",this.`, fieldName, `)`)
-					break
 				case logger.Level_WARN:
 					p.P(`logger.Warn("`, ccTypeName, `_`, fieldNameOneOf, `",this.`, fieldName, `)`)
-					break
 				}
 				p.Out()
 				p.P(`}`)
@@ -87,22 +81,16 @@ func (p *plugin) generateParseFunction(file *generator.FileDescriptor, message *
 			switch *getLevelValue(field) {
 			case logger.Level_PANIC:
 				p.P(`logger.Panic("`, ccTypeName, `, ".", "`, fieldName, `", this.`, fieldName, `)`)
-				break
 			case logger.Level_DEBUG:
 				p.P(`logger.Debug("`, ccTypeName, `", ".", "`, fieldName, `", this.`, fieldName, `)`)
-				break
 			case logger.Level_ERROR:
 				p.P(`logger.Error("`, ccTypeName, `", ".", "`, fieldName, `", this.`, fieldName, `)`)
-				break
 			case logger.Level_FATAL:
 				p.P(`logger.Fatal("`, ccTypeName, `", ".", "`, fieldName, `", this.`, fieldName, `)`)
-				break
 			case logger.Level_INFO:
 				p.P(`logger.Info("`, ccTypeName, `", ".", "`, fieldName, `", this.`, fieldName, `)`)
-				break
 			case logger.Level_WARN:
 				p.P(`logger.Warn("`, ccTypeName, `", ".", "`, fieldName, `", this.`, fieldName, `)`)
-				break
 			}
 		}
 	}
