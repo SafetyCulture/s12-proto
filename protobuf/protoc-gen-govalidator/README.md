@@ -58,7 +58,8 @@ Validate ID format against UUID using `govalidator.IsUUIDvN` method or as legacy
 |--------------|--------|---------|-------------|
 | optional     | bool   | false | Set this as an optional field. It will allow the string to be empty, validation is skipped in that case. |
 | version      | string | "v4"  | The UUID version, only v4 is supported currently. |
-| legacy       | bool   | false  | Also allow legacy_id format, similar to `validator.legacy_id`. UUID validation will be attempted first, if it fails it will fall back to `IsLegacyID` method |
+| legacy       | bool   | false  | Also allow legacy_id format, similar to `validator.legacy_id`. UUID validation will be attempted first, if it fails it will fall back to `IsLegacyID` method. This option can be combined with the `s12id` option but only enabling `legacy` will not also accept `s12` ids. |
+| s12id       | bool   | false  | Also allow S12 id format with prefixes (e.g. `template_fffaaaccc33340739b1e67ca70f4cf4d`). UUID validation will be attempted first, if it fails it will fall back to `IsS12ID` method. This option can be combined with the `legacy` option but only enabling `s12id` will not also accept `legacy` ids. |
 
 Example usage:
 ```
