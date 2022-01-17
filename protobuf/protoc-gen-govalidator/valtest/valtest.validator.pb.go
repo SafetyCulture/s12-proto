@@ -17,21 +17,34 @@ import (
 
 func (m *ValTestMessage) Validate() error {
 	if !proto.IsUUIDv4(m.Id) {
-		return fmt.Errorf(`id: value must be parsable as s12 UUID`)
+		isValidId := false
+		if !isValidId {
+			return fmt.Errorf(`id: value must be parsable as UUIDv4`)
+		}
 	}
 	for _, item := range m.Ids {
 		if !proto.IsUUIDv4(item) {
-			return fmt.Errorf(`ids: value must be parsable as s12 UUID`)
+			isValidId := false
+			if !isValidId {
+				return fmt.Errorf(`ids: value must be parsable as UUIDv4`)
+			}
 		}
 	}
 	if m.MediaId != "" {
 		if !proto.IsUUIDv4(m.MediaId) {
-			return fmt.Errorf(`media_id: value must be parsable as s12 UUID`)
+			isValidId := false
+			if !isValidId {
+				return fmt.Errorf(`media_id: value must be parsable as UUIDv4`)
+			}
 		}
 	}
 	if !proto.IsUUIDv4(m.LegacyId) {
-		if !proto.IsLegacyID(m.LegacyId) {
-			return fmt.Errorf(`legacy_id: value must be parsable as s12 UUID or legacy ID`)
+		isValidId := false
+		if proto.IsLegacyID(m.LegacyId) {
+			isValidId = true
+		}
+		if !isValidId {
+			return fmt.Errorf(`legacy_id: value must be parsable as UUIDv4 or legacy ID`)
 		}
 	}
 	if m.InnerLegacyId != nil {
@@ -555,6 +568,36 @@ func (m *ValTestMessage) Validate() error {
 			}
 		}
 	}
+	if !proto.IsUUIDv4(m.S12Id) {
+		isValidId := false
+		if !isValidId && proto.IsS12ID(m.S12Id) {
+			isValidId = true
+		}
+		if !isValidId {
+			return fmt.Errorf(`s12_id: value must be parsable as UUIDv4 or S12 ID`)
+		}
+	}
+	if m.InnerS12Id != nil {
+		if v, ok := interface{}(m.InnerS12Id).(proto.Validator); ok {
+			if err := v.Validate(); err != nil {
+				return proto.FieldError("inner_s12_id", err)
+			}
+		}
+	}
+	if m.AllId != "" {
+		if !proto.IsUUIDv4(m.AllId) {
+			isValidId := false
+			if proto.IsLegacyID(m.AllId) {
+				isValidId = true
+			}
+			if !isValidId && proto.IsS12ID(m.AllId) {
+				isValidId = true
+			}
+			if !isValidId {
+				return fmt.Errorf(`all_id: value must be parsable as UUIDv4 or legacy ID or S12 ID`)
+			}
+		}
+	}
 	return nil
 }
 
@@ -649,8 +692,25 @@ func (m *InnerMessage) Validate() error {
 
 func (m *InnerMessageWithLegacyId) Validate() error {
 	if !proto.IsUUIDv4(m.Id) {
-		if !proto.IsLegacyID(m.Id) {
-			return fmt.Errorf(`id: value must be parsable as s12 UUID or legacy ID`)
+		isValidId := false
+		if proto.IsLegacyID(m.Id) {
+			isValidId = true
+		}
+		if !isValidId {
+			return fmt.Errorf(`id: value must be parsable as UUIDv4 or legacy ID`)
+		}
+	}
+	return nil
+}
+
+func (m *InnerMessageWithS12Id) Validate() error {
+	if !proto.IsUUIDv4(m.Id) {
+		isValidId := false
+		if !isValidId && proto.IsS12ID(m.Id) {
+			isValidId = true
+		}
+		if !isValidId {
+			return fmt.Errorf(`id: value must be parsable as UUIDv4 or S12 ID`)
 		}
 	}
 	return nil

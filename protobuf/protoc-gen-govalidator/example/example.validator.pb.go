@@ -72,7 +72,11 @@ func (m *ExampleMessage) Validate() error {
 	if !(len(m.Password) >= 8) {
 		return fmt.Errorf(`password: value must have length greater than or equal to 8`)
 	}
-	// Validation of oneof fields is unsupported.
+	if x, ok := m.ContactOneof.(*ExampleMessage_Phone); ok {
+		if !(len(x.Phone) >= 11) {
+			return fmt.Errorf(`phone: value must have length greater than or equal to 11`)
+		}
+	}
 	if m.MsgRequired == nil {
 		return fmt.Errorf("field msg_required is required")
 	}

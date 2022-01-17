@@ -13,6 +13,7 @@ import (
 const (
 	id               string = "92b6c2f9-abd8-48bc-a2c9-bf70e969751a"
 	legacyId         string = "56341C6E-35A7-4C97-9C5E-7AC79673EAB2"
+	s12Id            string = "audit_f6dad1c9334040739b1e67ca70f4cf4d"
 	legacyLongIdFail string = "00EAE67E-2160-4C2E-BEB1-E5558A2696A7-9-00000190327E0675"     // length = 49 (without dashes)
 	legacyLongId1    string = "00EAE67E-2160-4C2E-BEB1-E5558A2696A7-90-00000190327E0675"    // length = 50 (without dashes)
 	legacyLongId2    string = "005F2E38-8426-48AF-94DE-5FEA3A396EEA-891-00000153F68896DC"   // length = 51 (without dashes)
@@ -91,8 +92,10 @@ var valMsg = ValTestMessage{
 	Id:                    id,
 	Ids:                   []string{id, id},
 	LegacyId:              legacyId,
+	S12Id:                 s12Id,
 	MediaId:               id,
 	InnerLegacyId:         &InnerMessageWithLegacyId{Id: id},
+	InnerS12Id:            &InnerMessageWithS12Id{Id: s12Id},
 	Email:                 email,
 	OptEmail:              email,
 	Description:           "François Truffaut 久保田 利伸 text",
@@ -137,7 +140,9 @@ var valMsgOpts = ValTestMessage{
 	Id:                    id,
 	Ids:                   []string{id, id},
 	LegacyId:              legacyId,
+	S12Id:                 s12Id,
 	InnerLegacyId:         &InnerMessageWithLegacyId{Id: legacyId},
+	InnerS12Id:            &InnerMessageWithS12Id{Id: s12Id},
 	Email:                 email,
 	Description:           "François Truffaut 久保田 利伸 text",
 	Password:              password,
@@ -223,8 +228,11 @@ func getValMsg(m ValTestMessage) *ValTestMessage {
 	if m.LegacyId != "" {
 		newMsg.LegacyId = replaceEmpty(m.LegacyId)
 	}
-	if m.LegacyId != "" {
-		newMsg.LegacyId = replaceEmpty(m.LegacyId)
+	if m.S12Id != "" {
+		newMsg.S12Id = replaceEmpty(m.S12Id)
+	}
+	if m.AllId != "" {
+		newMsg.AllId = replaceEmpty(m.AllId)
 	}
 	if m.MediaId != "" {
 		newMsg.MediaId = replaceEmpty(m.MediaId)
@@ -371,6 +379,51 @@ func TestValidationRules(t *testing.T) {
 			"InvalidIds",
 			getValMsg(ValTestMessage{Ids: []string{id, "audit_invalid", id}}),
 			invalid,
+		},
+		{
+			"ValidS12ID",
+			getValMsg(ValTestMessage{S12Id: s12Id}),
+			valid,
+		},
+		{
+			"InvalidS12ID",
+			getValMsg(ValTestMessage{S12Id: "fake_id"}),
+			invalid,
+		},
+		{
+			"InvalidUUIDwithS12Id",
+			getValMsg(ValTestMessage{Id: s12Id}),
+			invalid,
+		},
+		{
+			"InvalidUUIDwithLegacyId",
+			getValMsg(ValTestMessage{Id: legacyId}),
+			invalid,
+		},
+		{
+			"InvalidLegacyIdwithS12Id",
+			getValMsg(ValTestMessage{LegacyId: s12Id}),
+			invalid,
+		},
+		{
+			"InvalidS12IdWithLegacyId",
+			getValMsg(ValTestMessage{S12Id: legacyId}),
+			invalid,
+		},
+		{
+			"ValidIdAllOptsUUID",
+			getValMsg(ValTestMessage{AllId: id}),
+			valid,
+		},
+		{
+			"ValidIdAllOptsLegacyId",
+			getValMsg(ValTestMessage{AllId: legacyId}),
+			valid,
+		},
+		{
+			"ValidIdAllOptsS12Id",
+			getValMsg(ValTestMessage{AllId: s12Id}),
+			valid,
 		},
 		{
 			"ValidEmail",

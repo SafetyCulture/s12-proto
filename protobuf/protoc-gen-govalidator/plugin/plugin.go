@@ -592,25 +592,42 @@ func genIdValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string
 		g.P("if ", varName, " != \"\" {")
 	}
 
-	// Check if UUID version is set
-	if rules.GetVersion() == "v4" {
-		// Validate the value for valid UUIDv4
-		g.P("if !", s12protoPackage.Ident("IsUUIDv4"), "(", varName, ") {")
-		// If fails, check for valid legacy id next if option enabled
-		if rules.GetLegacy() {
-			g.P("if !", s12protoPackage.Ident("IsLegacyID"), "(", varName, ") {")
-			errStr := "be parsable as s12 UUID or legacy ID"
-			genErrorString(g, varName, string(f.Desc.Name()), errStr)
-			g.P("}")
-		} else {
-			errStr := "be parsable as s12 UUID"
-			genErrorString(g, varName, string(f.Desc.Name()), errStr)
-		}
-		g.P("}")
-	} else {
-		// Unsupported version
+	if rules.GetVersion() != "v4" {
+		// Unsupported version; do not generate the validators without having an implementation for this version
 		panic("unsupported UUID version in field " + f.GoIdent.GoName + ": expected v4, got: " + rules.GetVersion())
 	}
+
+	// Check what ID formats are accepted in addition to UUID
+	// Validation passes if the provided value passes at least one of the validators
+	// UUID format is always accepted where LegacyId and S12 Id can be enabled as an option
+	errMsg := "be parsable as UUIDv4"
+
+	// Always try to validate the value for valid UUIDv4
+	g.P("if !", s12protoPackage.Ident("IsUUIDv4"), "(", varName, ") {")
+	// Invalid UUID: check other formats or error if no other options enabled
+	g.P("isValidId := false")
+
+	// Check for valid legacy id if option enabled
+	if rules.GetLegacy() {
+		errMsg += " or legacy ID"
+		g.P("if ", s12protoPackage.Ident("IsLegacyID"), "(", varName, ") {")
+		g.P("isValidId = true")
+		g.P("}")
+	}
+
+	// Finally, if still no valid id found, also check for S12 Id if option enabled
+	if rules.GetS12Id() {
+		errMsg += " or S12 ID"
+		g.P("if !isValidId && ", s12protoPackage.Ident("IsS12ID"), "(", varName, ") {")
+		g.P("isValidId = true")
+		g.P("}")
+	}
+
+	// Check if any of the validations passed
+	g.P("if !isValidId {")
+	genErrorString(g, varName, string(f.Desc.Name()), errMsg)
+	g.P("}")
+	g.P("}")
 
 	if rules.GetOptional() {
 		g.P("}")
