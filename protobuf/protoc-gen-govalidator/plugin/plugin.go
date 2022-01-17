@@ -592,25 +592,42 @@ func genIdValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string
 		g.P("if ", varName, " != \"\" {")
 	}
 
-	if rules.GetVersion() == "v4" {
-		// Check if UUID version is set
-		// Validate the value for valid UUIDv4
-		g.P("if !", s12protoPackage.Ident("IsUUIDv4"), "(", varName, ") {")
-		// If fails, check for valid legacy id next if option enabled
-		if rules.GetLegacy() {
-			g.P("if !", s12protoPackage.Ident("IsLegacyID"), "(", varName, ") {")
-			errStr := "be parsable as UUID, legacy ID or S12ID"
-			genErrorString(g, varName, string(f.Desc.Name()), errStr)
-			g.P("}")
-		} else {
-			errStr := "be parsable as s12 UUID or legacy long UUID"
-			genErrorString(g, varName, string(f.Desc.Name()), errStr)
-		}
-		g.P("}")
-	} else {
-		// Unsupported version
-		panic("unsupported UUID version in field " + f.GoIdent.GoName + ": expected v4, got: " + rules.GetVersion())
+	// Check if UUID version is set
+	lastError := ""
+	if rules.GetVersion() != "v4" {
+		genErrorString(g, varName, string(f.Desc.Name()), "be parsable since we expected v4")
 	}
+
+	// Always try to validate the value for valid UUIDv4
+	lastError = "be parsable as UUIDv4"
+	g.P("if !", s12protoPackage.Ident("IsUUIDv4"), "(", varName, ") {")
+	g.P("isIDError := true")
+
+	// If fails, check for valid legacy id or S12ID next if option enabled
+	if rules.GetLegacy() {
+		lastError = "be parsable as UUID, legacy ID or S12ID"
+		g.P("if !", s12protoPackage.Ident("IsLegacyID"), "(", varName, ") {")
+		genErrorString(g, varName, string(f.Desc.Name()), lastError)
+		g.P("} else {")
+		g.P("isIDError = false")
+		g.P("}")
+	}
+
+	// If only S12ID is specified
+	if rules.GetS12Id() {
+		lastError = "be parsable as UUID or S12ID"
+		g.P("if !", s12protoPackage.Ident("IsS12ID"), "(", varName, ") {")
+		genErrorString(g, varName, string(f.Desc.Name()), lastError)
+		g.P("} else {")
+		g.P("isIDError = false")
+		g.P("}")
+	}
+
+	g.P("if isIDError {")
+	genErrorString(g, varName, string(f.Desc.Name()), lastError)
+	g.P("}")
+
+	g.P("}")
 
 	if rules.GetOptional() {
 		g.P("}")

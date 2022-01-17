@@ -92,8 +92,10 @@ var valMsg = ValTestMessage{
 	Id:                    id,
 	Ids:                   []string{id, id},
 	LegacyId:              legacyId,
+	S12Id:                 s12Id,
 	MediaId:               id,
 	InnerLegacyId:         &InnerMessageWithLegacyId{Id: id},
+	InnerS12Id:            &InnerMessageWithS12Id{Id: s12Id},
 	Email:                 email,
 	OptEmail:              email,
 	Description:           "François Truffaut 久保田 利伸 text",
@@ -138,7 +140,9 @@ var valMsgOpts = ValTestMessage{
 	Id:                    id,
 	Ids:                   []string{id, id},
 	LegacyId:              legacyId,
+	S12Id:                 s12Id,
 	InnerLegacyId:         &InnerMessageWithLegacyId{Id: legacyId},
+	InnerS12Id:            &InnerMessageWithS12Id{Id: s12Id},
 	Email:                 email,
 	Description:           "François Truffaut 久保田 利伸 text",
 	Password:              password,
@@ -224,8 +228,8 @@ func getValMsg(m ValTestMessage) *ValTestMessage {
 	if m.LegacyId != "" {
 		newMsg.LegacyId = replaceEmpty(m.LegacyId)
 	}
-	if m.LegacyId != "" {
-		newMsg.LegacyId = replaceEmpty(m.LegacyId)
+	if m.S12Id != "" {
+		newMsg.S12Id = replaceEmpty(m.S12Id)
 	}
 	if m.MediaId != "" {
 		newMsg.MediaId = replaceEmpty(m.MediaId)

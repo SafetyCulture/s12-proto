@@ -200,8 +200,10 @@ message IdRules {
   // If it fails it will fall back to IsLegacyID method, this will check for long UUID or S12ID
   optional bool legacy = 3 [default = false];
 
+  optional bool s12id = 4 [default = false];
+
   // Prefix specifies that this field could also have the specified substring at
   // the beginning of the string.
   // @TODO: implement if we need this, e.g. for user_UUID, org_UUID or use a dedicated validation type for this
-  // optional string prefix = 4;
+  // optional string prefix = 5;
 }
