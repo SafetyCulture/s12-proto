@@ -196,10 +196,14 @@ message IdRules {
   optional string version = 2 [default = "v4"];
 
   // Also allow legacy_id format, similar to validator.legacy_id
-  // Normal UUID validation will be attempted first, i
-  // If it fails it will fall back to IsLegacyID method, this will check for long UUID or S12ID
+  // Normal UUID validation will be attempted first
+  // If it fails it will fall back to IsLegacyID method
+  // S12 id is not accepted, enable that option if you also need to accept legacy id 
   optional bool legacy = 3 [default = false];
 
+  // Also allow S12 id format, e.g. prefix_id
+  // Similar to legacy id, will first attempt normal UUID validation, then s12id
+  // Legacy id is not accepted, enable that option if you also need to accept legacy id 
   optional bool s12id = 4 [default = false];
 
   // Prefix specifies that this field could also have the specified substring at

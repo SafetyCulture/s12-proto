@@ -231,6 +231,9 @@ func getValMsg(m ValTestMessage) *ValTestMessage {
 	if m.S12Id != "" {
 		newMsg.S12Id = replaceEmpty(m.S12Id)
 	}
+	if m.AllId != "" {
+		newMsg.AllId = replaceEmpty(m.AllId)
+	}
 	if m.MediaId != "" {
 		newMsg.MediaId = replaceEmpty(m.MediaId)
 	}
@@ -379,13 +382,48 @@ func TestValidationRules(t *testing.T) {
 		},
 		{
 			"ValidS12ID",
-			getValMsg(ValTestMessage{LegacyId: s12Id}),
+			getValMsg(ValTestMessage{S12Id: s12Id}),
 			valid,
 		},
 		{
 			"InvalidS12ID",
-			getValMsg(ValTestMessage{LegacyId: "fake_id"}),
+			getValMsg(ValTestMessage{S12Id: "fake_id"}),
 			invalid,
+		},
+		{
+			"InvalidUUIDwithS12Id",
+			getValMsg(ValTestMessage{Id: s12Id}),
+			invalid,
+		},
+		{
+			"InvalidUUIDwithLegacyId",
+			getValMsg(ValTestMessage{Id: legacyId}),
+			invalid,
+		},
+		{
+			"InvalidLegacyIdwithS12Id",
+			getValMsg(ValTestMessage{LegacyId: s12Id}),
+			invalid,
+		},
+		{
+			"InvalidS12IdWithLegacyId",
+			getValMsg(ValTestMessage{S12Id: legacyId}),
+			invalid,
+		},
+		{
+			"ValidIdAllOptsUUID",
+			getValMsg(ValTestMessage{AllId: id}),
+			valid,
+		},
+		{
+			"ValidIdAllOptsLegacyId",
+			getValMsg(ValTestMessage{AllId: legacyId}),
+			valid,
+		},
+		{
+			"ValidIdAllOptsS12Id",
+			getValMsg(ValTestMessage{AllId: s12Id}),
+			valid,
 		},
 		{
 			"ValidEmail",

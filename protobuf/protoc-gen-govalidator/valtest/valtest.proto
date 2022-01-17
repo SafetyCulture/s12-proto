@@ -137,6 +137,8 @@ message ValTestMessage {
 
   // InnerMessage can contain a legacy id too
   InnerMessageWithS12Id inner_s12_id = 61;
+
+  string all_id = 62 [(validator.id) = { optional: true, legacy: true, s12id: true }];
 }
 
 message OuterMessageUsingNestedMessage {
