@@ -426,6 +426,11 @@ func TestValidationRules(t *testing.T) {
 			valid,
 		},
 		{
+			"ValidS12IDUppercase",
+			getValMsg(ValTestMessage{S12Id: "audit_C6C011ED4ADE460DA04BDA730834B667"}),
+			valid,
+		},
+		{
 			"ValidEmail",
 			getValMsg(ValTestMessage{Email: email}),
 			valid,
