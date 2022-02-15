@@ -60,13 +60,13 @@ func IsS12ID(str string) bool {
 // IsValidEmail checks if an email address is a valid RFC 5322 address
 func IsValidEmail(str string, checkDomain bool) bool {
 	// ignore checkDomain for now
-	valid := RegexEmail.MatchString(str)
-	if valid {
+	// do the length check first for performance reasons
+	if len(str) > 321 {
 		// check length; max length is 64 chars for user part + @ + 256 for domain = 321
 		// this is not a perfect check against RFC, but close enough for our purposes atm
-		valid = len(str) <= 321
+		return false
 	}
-	return valid
+	return RegexEmail.MatchString(str)
 }
 
 type Validator interface {
