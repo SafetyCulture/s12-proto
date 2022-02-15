@@ -35,12 +35,11 @@ make govalidator-valtest-test
 &nbsp;
 
 ## Email validation: validator.email (EmailRules) <a name="validator.email"></a>
-Validate email address format against RFC 5322 using `govalidator.IsEmail` method.
+Validate email address format against RFC 5322.
 
 | Option       | Type | Default | Description |
 |--------------|------|---------|-------------|
 | optional     | bool | false   | Set this as an optional field. It will allow the string to be empty, validation is skipped in that case. |
-| check_domain | bool | false   | Check if the domain has MX records via `govalidator.IsExistingEmail` method. _Note that this option is currently not supported and cannot be used._ |
 
 Example usage:
 ```
@@ -52,7 +51,7 @@ string opt_email = 2 [(validator.email) = { optional: true }];
 &nbsp;
 
 ## ID validation: validator.id (IdRules) <a name="validator.id"></a>
-Validate ID format against UUID using `govalidator.IsUUIDvN` method or as legacy SafetyCulture ID `prefix_id` format.
+Validate ID format against UUIDv4, legacy ID format or S12 SafetyCulture ID `prefix_id` format.
 
 | Option       | Type   | Default | Description |
 |--------------|--------|---------|-------------|
