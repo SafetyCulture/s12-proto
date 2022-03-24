@@ -263,7 +263,9 @@ Example usage:
 
 ## URL validation: validator.url (URLRules) <a name="validator.url"></a>
 Validate a string for a valid URL format. This is a loose validation, focusing on safe characters in the URL and basic format. This validator does not validate if domains are valid and also accepts IP addresses and localhost values.   
-*Warning:* when validation passes, it does _not_ result in a URL that is necessarily safe to fetch/resolve, only that the characters in the provided string are expected in a URL. Additional validations are required if you need to fetch the URL on the server to prevent SSRF including access to internal URLs.
+*Warning:* when validation passes, it does _not_ result in a URL that is necessarily safe to fetch/resolve, only that the characters in the provided string are expected in a URL. Additional validations are required if you need to fetch the URL on the server to prevent SSRF including access to internal URLs.   
+
+Implementation details including acceptable characters and default min/max length in IsValidURL method in [validation_helpers.go](plugin/validation_helpers.go).    
 
 | Option       | Type | Default | Description |
 |--------------|------|---------|-------------|
