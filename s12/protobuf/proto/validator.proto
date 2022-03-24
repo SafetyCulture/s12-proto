@@ -48,6 +48,8 @@ extend google.protobuf.FieldOptions {
   optional IdRules id = 65217;
   // Validates that an enum value is required (or non zero).
   optional bool enum_required = 65218;
+  // Validates for a valid URL.
+  optional URLRules url = 65219;
 }
 
 // SymbolCategory defines which special characters (Unicode symbols and the like) are allowed
@@ -210,4 +212,24 @@ message IdRules {
   // the beginning of the string.
   // @TODO: implement if we need this, e.g. for user_UUID, org_UUID or use a dedicated validation type for this
   // optional string prefix = 5;
+}
+
+// URLRules describe the constraints applied to `url` values
+message URLRules {
+  // Set this as optional field (not required)
+  // default = false
+  optional bool optional = 1 [default = false];
+
+  // Set valid schemes for the URL, e.g. ["http", "https"]
+  // default = https only
+  repeated string schemes = 2;
+
+  // Allow fragments like #fragment in the URL
+  // default = false
+  optional bool allow_fragment = 3 [default = false];
+
+  // Allow http in addition to https
+  // Basically shortcut for schemes = ["https", "http"]
+  // default = false
+  optional bool allow_http = 4 [default = false];
 }

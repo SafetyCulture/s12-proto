@@ -3,13 +3,18 @@
 package proto
 
 import (
+	"fmt"
+	"net/url"
 	"regexp"
 	"strings"
+	"unicode/utf8"
 )
 
 const (
 	// UUIDSize is the size of a UUID in bytes.
-	UUIDSize int = 16
+	UUIDSize        int = 16
+	maxURLRuneCount int = 1000
+	minURLRuneCount int = 3
 )
 
 const (
@@ -21,6 +26,7 @@ const (
 	// ensure all checks are performmed in IsValidEmail so we can revert this later if we want to
 	reEmail string = "^((((([a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+(\\.([a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+)*)|((\\x22)((((\\x20|\\x09)*(\\x0d\\x0a))?(\\x20|\\x09)+)?(([\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f]|\\x21|[\\x23-\\x5b]|[\\x5d-\\x7e]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(\\([\\x01-\\x09\\x0b\\x0c\\x0d-\\x7f]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}]))))*(((\\x20|\\x09)*(\\x0d\\x0a))?(\\x20|\\x09)+)?(\\x22)))){1,14}@((([a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(([a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])([a-zA-Z]|\\d|-|\\.|_|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*([a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))\\.)+(([a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(([a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])([a-zA-Z]|\\d|-|_|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*([a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))$"
 	reUUID4 string = "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+	reURL   string = `^[@\:\/\?#\.\-\_\%\;\=\~\&\+a-zA-Z0-9]+$` // Does not validate format, only characters
 )
 
 var (
@@ -33,6 +39,7 @@ var (
 	RegexPua                    = regexp.MustCompile(rePua)
 	RegexEmail                  = regexp.MustCompile(reEmail)
 	RegexUUID4                  = regexp.MustCompile(reUUID4)
+	rxURL                       = regexp.MustCompile(reURL)
 )
 
 // IsUUID checks if the string is a UUID (version 3, 4 or 5).
@@ -67,6 +74,60 @@ func IsValidEmail(str string, checkDomain bool) bool {
 		return false
 	}
 	return RegexEmail.MatchString(str)
+}
+
+func IsValidURL(str string, schemes []string, allowFragment bool) (bool, error) {
+
+	// Set some form of upper/lower limit. Can be update later if we need to.
+	if str == "" || utf8.RuneCountInString(str) >= maxURLRuneCount || len(str) <= minURLRuneCount || strings.HasPrefix(str, ".") {
+		return false, fmt.Errorf("Length too long")
+	}
+
+	// Note that url.ParseRequestURI does not consider fragments
+	// Consider invalid if the string contains a # character
+	// url.Parse can be used to get the fragment but that method should not be used for any other checks as it allows relative URLs
+	// encoded fragment is fine
+	if !allowFragment && strings.Contains(str, "#") {
+		return false, fmt.Errorf("Fragment not allowed")
+	}
+	u, err := url.ParseRequestURI(str)
+	if err != nil {
+		return false, fmt.Errorf("Invalid URL format")
+	}
+
+	// Sometimes an invalid URL does not throw an error due to parsing ambiguities
+	// ParseRequestURI accepts https:/example.com/test as URL with scheme https and absolute path /example.com/test (no host)
+	// Assume a valid host is at least 4 characters in length, e.g. a.nl and must not start with .
+	if len(u.Host) <= 3 || strings.HasPrefix(u.Host, ".") {
+		return false, fmt.Errorf("Invalid host format")
+	}
+
+	// Validate the scheme, mainly to prevent unexpected protocols like gopher or javascript
+	// This will fail the validation if no schemes are provided which is intended
+	// The plugin has a default scheme (https) that is always sent to this method
+	if len(u.Scheme) == 0 {
+		return false, fmt.Errorf("Missing scheme")
+	}
+	validScheme := false
+	for _, s := range schemes {
+		if u.Scheme == s {
+			validScheme = true
+			break
+		}
+	}
+	if !validScheme {
+		return false, fmt.Errorf("Invalid scheme")
+	}
+
+	// No errors so far, let's make sure we only accept a range of valid characters as ParseRequestURI is very permissive
+	// ParseRequestURI did the heavy lifting in terms of URL format validations
+	// Now make sure we don't accept Unicode and other characters that are invalid in an URL
+	// Unicode characters are forbidden in URLs and need to be encoded, this is not an IRI validator
+	if !rxURL.MatchString(str) {
+		return false, fmt.Errorf("Invalid URL characters")
+	}
+
+	return true, nil
 }
 
 type Validator interface {
