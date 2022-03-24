@@ -370,6 +370,9 @@ func getValMsg(m ValTestMessage) *ValTestMessage {
 	if m.Url != "" {
 		newMsg.Url = replaceEmpty(m.Url)
 	}
+	if m.UrlAllOpts != "" {
+		newMsg.UrlAllOpts = replaceEmpty(m.UrlAllOpts)
+	}
 	return &newMsg
 }
 
@@ -747,6 +750,18 @@ func TestValidationRules(t *testing.T) {
 				},
 			},
 			valid,
+		}, {
+			"ValidUrlCustomSchemeFtp",
+			getValMsg(ValTestMessage{UrlAllOpts: "ftp://example.com/abc"}),
+			valid,
+		}, {
+			"ValidUrlCustomSchemeFtps",
+			getValMsg(ValTestMessage{UrlAllOpts: "ftps://example.com/abc#fragment"}),
+			valid,
+		}, {
+			"InvalidUrlCustomSchemeHttps",
+			getValMsg(ValTestMessage{UrlAllOpts: "https://example.com/abc"}),
+			invalid,
 		},
 	}
 
