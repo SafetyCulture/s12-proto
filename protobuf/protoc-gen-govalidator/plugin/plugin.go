@@ -687,7 +687,7 @@ func genURLValidator(g *protogen.GeneratedFile, f *protogen.Field, varName strin
 	// Validate the url using the helper method
 	g.P(`_schemes_`+f.GoIdent.GoName+` := []string{"`, strings.Join(schemes, `", "`), `"}`)
 	g.P("if _, err := ", s12protoPackage.Ident("IsValidURL"), "(", varName, ", _schemes_"+f.GoIdent.GoName+", ", rules.GetAllowFragment(), "); err != nil {")
-	genErrorStringWithParams(g, varName, string(f.Desc.Name()), "be parsable as a URL: %v (%v)", "err", varName)
+	genErrorStringWithParams(g, varName, string(f.Desc.Name()), "be parsable as a URL: %v", "err")
 	g.P("}")
 
 	if rules.GetOptional() {

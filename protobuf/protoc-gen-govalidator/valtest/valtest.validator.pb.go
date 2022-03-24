@@ -600,12 +600,12 @@ func (m *ValTestMessage) Validate() error {
 	}
 	_schemes_ValTestMessage_Url := []string{"https"}
 	if _, err := proto.IsValidURL(m.Url, _schemes_ValTestMessage_Url, false); err != nil {
-		return fmt.Errorf(`url: value must be parsable as a URL: %v (%v)`, err, m.Url)
+		return fmt.Errorf(`url: value must be parsable as a URL: %v`, err)
 	}
 	if m.UrlAllOpts != "" {
 		_schemes_ValTestMessage_UrlAllOpts := []string{"ftp", "ftps", "http"}
 		if _, err := proto.IsValidURL(m.UrlAllOpts, _schemes_ValTestMessage_UrlAllOpts, true); err != nil {
-			return fmt.Errorf(`url_all_opts: value must be parsable as a URL: %v (%v)`, err, m.UrlAllOpts)
+			return fmt.Errorf(`url_all_opts: value must be parsable as a URL: %v`, err)
 		}
 	}
 	return nil
