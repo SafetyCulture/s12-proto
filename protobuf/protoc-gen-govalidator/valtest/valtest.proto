@@ -139,6 +139,14 @@ message ValTestMessage {
   InnerMessageWithS12Id inner_s12_id = 61;
 
   string all_id = 62 [(validator.id) = { optional: true, legacy: true, s12id: true }];
+
+  string url = 63 [(validator.url) = {}];
+  string url_all_opts = 64 [(validator.url) = { 
+    optional: true, 
+    schemes: ["ftp", "ftps"],
+    allow_fragment: true,
+    allow_http: true
+  }];
 }
 
 message OuterMessageUsingNestedMessage {

@@ -28,9 +28,10 @@ make govalidator-valtest-test
 - [Email validation: validator.email](#validator.email)
 - [ID validation: validator.id](#validator.id)
 - [String validation: validator.string and validator.unsafe_string](#validator.string)
+- [Enum validation: validator.enum_required](#validator.enum_required)
+- [URL validation: validator.url](#validator.url)
 - [Testing](#validator.testing)
 - [Legacy Validator Fields](#validator.legacy)
-- [Enum validation: validator.enum_required](#validator.enum_required)
 
 &nbsp;
 
@@ -246,6 +247,47 @@ String validation comprises of the following steps:
    1. Validate length using `len` or `utf8.RuneCountInString` when `runes` option is enabled. Error message: `value must have length X` or `value must have length between X and Y`.
    1. Validate input data against the allow list using `regex.MatchString`. The regex pattern is dynamically generated (based on validator options and `allow`) and then written to `<package>.validator_regex.pb.go`. Patterns are reused for other fields if possible. Error message: `value must only have valid characters`.
 
+&nbsp;
+
+## Enum validation <a name="validator.enum_required"></a>
+Validate enum values.
+
+| Option       | Type | Default | Description |
+|--------------|------|---------|-------------|
+| enum_required | bool | false  | Set this as an optional field. If it's false, the validation is skipped. If it's true, the value for the enum field is required or must be a non-zero value. |
+
+Example usage:
+```
+    MyEnum enum = 1 [(validator.enum_required) = true];
+```
+
+## URL validation: validator.url (URLRules) <a name="validator.url"></a>
+Validate a string for a valid URL format. This is a loose validation, focusing on safe characters in the URL and basic format. This validator does not validate if domains are valid and also accepts IP addresses and localhost values.   
+*Warning:* when validation passes, it does _not_ result in a URL that is necessarily safe to fetch/resolve, only that the characters in the provided string are expected in a URL. Additional validations are required if you need to fetch the URL on the server to prevent SSRF including access to internal URLs.   
+
+Implementation details including acceptable characters and default min/max length in IsValidURL method in [validation_helpers.go](../../s12/protobuf/proto/validator_helpers.go).    
+
+| Option       | Type | Default | Description |
+|--------------|------|---------|-------------|
+| optional     | bool | false   | Set this as an optional field. It will allow the string to be empty, validation is skipped in that case. |
+| schemes     | repeated string | ["https"]   | Define one or more valid schemes. |
+| allow_fragment     | bool | false   | Allow fragments in the URL. |
+| allow_http     | bool | false   | Allow http scheme in additional to https as default schemes. Shortcut to `schemes: ["http", "https"]`. |
+
+Example usage:
+```
+    string url = 1 [(validator.url) = {}];
+
+    string url_demo = 2 [(validator.url) = { 
+            optional: true, 
+             schemes: ["ftp", "ftps"],
+      allow_fragment: true,
+          allow_http: true
+    }];
+```
+
+&nbsp;
+
 ### Testing <a name="validator.testing"></a>
 There is a new testing suite available in the [valtest](valtest/) folder that can be invoked to test almost any of the validator options. Run it as follows:
 
@@ -293,14 +335,3 @@ message InnerMessage {
 }
 ```
 
-## Enum validation <a name="validator.enum_required"></a>
-Validate enum values.
-
-| Option       | Type | Default | Description |
-|--------------|------|---------|-------------|
-| enum_required | bool | false  | Set this as an optional field. If it's false, the validation is skipped. If it's true, the value for the enum field is required or must be a non-zero value. |
-
-Example usage:
-```
-    MyEnum enum = 1 [(validator.enum_required) = true];
-```

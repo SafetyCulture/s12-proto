@@ -93,6 +93,47 @@ var validNames = []string{
 	"file:///valid_names.txt",
 }
 
+var validURLs = []string{
+	"https://example/", // technically valid - might not want to accept such format
+	"https://example.com",
+	"https://example.com/a",
+	"https://example.com/index.html?a=b&c=d",
+	"https://user@example.com",
+	"https://user:cred@example.com", // not an actual credential
+	"https://example.com/" + strings.Repeat("a", 900),
+	"https://example.com/a+",   // trailing whitespace encoded
+	"https://example.com/a%20", // trailing whitespace encoded
+	"https://example.com/a?b=ftp%3A//user%3Acred%40example.com/file.html%3Fq%3D%27b%27%26test%3D%22something%2526%22", // several encoded and double-encoded URL-reserved chars
+	"https://app.safetyculture.com/path/action?lang=en-US",
+	"https://host.tld:88",
+	"https://example.com:88/test",
+	"https://xn--tlphone-byab/abc", // punnycode, technically valid - might not want to accept such format
+}
+
+var invalidURLs = []string{
+	"https",
+	"https:/",
+	"https://",
+	"https:///",
+	"https:example.com",
+	"https:/example.com",
+	"https//:example.com",
+	"https://example.com/" + strings.Repeat("a", 1000), // too long
+	"ftp://example.com/",             // default scheme is https
+	"https://example.com/a#fragment", // fragment not allowed unless option enabled
+	"https://example.com/\na",
+	" https://example.com/a",  // leading whitespace
+	"\thttps://example.com/a", // leading whitespace
+	"https://example.com/a ",  // trailing whitespace not encoded, most browsers will just strip it but technically invalid
+	"file:///etc/passwd",
+	"javascript:alert(1)",
+	"/absolute_url", // require URL (with scheme, domain), not URI
+	"./relative_url",
+	"../relative/url",
+	"https://example.com/λά.html",              // invalid runes in path
+	"https://invalid-unicodé-domainλά.com/abc", // invalid runes in domain
+}
+
 var valMsg = ValTestMessage{
 	Id:                    id,
 	Ids:                   []string{id, id},
@@ -137,6 +178,8 @@ var valMsg = ValTestMessage{
 		{Phone: "abc", Email: "test@example.com"},
 		{Phone: "", Email: "test2@example.com"},
 	},
+	Url:        "https://example.com/test",
+	UrlAllOpts: "http://app.safetyculture.com/report/media?param=test#fragment",
 	// NotSupported: ,
 }
 
@@ -180,6 +223,7 @@ var valMsgOpts = ValTestMessage{
 	ContactsWithLengthConstraint: []*ValTestMessage_Contact{
 		{Phone: "abc", Email: "test@example.com"},
 	},
+	Url: "https://example.com/test",
 	// NotSupported: ,
 }
 
@@ -323,6 +367,12 @@ func getValMsg(m ValTestMessage) *ValTestMessage {
 	// if m.MsgRequired != "" {
 	// 	newMsg.MsgRequired = m.MsgRequired
 	// }
+	if m.Url != "" {
+		newMsg.Url = replaceEmpty(m.Url)
+	}
+	if m.UrlAllOpts != "" {
+		newMsg.UrlAllOpts = replaceEmpty(m.UrlAllOpts)
+	}
 	return &newMsg
 }
 
@@ -700,6 +750,18 @@ func TestValidationRules(t *testing.T) {
 				},
 			},
 			valid,
+		}, {
+			"ValidUrlCustomSchemeFtp",
+			getValMsg(ValTestMessage{UrlAllOpts: "ftp://example.com/abc"}),
+			valid,
+		}, {
+			"ValidUrlCustomSchemeFtps",
+			getValMsg(ValTestMessage{UrlAllOpts: "ftps://example.com/abc#fragment"}),
+			valid,
+		}, {
+			"InvalidUrlCustomSchemeHttps",
+			getValMsg(ValTestMessage{UrlAllOpts: "https://example.com/abc"}),
+			invalid,
 		},
 	}
 
@@ -850,6 +912,22 @@ func TestValidationRules(t *testing.T) {
 		tests = append(tests, TestSet{
 			"ValidTitlePermissive_" + input,
 			getValMsg(ValTestMessage{ScPermissive: input}),
+			valid,
+		})
+	}
+
+	// URLs
+	for _, invalidURL := range invalidURLs {
+		tests = append(tests, TestSet{
+			"InvalidURL_" + invalidURL,
+			getValMsg(ValTestMessage{Url: invalidURL}),
+			invalid,
+		})
+	}
+	for _, validURL := range validURLs {
+		tests = append(tests, TestSet{
+			"ValidURL_" + validURL,
+			getValMsg(ValTestMessage{Url: validURL}),
 			valid,
 		})
 	}

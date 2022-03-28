@@ -216,6 +216,7 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 			genStringValidator(g, f, varName)
 			genIdValidator(g, f, varName)
 			genEmailValidator(g, f, varName)
+			genURLValidator(g, f, varName)
 		case protoreflect.BytesKind:
 			// IdValidator not supported for bytes at this point
 			genBytesValidator(g, f, varName)
@@ -662,6 +663,38 @@ func genEmailValidator(g *protogen.GeneratedFile, f *protogen.Field, varName str
 	}
 }
 
+func genURLValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string) {
+
+	rules := getURLExtension(f, validator.E_Url)
+	if rules == nil {
+		return
+	}
+
+	if rules.GetOptional() {
+		g.P("if ", varName, " != \"\" {")
+	}
+
+	// Check defined schemes
+	schemes := rules.GetSchemes()
+	if len(schemes) == 0 {
+		schemes = append(schemes, "https")
+	}
+
+	if rules.GetAllowHttp() {
+		schemes = append(schemes, "http")
+	}
+
+	// Validate the url using the helper method
+	g.P(`_schemes_`+f.GoIdent.GoName+` := []string{"`, strings.Join(schemes, `", "`), `"}`)
+	g.P("if _, err := ", s12protoPackage.Ident("IsValidURL"), "(", varName, ", _schemes_"+f.GoIdent.GoName+", ", rules.GetAllowFragment(), "); err != nil {")
+	genErrorStringWithParams(g, varName, string(f.Desc.Name()), "be parsable as a URL: %v", "err")
+	g.P("}")
+
+	if rules.GetOptional() {
+		g.P("}")
+	}
+}
+
 func genLenValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string) {
 	if getBoolExtension(f, validator.E_TrimLenCheck) {
 		g.P("_trim_", f.GoIdent, " := ", stringsPackage.Ident("TrimSpace"), "(", varName, ")")
@@ -814,6 +847,7 @@ var validNonRepeatedExts = []protoreflect.ExtensionType{
 	validator.E_String,
 	validator.E_UnsafeString,
 	validator.E_EnumRequired,
+	validator.E_Url,
 }
 
 var validRepeatedExts = []protoreflect.ExtensionType{
@@ -880,6 +914,16 @@ func getEmailExtension(f *protogen.Field, xt protoreflect.ExtensionType) *valida
 	if opts := f.Desc.Options(); opts != nil {
 		ext := proto.GetExtension(opts, xt)
 		if v, ok := ext.(*validator.EmailRules); ok {
+			return v
+		}
+	}
+	return nil
+}
+
+func getURLExtension(f *protogen.Field, xt protoreflect.ExtensionType) *validator.URLRules {
+	if opts := f.Desc.Options(); opts != nil {
+		ext := proto.GetExtension(opts, xt)
+		if v, ok := ext.(*validator.URLRules); ok {
 			return v
 		}
 	}
