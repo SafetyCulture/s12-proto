@@ -247,9 +247,11 @@ message ValFloatMessage {
     allow_nan: false
   }];
   double default_nan = 3; // no validator
-  double optional_value = 4 [(validator.float) = {
-    allow_nan: false
+  double optional_no_nan_value = 4 [(validator.float) = {
+    allow_nan: false,
+    optional: true,
   }];
   double optional_only = 5 [(validator.float) = {
+    optional: true
   }];
 }

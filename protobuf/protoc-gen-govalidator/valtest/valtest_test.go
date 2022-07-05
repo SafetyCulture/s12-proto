@@ -936,37 +936,76 @@ func TestValidationRules(t *testing.T) {
 	// Floats
 	tests = []TestSet{
 		{
-			"float allows nan when optional",
+			"float allows nan",
 			&ValFloatMessage{
 				NanAllowed:    math.NaN(),
 				NanDisallowed: 0.1,
+				OptionalOnly:  math.NaN(),
+			},
+			valid,
+		},
+		{
+			"float allows nan when optional",
+			&ValFloatMessage{
+				NanAllowed:         math.NaN(),
+				NanDisallowed:      0,
+				DefaultNan:         0,
+				OptionalNoNanValue: 0,
+				OptionalOnly:       math.NaN(),
+			},
+			valid,
+		},
+		{
+			"float allows value when optional",
+			&ValFloatMessage{
+				NanAllowed:         math.NaN(),
+				NanDisallowed:      0.1,
+				OptionalNoNanValue: 0,
+				OptionalOnly:       0,
 			},
 			valid,
 		},
 		{
 			"float allows valid value when allow_nan is true",
 			&ValFloatMessage{
-				NanAllowed:    0,
-				NanDisallowed: 0,
-				DefaultNan:    0,
+				NanAllowed:         0,
+				NanDisallowed:      0,
+				DefaultNan:         0,
+				OptionalNoNanValue: 0,
+				OptionalOnly:       0,
 			},
 			valid,
 		},
 		{
 			"float allows valid value when allow_nan is false",
 			&ValFloatMessage{
-				NanAllowed:    math.NaN(),
-				NanDisallowed: 0,
-				DefaultNan:    0,
+				NanAllowed:         math.NaN(),
+				NanDisallowed:      0,
+				DefaultNan:         0,
+				OptionalNoNanValue: 0,
+				OptionalOnly:       0,
 			},
 			valid,
 		},
 		{
 			"float disallows nan when allow_nan is false",
 			&ValFloatMessage{
-				NanAllowed:    math.NaN(),
-				NanDisallowed: math.NaN(),
-				DefaultNan:    0,
+				NanAllowed:         math.NaN(),
+				NanDisallowed:      math.NaN(),
+				DefaultNan:         0,
+				OptionalNoNanValue: math.NaN(),
+				OptionalOnly:       math.NaN(),
+			},
+			invalid,
+		},
+		{
+			"float disallows nan when optional",
+			&ValFloatMessage{
+				NanAllowed:         math.NaN(),
+				NanDisallowed:      0,
+				DefaultNan:         0,
+				OptionalNoNanValue: math.NaN(),
+				OptionalOnly:       math.NaN(),
 			},
 			invalid,
 		},

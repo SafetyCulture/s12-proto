@@ -935,11 +935,15 @@ func (m *MyOneOfMsg_SecondType) Validate() error {
 }
 
 func (m *ValFloatMessage) Validate() error {
-	if m.NanDisallowed != m.NanDisallowed {
-		return fmt.Errorf(`nan_disallowed: value must not be NaN`)
+	if m.NanAllowed != 0 {
 	}
-	if m.OptionalValue != m.OptionalValue {
-		return fmt.Errorf(`optional_value: value must not be NaN`)
+	if m.NanDisallowed != 0 {
+		if m.NanDisallowed != m.NanDisallowed {
+			return fmt.Errorf(`nan_disallowed: value must not be NaN`)
+		}
+	}
+	if m.OptionalNoNanValue != m.OptionalNoNanValue {
+		return fmt.Errorf(`optional_no_nan_value: value must not be NaN`)
 	}
 	return nil
 }

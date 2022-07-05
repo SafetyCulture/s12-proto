@@ -743,10 +743,18 @@ func genBytesValidator(g *protogen.GeneratedFile, f *protogen.Field, varName str
 func genFloatValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string) {
 	rules := getFloatExtension(f, validator.E_Float)
 
+	if !rules.GetOptional() {
+		g.P("if ", varName, " != 0 {")
+	}
+
 	if !rules.GetAllowNan() {
 		g.P("if ", varName, " != ", varName, " {")
 		errStr := "not be NaN"
 		genErrorString(g, varName, string(f.Desc.Name()), errStr)
+		g.P("}")
+	}
+
+	if !rules.GetOptional() {
 		g.P("}")
 	}
 }
