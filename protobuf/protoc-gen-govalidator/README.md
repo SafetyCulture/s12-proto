@@ -30,6 +30,7 @@ make govalidator-valtest-test
 - [String validation: validator.string and validator.unsafe_string](#validator.string)
 - [Enum validation: validator.enum_required](#validator.enum_required)
 - [URL validation: validator.url](#validator.url)
+- [Float validation: validator.float](#validator.float)
 - [Testing](#validator.testing)
 - [Legacy Validator Fields](#validator.legacy)
 
@@ -283,6 +284,24 @@ Example usage:
              schemes: ["ftp", "ftps"],
       allow_fragment: true,
           allow_http: true
+    }];
+```
+
+&nbsp;
+
+## Float validation: validator.float (FloatRules) <a name="validator.float"></a>
+Validate a float or double for a valid value. Allows the blocking of NaN via the `allow_nan` option.
+
+| Option    | Type | Default | Description |
+|-----------|------|---------|-------------|
+| optional  | bool | false   | Set this as an optional field. It will allow the value to be empty, validation is skipped in that case. |
+| allow_nan | bool | true    | Allow NaN as a valid float/double. If set to false, NaN will not be allowed. |
+
+Example usage:
+```
+    double float_value = 4 [(validator.float) = {
+      allow_nan: false,
+      optional: true,
     }];
 ```
 
