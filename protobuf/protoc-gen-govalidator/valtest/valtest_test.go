@@ -3,6 +3,7 @@ package valtest
 import (
 	"bufio"
 	fmt "fmt"
+	"math"
 	"os"
 	"strings"
 	"testing"
@@ -119,8 +120,8 @@ var invalidURLs = []string{
 	"https:/example.com",
 	"https//:example.com",
 	"https://example.com/" + strings.Repeat("a", 1000), // too long
-	"ftp://example.com/",             // default scheme is https
-	"https://example.com/a#fragment", // fragment not allowed unless option enabled
+	"ftp://example.com/",                               // default scheme is https
+	"https://example.com/a#fragment",                   // fragment not allowed unless option enabled
 	"https://example.com/\na",
 	" https://example.com/a",  // leading whitespace
 	"\thttps://example.com/a", // leading whitespace
@@ -930,6 +931,45 @@ func TestValidationRules(t *testing.T) {
 			getValMsg(ValTestMessage{Url: validURL}),
 			valid,
 		})
+	}
+
+	// Floats
+	tests = []TestSet{
+		{
+			"float allows nan when optional",
+			&ValFloatMessage{
+				NanAllowed:    math.NaN(),
+				NanDisallowed: 0.1,
+			},
+			valid,
+		},
+		{
+			"float allows valid value when allow_nan is true",
+			&ValFloatMessage{
+				NanAllowed:    0,
+				NanDisallowed: 0,
+				DefaultNan:    0,
+			},
+			valid,
+		},
+		{
+			"float allows valid value when allow_nan is false",
+			&ValFloatMessage{
+				NanAllowed:    math.NaN(),
+				NanDisallowed: 0,
+				DefaultNan:    0,
+			},
+			valid,
+		},
+		{
+			"float disallows nan when allow_nan is false",
+			&ValFloatMessage{
+				NanAllowed:    math.NaN(),
+				NanDisallowed: math.NaN(),
+				DefaultNan:    0,
+			},
+			invalid,
+		},
 	}
 
 	for _, test := range tests {

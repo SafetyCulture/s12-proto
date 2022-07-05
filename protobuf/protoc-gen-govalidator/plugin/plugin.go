@@ -224,6 +224,8 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 			protoreflect.Uint32Kind, protoreflect.Uint64Kind,
 			protoreflect.Sint32Kind, protoreflect.Sint64Kind:
 			genIntValidator(g, f, varName)
+		case protoreflect.FloatKind, protoreflect.DoubleKind:
+			genFloatValidator(g, f, varName)
 		case protoreflect.MessageKind:
 			genMsgValidator(g, f, varName)
 		case protoreflect.EnumKind:
@@ -738,6 +740,17 @@ func genBytesValidator(g *protogen.GeneratedFile, f *protogen.Field, varName str
 	}
 }
 
+func genFloatValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string) {
+	rules := getFloatExtension(f, validator.E_Float)
+
+	if !rules.GetAllowNan() {
+		g.P("if ", varName, " != ", varName, " {")
+		errStr := "not be NaN"
+		genErrorString(g, varName, string(f.Desc.Name()), errStr)
+		g.P("}")
+	}
+}
+
 func genIntValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string) {
 	optional := getBoolExtension(f, validator.E_Optional)
 
@@ -848,6 +861,7 @@ var validNonRepeatedExts = []protoreflect.ExtensionType{
 	validator.E_UnsafeString,
 	validator.E_EnumRequired,
 	validator.E_Url,
+	validator.E_Float,
 }
 
 var validRepeatedExts = []protoreflect.ExtensionType{
@@ -951,4 +965,14 @@ func getIntExtention(f *protogen.Field, xt protoreflect.ExtensionType) int64 {
 		}
 	}
 	return -1
+}
+
+func getFloatExtension(f *protogen.Field, xt protoreflect.ExtensionType) *validator.FloatRules {
+	if opts := f.Desc.Options(); opts != nil {
+		ext := proto.GetExtension(opts, xt)
+		if v, ok := ext.(*validator.FloatRules); ok {
+			return v
+		}
+	}
+	return nil
 }

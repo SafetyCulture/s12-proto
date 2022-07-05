@@ -238,3 +238,18 @@ message MyOneOfMsg {
     int64 value = 1 [(validator.int_gt) = 2];
   }
 }
+
+message ValFloatMessage {
+  double nan_allowed = 1 [(validator.float) = {
+    allow_nan: true
+  }];
+  double nan_disallowed = 2 [(validator.float) = {
+    allow_nan: false
+  }];
+  double default_nan = 3; // no validator
+  double optional_value = 4 [(validator.float) = {
+    allow_nan: false
+  }];
+  double optional_only = 5 [(validator.float) = {
+  }];
+}

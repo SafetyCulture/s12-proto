@@ -50,6 +50,8 @@ extend google.protobuf.FieldOptions {
   optional bool enum_required = 65218;
   // Validates for a valid URL.
   optional URLRules url = 65219;
+  // Validates for float values
+  optional FloatRules float = 65220;
 }
 
 // SymbolCategory defines which special characters (Unicode symbols and the like) are allowed
@@ -232,4 +234,15 @@ message URLRules {
   // Basically shortcut for schemes = ["https", "http"]
   // default = false
   optional bool allow_http = 4 [default = false];
+}
+
+// FloatRules describe the constraints applied to `float` values
+message FloatRules {
+  // Set this as optional field (not required)
+  // default = false
+  optional bool optional = 1 [default = false];
+
+  // Set Allow NaN to false to prevent NaN being passed
+  // default = true
+  optional bool allow_nan = 2 [default = true];
 }
