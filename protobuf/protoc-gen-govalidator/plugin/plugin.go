@@ -743,18 +743,24 @@ func genBytesValidator(g *protogen.GeneratedFile, f *protogen.Field, varName str
 func genFloatValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string) {
 	rules := getFloatExtension(f, validator.E_Float)
 
-	if !rules.GetOptional() {
+	if rules.GetOptional() {
 		g.P("if ", varName, " != 0 {")
 	}
 
 	if !rules.GetAllowNan() {
+		g.P("// This statement checks for NaN value without using Math package")
 		g.P("if ", varName, " != ", varName, " {")
 		errStr := "not be NaN"
 		genErrorString(g, varName, string(f.Desc.Name()), errStr)
 		g.P("}")
+	} else {
+		// Currently no other validations required
+		// In the near future length checks will be added
+		// This is to prevent empty if statement
+		g.P("// No validation required")
 	}
 
-	if !rules.GetOptional() {
+	if rules.GetOptional() {
 		g.P("}")
 	}
 }
