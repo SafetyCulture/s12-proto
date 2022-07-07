@@ -711,7 +711,7 @@ func genTimezoneValidator(g *protogen.GeneratedFile, f *protogen.Field, varName 
 	}
 
 	g.P("if tz, err := ", timePackage.Ident("LoadLocation"), "(", varName, "); err != nil || tz == nil {")
-	errStr := "invalid IANA TZ database value"
+	errStr := "be a valid IANA TZ database value"
 	genErrorStringWithParams(g, varName, string(f.Desc.Name()), errStr)
 	g.P("}")
 
