@@ -48,6 +48,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			false,
 		}, {
@@ -62,6 +63,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			false,
 		}, {
@@ -76,6 +78,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -90,6 +93,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -104,6 +108,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -118,6 +123,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -132,6 +138,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -146,6 +153,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -160,6 +168,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -174,6 +183,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         "",
+				Timezone:    "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -188,6 +198,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         "https://www.safetyculture.net",
+				Timezone:    "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -202,6 +213,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -217,6 +229,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			false,
 		}, {
@@ -232,6 +245,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			false,
 		}, {
@@ -247,6 +261,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -262,6 +277,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			false,
 		}, {
@@ -277,6 +293,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -292,6 +309,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			false,
 		}, {
@@ -307,6 +325,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			false,
 		}, {
@@ -322,6 +341,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -337,6 +357,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			false,
 		}, {
@@ -352,6 +373,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			false,
 		}, {
@@ -367,6 +389,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -382,6 +405,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -397,6 +421,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -412,6 +437,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			false,
 		}, {
@@ -427,6 +453,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -442,6 +469,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			false,
 		}, {
@@ -457,6 +485,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			false,
 		}, {
@@ -472,6 +501,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -486,6 +516,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -500,6 +531,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -515,6 +547,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			false,
 		}, {
@@ -530,6 +563,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -545,6 +579,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -558,6 +593,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId: legacyId,
 				Name:     name,
 				Url:      url,
+				Timezone: "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -573,6 +609,7 @@ func TestValidationRules(t *testing.T) {
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyId},
 				Url:           url,
+				Timezone:      "Australia/Sydney",
 			},
 			false,
 		}, {
@@ -588,6 +625,7 @@ func TestValidationRules(t *testing.T) {
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: id},
 				Url:           url,
+				Timezone:      "Australia/Sydney",
 			},
 			false,
 		}, {
@@ -603,6 +641,7 @@ func TestValidationRules(t *testing.T) {
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyId},
 				Url:           url,
+				Timezone:      "Australia/Sydney",
 			},
 			false,
 		}, {
@@ -618,6 +657,7 @@ func TestValidationRules(t *testing.T) {
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyId},
 				Url:           url,
+				Timezone:      "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -633,6 +673,7 @@ func TestValidationRules(t *testing.T) {
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyId},
 				Url:           url,
+				Timezone:      "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -648,6 +689,7 @@ func TestValidationRules(t *testing.T) {
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyId},
 				Url:           url,
+				Timezone:      "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -663,6 +705,7 @@ func TestValidationRules(t *testing.T) {
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyId + "a"},
 				Url:           url,
+				Timezone:      "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -678,6 +721,7 @@ func TestValidationRules(t *testing.T) {
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyLongId1},
 				Url:           url,
+				Timezone:      "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -693,6 +737,7 @@ func TestValidationRules(t *testing.T) {
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyLongId1},
 				Url:           url,
+				Timezone:      "Australia/Sydney",
 			},
 			false,
 		},
@@ -709,6 +754,7 @@ func TestValidationRules(t *testing.T) {
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyLongId1},
 				Url:           url,
+				Timezone:      "Australia/Sydney",
 			},
 			false,
 		},
@@ -725,6 +771,7 @@ func TestValidationRules(t *testing.T) {
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyLongId1},
 				Url:           url,
+				Timezone:      "Australia/Sydney",
 			},
 			false,
 		},
@@ -741,6 +788,7 @@ func TestValidationRules(t *testing.T) {
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyLongId1},
 				Url:           url,
+				Timezone:      "Australia/Sydney",
 			},
 			false,
 		},
@@ -757,6 +805,7 @@ func TestValidationRules(t *testing.T) {
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyLongId1},
 				Url:           url,
+				Timezone:      "Australia/Sydney",
 			},
 			true,
 		},
@@ -773,6 +822,7 @@ func TestValidationRules(t *testing.T) {
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyLongId1},
 				Url:           url,
+				Timezone:      "Australia/Sydney",
 			},
 			false,
 		}, {
@@ -788,6 +838,7 @@ func TestValidationRules(t *testing.T) {
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyLongId1},
 				Url:           url,
+				Timezone:      "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -803,6 +854,7 @@ func TestValidationRules(t *testing.T) {
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyLongId1 + "a"},
 				Url:           url,
+				Timezone:      "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -818,6 +870,7 @@ func TestValidationRules(t *testing.T) {
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyLongId1},
 				Url:           url,
+				Timezone:      "Australia/Sydney",
 			},
 			false,
 		}, {
@@ -833,6 +886,7 @@ func TestValidationRules(t *testing.T) {
 				Name:          name,
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyId},
 				Url:           url,
+				Timezone:      "Australia/Sydney",
 			},
 			false,
 		}, {
@@ -848,6 +902,7 @@ func TestValidationRules(t *testing.T) {
 				Name:          "  \n\t\r  ",
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyId},
 				Url:           url,
+				Timezone:      "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -863,6 +918,7 @@ func TestValidationRules(t *testing.T) {
 				Name:          " \t\t12345  ", // min is 6
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyId},
 				Url:           url,
+				Timezone:      "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -878,6 +934,7 @@ func TestValidationRules(t *testing.T) {
 				Name:          " \t\t1234567890\t\t\t\r  ", // min is 6, max 10
 				InnerLegacyId: &InnerMessageWithLegacyId{Id: legacyId},
 				Url:           url,
+				Timezone:      "Australia/Sydney",
 			},
 			false,
 		}, {
@@ -899,7 +956,8 @@ func TestValidationRules(t *testing.T) {
 						email,
 					},
 				},
-				Url: url,
+				Url:      url,
+				Timezone: "Australia/Sydney",
 			},
 			false,
 		}, {
@@ -920,7 +978,8 @@ func TestValidationRules(t *testing.T) {
 						email,
 					},
 				},
-				Url: url,
+				Url:      url,
+				Timezone: "Australia/Sydney",
 			},
 			true,
 		},
@@ -947,7 +1006,8 @@ func TestValidationRules(t *testing.T) {
 						email,
 					},
 				},
-				Url: url,
+				Url:      url,
+				Timezone: "Australia/Sydney",
 			},
 			true,
 		}, {
@@ -962,6 +1022,7 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+				Timezone:    "Australia/Sydney",
 			},
 			false,
 		},
@@ -992,6 +1053,72 @@ func TestValidationRules(t *testing.T) {
 				LegacyId:    legacyId,
 				Name:        name,
 				Url:         url,
+			},
+			true,
+		},
+		{
+			"ValidTimezone",
+			&ExampleMessage{
+				Id:          id,
+				UserId:      byteID,
+				Email:       email,
+				Age:         18,
+				Password:    password,
+				MsgRequired: &InnerMessage{Id: id},
+				LegacyId:    legacyId,
+				Name:        name,
+				Url:         url,
+				Timezone:    "Australia/Sydney",
+			},
+			false,
+		},
+		{
+			"InvalidTimezone",
+			&ExampleMessage{
+				Id:          id,
+				UserId:      byteID,
+				Email:       email,
+				Age:         18,
+				Password:    password,
+				MsgRequired: &InnerMessage{Id: id},
+				LegacyId:    legacyId,
+				Name:        name,
+				Url:         url,
+				Timezone:    "Australia/BonnieDoon",
+			},
+			true,
+		},
+		{
+			"ValidTimezoneOptional",
+			&ExampleMessage{
+				Id:               id,
+				UserId:           byteID,
+				Email:            email,
+				Age:              18,
+				Password:         password,
+				MsgRequired:      &InnerMessage{Id: id},
+				LegacyId:         legacyId,
+				Name:             name,
+				Url:              url,
+				Timezone:         "Australia/Sydney",
+				TimezoneOptional: "Australia/Sydney",
+			},
+			false,
+		},
+		{
+			"InvalidTimezoneOptional",
+			&ExampleMessage{
+				Id:               id,
+				UserId:           byteID,
+				Email:            email,
+				Age:              18,
+				Password:         password,
+				MsgRequired:      &InnerMessage{Id: id},
+				LegacyId:         legacyId,
+				Name:             name,
+				Url:              url,
+				Timezone:         "Australia/Sydney",
+				TimezoneOptional: "Australia/BonnieDoon",
 			},
 			true,
 		},

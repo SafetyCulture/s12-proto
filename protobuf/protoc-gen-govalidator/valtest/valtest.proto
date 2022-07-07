@@ -141,12 +141,22 @@ message ValTestMessage {
   string all_id = 62 [(validator.id) = { optional: true, legacy: true, s12id: true }];
 
   string url = 63 [(validator.url) = {}];
-  string url_all_opts = 64 [(validator.url) = { 
-    optional: true, 
+  string url_all_opts = 64 [(validator.url) = {
+    optional: true,
     schemes: ["ftp", "ftps"],
     allow_fragment: true,
     allow_http: true
   }];
+
+  string timezone = 65 [
+    (validator.timezone) = {}
+  ];
+
+  string timezone_optional = 66 [
+    (validator.timezone) = {
+      optional: true
+    }
+  ];
 }
 
 message OuterMessageUsingNestedMessage {
