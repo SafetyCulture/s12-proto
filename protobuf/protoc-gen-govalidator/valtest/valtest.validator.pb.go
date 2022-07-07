@@ -12,6 +12,7 @@ import (
 	transform "golang.org/x/text/transform"
 	norm "golang.org/x/text/unicode/norm"
 	strings "strings"
+	time "time"
 	utf8 "unicode/utf8"
 )
 
@@ -606,6 +607,17 @@ func (m *ValTestMessage) Validate() error {
 		_schemes_ValTestMessage_UrlAllOpts := []string{"ftp", "ftps", "http"}
 		if _, err := proto.IsValidURL(m.UrlAllOpts, _schemes_ValTestMessage_UrlAllOpts, true); err != nil {
 			return fmt.Errorf(`url_all_opts: value must be parsable as a URL: %v`, err)
+		}
+	}
+	if m.Timezone == "" {
+		return fmt.Errorf("field timezone is required")
+	}
+	if tz, err := time.LoadLocation(m.Timezone); err != nil || tz == nil {
+		return fmt.Errorf(`timezone: value must invalid IANA TZ database value`)
+	}
+	if m.TimezoneOptional != "" {
+		if tz, err := time.LoadLocation(m.TimezoneOptional); err != nil || tz == nil {
+			return fmt.Errorf(`timezone_optional: value must invalid IANA TZ database value`)
 		}
 	}
 	return nil

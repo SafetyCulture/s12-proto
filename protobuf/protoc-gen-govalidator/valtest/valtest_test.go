@@ -119,8 +119,8 @@ var invalidURLs = []string{
 	"https:/example.com",
 	"https//:example.com",
 	"https://example.com/" + strings.Repeat("a", 1000), // too long
-	"ftp://example.com/",             // default scheme is https
-	"https://example.com/a#fragment", // fragment not allowed unless option enabled
+	"ftp://example.com/",                               // default scheme is https
+	"https://example.com/a#fragment",                   // fragment not allowed unless option enabled
 	"https://example.com/\na",
 	" https://example.com/a",  // leading whitespace
 	"\thttps://example.com/a", // leading whitespace
@@ -181,6 +181,7 @@ var valMsg = ValTestMessage{
 	Url:        "https://example.com/test",
 	UrlAllOpts: "http://app.safetyculture.com/report/media?param=test#fragment",
 	// NotSupported: ,
+	Timezone: "Australia/Sydney",
 }
 
 // omit optional fields here
@@ -225,6 +226,7 @@ var valMsgOpts = ValTestMessage{
 	},
 	Url: "https://example.com/test",
 	// NotSupported: ,
+	Timezone: "Australia/Sydney",
 }
 
 func readFiles(list []string) []string {
@@ -372,6 +374,12 @@ func getValMsg(m ValTestMessage) *ValTestMessage {
 	}
 	if m.UrlAllOpts != "" {
 		newMsg.UrlAllOpts = replaceEmpty(m.UrlAllOpts)
+	}
+	if m.Timezone != "" {
+		newMsg.Timezone = replaceEmpty(m.Timezone)
+	}
+	if m.TimezoneOptional != "" {
+		newMsg.TimezoneOptional = replaceEmpty(m.TimezoneOptional)
 	}
 	return &newMsg
 }
@@ -762,6 +770,14 @@ func TestValidationRules(t *testing.T) {
 			"InvalidUrlCustomSchemeHttps",
 			getValMsg(ValTestMessage{UrlAllOpts: "https://example.com/abc"}),
 			invalid,
+		}, {
+			"InvalidTimezone",
+			getValMsg(ValTestMessage{Timezone: "Australia/BonnieDoon"}),
+			invalid,
+		}, {
+			"InvalidTimezoneOptional",
+			getValMsg(ValTestMessage{TimezoneOptional: "Australia/BonnieDoon"}),
+			invalid,
 		},
 	}
 
@@ -931,6 +947,15 @@ func TestValidationRules(t *testing.T) {
 			valid,
 		})
 	}
+
+	emptyTimezoneMsg := getValMsg(ValTestMessage{})
+	emptyTimezoneMsg.Timezone = ""
+	// Empty Timezone
+	tests = append(tests, TestSet{
+		"InvalidTimezoneRequired",
+		emptyTimezoneMsg,
+		invalid,
+	})
 
 	for _, test := range tests {
 		test := test
