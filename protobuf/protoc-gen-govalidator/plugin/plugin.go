@@ -21,6 +21,7 @@ import (
 // Standard library dependencies.
 const (
 	fmtPackage       = protogen.GoImportPath("fmt")
+	timePackage      = protogen.GoImportPath("time")
 	mathPackage      = protogen.GoImportPath("math")
 	regexpPackage    = protogen.GoImportPath("regexp")
 	stringsPackage   = protogen.GoImportPath("strings")
@@ -217,6 +218,7 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 			genIdValidator(g, f, varName)
 			genEmailValidator(g, f, varName)
 			genURLValidator(g, f, varName)
+			genTimezoneValidator(g, f, varName)
 		case protoreflect.BytesKind:
 			// IdValidator not supported for bytes at this point
 			genBytesValidator(g, f, varName)
@@ -291,7 +293,6 @@ func genLegacyStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varN
 }
 
 func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string) {
-
 	// `string` and `unsafe_string` share most of the underlying validation logic
 	stringType := validator.E_String
 	rules := getStringExtension(f, stringType)
@@ -695,6 +696,30 @@ func genURLValidator(g *protogen.GeneratedFile, f *protogen.Field, varName strin
 	}
 }
 
+func genTimezoneValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string) {
+	rules := getTimezoneExtension(f, validator.E_Timezone)
+	if rules == nil {
+		return
+	}
+
+	if rules.GetOptional() {
+		g.P("if ", varName, " != \"\" {")
+	} else {
+		g.P("if ", varName, " == \"\" {")
+		g.P("return ", fmtPackage.Ident("Errorf"), "(\"field ", f.Desc.Name(), " is required\")")
+		g.P("}")
+	}
+
+	g.P("if tz, err := ", timePackage.Ident("LoadLocation"), "(", varName, "); err != nil || tz == nil {")
+	errStr := "invalid IANA TZ database value"
+	genErrorStringWithParams(g, varName, string(f.Desc.Name()), errStr)
+	g.P("}")
+
+	if rules.GetOptional() {
+		g.P("}")
+	}
+}
+
 func genLenValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string) {
 	if getBoolExtension(f, validator.E_TrimLenCheck) {
 		g.P("_trim_", f.GoIdent, " := ", stringsPackage.Ident("TrimSpace"), "(", varName, ")")
@@ -848,6 +873,7 @@ var validNonRepeatedExts = []protoreflect.ExtensionType{
 	validator.E_UnsafeString,
 	validator.E_EnumRequired,
 	validator.E_Url,
+	validator.E_Timezone,
 }
 
 var validRepeatedExts = []protoreflect.ExtensionType{
@@ -924,6 +950,16 @@ func getURLExtension(f *protogen.Field, xt protoreflect.ExtensionType) *validato
 	if opts := f.Desc.Options(); opts != nil {
 		ext := proto.GetExtension(opts, xt)
 		if v, ok := ext.(*validator.URLRules); ok {
+			return v
+		}
+	}
+	return nil
+}
+
+func getTimezoneExtension(f *protogen.Field, xt protoreflect.ExtensionType) *validator.TimezoneRules {
+	if opts := f.Desc.Options(); opts != nil {
+		ext := proto.GetExtension(opts, xt)
+		if v, ok := ext.(*validator.TimezoneRules); ok {
 			return v
 		}
 	}

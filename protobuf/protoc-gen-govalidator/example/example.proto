@@ -96,6 +96,16 @@ message ExampleMessage {
   google.protobuf.Timestamp scheduled_for = 24 [
     (validator.optional) = true
   ];
+
+  string timezone = 25 [
+    (validator.timezone) = {}
+  ];
+
+  string timezone_optional = 26 [
+    (validator.timezone) = {
+      optional: true
+    }
+  ];
 }
 
 message OuterMessageUsingNestedMessage {
