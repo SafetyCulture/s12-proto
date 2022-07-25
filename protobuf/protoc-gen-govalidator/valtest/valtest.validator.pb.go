@@ -613,11 +613,11 @@ func (m *ValTestMessage) Validate() error {
 		return fmt.Errorf("field timezone is required")
 	}
 	if tz, err := time.LoadLocation(m.Timezone); err != nil || tz == nil {
-		return fmt.Errorf(`timezone: value must invalid IANA TZ database value`)
+		return fmt.Errorf(`timezone: value must be a valid IANA TZ database value`)
 	}
 	if m.TimezoneOptional != "" {
 		if tz, err := time.LoadLocation(m.TimezoneOptional); err != nil || tz == nil {
-			return fmt.Errorf(`timezone_optional: value must invalid IANA TZ database value`)
+			return fmt.Errorf(`timezone_optional: value must be a valid IANA TZ database value`)
 		}
 	}
 	return nil
@@ -690,6 +690,49 @@ func (m *ValTestMessage_Contact) Validate() error {
 	}
 	if !proto.IsValidEmail(m.Email, false) {
 		return fmt.Errorf(`email: value must be parsable as an email address`)
+	}
+	return nil
+}
+
+func (m *SoftValidationMessage) Validate() error {
+	if !proto.IsUUID(m.ImageId) {
+		return fmt.Errorf(`image_id: value must be parsable as a UUID`)
+	}
+	if !proto.IsUUIDv4(m.ImageId) {
+		isValidId := false
+		if proto.IsLegacyID(m.ImageId) {
+			isValidId = true
+		}
+		if !isValidId && proto.IsS12ID(m.ImageId) {
+			isValidId = true
+		}
+		if !isValidId {
+			fmt.Println(`image_id: value must be parsable as UUIDv4 or legacy ID or S12 ID`)
+		}
+	}
+	if !proto.IsUUIDv4(m.InspectionId) {
+		isValidId := false
+		if proto.IsLegacyID(m.InspectionId) {
+			isValidId = true
+		}
+		if !isValidId && proto.IsS12ID(m.InspectionId) {
+			isValidId = true
+		}
+		if !isValidId {
+			return fmt.Errorf(`inspection_id: value must be parsable as UUIDv4 or legacy ID or S12 ID`)
+		}
+	}
+	if !proto.IsUUIDv4(m.OwnerId) {
+		isValidId := false
+		if proto.IsLegacyID(m.OwnerId) {
+			isValidId = true
+		}
+		if !isValidId && proto.IsS12ID(m.OwnerId) {
+			isValidId = true
+		}
+		if !isValidId {
+			fmt.Println(`owner_id: value must be parsable as UUIDv4 or legacy ID or S12 ID`)
+		}
 	}
 	return nil
 }

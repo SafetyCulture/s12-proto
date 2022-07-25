@@ -119,8 +119,8 @@ var invalidURLs = []string{
 	"https:/example.com",
 	"https//:example.com",
 	"https://example.com/" + strings.Repeat("a", 1000), // too long
-	"ftp://example.com/",                               // default scheme is https
-	"https://example.com/a#fragment",                   // fragment not allowed unless option enabled
+	"ftp://example.com/",             // default scheme is https
+	"https://example.com/a#fragment", // fragment not allowed unless option enabled
 	"https://example.com/\na",
 	" https://example.com/a",  // leading whitespace
 	"\thttps://example.com/a", // leading whitespace
@@ -987,7 +987,66 @@ func TestValidationRules(t *testing.T) {
 	}
 
 }
-
 func (m *ValTestMessage) getMsgField() *ValTestMessage {
 	return m
+}
+
+func genSoftValidationMessage() *SoftValidationMessage {
+	return &SoftValidationMessage{
+		ImageId:      id,
+		InspectionId: id,
+		OwnerId:      id,
+	}
+}
+func TestSoftValidation_Validate(t *testing.T) {
+	tests := []struct {
+		name      string
+		msg       *SoftValidationMessage
+		shouldErr bool
+	}{
+		{
+			name: "should fail imageId when passing bad format UUID",
+			msg: func() *SoftValidationMessage {
+				m := genSoftValidationMessage()
+				m.ImageId = "c1c01a8f-f724-42bf-ac6f-5478a0f1292x"
+				return m
+			}(),
+			shouldErr: true,
+		},
+		{
+			name: "should fail inspectionId when passing bad format UUID",
+			msg: func() *SoftValidationMessage {
+				m := genSoftValidationMessage()
+				m.InspectionId = "c1c01a8f-f724-42bf-ac6f-5478a0f1292x"
+				return m
+			}(),
+			shouldErr: true,
+		},
+		{
+			name: "should not fail ownerId when passing bad format UUID and softValidation is enabled",
+			msg: func() *SoftValidationMessage {
+				m := genSoftValidationMessage()
+				m.OwnerId = "c1c01a8f-f724-42bf-ac6f-5478a0f1292x"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name:      "should pass with legitimate UUIDs",
+			msg:       genSoftValidationMessage(),
+			shouldErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.msg.Validate()
+			if tt.shouldErr == (err == nil) {
+				t.Errorf("%s, supposed to return an error", tt.name)
+			}
+			if !tt.shouldErr && err != nil {
+				t.Errorf("%s, supposed not to return an error, but we received %v", tt.name, err)
+			}
+		})
+	}
 }
