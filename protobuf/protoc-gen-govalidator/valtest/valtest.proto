@@ -156,7 +156,14 @@ message ValTestMessage {
     (validator.timezone) = {
       optional: true
     }
-  ];
+  ];  
+}
+
+message SoftValidationMessage {
+  string legacy_on_id = 1 [(validator.id) = { legacy: true, soft_validation: true}, (validator.uuid) = true];
+  string legacy_off_id = 2 [(validator.id) = { legacy: true, soft_validation: false}, (validator.uuid) = true];
+  string s12_on_id = 3 [(validator.id) = { s12id: true, soft_validation: true}, (validator.uuid) = true];
+  string s12_off_id = 4 [(validator.id) = { s12id: true, soft_validation: false}, (validator.uuid) = true];
 }
 
 message OuterMessageUsingNestedMessage {

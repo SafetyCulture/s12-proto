@@ -214,6 +214,7 @@ message IdRules {
   // the beginning of the string.
   // @TODO: implement if we need this, e.g. for user_UUID, org_UUID or use a dedicated validation type for this
   // optional string prefix = 5;
+  optional bool soft_validation = 5 [default = false];
 }
 
 // URLRules describe the constraints applied to `url` values
