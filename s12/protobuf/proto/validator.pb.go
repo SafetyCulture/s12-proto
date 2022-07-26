@@ -347,10 +347,9 @@ type IdRules struct {
 	// Similar to legacy id, will first attempt normal UUID validation, then s12id
 	// Legacy id is not accepted, enable "legacy" option if you also need to accept legacy ids
 	S12Id *bool `protobuf:"varint,4,opt,name=s12id,def=0" json:"s12id,omitempty"`
-	// Prefix specifies that this field could also have the specified substring at
-	// the beginning of the string.
-	// @TODO: implement if we need this, e.g. for user_UUID, org_UUID or use a dedicated validation type for this
-	// optional string prefix = 5;
+	// Only apply soft validation. Validation errors for this validator are logged, not returned.
+	// Be aware that due to multiples validators applying, and order of precedence
+	// this will not prevent errors from other validators being returned.
 	SoftValidation *bool `protobuf:"varint,5,opt,name=soft_validation,json=softValidation,def=0" json:"soft_validation,omitempty"`
 }
 

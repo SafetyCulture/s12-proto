@@ -119,8 +119,8 @@ var invalidURLs = []string{
 	"https:/example.com",
 	"https//:example.com",
 	"https://example.com/" + strings.Repeat("a", 1000), // too long
-	"ftp://example.com/",             // default scheme is https
-	"https://example.com/a#fragment", // fragment not allowed unless option enabled
+	"ftp://example.com/",                               // default scheme is https
+	"https://example.com/a#fragment",                   // fragment not allowed unless option enabled
 	"https://example.com/\na",
 	" https://example.com/a",  // leading whitespace
 	"\thttps://example.com/a", // leading whitespace
@@ -1034,6 +1034,51 @@ func TestSoftValidation_Validate(t *testing.T) {
 		{
 			name:      "should pass with legitimate UUIDs",
 			msg:       genSoftValidationMessage(),
+			shouldErr: false,
+		},
+		{
+			name: "should pass with legitimate s12ID",
+			msg: func() *SoftValidationMessage {
+				m := genSoftValidationMessage()
+				m.InspectionId = "audit_401d39e12a3c4d8b8021631e63e82492"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "should pass with legitimate uppercase s12ID",
+			msg: func() *SoftValidationMessage {
+				m := genSoftValidationMessage()
+				m.InspectionId = "audit_401D39E12A3C4D8B8021631E63E82492"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "should pass with legitimate uppercased UUID",
+			msg: func() *SoftValidationMessage {
+				m := genSoftValidationMessage()
+				m.InspectionId = "401D39E1-2A3C-4D8B-8021-631E63E82492"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "should pass with legitimate UUID without hyphens",
+			msg: func() *SoftValidationMessage {
+				m := genSoftValidationMessage()
+				m.InspectionId = "401d39e12a3c4d8b8021631e63e82492"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "should pass with legitimate uppercased UUID without hyphens",
+			msg: func() *SoftValidationMessage {
+				m := genSoftValidationMessage()
+				m.InspectionId = "401D39E12A3C4D8B8021631E63E82492"
+				return m
+			}(),
 			shouldErr: false,
 		},
 	}
