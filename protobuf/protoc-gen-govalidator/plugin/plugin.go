@@ -274,7 +274,6 @@ func genLegacyStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varN
 	if getBoolExtension(f, validator.E_Uuid) {
 		g.P("if !", s12protoPackage.Ident("IsUUID"), "(", varName, ") {")
 		errStr := "be parsable as a UUID"
-
 		genErrorString(g, varName, string(f.Desc.Name()), errStr)
 		g.P("}")
 	}
@@ -628,7 +627,7 @@ func genIdValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string
 
 	// Check if any of the validations passed
 	g.P("if !isValidId {")
-	if rules.GetSoftValidation() {
+	if rules.GetLogOnly() {
 		printErrorString(g, varName, string(f.Desc.Name()), errMsg)
 	} else {
 		genErrorString(g, varName, string(f.Desc.Name()), errMsg)

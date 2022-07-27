@@ -159,10 +159,10 @@ message ValTestMessage {
   ];
 }
 
-message SoftValidationMessage {
-  string image_id = 1 [(validator.uuid) = true, (validator.id) = { legacy: true, s12id: true, soft_validation: true}];
+message LogOnlyValidationMessage {
+  string image_id = 1 [(validator.uuid) = true, (validator.id) = { legacy: true, s12id: true, log_only: true}];
   string inspection_id = 2 [(validator.id) = { legacy: true, s12id: true}];
-  string owner_id = 3 [(validator.id) = { legacy: true, s12id: true, soft_validation: true}];
+  string owner_id = 3 [(validator.id) = { legacy: true, s12id: true, log_only: true}];
 }
 
 message OuterMessageUsingNestedMessage {

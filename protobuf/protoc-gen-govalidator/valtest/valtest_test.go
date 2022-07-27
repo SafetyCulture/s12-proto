@@ -119,8 +119,8 @@ var invalidURLs = []string{
 	"https:/example.com",
 	"https//:example.com",
 	"https://example.com/" + strings.Repeat("a", 1000), // too long
-	"ftp://example.com/",                               // default scheme is https
-	"https://example.com/a#fragment",                   // fragment not allowed unless option enabled
+	"ftp://example.com/",             // default scheme is https
+	"https://example.com/a#fragment", // fragment not allowed unless option enabled
 	"https://example.com/\na",
 	" https://example.com/a",  // leading whitespace
 	"\thttps://example.com/a", // leading whitespace
@@ -991,8 +991,8 @@ func (m *ValTestMessage) getMsgField() *ValTestMessage {
 	return m
 }
 
-func genSoftValidationMessage() *SoftValidationMessage {
-	return &SoftValidationMessage{
+func genLogOnlyValidationMessage() *LogOnlyValidationMessage {
+	return &LogOnlyValidationMessage{
 		ImageId:      id,
 		InspectionId: id,
 		OwnerId:      id,
@@ -1001,13 +1001,13 @@ func genSoftValidationMessage() *SoftValidationMessage {
 func TestSoftValidation_Validate(t *testing.T) {
 	tests := []struct {
 		name      string
-		msg       *SoftValidationMessage
+		msg       *LogOnlyValidationMessage
 		shouldErr bool
 	}{
 		{
 			name: "should fail imageId when passing bad format UUID",
-			msg: func() *SoftValidationMessage {
-				m := genSoftValidationMessage()
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
 				m.ImageId = "c1c01a8f-f724-42bf-ac6f-5478a0f1292x"
 				return m
 			}(),
@@ -1015,8 +1015,8 @@ func TestSoftValidation_Validate(t *testing.T) {
 		},
 		{
 			name: "should fail inspectionId when passing bad format UUID",
-			msg: func() *SoftValidationMessage {
-				m := genSoftValidationMessage()
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
 				m.InspectionId = "c1c01a8f-f724-42bf-ac6f-5478a0f1292x"
 				return m
 			}(),
@@ -1024,8 +1024,8 @@ func TestSoftValidation_Validate(t *testing.T) {
 		},
 		{
 			name: "should not fail ownerId when passing bad format UUID and softValidation is enabled",
-			msg: func() *SoftValidationMessage {
-				m := genSoftValidationMessage()
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
 				m.OwnerId = "c1c01a8f-f724-42bf-ac6f-5478a0f1292x"
 				return m
 			}(),
@@ -1033,13 +1033,13 @@ func TestSoftValidation_Validate(t *testing.T) {
 		},
 		{
 			name:      "should pass with legitimate UUIDs",
-			msg:       genSoftValidationMessage(),
+			msg:       genLogOnlyValidationMessage(),
 			shouldErr: false,
 		},
 		{
 			name: "should pass with legitimate s12ID",
-			msg: func() *SoftValidationMessage {
-				m := genSoftValidationMessage()
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
 				m.InspectionId = "audit_401d39e12a3c4d8b8021631e63e82492"
 				return m
 			}(),
@@ -1047,8 +1047,8 @@ func TestSoftValidation_Validate(t *testing.T) {
 		},
 		{
 			name: "should pass with legitimate uppercase s12ID",
-			msg: func() *SoftValidationMessage {
-				m := genSoftValidationMessage()
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
 				m.InspectionId = "audit_401D39E12A3C4D8B8021631E63E82492"
 				return m
 			}(),
@@ -1056,8 +1056,8 @@ func TestSoftValidation_Validate(t *testing.T) {
 		},
 		{
 			name: "should pass with legitimate uppercased UUID",
-			msg: func() *SoftValidationMessage {
-				m := genSoftValidationMessage()
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
 				m.InspectionId = "401D39E1-2A3C-4D8B-8021-631E63E82492"
 				return m
 			}(),
@@ -1065,8 +1065,8 @@ func TestSoftValidation_Validate(t *testing.T) {
 		},
 		{
 			name: "should pass with legitimate UUID without hyphens",
-			msg: func() *SoftValidationMessage {
-				m := genSoftValidationMessage()
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
 				m.InspectionId = "401d39e12a3c4d8b8021631e63e82492"
 				return m
 			}(),
@@ -1074,8 +1074,8 @@ func TestSoftValidation_Validate(t *testing.T) {
 		},
 		{
 			name: "should pass with legitimate uppercased UUID without hyphens",
-			msg: func() *SoftValidationMessage {
-				m := genSoftValidationMessage()
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
 				m.InspectionId = "401D39E12A3C4D8B8021631E63E82492"
 				return m
 			}(),
