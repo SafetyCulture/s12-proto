@@ -10,7 +10,7 @@
 ### Generating Go code from protobuf
 
 Make sure you have `protoc-gen-go` installed:
-
+https://pkg.go.dev/google.golang.org/protobuf#section-readme
 ```
 $ go install github.com/golang/protobuf/protoc-gen-go@latest
 ```

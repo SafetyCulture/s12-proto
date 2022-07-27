@@ -119,8 +119,8 @@ var invalidURLs = []string{
 	"https:/example.com",
 	"https//:example.com",
 	"https://example.com/" + strings.Repeat("a", 1000), // too long
-	"ftp://example.com/",                               // default scheme is https
-	"https://example.com/a#fragment",                   // fragment not allowed unless option enabled
+	"ftp://example.com/",             // default scheme is https
+	"https://example.com/a#fragment", // fragment not allowed unless option enabled
 	"https://example.com/\na",
 	" https://example.com/a",  // leading whitespace
 	"\thttps://example.com/a", // leading whitespace
@@ -987,7 +987,111 @@ func TestValidationRules(t *testing.T) {
 	}
 
 }
-
 func (m *ValTestMessage) getMsgField() *ValTestMessage {
 	return m
+}
+
+func genLogOnlyValidationMessage() *LogOnlyValidationMessage {
+	return &LogOnlyValidationMessage{
+		ImageId:      id,
+		InspectionId: id,
+		OwnerId:      id,
+	}
+}
+func TestSoftValidation_Validate(t *testing.T) {
+	tests := []struct {
+		name      string
+		msg       *LogOnlyValidationMessage
+		shouldErr bool
+	}{
+		{
+			name: "should fail imageId when passing bad format UUID",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.ImageId = "c1c01a8f-f724-42bf-ac6f-5478a0f1292x"
+				return m
+			}(),
+			shouldErr: true,
+		},
+		{
+			name: "should fail inspectionId when passing bad format UUID",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.InspectionId = "c1c01a8f-f724-42bf-ac6f-5478a0f1292x"
+				return m
+			}(),
+			shouldErr: true,
+		},
+		{
+			name: "should not fail ownerId when passing bad format UUID and softValidation is enabled",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.OwnerId = "c1c01a8f-f724-42bf-ac6f-5478a0f1292x"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name:      "should pass with legitimate UUIDs",
+			msg:       genLogOnlyValidationMessage(),
+			shouldErr: false,
+		},
+		{
+			name: "should pass with legitimate s12ID",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.InspectionId = "audit_401d39e12a3c4d8b8021631e63e82492"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "should pass with legitimate uppercase s12ID",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.InspectionId = "audit_401D39E12A3C4D8B8021631E63E82492"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "should pass with legitimate uppercased UUID",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.InspectionId = "401D39E1-2A3C-4D8B-8021-631E63E82492"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "should pass with legitimate UUID without hyphens",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.InspectionId = "401d39e12a3c4d8b8021631e63e82492"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "should pass with legitimate uppercased UUID without hyphens",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.InspectionId = "401D39E12A3C4D8B8021631E63E82492"
+				return m
+			}(),
+			shouldErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.msg.Validate()
+			if tt.shouldErr == (err == nil) {
+				t.Errorf("%s, supposed to return an error", tt.name)
+			}
+			if !tt.shouldErr && err != nil {
+				t.Errorf("%s, supposed not to return an error, but we received %v", tt.name, err)
+			}
+		})
+	}
 }

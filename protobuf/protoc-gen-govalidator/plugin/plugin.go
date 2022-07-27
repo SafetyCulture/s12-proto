@@ -627,7 +627,12 @@ func genIdValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string
 
 	// Check if any of the validations passed
 	g.P("if !isValidId {")
-	genErrorString(g, varName, string(f.Desc.Name()), errMsg)
+	if rules.GetLogOnly() {
+		printErrorString(g, varName, string(f.Desc.Name()), errMsg)
+	} else {
+		genErrorString(g, varName, string(f.Desc.Name()), errMsg)
+	}
+
 	g.P("}")
 	g.P("}")
 
@@ -838,6 +843,11 @@ func genEnumValidator(g *protogen.GeneratedFile, f *protogen.Field, varName stri
 	g.P("if int(", varName, ") == 0 {")
 	g.P("return ", fmtPackage.Ident("Errorf"), "(\"field ", f.Desc.Name(), " must be specified and a non-zero value\")")
 	g.P("}")
+}
+
+func printErrorString(g *protogen.GeneratedFile, varName, fieldName, specificErr string) {
+	// Do not reflect untrusted value in error, certainly not for sensitive fields like password or PII like email
+	g.P(fmtPackage.Ident("Println"), "(`[log-only] ", fieldName, `: value must `, specificErr, "`)")
 }
 
 func genErrorString(g *protogen.GeneratedFile, varName, fieldName, specificErr string) {

@@ -156,11 +156,11 @@ func (m *ExampleMessage) Validate() error {
 		return fmt.Errorf("field timezone is required")
 	}
 	if tz, err := time.LoadLocation(m.Timezone); err != nil || tz == nil {
-		return fmt.Errorf(`timezone: value must invalid IANA TZ database value`)
+		return fmt.Errorf(`timezone: value must be a valid IANA TZ database value`)
 	}
 	if m.TimezoneOptional != "" {
 		if tz, err := time.LoadLocation(m.TimezoneOptional); err != nil || tz == nil {
-			return fmt.Errorf(`timezone_optional: value must invalid IANA TZ database value`)
+			return fmt.Errorf(`timezone_optional: value must be a valid IANA TZ database value`)
 		}
 	}
 	return nil

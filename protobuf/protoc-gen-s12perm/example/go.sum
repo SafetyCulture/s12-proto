@@ -3,8 +3,8 @@ github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03
 github.com/Masterminds/glide v0.13.2/go.mod h1:STyF5vcenH/rUqTEv+/hBXlSTo7KYwg2oc2f4tzPWic=
 github.com/Masterminds/semver v1.4.2/go.mod h1:MB6lktGJrhw8PrUyiEoblNEGEQ+RzHPF078ddwwvV3Y=
 github.com/Masterminds/vcs v1.13.0/go.mod h1:N09YCmOQr6RLxC6UNHzuVwAdodYbbnycGHSmwVJjcKA=
-github.com/SafetyCulture/s12-proto v1.18.0 h1:9pDmMCyRHxWpIPuouEZTR9J3GG5LIu2TsQzP3rb1xbI=
-github.com/SafetyCulture/s12-proto v1.18.0/go.mod h1:O1H6wj6ClmROG0wLGJX8wDPEodlI8JrDfMKotkNsqwo=
+github.com/SafetyCulture/s12-proto v1.21.0 h1:e6t/FgohUgrGCIM2HB5kf3qR4l8ro5RCZGNQGrWWbZs=
+github.com/SafetyCulture/s12-proto v1.21.0/go.mod h1:O1H6wj6ClmROG0wLGJX8wDPEodlI8JrDfMKotkNsqwo=
 github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d/go.mod h1:WaHUgvxTVq04UNunO+XhnAqY/wQc+bxr74GqbsZ/Jqw=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
@@ -127,5 +127,5 @@ gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b h1:h8qDotaEPuJATrMmW04NCwg7v
 gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 honnef.co/go/tools v0.0.0-20190102054323-c2f93a96b099/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
 honnef.co/go/tools v0.0.0-20190523083050-ea95bdfd59fc/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
-sc-go.io/pkg/jwtclaims v1.2.1 h1:wXlD42xvRQucL/oVAE/FKmGy7fGMcD9AEKIthHv5nfY=
-sc-go.io/pkg/jwtclaims v1.2.1/go.mod h1:5un+IDDx+o3AuGErGSfBK434sWNc5tJYZE0JdIC7T6w=
+sc-go.io/pkg/jwtclaims v1.4.0 h1:wHl9+Ekd0Um9uG5QSVnNswyRTP++j2vXVidTC07RvuM=
+sc-go.io/pkg/jwtclaims v1.4.0/go.mod h1:5un+IDDx+o3AuGErGSfBK434sWNc5tJYZE0JdIC7T6w=
