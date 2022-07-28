@@ -52,6 +52,8 @@ extend google.protobuf.FieldOptions {
   optional URLRules url = 65219;
   // Validates the value is a valid timezone from the IANA Time Zone database.
   optional TimezoneRules timezone = 65220;
+  // Validates for float values
+  optional FloatRules float = 65221;
 }
 
 // SymbolCategory defines which special characters (Unicode symbols and the like) are allowed
@@ -246,4 +248,20 @@ message TimezoneRules {
   // Set this as optional field (not required)
   // default = false
   optional bool optional = 1 [default = false];
+}
+
+// FloatRules describe the constraints applied to `float` values
+message FloatRules {
+  // Set this as optional field (not required)
+  // default = false
+  optional bool optional = 1 [default = false];
+
+  // Set Allow NaN to false to prevent NaN values being passed
+  // default = true
+  optional bool allow_nan = 2 [default = true];
+
+  // Set Range to specify greater than and less than values
+  // Takes the form "10:20" to indicate greater than 10, less than 20
+  // Values can be left out to ignore that side of the check
+  optional string range = 3;
 }

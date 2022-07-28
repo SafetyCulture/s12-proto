@@ -40,7 +40,7 @@ var regexGeneratedFile *protogen.GeneratedFile
 var regexHashLib = make(map[string]struct{})
 
 // Validator plugin version
-var validatorVersion = "v2.3.0"
+var validatorVersion = "v2.4.0"
 
 // Write a preamble in the auto generated files
 func genGeneratedHeader(gen *protogen.Plugin, g *protogen.GeneratedFile, f *protogen.File) {
@@ -230,6 +230,9 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 			genMsgValidator(g, f, varName)
 		case protoreflect.EnumKind:
 			genEnumValidator(g, f, varName)
+		case protoreflect.DoubleKind, protoreflect.FloatKind:
+			genFloatValidator(g, f, varName)
+
 		}
 
 		if f.Oneof != nil {
@@ -884,6 +887,7 @@ var validNonRepeatedExts = []protoreflect.ExtensionType{
 	validator.E_EnumRequired,
 	validator.E_Url,
 	validator.E_Timezone,
+	validator.E_Float,
 }
 
 var validRepeatedExts = []protoreflect.ExtensionType{
@@ -997,4 +1001,62 @@ func getIntExtention(f *protogen.Field, xt protoreflect.ExtensionType) int64 {
 		}
 	}
 	return -1
+}
+
+func genFloatValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string) {
+	rules := getFloatExtension(f, validator.E_Float)
+
+	if rules.GetOptional() {
+		g.P("if ", varName, " != 0 {")
+	}
+
+	if !rules.GetAllowNan() {
+		g.P("// This statement checks for NaN value without using Math package")
+		g.P("if ", varName, " != ", varName, " {")
+		errStr := "not be NaN"
+		genErrorString(g, varName, string(f.Desc.Name()), errStr)
+		g.P("}")
+	}
+
+	if rules.GetRange() != "" {
+		if !strings.Contains(rules.GetRange(), ":") {
+			// Range must contain : to be used
+			panic("unparsable range for float validator")
+		}
+
+		var rangeVals = strings.Split(rules.GetRange(), ":")
+		if len(rangeVals) < 1 || len(rangeVals) > 2 {
+			panic("unparseable range for float validator")
+		}
+
+		if rangeVals[0] != "" {
+			g.P("// Range check lower bounds")
+			g.P("if ", varName, " < ", rangeVals[0], " {")
+			errStr := fmt.Sprintf("be greater than %v", rangeVals[0])
+			genErrorString(g, varName, string(f.Desc.Name()), errStr)
+			g.P("}")
+		}
+
+		if rangeVals[1] != "" {
+			g.P("// Range check upper bounds")
+			g.P("if ", varName, " > ", rangeVals[1], " {")
+			errStr := fmt.Sprintf("be less than %v", rangeVals[1])
+			genErrorString(g, varName, string(f.Desc.Name()), errStr)
+			g.P("}")
+		}
+	}
+
+	if rules.GetOptional() {
+		g.P("}")
+	}
+}
+
+func getFloatExtension(f *protogen.Field, xt protoreflect.ExtensionType) *validator.FloatRules {
+	if opts := f.Desc.Options(); opts != nil {
+		ext := proto.GetExtension(opts, xt)
+		if v, ok := ext.(*validator.FloatRules); ok {
+			return v
+		}
+	}
+	return nil
 }
