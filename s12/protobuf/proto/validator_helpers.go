@@ -3,6 +3,7 @@
 package proto
 
 import (
+	"encoding/base64"
 	"fmt"
 	"net/url"
 	"regexp"
@@ -82,6 +83,11 @@ func FirstCharactersFromString(str string, max int) string {
 		max = len(str)
 	}
 	return str[0:max]
+}
+
+// Base64Encode will return base64 from the input string
+func Base64Encode(str string) string {
+	return base64.StdEncoding.EncodeToString([]byte(str))
 }
 
 func IsValidURL(str string, schemes []string, allowFragment bool) (bool, error) {
