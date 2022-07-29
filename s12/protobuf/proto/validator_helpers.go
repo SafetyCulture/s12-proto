@@ -76,6 +76,14 @@ func IsValidEmail(str string, checkDomain bool) bool {
 	return RegexEmail.MatchString(str)
 }
 
+// FirstCharactersFromString will return only the `max` symbols from the input
+func FirstCharactersFromString(str string, max int) string {
+	if len(str) < max {
+		max = len(str)
+	}
+	return str[0:max]
+}
+
 func IsValidURL(str string, schemes []string, allowFragment bool) (bool, error) {
 
 	// Set some form of upper/lower limit. Can be update later if we need to.

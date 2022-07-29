@@ -707,7 +707,7 @@ func (m *LogOnlyValidationMessage) Validate() error {
 			isValidId = true
 		}
 		if !isValidId {
-			fmt.Println(`[log-only] image_id: value must be parsable as UUIDv4 or legacy ID or S12 ID`)
+			fmt.Printf("[log-only] %s: value must %s: %s\n", "image_id", "be parsable as UUIDv4 or legacy ID or S12 ID", proto.FirstCharactersFromString(m.ImageId, 50))
 		}
 	}
 	if !proto.IsUUIDv4(m.InspectionId) {
@@ -731,7 +731,7 @@ func (m *LogOnlyValidationMessage) Validate() error {
 			isValidId = true
 		}
 		if !isValidId {
-			fmt.Println(`[log-only] owner_id: value must be parsable as UUIDv4 or legacy ID or S12 ID`)
+			fmt.Printf("[log-only] %s: value must %s: %s\n", "owner_id", "be parsable as UUIDv4 or legacy ID or S12 ID", proto.FirstCharactersFromString(m.OwnerId, 50))
 		}
 	}
 	return nil
