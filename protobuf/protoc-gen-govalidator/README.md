@@ -60,6 +60,7 @@ Validate ID format against UUIDv4, legacy ID format or S12 SafetyCulture ID `pre
 | version      | string | "v4"  | The UUID version, only v4 is supported currently. |
 | legacy       | bool   | false  | Also allow legacy_id format, similar to `validator.legacy_id`. UUID validation will be attempted first, if it fails it will fall back to `IsLegacyID` method. This option can be combined with the `s12id` option but only enabling `legacy` will not also accept `s12` ids. |
 | s12id       | bool   | false  | Also allow S12 id format with prefixes (e.g. `template_fffaaaccc33340739b1e67ca70f4cf4d`). UUID validation will be attempted first, if it fails it will fall back to `IsS12ID` method. This option can be combined with the `legacy` option but only enabling `s12id` will not also accept `legacy` ids. |
+| log_only     | bool   | false  | When true, failed validation will be output to logs but not return errors |
 
 Example usage:
 ```
@@ -68,6 +69,8 @@ Example usage:
 repeated string ids = 2 [(validator.id) = {}];
 
    string legacy_id = 3 [(validator.id) = { legacy: true }];
+
+   string legacy_id = 3 [(validator.id) = { legacy: true , log_only: true}];
 ```
 
 &nbsp;
@@ -283,6 +286,26 @@ Example usage:
              schemes: ["ftp", "ftps"],
       allow_fragment: true,
           allow_http: true
+    }];
+```
+
+&nbsp;
+
+## Float Validation: validator.float (FloatRules)
+Validate a float value. Allows preventing NaN values being passed. Also allows providing a range within which the float value must lie.
+
+| Option    | Type   | Default | Description |
+|-----------|--------|---------|-------------|
+| optional  | bool   | false   | Set this as an optional field. It will allow the value to be 0, without validation |
+| allow_nan | bool   | true    | When false, prevents NaN, Infinity and -Infinity as values |
+| range     | string | ""      | Specified in the format "X:Y", for a lower bound of X and upper bound of Y inclusive. Specifying only one value is allowed, but requires the `:` to be included. If `optional` is `true`, will not apply validation to a zero value. |
+
+Example usage:
+```
+    double floatval = 1 [(validator.float) = {
+      optional: true,
+      range: "1:10",
+      allow_nan: false
     }];
 ```
 

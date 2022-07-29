@@ -3,6 +3,7 @@ package valtest
 import (
 	"bufio"
 	fmt "fmt"
+	"math"
 	"os"
 	"strings"
 	"testing"
@@ -119,8 +120,8 @@ var invalidURLs = []string{
 	"https:/example.com",
 	"https//:example.com",
 	"https://example.com/" + strings.Repeat("a", 1000), // too long
-	"ftp://example.com/",             // default scheme is https
-	"https://example.com/a#fragment", // fragment not allowed unless option enabled
+	"ftp://example.com/",                               // default scheme is https
+	"https://example.com/a#fragment",                   // fragment not allowed unless option enabled
 	"https://example.com/\na",
 	" https://example.com/a",  // leading whitespace
 	"\thttps://example.com/a", // leading whitespace
@@ -1087,6 +1088,188 @@ func TestSoftValidation_Validate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.msg.Validate()
 			if tt.shouldErr == (err == nil) {
+				t.Errorf("%s, supposed to return an error", tt.name)
+			}
+			if !tt.shouldErr && err != nil {
+				t.Errorf("%s, supposed not to return an error, but we received %v", tt.name, err)
+			}
+		})
+	}
+}
+
+func genFloatValMessage() *FloatValMessage {
+	return &FloatValMessage{
+		NanAllowed:         math.NaN(),
+		NanDisallowed:      0,
+		OptionalOnly:       0,
+		OptionalNoNanValue: 0,
+		DefaultNan:         0,
+		RangeBasic:         0,
+		RangeLow:           0,
+		RangeHigh:          0,
+		RangeNovalues:      0,
+		RangeNotOptional:   5,
+	}
+}
+func TestFloatValidation_Validate(t *testing.T) {
+	tests := []struct {
+		name      string
+		msg       *FloatValMessage
+		shouldErr bool
+	}{
+		{
+			"float allows nan",
+			func() *FloatValMessage {
+				m := genFloatValMessage()
+				m.NanAllowed = math.NaN()
+				return m
+			}(),
+			valid,
+		},
+		{
+			"float allows value when optional",
+			func() *FloatValMessage {
+				m := genFloatValMessage()
+				m.OptionalNoNanValue = 0.1
+				return m
+			}(),
+			valid,
+		},
+		{
+			"float allows valid value when allow_nan is true",
+			func() *FloatValMessage {
+				m := genFloatValMessage()
+				m.NanAllowed = 0.1
+				return m
+			}(),
+			valid,
+		},
+		{
+			"float allows valid value when allow_nan is false",
+			func() *FloatValMessage {
+				m := genFloatValMessage()
+				m.NanDisallowed = 0.1
+				return m
+			}(),
+			valid,
+		},
+		{
+			"float disallows nan when allow_nan is false",
+			func() *FloatValMessage {
+				m := genFloatValMessage()
+				m.NanDisallowed = math.NaN()
+				m.OptionalNoNanValue = math.NaN()
+				m.OptionalOnly = math.NaN()
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"float disallows nan when optional",
+			func() *FloatValMessage {
+				m := genFloatValMessage()
+				m.OptionalNoNanValue = math.NaN()
+				m.OptionalOnly = math.NaN()
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"float range allows value in range",
+			func() *FloatValMessage {
+				m := genFloatValMessage()
+				m.RangeBasic = 2
+				return m
+			}(),
+			valid,
+		},
+		{
+			"float range disallows value below range",
+			func() *FloatValMessage {
+				m := genFloatValMessage()
+				m.RangeBasic = -1
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"float range disallows value above range",
+			func() *FloatValMessage {
+				m := genFloatValMessage()
+				m.RangeBasic = 11
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"float range validates zero when not optional",
+			func() *FloatValMessage {
+				m := genFloatValMessage()
+				m.RangeNotOptional = 0
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"float range validates lower bounds",
+			func() *FloatValMessage {
+				m := genFloatValMessage()
+				m.RangeLow = -1
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"float range validates lower bounds inclusive",
+			func() *FloatValMessage {
+				m := genFloatValMessage()
+				m.RangeLow = 1
+				return m
+			}(),
+			valid,
+		},
+		{
+			"float range validates upper bounds",
+			func() *FloatValMessage {
+				m := genFloatValMessage()
+				m.RangeHigh = 11
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"float range validates upper bounds inclusive",
+			func() *FloatValMessage {
+				m := genFloatValMessage()
+				m.RangeHigh = 10
+				return m
+			}(),
+			valid,
+		},
+		{
+			"float range validates lower bounds with -Infinity",
+			func() *FloatValMessage {
+				m := genFloatValMessage()
+				m.RangeLow = math.Inf(-1)
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"float range validates upper bounds with -Infinity",
+			func() *FloatValMessage {
+				m := genFloatValMessage()
+				m.RangeHigh = math.Inf(1)
+				return m
+			}(),
+			invalid,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.msg.Validate()
+			if tt.shouldErr && err == nil {
 				t.Errorf("%s, supposed to return an error", tt.name)
 			}
 			if !tt.shouldErr && err != nil {
