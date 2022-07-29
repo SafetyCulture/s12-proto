@@ -1032,7 +1032,7 @@ func genFloatValidator(g *protogen.GeneratedFile, f *protogen.Field, varName str
 		if rangeVals[0] != "" {
 			g.P("// Range check lower bounds")
 			g.P("if ", varName, " < ", rangeVals[0], " {")
-			errStr := fmt.Sprintf("be greater than %v", rangeVals[0])
+			errStr := fmt.Sprintf("be greater than or equal to %v", rangeVals[0])
 			genErrorString(g, varName, string(f.Desc.Name()), errStr)
 			g.P("}")
 		}
@@ -1040,7 +1040,7 @@ func genFloatValidator(g *protogen.GeneratedFile, f *protogen.Field, varName str
 		if rangeVals[1] != "" {
 			g.P("// Range check upper bounds")
 			g.P("if ", varName, " > ", rangeVals[1], " {")
-			errStr := fmt.Sprintf("be less than %v", rangeVals[1])
+			errStr := fmt.Sprintf("be less than or equal to %v", rangeVals[1])
 			genErrorString(g, varName, string(f.Desc.Name()), errStr)
 			g.P("}")
 		}

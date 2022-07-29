@@ -1005,34 +1005,34 @@ func (m *FloatValMessage) Validate() error {
 	if m.RangeBasic != 0 {
 		// Range check lower bounds
 		if m.RangeBasic < 1 {
-			return fmt.Errorf(`range_basic: value must be greater than 1`)
+			return fmt.Errorf(`range_basic: value must be greater than or equal to 1`)
 		}
 		// Range check upper bounds
 		if m.RangeBasic > 10 {
-			return fmt.Errorf(`range_basic: value must be less than 10`)
+			return fmt.Errorf(`range_basic: value must be less than or equal to 10`)
 		}
 	}
 	if m.RangeLow != 0 {
 		// Range check lower bounds
 		if m.RangeLow < 1 {
-			return fmt.Errorf(`range_low: value must be greater than 1`)
+			return fmt.Errorf(`range_low: value must be greater than or equal to 1`)
 		}
 	}
 	if m.RangeHigh != 0 {
 		// Range check upper bounds
 		if m.RangeHigh > 10 {
-			return fmt.Errorf(`range_high: value must be less than 10`)
+			return fmt.Errorf(`range_high: value must be less than or equal to 10`)
 		}
 	}
 	if m.RangeNovalues != 0 {
 	}
 	// Range check lower bounds
 	if m.RangeNotOptional < 1 {
-		return fmt.Errorf(`range_not_optional: value must be greater than 1`)
+		return fmt.Errorf(`range_not_optional: value must be greater than or equal to 1`)
 	}
 	// Range check upper bounds
 	if m.RangeNotOptional > 10 {
-		return fmt.Errorf(`range_not_optional: value must be less than 10`)
+		return fmt.Errorf(`range_not_optional: value must be less than or equal to 10`)
 	}
 	return nil
 }

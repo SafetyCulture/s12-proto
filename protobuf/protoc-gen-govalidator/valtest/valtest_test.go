@@ -1220,6 +1220,15 @@ func TestFloatValidation_Validate(t *testing.T) {
 			invalid,
 		},
 		{
+			"float range validates lower bounds inclusive",
+			func() *FloatValMessage {
+				m := genFloatValMessage()
+				m.RangeLow = 1
+				return m
+			}(),
+			valid,
+		},
+		{
 			"float range validates upper bounds",
 			func() *FloatValMessage {
 				m := genFloatValMessage()
@@ -1227,6 +1236,15 @@ func TestFloatValidation_Validate(t *testing.T) {
 				return m
 			}(),
 			invalid,
+		},
+		{
+			"float range validates upper bounds inclusive",
+			func() *FloatValMessage {
+				m := genFloatValMessage()
+				m.RangeHigh = 10
+				return m
+			}(),
+			valid,
 		},
 		{
 			"float range validates lower bounds with -Infinity",

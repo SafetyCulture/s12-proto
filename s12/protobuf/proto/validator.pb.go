@@ -585,7 +585,8 @@ type FloatRules struct {
 	// default = true
 	AllowNan *bool `protobuf:"varint,2,opt,name=allow_nan,json=allowNan,def=1" json:"allow_nan,omitempty"`
 	// Set Range to specify greater than and less than values
-	// Takes the form "10:20" to indicate greater than 10, less than 20
+	// Takes the form "10:20" to indicate greater or equal to 10, and
+	// less than or equal to 20
 	// Values can be left out to ignore that side of the check
 	Range *string `protobuf:"bytes,3,opt,name=range" json:"range,omitempty"`
 }

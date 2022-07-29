@@ -288,6 +288,17 @@ Example usage:
 
 &nbsp;
 
+## Float Validation: validator.float (FloatRules)
+Validate a float value. Allows preventing NaN values being passed. Also allows providing a range within which the float value must lie.
+
+| Option    | Type   | Default | Description |
+|-----------|--------|---------|-------------|
+| optional  | bool   | false   | Set this as an optional field. It will allow the value to be 0, without validation |
+| allow_nan | bool   | true    | When false, prevents NaN, Infinity and -Infinity as values |
+| range     | string | ""      | Specified in the format "X:Y", for a lower bound of X and upper bound of Y. Specifying only one value is allowed, but requires the `:` to be included. Uses a greater than or equal comparison for the lower bound and a less than or equal comparison for the upper bound. If `optional` is `true`, will not apply validation to a zero value. |
+
+&nbsp;
+
 ### Testing <a name="validator.testing"></a>
 There is a new testing suite available in the [valtest](valtest/) folder that can be invoked to test almost any of the validator options. Run it as follows:
 
