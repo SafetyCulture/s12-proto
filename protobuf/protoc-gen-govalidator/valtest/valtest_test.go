@@ -1033,6 +1033,15 @@ func TestSoftValidation_Validate(t *testing.T) {
 			shouldErr: false,
 		},
 		{
+			name: "should not fail when the input exceeds 50 characters",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.OwnerId = "c1c01a8f-f724-42bf-ac6f-5478a0f1292xc1c01a8f-f724-42bf-ac6f-5478a0f1292xc1c01a8f-f724-42bf-ac6f-5478a0f1292xc1c01a8f-f724-42bf-ac6f-5478a0f1292x"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
 			name:      "should pass with legitimate UUIDs",
 			msg:       genLogOnlyValidationMessage(),
 			shouldErr: false,

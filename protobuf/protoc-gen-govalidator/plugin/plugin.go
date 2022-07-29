@@ -631,7 +631,7 @@ func genIdValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string
 	// Check if any of the validations passed
 	g.P("if !isValidId {")
 	if rules.GetLogOnly() {
-		printErrorString(g, varName, string(f.Desc.Name()), errMsg)
+		printErrorString(g, varName, string(f.Desc.Name()), errMsg, 50)
 	} else {
 		genErrorString(g, varName, string(f.Desc.Name()), errMsg)
 	}
@@ -848,9 +848,9 @@ func genEnumValidator(g *protogen.GeneratedFile, f *protogen.Field, varName stri
 	g.P("}")
 }
 
-func printErrorString(g *protogen.GeneratedFile, varName, fieldName, specificErr string) {
+func printErrorString(g *protogen.GeneratedFile, varName, fieldName, specificErr string, maxLen int) {
 	// Do not reflect untrusted value in error, certainly not for sensitive fields like password or PII like email
-	g.P(fmtPackage.Ident("Println"), "(`[log-only] ", fieldName, `: value must `, specificErr, "`)")
+	g.P(fmtPackage.Ident("Printf"), `("[log-only] %s: value must %s: Base64Encoded input: %s\n", `, `"`, fieldName, `", "`, specificErr, `" `, ", proto.Base64Encode(proto.FirstCharactersFromString(", varName, ", ", maxLen, ")))")
 }
 
 func genErrorString(g *protogen.GeneratedFile, varName, fieldName, specificErr string) {

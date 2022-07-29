@@ -3,6 +3,7 @@
 package proto
 
 import (
+	"encoding/base64"
 	"fmt"
 	"net/url"
 	"regexp"
@@ -74,6 +75,19 @@ func IsValidEmail(str string, checkDomain bool) bool {
 		return false
 	}
 	return RegexEmail.MatchString(str)
+}
+
+// FirstCharactersFromString will return only the `max` symbols from the input
+func FirstCharactersFromString(str string, max int) string {
+	if len(str) < max {
+		max = len(str)
+	}
+	return str[0:max]
+}
+
+// Base64Encode will return base64 from the input string
+func Base64Encode(str string) string {
+	return base64.StdEncoding.EncodeToString([]byte(str))
 }
 
 func IsValidURL(str string, schemes []string, allowFragment bool) (bool, error) {
