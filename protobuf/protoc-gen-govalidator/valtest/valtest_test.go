@@ -120,8 +120,8 @@ var invalidURLs = []string{
 	"https:/example.com",
 	"https//:example.com",
 	"https://example.com/" + strings.Repeat("a", 1000), // too long
-	"ftp://example.com/",                               // default scheme is https
-	"https://example.com/a#fragment",                   // fragment not allowed unless option enabled
+	"ftp://example.com/",             // default scheme is https
+	"https://example.com/a#fragment", // fragment not allowed unless option enabled
 	"https://example.com/\na",
 	" https://example.com/a",  // leading whitespace
 	"\thttps://example.com/a", // leading whitespace
@@ -1118,6 +1118,7 @@ func genNumberMessage() *NumberMessage {
 		RangeHigh:          0,
 		RangeNovalues:      0,
 		RangeNotOptional:   5,
+		IntTest:            19,
 	}
 }
 func TestNumberValidation_Validate(t *testing.T) {
@@ -1184,7 +1185,7 @@ func TestNumberValidation_Validate(t *testing.T) {
 			invalid,
 		},
 		{
-			"number range allows value in range",
+			"float/double range allows value in range",
 			func() *NumberMessage {
 				m := genNumberMessage()
 				m.RangeBasic = 2
@@ -1193,7 +1194,7 @@ func TestNumberValidation_Validate(t *testing.T) {
 			valid,
 		},
 		{
-			"number range disallows value below range",
+			"float/double range disallows value below range",
 			func() *NumberMessage {
 				m := genNumberMessage()
 				m.RangeBasic = -1
@@ -1202,7 +1203,7 @@ func TestNumberValidation_Validate(t *testing.T) {
 			invalid,
 		},
 		{
-			"number range disallows value above range",
+			"float/double range disallows value above range",
 			func() *NumberMessage {
 				m := genNumberMessage()
 				m.RangeBasic = 11
@@ -1211,7 +1212,7 @@ func TestNumberValidation_Validate(t *testing.T) {
 			invalid,
 		},
 		{
-			"number range validates zero when not optional",
+			"float/double range validates zero when not optional",
 			func() *NumberMessage {
 				m := genNumberMessage()
 				m.RangeNotOptional = 0
@@ -1220,7 +1221,7 @@ func TestNumberValidation_Validate(t *testing.T) {
 			invalid,
 		},
 		{
-			"number range validates lower bounds",
+			"float/double range validates lower bounds",
 			func() *NumberMessage {
 				m := genNumberMessage()
 				m.RangeLow = -1
@@ -1229,7 +1230,7 @@ func TestNumberValidation_Validate(t *testing.T) {
 			invalid,
 		},
 		{
-			"number range validates lower bounds inclusive",
+			"float/double range validates lower bounds inclusive",
 			func() *NumberMessage {
 				m := genNumberMessage()
 				m.RangeLow = 1
@@ -1238,7 +1239,7 @@ func TestNumberValidation_Validate(t *testing.T) {
 			valid,
 		},
 		{
-			"number range validates upper bounds",
+			"float/double range validates upper bounds",
 			func() *NumberMessage {
 				m := genNumberMessage()
 				m.RangeHigh = 11
@@ -1247,7 +1248,7 @@ func TestNumberValidation_Validate(t *testing.T) {
 			invalid,
 		},
 		{
-			"number range validates upper bounds inclusive",
+			"float/double range validates upper bounds inclusive",
 			func() *NumberMessage {
 				m := genNumberMessage()
 				m.RangeHigh = 10
@@ -1256,7 +1257,7 @@ func TestNumberValidation_Validate(t *testing.T) {
 			valid,
 		},
 		{
-			"number range validates lower bounds with -Infinity",
+			"float/double range validates lower bounds with -Infinity",
 			func() *NumberMessage {
 				m := genNumberMessage()
 				m.RangeLow = math.Inf(-1)
@@ -1265,10 +1266,217 @@ func TestNumberValidation_Validate(t *testing.T) {
 			invalid,
 		},
 		{
-			"number range validates upper bounds with -Infinity",
+			"float/double range validates upper bounds with -Infinity",
 			func() *NumberMessage {
 				m := genNumberMessage()
 				m.RangeHigh = math.Inf(1)
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"int range allows value in range",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.IntTest = 50
+				return m
+			}(),
+			valid,
+		},
+		{
+			"int range disallows value below range",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.IntTest = -50
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"int range disallows value above range",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.IntTest = 10000
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"int range validates zero when not optional",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.IntTest = 0
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"int range validates lower bounds",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.IntTest = -1
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"int range validates lower bounds inclusive",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.IntTest = 1
+				return m
+			}(),
+			valid,
+		},
+		{
+			"int range validates upper bounds",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.IntTest = 100
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"int range validates upper bounds inclusive",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.IntTest = 99
+				return m
+			}(),
+			valid,
+		},
+		{
+			"int range validates lower bounds with MaxInt32",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.IntTest = math.MaxInt32
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"int range validates upper bounds with -MaxInt32",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.IntTest = math.MinInt32
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"int64 range validates lower bounds inclusive valid",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.Int64Test = -100
+				return m
+			}(),
+			valid,
+		},
+		{
+			"int64 range validates upper bounds inclusive valid",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.Int64Test = 100
+				return m
+			}(),
+			valid,
+		},
+		{
+			"int64 range validates lower bounds inclusive invalid",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.Int64Test = -101
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"int64 range validates upper bounds inclusive invalid",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.Int64Test = 101
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"uint range validates lower bounds inclusive valid",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.UintTest = 5
+				return m
+			}(),
+			valid,
+		},
+		{
+			"uint range validates upper bounds inclusive valid",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.UintTest = 99
+				return m
+			}(),
+			valid,
+		},
+		{
+			"uint range validates lower bounds inclusive invalid",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.UintTest = 1
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"uint range validates upper bounds inclusive invalid",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.UintTest = 100
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"repeated int range validates bounds invalid",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.RepeatedInt = []int32{1, 2, 3}
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"repeated int range validates bounds valid",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.RepeatedInt = []int32{10, 15, 20}
+				return m
+			}(),
+			valid,
+		},
+		{
+			"repeated int range validates bounds single invalid",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.RepeatedInt = []int32{10, 115, 20}
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"nested int range validates bounds valid",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.NestedNumber = &NumberMessage_NestedNumber{Value: 1}
+				return m
+			}(),
+			valid,
+		},
+		{
+			"nested int range validates bounds invalid",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.NestedNumber = &NumberMessage_NestedNumber{Value: 9999999}
 				return m
 			}(),
 			invalid,
