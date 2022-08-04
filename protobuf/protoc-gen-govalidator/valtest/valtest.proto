@@ -255,15 +255,15 @@ message MyOneOfMsg {
   }
 }
 
-message FloatValMessage {
-  double nan_allowed = 1 [(validator.float) = { allow_nan: true }];
-  double nan_disallowed = 2 [(validator.float) = { allow_nan: false }];
+message NumberMessage {
+  double nan_allowed = 1 [(validator.number) = { allow_nan: true }];
+  double nan_disallowed = 2 [(validator.number) = { allow_nan: false }];
   double default_nan = 3; // no validator
-  double optional_no_nan_value = 4 [(validator.float) = { allow_nan: false, optional: true }];
-  double optional_only = 5 [(validator.float) = { optional: true }];
-  double range_basic = 6 [(validator.float) = { optional: true, range: "1:10" }];
-  double range_low = 7 [(validator.float) = { optional: true, range: "1:" }];
-  double range_high = 8 [(validator.float) = { optional: true, range: ":10" }];
-  double range_novalues = 9 [(validator.float) = { optional: true, range: ":" }];
-  double range_not_optional = 10 [(validator.float) = { optional: false, range: "1:10" }];
+  double optional_no_nan_value = 4 [(validator.number) = { allow_nan: false, optional: true }];
+  double optional_only = 5 [(validator.number) = { optional: true }];
+  double range_basic = 6 [(validator.number) = { optional: true, range: "1:10" }];
+  double range_low = 7 [(validator.number) = { optional: true, range: "1:" }];
+  double range_high = 8 [(validator.number) = { optional: true, range: ":10" }];
+  double range_novalues = 9 [(validator.number) = { optional: true, range: ":" }];
+  double range_not_optional = 10 [(validator.number) = { optional: false, range: "1:10" }];
 }

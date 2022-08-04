@@ -1106,8 +1106,8 @@ func TestSoftValidation_Validate(t *testing.T) {
 	}
 }
 
-func genFloatValMessage() *FloatValMessage {
-	return &FloatValMessage{
+func genNumberMessage() *NumberMessage {
+	return &NumberMessage{
 		NanAllowed:         math.NaN(),
 		NanDisallowed:      0,
 		OptionalOnly:       0,
@@ -1120,52 +1120,52 @@ func genFloatValMessage() *FloatValMessage {
 		RangeNotOptional:   5,
 	}
 }
-func TestFloatValidation_Validate(t *testing.T) {
+func TestNumberValidation_Validate(t *testing.T) {
 	tests := []struct {
 		name      string
-		msg       *FloatValMessage
+		msg       *NumberMessage
 		shouldErr bool
 	}{
 		{
-			"float allows nan",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"number allows nan",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.NanAllowed = math.NaN()
 				return m
 			}(),
 			valid,
 		},
 		{
-			"float allows value when optional",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"number allows value when optional",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.OptionalNoNanValue = 0.1
 				return m
 			}(),
 			valid,
 		},
 		{
-			"float allows valid value when allow_nan is true",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"number allows valid value when allow_nan is true",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.NanAllowed = 0.1
 				return m
 			}(),
 			valid,
 		},
 		{
-			"float allows valid value when allow_nan is false",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"number allows valid value when allow_nan is false",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.NanDisallowed = 0.1
 				return m
 			}(),
 			valid,
 		},
 		{
-			"float disallows nan when allow_nan is false",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"number disallows nan when allow_nan is false",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.NanDisallowed = math.NaN()
 				m.OptionalNoNanValue = math.NaN()
 				m.OptionalOnly = math.NaN()
@@ -1174,9 +1174,9 @@ func TestFloatValidation_Validate(t *testing.T) {
 			invalid,
 		},
 		{
-			"float disallows nan when optional",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"number disallows nan when optional",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.OptionalNoNanValue = math.NaN()
 				m.OptionalOnly = math.NaN()
 				return m
@@ -1184,90 +1184,90 @@ func TestFloatValidation_Validate(t *testing.T) {
 			invalid,
 		},
 		{
-			"float range allows value in range",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"number range allows value in range",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.RangeBasic = 2
 				return m
 			}(),
 			valid,
 		},
 		{
-			"float range disallows value below range",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"number range disallows value below range",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.RangeBasic = -1
 				return m
 			}(),
 			invalid,
 		},
 		{
-			"float range disallows value above range",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"number range disallows value above range",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.RangeBasic = 11
 				return m
 			}(),
 			invalid,
 		},
 		{
-			"float range validates zero when not optional",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"number range validates zero when not optional",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.RangeNotOptional = 0
 				return m
 			}(),
 			invalid,
 		},
 		{
-			"float range validates lower bounds",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"number range validates lower bounds",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.RangeLow = -1
 				return m
 			}(),
 			invalid,
 		},
 		{
-			"float range validates lower bounds inclusive",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"number range validates lower bounds inclusive",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.RangeLow = 1
 				return m
 			}(),
 			valid,
 		},
 		{
-			"float range validates upper bounds",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"number range validates upper bounds",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.RangeHigh = 11
 				return m
 			}(),
 			invalid,
 		},
 		{
-			"float range validates upper bounds inclusive",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"number range validates upper bounds inclusive",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.RangeHigh = 10
 				return m
 			}(),
 			valid,
 		},
 		{
-			"float range validates lower bounds with -Infinity",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"number range validates lower bounds with -Infinity",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.RangeLow = math.Inf(-1)
 				return m
 			}(),
 			invalid,
 		},
 		{
-			"float range validates upper bounds with -Infinity",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"number range validates upper bounds with -Infinity",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.RangeHigh = math.Inf(1)
 				return m
 			}(),

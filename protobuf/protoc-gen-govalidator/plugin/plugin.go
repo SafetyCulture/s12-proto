@@ -231,7 +231,7 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 		case protoreflect.EnumKind:
 			genEnumValidator(g, f, varName)
 		case protoreflect.DoubleKind, protoreflect.FloatKind:
-			genFloatValidator(g, f, varName)
+			genNumberValidator(g, f, varName)
 
 		}
 
@@ -887,7 +887,7 @@ var validNonRepeatedExts = []protoreflect.ExtensionType{
 	validator.E_EnumRequired,
 	validator.E_Url,
 	validator.E_Timezone,
-	validator.E_Float,
+	validator.E_Number,
 }
 
 var validRepeatedExts = []protoreflect.ExtensionType{
@@ -1003,8 +1003,8 @@ func getIntExtention(f *protogen.Field, xt protoreflect.ExtensionType) int64 {
 	return -1
 }
 
-func genFloatValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string) {
-	rules := getFloatExtension(f, validator.E_Float)
+func genNumberValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string) {
+	rules := getNumberExtension(f, validator.E_Number)
 
 	if rules.GetOptional() {
 		g.P("if ", varName, " != 0 {")
@@ -1021,12 +1021,12 @@ func genFloatValidator(g *protogen.GeneratedFile, f *protogen.Field, varName str
 	if rules.GetRange() != "" {
 		if !strings.Contains(rules.GetRange(), ":") {
 			// Range must contain : to be used
-			panic("unparsable range for float validator")
+			panic("unparsable range for number validator")
 		}
 
 		var rangeVals = strings.Split(rules.GetRange(), ":")
 		if len(rangeVals) < 1 || len(rangeVals) > 2 {
-			panic("unparseable range for float validator")
+			panic("unparseable range for number validator")
 		}
 
 		if rangeVals[0] != "" {
@@ -1051,10 +1051,10 @@ func genFloatValidator(g *protogen.GeneratedFile, f *protogen.Field, varName str
 	}
 }
 
-func getFloatExtension(f *protogen.Field, xt protoreflect.ExtensionType) *validator.FloatRules {
+func getNumberExtension(f *protogen.Field, xt protoreflect.ExtensionType) *validator.NumberRules {
 	if opts := f.Desc.Options(); opts != nil {
 		ext := proto.GetExtension(opts, xt)
-		if v, ok := ext.(*validator.FloatRules); ok {
+		if v, ok := ext.(*validator.NumberRules); ok {
 			return v
 		}
 	}
