@@ -54,13 +54,14 @@ string opt_email = 2 [(validator.email) = { optional: true }];
 ## ID validation: validator.id (IdRules) <a name="validator.id"></a>
 Validate ID format against UUIDv4, legacy ID format or S12 SafetyCulture ID `prefix_id` format.
 
-| Option       | Type   | Default | Description |
-|--------------|--------|---------|-------------|
-| optional     | bool   | false | Set this as an optional field. It will allow the string to be empty, validation is skipped in that case. |
-| version      | string | "v4"  | The UUID version, only v4 is supported currently. |
-| legacy       | bool   | false  | Also allow legacy_id format, similar to `validator.legacy_id`. UUID validation will be attempted first, if it fails it will fall back to `IsLegacyID` method. This option can be combined with the `s12id` option but only enabling `legacy` will not also accept `s12` ids. |
+| Option       | Type   | Default | Description                                                                                                                                                                                                                                                                                              |
+|--------------|--------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| optional     | bool   | false | Set this as an optional field. It will allow the string to be empty, validation is skipped in that case.                                                                                                                                                                                                 |
+| version      | string | "v4"  | The UUID version, only v4 is supported currently.                                                                                                                                                                                                                                                        |
+| legacy       | bool   | false  | Also allow legacy_id format, similar to `validator.legacy_id`. UUID validation will be attempted first, if it fails it will fall back to `IsLegacyID` method. This option can be combined with the `s12id` option but only enabling `legacy` will not also accept `s12` ids.                             |
 | s12id       | bool   | false  | Also allow S12 id format with prefixes (e.g. `template_fffaaaccc33340739b1e67ca70f4cf4d`). UUID validation will be attempted first, if it fails it will fall back to `IsS12ID` method. This option can be combined with the `legacy` option but only enabling `s12id` will not also accept `legacy` ids. |
-| log_only     | bool   | false  | When true, failed validation will be output to logs but not return errors |
+| s12id_strict | bool | false | Alows S12ID format, but will allow only certain domain names                                                                                                                                                                                                                                             |
+| log_only     | bool   | false  | When true, failed validation will be output to logs but not return errors                                                                                                                                                                                                                                |
 
 Example usage:
 ```
@@ -71,6 +72,8 @@ repeated string ids = 2 [(validator.id) = {}];
    string legacy_id = 3 [(validator.id) = { legacy: true }];
 
    string legacy_id = 3 [(validator.id) = { legacy: true , log_only: true}];
+   
+   string template_id = 4 [(validator.id) = {s12id_strict: true}];
 ```
 
 &nbsp;
