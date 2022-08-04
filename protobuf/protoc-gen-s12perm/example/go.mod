@@ -3,7 +3,7 @@ module permexample
 go 1.15
 
 require (
-	github.com/SafetyCulture/s12-proto v1.21.1
+	github.com/SafetyCulture/s12-proto v1.21.2
 	github.com/kr/pretty v0.1.0 // indirect
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 // indirect
 	google.golang.org/grpc v1.32.0
