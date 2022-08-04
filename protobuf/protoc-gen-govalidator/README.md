@@ -291,8 +291,8 @@ Example usage:
 
 &nbsp;
 
-## Float Validation: validator.float (FloatRules)
-Validate a float value. Allows preventing NaN values being passed. Also allows providing a range within which the float value must lie.
+## Number Validation: validator.number (NumberRules)
+Validate a number value. Allows preventing NaN values being passed. Also allows providing a range within which the number value must lie.
 
 | Option    | Type   | Default | Description |
 |-----------|--------|---------|-------------|
@@ -302,7 +302,7 @@ Validate a float value. Allows preventing NaN values being passed. Also allows p
 
 Example usage:
 ```
-    double floatval = 1 [(validator.float) = {
+    double numberval = 1 [(validator.number) = {
       optional: true,
       range: "1:10",
       allow_nan: false

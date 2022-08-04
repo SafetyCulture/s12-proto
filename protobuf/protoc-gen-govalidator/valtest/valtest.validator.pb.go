@@ -989,7 +989,7 @@ func (m *MyOneOfMsg_SecondType) Validate() error {
 	return nil
 }
 
-func (m *FloatValMessage) Validate() error {
+func (m *NumberMessage) Validate() error {
 	// This statement checks for NaN value without using Math package
 	if m.NanDisallowed != m.NanDisallowed {
 		return fmt.Errorf(`nan_disallowed: value must not be NaN`)
