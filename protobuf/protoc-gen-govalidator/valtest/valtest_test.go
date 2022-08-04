@@ -120,8 +120,8 @@ var invalidURLs = []string{
 	"https:/example.com",
 	"https//:example.com",
 	"https://example.com/" + strings.Repeat("a", 1000), // too long
-	"ftp://example.com/",                               // default scheme is https
-	"https://example.com/a#fragment",                   // fragment not allowed unless option enabled
+	"ftp://example.com/",             // default scheme is https
+	"https://example.com/a#fragment", // fragment not allowed unless option enabled
 	"https://example.com/\na",
 	" https://example.com/a",  // leading whitespace
 	"\thttps://example.com/a", // leading whitespace
@@ -997,6 +997,7 @@ func genLogOnlyValidationMessage() *LogOnlyValidationMessage {
 		ImageId:      id,
 		InspectionId: id,
 		OwnerId:      id,
+		TemplateId:   s12Id,
 	}
 }
 func TestSoftValidation_Validate(t *testing.T) {
@@ -1022,6 +1023,15 @@ func TestSoftValidation_Validate(t *testing.T) {
 				return m
 			}(),
 			shouldErr: true,
+		},
+		{
+			name: "should not fail log-only when passing empty",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.OwnerId = ""
+				return m
+			}(),
+			shouldErr: false,
 		},
 		{
 			name: "should not fail ownerId when passing bad format UUID and softValidation is enabled",
@@ -1090,6 +1100,153 @@ func TestSoftValidation_Validate(t *testing.T) {
 				return m
 			}(),
 			shouldErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.msg.Validate()
+			if tt.shouldErr == (err == nil) {
+				t.Errorf("%s, supposed to return an error", tt.name)
+			}
+			if !tt.shouldErr && err != nil {
+				t.Errorf("%s, supposed not to return an error, but we received %v", tt.name, err)
+			}
+		})
+	}
+}
+
+func TestSoftValidation_ValidateS12Strict(t *testing.T) {
+	tests := []struct {
+		name      string
+		msg       *LogOnlyValidationMessage
+		shouldErr bool
+	}{
+		{
+			name: "Should pass with AUDIT",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.TemplateId = "audit_a109b645119b4eacb98ace52cce79fa7"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass with TEMPLATE",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.TemplateId = "template_a109b645119b4eacb98ace52cce79fa7"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass with USER",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.TemplateId = "user_a109b645119b4eacb98ace52cce79fa7"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass with ACTION",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.TemplateId = "action_a109b645119b4eacb98ace52cce79fa7"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass with NTFMSG",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.TemplateId = "ntfmsg_a109b645119b4eacb98ace52cce79fa7"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass with EVIDENCE",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.TemplateId = "evidence_a109b645119b4eacb98ace52cce79fa7"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass with ROLE",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.TemplateId = "role_a109b645119b4eacb98ace52cce79fa7"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass with LOCATION",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.TemplateId = "location_a109b645119b4eacb98ace52cce79fa7"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass with RESPONSESET",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.TemplateId = "responseset_a109b645119b4eacb98ace52cce79fa7"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass with RESPONSE",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.TemplateId = "response_a109b645119b4eacb98ace52cce79fa7"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass with PREFERENCE",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.TemplateId = "preference_a109b645119b4eacb98ace52cce79fa7"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass with HEADS_UP",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.TemplateId = "heads_up_a109b645119b4eacb98ace52cce79fa7"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass with SUBSCRIPTION",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.TemplateId = "subscription_a109b645119b4eacb98ace52cce79fa7"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should fail with CHICKEN",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.TemplateId = "chicken_a109b645119b4eacb98ace52cce79fa7"
+				return m
+			}(),
+			shouldErr: true,
 		},
 	}
 

@@ -221,6 +221,10 @@ message IdRules {
   // Be aware that due to multiples validators applying, and order of precedence
   // this will not prevent errors from other validators being returned.
   optional bool log_only = 5 [default = false];
+
+  // Also allow S12 id format with a limited range of prefixes
+  // audit, template, action, user, ntfmsg, evidence, role, location, responseset, response, preference, heads_up, subscription
+  optional bool s12id_strict = 6 [default = false];
 }
 
 // URLRules describe the constraints applied to `url` values

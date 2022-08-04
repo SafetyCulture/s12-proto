@@ -734,6 +734,15 @@ func (m *LogOnlyValidationMessage) Validate() error {
 			fmt.Printf("[log-only] %s: value must %s: Base64Encoded input: %s\n", "owner_id", "be parsable as UUIDv4 or legacy ID or S12 ID", proto.Base64Encode(proto.FirstCharactersFromString(m.OwnerId, 50)))
 		}
 	}
+	if !proto.IsUUIDv4(m.TemplateId) {
+		isValidId := false
+		if !isValidId && proto.IsS12IDStrict(m.TemplateId) {
+			isValidId = true
+		}
+		if !isValidId {
+			return fmt.Errorf(`template_id: value must be parsable as UUIDv4 or S12 ID`)
+		}
+	}
 	return nil
 }
 
