@@ -887,7 +887,7 @@ var validNonRepeatedExts = []protoreflect.ExtensionType{
 	validator.E_EnumRequired,
 	validator.E_Url,
 	validator.E_Timezone,
-	validator.E_Float,
+	validator.E_FloatVal,
 }
 
 var validRepeatedExts = []protoreflect.ExtensionType{
@@ -1004,7 +1004,7 @@ func getIntExtention(f *protogen.Field, xt protoreflect.ExtensionType) int64 {
 }
 
 func genFloatValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string) {
-	rules := getFloatExtension(f, validator.E_Float)
+	rules := getFloatExtension(f, validator.E_FloatVal)
 
 	if rules.GetOptional() {
 		g.P("if ", varName, " != 0 {")

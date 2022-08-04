@@ -53,7 +53,7 @@ extend google.protobuf.FieldOptions {
   // Validates the value is a valid timezone from the IANA Time Zone database.
   optional TimezoneRules timezone = 65220;
   // Validates for float values
-  optional FloatRules float = 65221;
+  optional FloatRules float_val = 65221;
 }
 
 // SymbolCategory defines which special characters (Unicode symbols and the like) are allowed
