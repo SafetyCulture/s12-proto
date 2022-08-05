@@ -40,7 +40,7 @@ var regexGeneratedFile *protogen.GeneratedFile
 var regexHashLib = make(map[string]struct{})
 
 // Validator plugin version
-var validatorVersion = "v2.4.0"
+var validatorVersion = "v2.5.0"
 
 // Write a preamble in the auto generated files
 func genGeneratedHeader(gen *protogen.Plugin, g *protogen.GeneratedFile, f *protogen.File) {
@@ -225,14 +225,14 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 		case protoreflect.Int32Kind, protoreflect.Int64Kind,
 			protoreflect.Uint32Kind, protoreflect.Uint64Kind,
 			protoreflect.Sint32Kind, protoreflect.Sint64Kind:
-			genIntValidator(g, f, varName)
+			genIntValidator(g, f, varName)    // legacy validator
+			genNumberValidator(g, f, varName) // new validator
 		case protoreflect.MessageKind:
 			genMsgValidator(g, f, varName)
 		case protoreflect.EnumKind:
 			genEnumValidator(g, f, varName)
 		case protoreflect.DoubleKind, protoreflect.FloatKind:
 			genNumberValidator(g, f, varName)
-
 		}
 
 		if f.Oneof != nil {
@@ -1011,6 +1011,9 @@ func genNumberValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 	}
 
 	if !rules.GetAllowNan() {
+		if f.Desc.Kind() != protoreflect.DoubleKind && f.Desc.Kind() != protoreflect.FloatKind {
+			panic("cannot use allow_nan option for integers, only supported for float/double")
+		}
 		g.P("// This statement checks for NaN value without using Math package")
 		g.P("if ", varName, " != ", varName, " {")
 		errStr := "not be NaN"
