@@ -620,19 +620,10 @@ func genIdValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string
 		g.P("}")
 	}
 
-	// if still no valid id found, also check for S12 Id if option enabled
+	// Finally, if still no valid id found, also check for S12 Id if option enabled
 	if rules.GetS12Id() {
 		errMsg += " or S12 ID"
 		g.P("if !isValidId && ", s12protoPackage.Ident("IsS12ID"), "(", varName, ") {")
-		g.P("isValidId = true")
-		g.P("}")
-	}
-
-	// check S12ID strict
-	//audit|template|action|user|ntfmsg|evidence|role|location|responseset|response|preference|heads_up|subscription
-	if rules.GetS12IdStrict() {
-		errMsg += " or S12 ID"
-		g.P("if !isValidId && ", s12protoPackage.Ident("IsS12IDStrict"), "(", varName, ") {")
 		g.P("isValidId = true")
 		g.P("}")
 	}
