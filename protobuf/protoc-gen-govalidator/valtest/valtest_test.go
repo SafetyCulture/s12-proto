@@ -997,7 +997,6 @@ func genLogOnlyValidationMessage() *LogOnlyValidationMessage {
 		ImageId:      id,
 		InspectionId: id,
 		OwnerId:      id,
-		TemplateId:   s12Id,
 	}
 }
 func TestSoftValidation_Validate(t *testing.T) {
@@ -1023,15 +1022,6 @@ func TestSoftValidation_Validate(t *testing.T) {
 				return m
 			}(),
 			shouldErr: true,
-		},
-		{
-			name: "should not fail log-only when passing empty",
-			msg: func() *LogOnlyValidationMessage {
-				m := genLogOnlyValidationMessage()
-				m.OwnerId = ""
-				return m
-			}(),
-			shouldErr: false,
 		},
 		{
 			name: "should not fail ownerId when passing bad format UUID and softValidation is enabled",
@@ -1116,155 +1106,8 @@ func TestSoftValidation_Validate(t *testing.T) {
 	}
 }
 
-func TestSoftValidation_ValidateS12Strict(t *testing.T) {
-	tests := []struct {
-		name      string
-		msg       *LogOnlyValidationMessage
-		shouldErr bool
-	}{
-		{
-			name: "Should pass with AUDIT",
-			msg: func() *LogOnlyValidationMessage {
-				m := genLogOnlyValidationMessage()
-				m.TemplateId = "audit_a109b645119b4eacb98ace52cce79fa7"
-				return m
-			}(),
-			shouldErr: false,
-		},
-		{
-			name: "Should pass with TEMPLATE",
-			msg: func() *LogOnlyValidationMessage {
-				m := genLogOnlyValidationMessage()
-				m.TemplateId = "template_a109b645119b4eacb98ace52cce79fa7"
-				return m
-			}(),
-			shouldErr: false,
-		},
-		{
-			name: "Should pass with USER",
-			msg: func() *LogOnlyValidationMessage {
-				m := genLogOnlyValidationMessage()
-				m.TemplateId = "user_a109b645119b4eacb98ace52cce79fa7"
-				return m
-			}(),
-			shouldErr: false,
-		},
-		{
-			name: "Should pass with ACTION",
-			msg: func() *LogOnlyValidationMessage {
-				m := genLogOnlyValidationMessage()
-				m.TemplateId = "action_a109b645119b4eacb98ace52cce79fa7"
-				return m
-			}(),
-			shouldErr: false,
-		},
-		{
-			name: "Should pass with NTFMSG",
-			msg: func() *LogOnlyValidationMessage {
-				m := genLogOnlyValidationMessage()
-				m.TemplateId = "ntfmsg_a109b645119b4eacb98ace52cce79fa7"
-				return m
-			}(),
-			shouldErr: false,
-		},
-		{
-			name: "Should pass with EVIDENCE",
-			msg: func() *LogOnlyValidationMessage {
-				m := genLogOnlyValidationMessage()
-				m.TemplateId = "evidence_a109b645119b4eacb98ace52cce79fa7"
-				return m
-			}(),
-			shouldErr: false,
-		},
-		{
-			name: "Should pass with ROLE",
-			msg: func() *LogOnlyValidationMessage {
-				m := genLogOnlyValidationMessage()
-				m.TemplateId = "role_a109b645119b4eacb98ace52cce79fa7"
-				return m
-			}(),
-			shouldErr: false,
-		},
-		{
-			name: "Should pass with LOCATION",
-			msg: func() *LogOnlyValidationMessage {
-				m := genLogOnlyValidationMessage()
-				m.TemplateId = "location_a109b645119b4eacb98ace52cce79fa7"
-				return m
-			}(),
-			shouldErr: false,
-		},
-		{
-			name: "Should pass with RESPONSESET",
-			msg: func() *LogOnlyValidationMessage {
-				m := genLogOnlyValidationMessage()
-				m.TemplateId = "responseset_a109b645119b4eacb98ace52cce79fa7"
-				return m
-			}(),
-			shouldErr: false,
-		},
-		{
-			name: "Should pass with RESPONSE",
-			msg: func() *LogOnlyValidationMessage {
-				m := genLogOnlyValidationMessage()
-				m.TemplateId = "response_a109b645119b4eacb98ace52cce79fa7"
-				return m
-			}(),
-			shouldErr: false,
-		},
-		{
-			name: "Should pass with PREFERENCE",
-			msg: func() *LogOnlyValidationMessage {
-				m := genLogOnlyValidationMessage()
-				m.TemplateId = "preference_a109b645119b4eacb98ace52cce79fa7"
-				return m
-			}(),
-			shouldErr: false,
-		},
-		{
-			name: "Should pass with HEADS_UP",
-			msg: func() *LogOnlyValidationMessage {
-				m := genLogOnlyValidationMessage()
-				m.TemplateId = "heads_up_a109b645119b4eacb98ace52cce79fa7"
-				return m
-			}(),
-			shouldErr: false,
-		},
-		{
-			name: "Should pass with SUBSCRIPTION",
-			msg: func() *LogOnlyValidationMessage {
-				m := genLogOnlyValidationMessage()
-				m.TemplateId = "subscription_a109b645119b4eacb98ace52cce79fa7"
-				return m
-			}(),
-			shouldErr: false,
-		},
-		{
-			name: "Should fail with CHICKEN",
-			msg: func() *LogOnlyValidationMessage {
-				m := genLogOnlyValidationMessage()
-				m.TemplateId = "chicken_a109b645119b4eacb98ace52cce79fa7"
-				return m
-			}(),
-			shouldErr: true,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			err := tt.msg.Validate()
-			if tt.shouldErr == (err == nil) {
-				t.Errorf("%s, supposed to return an error", tt.name)
-			}
-			if !tt.shouldErr && err != nil {
-				t.Errorf("%s, supposed not to return an error, but we received %v", tt.name, err)
-			}
-		})
-	}
-}
-
-func genFloatValMessage() *FloatValMessage {
-	return &FloatValMessage{
+func genNumberMessage() *NumberMessage {
+	return &NumberMessage{
 		NanAllowed:         math.NaN(),
 		NanDisallowed:      0,
 		OptionalOnly:       0,
@@ -1275,54 +1118,55 @@ func genFloatValMessage() *FloatValMessage {
 		RangeHigh:          0,
 		RangeNovalues:      0,
 		RangeNotOptional:   5,
+		IntTest:            19,
 	}
 }
-func TestFloatValidation_Validate(t *testing.T) {
+func TestNumberValidation_Validate(t *testing.T) {
 	tests := []struct {
 		name      string
-		msg       *FloatValMessage
+		msg       *NumberMessage
 		shouldErr bool
 	}{
 		{
-			"float allows nan",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"number allows nan",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.NanAllowed = math.NaN()
 				return m
 			}(),
 			valid,
 		},
 		{
-			"float allows value when optional",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"number allows value when optional",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.OptionalNoNanValue = 0.1
 				return m
 			}(),
 			valid,
 		},
 		{
-			"float allows valid value when allow_nan is true",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"number allows valid value when allow_nan is true",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.NanAllowed = 0.1
 				return m
 			}(),
 			valid,
 		},
 		{
-			"float allows valid value when allow_nan is false",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"number allows valid value when allow_nan is false",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.NanDisallowed = 0.1
 				return m
 			}(),
 			valid,
 		},
 		{
-			"float disallows nan when allow_nan is false",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"number disallows nan when allow_nan is false",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.NanDisallowed = math.NaN()
 				m.OptionalNoNanValue = math.NaN()
 				m.OptionalOnly = math.NaN()
@@ -1331,9 +1175,9 @@ func TestFloatValidation_Validate(t *testing.T) {
 			invalid,
 		},
 		{
-			"float disallows nan when optional",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"number disallows nan when optional",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.OptionalNoNanValue = math.NaN()
 				m.OptionalOnly = math.NaN()
 				return m
@@ -1341,91 +1185,298 @@ func TestFloatValidation_Validate(t *testing.T) {
 			invalid,
 		},
 		{
-			"float range allows value in range",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"float/double range allows value in range",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.RangeBasic = 2
 				return m
 			}(),
 			valid,
 		},
 		{
-			"float range disallows value below range",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"float/double range disallows value below range",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.RangeBasic = -1
 				return m
 			}(),
 			invalid,
 		},
 		{
-			"float range disallows value above range",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"float/double range disallows value above range",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.RangeBasic = 11
 				return m
 			}(),
 			invalid,
 		},
 		{
-			"float range validates zero when not optional",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"float/double range validates zero when not optional",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.RangeNotOptional = 0
 				return m
 			}(),
 			invalid,
 		},
 		{
-			"float range validates lower bounds",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"float/double range validates lower bounds",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.RangeLow = -1
 				return m
 			}(),
 			invalid,
 		},
 		{
-			"float range validates lower bounds inclusive",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"float/double range validates lower bounds inclusive",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.RangeLow = 1
 				return m
 			}(),
 			valid,
 		},
 		{
-			"float range validates upper bounds",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"float/double range validates upper bounds",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.RangeHigh = 11
 				return m
 			}(),
 			invalid,
 		},
 		{
-			"float range validates upper bounds inclusive",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"float/double range validates upper bounds inclusive",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.RangeHigh = 10
 				return m
 			}(),
 			valid,
 		},
 		{
-			"float range validates lower bounds with -Infinity",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"float/double range validates lower bounds with -Infinity",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.RangeLow = math.Inf(-1)
 				return m
 			}(),
 			invalid,
 		},
 		{
-			"float range validates upper bounds with -Infinity",
-			func() *FloatValMessage {
-				m := genFloatValMessage()
+			"float/double range validates upper bounds with -Infinity",
+			func() *NumberMessage {
+				m := genNumberMessage()
 				m.RangeHigh = math.Inf(1)
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"int range allows value in range",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.IntTest = 50
+				return m
+			}(),
+			valid,
+		},
+		{
+			"int range disallows value below range",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.IntTest = -50
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"int range disallows value above range",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.IntTest = 10000
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"int range validates zero when not optional",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.IntTest = 0
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"int range validates lower bounds",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.IntTest = -1
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"int range validates lower bounds inclusive",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.IntTest = 1
+				return m
+			}(),
+			valid,
+		},
+		{
+			"int range validates upper bounds",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.IntTest = 100
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"int range validates upper bounds inclusive",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.IntTest = 99
+				return m
+			}(),
+			valid,
+		},
+		{
+			"int range validates lower bounds with MaxInt32",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.IntTest = math.MaxInt32
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"int range validates upper bounds with -MaxInt32",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.IntTest = math.MinInt32
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"int64 range validates lower bounds inclusive valid",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.Int64Test = -100
+				return m
+			}(),
+			valid,
+		},
+		{
+			"int64 range validates upper bounds inclusive valid",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.Int64Test = 100
+				return m
+			}(),
+			valid,
+		},
+		{
+			"int64 range validates lower bounds inclusive invalid",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.Int64Test = -101
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"int64 range validates upper bounds inclusive invalid",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.Int64Test = 101
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"uint range validates lower bounds inclusive valid",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.UintTest = 5
+				return m
+			}(),
+			valid,
+		},
+		{
+			"uint range validates upper bounds inclusive valid",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.UintTest = 99
+				return m
+			}(),
+			valid,
+		},
+		{
+			"uint range validates lower bounds inclusive invalid",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.UintTest = 1
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"uint range validates upper bounds inclusive invalid",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.UintTest = 100
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"repeated int range validates bounds invalid",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.RepeatedInt = []int32{1, 2, 3}
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"repeated int range validates bounds valid",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.RepeatedInt = []int32{10, 15, 20}
+				return m
+			}(),
+			valid,
+		},
+		{
+			"repeated int range validates bounds single invalid",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.RepeatedInt = []int32{10, 115, 20}
+				return m
+			}(),
+			invalid,
+		},
+		{
+			"nested int range validates bounds valid",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.NestedNumber = &NumberMessage_NestedNumber{Value: 1}
+				return m
+			}(),
+			valid,
+		},
+		{
+			"nested int range validates bounds invalid",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.NestedNumber = &NumberMessage_NestedNumber{Value: 9999999}
 				return m
 			}(),
 			invalid,

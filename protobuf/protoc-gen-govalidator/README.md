@@ -28,6 +28,7 @@ make govalidator-valtest-test
 - [Email validation: validator.email](#validator.email)
 - [ID validation: validator.id](#validator.id)
 - [String validation: validator.string and validator.unsafe_string](#validator.string)
+- [Number validation: validator.number (int, uint, float, double)](#validator.number)
 - [Enum validation: validator.enum_required](#validator.enum_required)
 - [URL validation: validator.url](#validator.url)
 - [Testing](#validator.testing)
@@ -294,8 +295,8 @@ Example usage:
 
 &nbsp;
 
-## Float Validation: validator.float (FloatRules)
-Validate a float value. Allows preventing NaN values being passed. Also allows providing a range within which the float value must lie.
+## Number Validation: validator.number (NumberRules) <a name="validator.number"></a>
+Validate a number value. Allows preventing NaN values being passed. Also allows providing a range within which the number value must lie for float, double, int32/64, uint32/64, sint32/64.
 
 | Option    | Type   | Default | Description |
 |-----------|--------|---------|-------------|
@@ -305,11 +306,12 @@ Validate a float value. Allows preventing NaN values being passed. Also allows p
 
 Example usage:
 ```
-    double floatval = 1 [(validator.float) = {
+    double numberval = 1 [(validator.number) = {
       optional: true,
       range: "1:10",
       allow_nan: false
     }];
+    int32 count = 2 [(validator.number) = { range: "1:99" }];
 ```
 
 &nbsp;

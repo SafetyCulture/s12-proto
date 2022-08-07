@@ -8,17 +8,17 @@ import "google/protobuf/descriptor.proto";
 option go_package = "github.com/SafetyCulture/s12-proto/s12/protobuf/proto";
 
 extend google.protobuf.FieldOptions {
-  // Field value validates to a 128 bit universally unique identifier.
+  // @deprecated: Use validator.id instead
   optional bool uuid = 65200;
   // Uses a Golang RE2-syntax regex to match the field contents.
   optional string regex = 65201;
-  // Field value of integer strictly greater than this value.
+  // @deprecated: Use validator.number instead
   optional int64 int_gt = 65202;
-  // Field value of integer strictly smaller than this value.
+  // @deprecated: Use validator.number instead
   optional int64 int_lt = 65203;
-  // Field value of integer greater than or equal to this value.
+  // @deprecated: Use validator.number instead
   optional int64 int_gte = 65204;
-  // Field value of integer smaller than or equal to this value.
+  // @deprecated: Use validator.number instead
   optional int64 int_lte = 65205;
   // Field value of length greater than this value.
   optional int64 length_gte = 65206;
@@ -28,9 +28,9 @@ extend google.protobuf.FieldOptions {
   optional bool optional = 65208;
   // Validates that an inner message is required.
   optional bool msg_required = 65209;
-  // Field value that caters to an upper case universally unique identifier, uuid or a long id.
+  // @deprecated: Use validator.id instead
   optional bool legacy_id = 65210;
-  // Supplementary validation option to trim leading and trailing whitespaces (as defined by Unicode) before doing length check.
+  // @deprecated: Use validator.string instead
   optional bool trim_len_check = 65211;
   // collection size greater than or equal to this value.
   optional int64 repeated_len_gte = 65212;
@@ -52,8 +52,8 @@ extend google.protobuf.FieldOptions {
   optional URLRules url = 65219;
   // Validates the value is a valid timezone from the IANA Time Zone database.
   optional TimezoneRules timezone = 65220;
-  // Validates for float values
-  optional FloatRules float = 65221;
+  // Validates for number values
+  optional NumberRules number = 65221;
 }
 
 // SymbolCategory defines which special characters (Unicode symbols and the like) are allowed
@@ -254,8 +254,8 @@ message TimezoneRules {
   optional bool optional = 1 [default = false];
 }
 
-// FloatRules describe the constraints applied to `float` values
-message FloatRules {
+// NumberRules describe the constraints applied to `number` values
+message NumberRules {
   // Set this as optional field (not required)
   // default = false
   optional bool optional = 1 [default = false];

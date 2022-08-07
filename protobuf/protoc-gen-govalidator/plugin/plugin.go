@@ -40,7 +40,7 @@ var regexGeneratedFile *protogen.GeneratedFile
 var regexHashLib = make(map[string]struct{})
 
 // Validator plugin version
-var validatorVersion = "v2.4.0"
+var validatorVersion = "v2.5.0"
 
 // Write a preamble in the auto generated files
 func genGeneratedHeader(gen *protogen.Plugin, g *protogen.GeneratedFile, f *protogen.File) {
@@ -225,14 +225,14 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 		case protoreflect.Int32Kind, protoreflect.Int64Kind,
 			protoreflect.Uint32Kind, protoreflect.Uint64Kind,
 			protoreflect.Sint32Kind, protoreflect.Sint64Kind:
-			genIntValidator(g, f, varName)
+			genIntValidator(g, f, varName)    // legacy validator
+			genNumberValidator(g, f, varName) // new validator
 		case protoreflect.MessageKind:
 			genMsgValidator(g, f, varName)
 		case protoreflect.EnumKind:
 			genEnumValidator(g, f, varName)
 		case protoreflect.DoubleKind, protoreflect.FloatKind:
-			genFloatValidator(g, f, varName)
-
+			genNumberValidator(g, f, varName)
 		}
 
 		if f.Oneof != nil {
@@ -896,7 +896,7 @@ var validNonRepeatedExts = []protoreflect.ExtensionType{
 	validator.E_EnumRequired,
 	validator.E_Url,
 	validator.E_Timezone,
-	validator.E_Float,
+	validator.E_Number,
 }
 
 var validRepeatedExts = []protoreflect.ExtensionType{
@@ -1012,14 +1012,17 @@ func getIntExtention(f *protogen.Field, xt protoreflect.ExtensionType) int64 {
 	return -1
 }
 
-func genFloatValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string) {
-	rules := getFloatExtension(f, validator.E_Float)
+func genNumberValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string) {
+	rules := getNumberExtension(f, validator.E_Number)
 
 	if rules.GetOptional() {
 		g.P("if ", varName, " != 0 {")
 	}
 
 	if !rules.GetAllowNan() {
+		if f.Desc.Kind() != protoreflect.DoubleKind && f.Desc.Kind() != protoreflect.FloatKind {
+			panic("cannot use allow_nan option for integers, only supported for float/double")
+		}
 		g.P("// This statement checks for NaN value without using Math package")
 		g.P("if ", varName, " != ", varName, " {")
 		errStr := "not be NaN"
@@ -1030,12 +1033,12 @@ func genFloatValidator(g *protogen.GeneratedFile, f *protogen.Field, varName str
 	if rules.GetRange() != "" {
 		if !strings.Contains(rules.GetRange(), ":") {
 			// Range must contain : to be used
-			panic("unparsable range for float validator")
+			panic("unparsable range for number validator")
 		}
 
 		var rangeVals = strings.Split(rules.GetRange(), ":")
 		if len(rangeVals) < 1 || len(rangeVals) > 2 {
-			panic("unparseable range for float validator")
+			panic("unparseable range for number validator")
 		}
 
 		if rangeVals[0] != "" {
@@ -1060,10 +1063,10 @@ func genFloatValidator(g *protogen.GeneratedFile, f *protogen.Field, varName str
 	}
 }
 
-func getFloatExtension(f *protogen.Field, xt protoreflect.ExtensionType) *validator.FloatRules {
+func getNumberExtension(f *protogen.Field, xt protoreflect.ExtensionType) *validator.NumberRules {
 	if opts := f.Desc.Options(); opts != nil {
 		ext := proto.GetExtension(opts, xt)
-		if v, ok := ext.(*validator.FloatRules); ok {
+		if v, ok := ext.(*validator.NumberRules); ok {
 			return v
 		}
 	}
