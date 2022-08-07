@@ -21,6 +21,11 @@ Run the generate command:
 $ make generate
 ```
 
+To generate and run tests:
+```
+make generate && make govalidator && make govalidator-valtest
+```
+
 #### Making sure the code was generated as expected
 
 Let's use `protoc-gen-s12perm` package as an example which will generate an

@@ -1495,3 +1495,150 @@ func TestNumberValidation_Validate(t *testing.T) {
 		})
 	}
 }
+
+func TestSoftValidation_ValidateS12Strict(t *testing.T) {
+	tests := []struct {
+		name      string
+		msg       *LogOnlyValidationMessage
+		shouldErr bool
+	}{
+		{
+			name: "Should pass with AUDIT",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.InspectionId = "audit_a109b645119b4eacb98ace52cce79fa7"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass with TEMPLATE",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.InspectionId = "template_a109b645119b4eacb98ace52cce79fa7"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass with USER",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.InspectionId = "user_a109b645119b4eacb98ace52cce79fa7"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass with ACTION",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.InspectionId = "action_a109b645119b4eacb98ace52cce79fa7"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass with NTFMSG",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.InspectionId = "ntfmsg_a109b645119b4eacb98ace52cce79fa7"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass with EVIDENCE",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.InspectionId = "evidence_a109b645119b4eacb98ace52cce79fa7"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass with ROLE",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.InspectionId = "role_a109b645119b4eacb98ace52cce79fa7"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass with LOCATION",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.InspectionId = "location_a109b645119b4eacb98ace52cce79fa7"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass with RESPONSESET",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.InspectionId = "responseset_a109b645119b4eacb98ace52cce79fa7"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass with RESPONSE",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.InspectionId = "response_a109b645119b4eacb98ace52cce79fa7"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass with PREFERENCE",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.InspectionId = "preference_a109b645119b4eacb98ace52cce79fa7"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass with HEADS_UP",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.InspectionId = "heads_up_a109b645119b4eacb98ace52cce79fa7"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass with SUBSCRIPTION",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.InspectionId = "subscription_a109b645119b4eacb98ace52cce79fa7"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should fail with CHICKEN",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.InspectionId = "chicken_a109b645119b4eacb98ace52cce79fa7"
+				return m
+			}(),
+			shouldErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.msg.Validate()
+			if tt.shouldErr == (err == nil) {
+				t.Errorf("%s, supposed to return an error", tt.name)
+			}
+			if !tt.shouldErr && err != nil {
+				t.Errorf("%s, supposed not to return an error, but we received %v", tt.name, err)
+			}
+		})
+	}
+}
