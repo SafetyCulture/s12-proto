@@ -734,6 +734,27 @@ func (m *LogOnlyValidationMessage) Validate() error {
 			fmt.Printf("[log-only] %s: value must %s: Base64Encoded input: %s\n", "owner_id", "be parsable as UUIDv4 or legacy ID or S12 ID", proto.Base64Encode(proto.FirstCharactersFromString(m.OwnerId, 50)))
 		}
 	}
+	if !norm.NFC.IsNormalString(m.Title) && norm.NFD.IsNormalString(m.Title) {
+		// normalise NFD to NFC string
+		var normErr error
+		m.Title, _, normErr = transform.String(transform.Chain(norm.NFD, norm.NFC), m.Title)
+		if normErr != nil {
+			return fmt.Errorf(`title: value must must be normalisable to NFC`)
+		}
+	}
+	if strings.ContainsRune(m.Title, utf8.RuneError) {
+		return fmt.Errorf(`title: value must must have valid encoding`)
+	} else if !utf8.ValidString(m.Title) {
+		return fmt.Errorf(`title: value must must be a valid UTF-8-encoded string`)
+	}
+	m.Title = proto.RegexPua.ReplaceAllString(m.Title, "")
+	var _len_LogOnlyValidationMessage_Title = len(m.Title)
+	if !(_len_LogOnlyValidationMessage_Title >= 1 && _len_LogOnlyValidationMessage_Title <= 5) {
+		return fmt.Errorf(`title: value must have length between 1 and 5`)
+	}
+	if !_regex_b3f79e2470927c095fff6ea841e2a650.MatchString(m.Title) {
+		return fmt.Errorf(`title: value must only have valid characters`)
+	}
 	return nil
 }
 

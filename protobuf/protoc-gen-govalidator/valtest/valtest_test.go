@@ -1642,3 +1642,42 @@ func TestSoftValidation_ValidateS12Strict(t *testing.T) {
 		})
 	}
 }
+
+func TestSoftValidation_ValidateString(t *testing.T) {
+	tests := []struct {
+		name      string
+		msg       *LogOnlyValidationMessage
+		shouldErr bool
+	}{
+		{
+			name: "Should pass when size is correct",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Title = "Hey!!"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass when size is incorrect and log-only",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Title = "Hey There!!!"
+				return m
+			}(),
+			shouldErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.msg.Validate()
+			if tt.shouldErr == (err == nil) {
+				t.Errorf("%s, supposed to return an error", tt.name)
+			}
+			if !tt.shouldErr && err != nil {
+				t.Errorf("%s, supposed not to return an error, but we received %v", tt.name, err)
+			}
+		})
+	}
+}
