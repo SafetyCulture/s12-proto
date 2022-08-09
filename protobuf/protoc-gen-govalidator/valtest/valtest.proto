@@ -164,6 +164,7 @@ message LogOnlyValidationMessage {
   string inspection_id = 2 [(validator.id) = { legacy: true, s12id: true}];
   string owner_id = 3 [(validator.id) = { legacy: true, s12id: true, log_only: true}];
   string title = 4 [(validator.unsafe_string) = { len: "1:5", sanitise_pua: true, symbols: [COMMON, CURRENCY, MARK, PUNCTUATION, MODIFIER, OTHER], log_only: true}];
+  string name = 5 [(validator.unsafe_string) = { len: "1:5", sanitise_pua: true, symbols: [COMMON, CURRENCY, MARK, PUNCTUATION, MODIFIER, OTHER]}];
 }
 
 message OuterMessageUsingNestedMessage {

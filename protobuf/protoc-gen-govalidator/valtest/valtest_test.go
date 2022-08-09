@@ -997,6 +997,8 @@ func genLogOnlyValidationMessage() *LogOnlyValidationMessage {
 		ImageId:      id,
 		InspectionId: id,
 		OwnerId:      id,
+		Title:        "123",
+		Name:         "123",
 	}
 }
 func TestSoftValidation_Validate(t *testing.T) {
@@ -1666,6 +1668,24 @@ func TestSoftValidation_ValidateString(t *testing.T) {
 				return m
 			}(),
 			shouldErr: false,
+		},
+		{
+			name: "Should pass when size is correct",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Name = "Hey !"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should fail when size is incorrect",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Name = "Hey !!!!"
+				return m
+			}(),
+			shouldErr: true,
 		},
 	}
 

@@ -739,21 +739,42 @@ func (m *LogOnlyValidationMessage) Validate() error {
 		var normErr error
 		m.Title, _, normErr = transform.String(transform.Chain(norm.NFD, norm.NFC), m.Title)
 		if normErr != nil {
-			return fmt.Errorf(`title: value must must be normalisable to NFC`)
+			fmt.Printf("[log-only] %s: value must %s: Base64Encoded input: %s\n", "title", "must be normalisable to NFC", proto.Base64Encode(proto.FirstCharactersFromString(m.Title, 50)))
 		}
 	}
 	if strings.ContainsRune(m.Title, utf8.RuneError) {
-		return fmt.Errorf(`title: value must must have valid encoding`)
+		fmt.Printf("[log-only] %s: value must %s: Base64Encoded input: %s\n", "title", "must have valid encoding", proto.Base64Encode(proto.FirstCharactersFromString(m.Title, 50)))
 	} else if !utf8.ValidString(m.Title) {
-		return fmt.Errorf(`title: value must must be a valid UTF-8-encoded string`)
+		fmt.Printf("[log-only] %s: value must %s: Base64Encoded input: %s\n", "title", "must be a valid UTF-8-encoded string", proto.Base64Encode(proto.FirstCharactersFromString(m.Title, 50)))
 	}
 	m.Title = proto.RegexPua.ReplaceAllString(m.Title, "")
 	var _len_LogOnlyValidationMessage_Title = len(m.Title)
 	if !(_len_LogOnlyValidationMessage_Title >= 1 && _len_LogOnlyValidationMessage_Title <= 5) {
-		return fmt.Errorf(`title: value must have length between 1 and 5`)
+		fmt.Printf("[log-only] %s: value must %s: Base64Encoded input: %s\n", "title", "have length between 1 and 5", proto.Base64Encode(proto.FirstCharactersFromString(m.Title, 50)))
 	}
 	if !_regex_b3f79e2470927c095fff6ea841e2a650.MatchString(m.Title) {
-		return fmt.Errorf(`title: value must only have valid characters`)
+		fmt.Printf("[log-only] %s: value must %s: Base64Encoded input: %s\n", "title", "only have valid characters", proto.Base64Encode(proto.FirstCharactersFromString(m.Title, 50)))
+	}
+	if !norm.NFC.IsNormalString(m.Name) && norm.NFD.IsNormalString(m.Name) {
+		// normalise NFD to NFC string
+		var normErr error
+		m.Name, _, normErr = transform.String(transform.Chain(norm.NFD, norm.NFC), m.Name)
+		if normErr != nil {
+			return fmt.Errorf(`name: value must must be normalisable to NFC`)
+		}
+	}
+	if strings.ContainsRune(m.Name, utf8.RuneError) {
+		return fmt.Errorf(`name: value must must have valid encoding`)
+	} else if !utf8.ValidString(m.Name) {
+		return fmt.Errorf(`name: value must must be a valid UTF-8-encoded string`)
+	}
+	m.Name = proto.RegexPua.ReplaceAllString(m.Name, "")
+	var _len_LogOnlyValidationMessage_Name = len(m.Name)
+	if !(_len_LogOnlyValidationMessage_Name >= 1 && _len_LogOnlyValidationMessage_Name <= 5) {
+		return fmt.Errorf(`name: value must have length between 1 and 5`)
+	}
+	if !_regex_b3f79e2470927c095fff6ea841e2a650.MatchString(m.Name) {
+		return fmt.Errorf(`name: value must only have valid characters`)
 	}
 	return nil
 }

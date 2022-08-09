@@ -308,7 +308,7 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 		return
 	}
 
-	// Prepare the allow list regex
+	// Prepare to allow list regex
 	allowListReId := "re_" + f.GoIdent.GoName
 	if stringType == validator.E_String {
 		prepareRegex(allowListReId, stringReDefaultSafe...)
@@ -338,7 +338,11 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 	g.P("var normErr error")
 	g.P(varName, ", _, normErr = ", transformPackage.Ident("String"), "(", transformPackage.Ident("Chain"), "(", normPackage.Ident("NFD"), ",", normPackage.Ident("NFC"), ")", ",", varName, ")")
 	g.P("if normErr != nil {")
-	genErrorString(g, varName, string(f.Desc.Name()), `must be normalisable to NFC`)
+	if rules.GetLogOnly() {
+		printErrorString(g, varName, string(f.Desc.Name()), `must be normalisable to NFC`, 50)
+	} else {
+		genErrorString(g, varName, string(f.Desc.Name()), `must be normalisable to NFC`)
+	}
 	g.P("}")
 	g.P("}")
 
@@ -348,12 +352,20 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 		// Test string: $\xa35 for Pepp\xe9 which is encoded as latin1
 		g.P("if ", stringsPackage.Ident("ContainsRune"), "(", varName, ", ", utfPackage.Ident("RuneError"), ") {")
 		errStr := `must have valid encoding`
-		genErrorString(g, varName, string(f.Desc.Name()), errStr)
+		if rules.GetLogOnly() {
+			printErrorString(g, varName, string(f.Desc.Name()), errStr, 50)
+		} else {
+			genErrorString(g, varName, string(f.Desc.Name()), errStr)
+		}
 
 		// Also validate using utf8.ValidString: reports whether string consists entirely of valid UTF-8-encoded runes
 		g.P("} else if !", utfPackage.Ident("ValidString"), "(", varName, ") {")
 		errStr = `must be a valid UTF-8-encoded string`
-		genErrorString(g, varName, string(f.Desc.Name()), errStr)
+		if rules.GetLogOnly() {
+			printErrorString(g, varName, string(f.Desc.Name()), errStr, 50)
+		} else {
+			genErrorString(g, varName, string(f.Desc.Name()), errStr)
+		}
 		g.P("}")
 	} else {
 		// Allow RuneError as valid character if we do not check for invalid encoding otherwise the string might be denied
@@ -510,7 +522,11 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 		g.P("if !("+lenVar+" >= ", minLen, " && "+lenVar+" <= ", maxLen, ") {")
 		errStr = fmt.Sprintf(`have length between %d and %d`, minLen, maxLen)
 	}
-	genErrorString(g, varName, string(f.Desc.Name()), errStr)
+	if rules.GetLogOnly() {
+		printErrorString(g, varName, string(f.Desc.Name()), errStr, 50)
+	} else {
+		genErrorString(g, varName, string(f.Desc.Name()), errStr)
+	}
 	g.P("}")
 
 	// ##### 4B. prepare whitelist/regex
@@ -575,7 +591,11 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 	g.P("if !_regex_", regexName, ".MatchString(", varName, ") {")
 	// Might want to improve the error message: make it more helpful so the end-user can fix it if applicable
 	errStr = "only have valid characters"
-	genErrorStringWithParams(g, varName, string(f.Desc.Name()), errStr)
+	if rules.GetLogOnly() {
+		printErrorString(g, varName, string(f.Desc.Name()), errStr, 50)
+	} else {
+		genErrorStringWithParams(g, varName, string(f.Desc.Name()), errStr)
+	}
 	g.P("}")
 
 	// Optional value: close the if statement
