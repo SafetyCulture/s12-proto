@@ -93,7 +93,7 @@ Validate string fields that do not represent a common or predefined format. This
 | multiline          | bool   | false   | Allow newline characters for multiline strings. By default, multiline strings are not allowed. Note that `\r` will be stripped if this option is enabled (`\n` will be retained). With `trim` option enabled, leading and trailing newlines will be removed.  |
 | validate_encoding  | bool   | __true__ | Check for invalid encoding and reject the input in that case. If this is causing issues with normal data, the validation implementation should be improved rather than disabling this option. |
 | sanitise_pua  | bool   | false   | Sanitise (remove) Private Use Area Codepoints in the Basic Multilingual Plane. This should normally be enabled and might want to enable this by default later. With this option disabled, PAU characters will be rejected instead of removed. |
-
+| log_only     | bool   | false  | When true, failed validation will be output to logs but not return errors                                                                                                                                                                                                                                |
 
 
 ### Restricted characters <a name="validator.string.restricted_characters"></a>

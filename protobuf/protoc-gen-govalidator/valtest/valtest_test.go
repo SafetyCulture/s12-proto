@@ -997,6 +997,8 @@ func genLogOnlyValidationMessage() *LogOnlyValidationMessage {
 		ImageId:      id,
 		InspectionId: id,
 		OwnerId:      id,
+		Title:        "123",
+		Name:         "123",
 	}
 }
 func TestSoftValidation_Validate(t *testing.T) {
@@ -1624,6 +1626,63 @@ func TestSoftValidation_ValidateS12Strict(t *testing.T) {
 			msg: func() *LogOnlyValidationMessage {
 				m := genLogOnlyValidationMessage()
 				m.InspectionId = "chicken_a109b645119b4eacb98ace52cce79fa7"
+				return m
+			}(),
+			shouldErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.msg.Validate()
+			if tt.shouldErr == (err == nil) {
+				t.Errorf("%s, supposed to return an error", tt.name)
+			}
+			if !tt.shouldErr && err != nil {
+				t.Errorf("%s, supposed not to return an error, but we received %v", tt.name, err)
+			}
+		})
+	}
+}
+
+func TestSoftValidation_ValidateString(t *testing.T) {
+	tests := []struct {
+		name      string
+		msg       *LogOnlyValidationMessage
+		shouldErr bool
+	}{
+		{
+			name: "Should pass when size is correct",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Title = "Hey!!"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass when size is incorrect and log-only",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Title = "Hey There!!!"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass when size is correct",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Name = "Hey !"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should fail when size is incorrect",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Name = "Hey !!!!"
 				return m
 			}(),
 			shouldErr: true,

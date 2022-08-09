@@ -78,7 +78,7 @@ func (m *ValTestMessage) Validate() error {
 	}
 	var _len_ValTestMessage_Description = len(m.Description)
 	if !(_len_ValTestMessage_Description >= 1 && _len_ValTestMessage_Description <= 750) {
-		return fmt.Errorf(`description: value must have length between 1 and 750`)
+		return fmt.Errorf(`description: value must have a length between 1 and 750`)
 	}
 	if !_regex_d4db71516b8749dc594e5bf604c6a110.MatchString(m.Description) {
 		return fmt.Errorf(`description: value must only have valid characters`)
@@ -98,7 +98,7 @@ func (m *ValTestMessage) Validate() error {
 	}
 	var _len_ValTestMessage_Password = len(m.Password)
 	if !(_len_ValTestMessage_Password >= 8 && _len_ValTestMessage_Password <= 130) {
-		return fmt.Errorf(`password: value must have length between 8 and 130`)
+		return fmt.Errorf(`password: value must have a length between 8 and 130`)
 	}
 	if !_regex_51116fcfa477f1949f7055f2f1bf33db.MatchString(m.Password) {
 		return fmt.Errorf(`password: value must only have valid characters`)
@@ -118,7 +118,7 @@ func (m *ValTestMessage) Validate() error {
 	}
 	var _len_ValTestMessage_Title = len(m.Title)
 	if !(_len_ValTestMessage_Title >= 3 && _len_ValTestMessage_Title <= 50) {
-		return fmt.Errorf(`title: value must have length between 3 and 50`)
+		return fmt.Errorf(`title: value must have a length between 3 and 50`)
 	}
 	if !_regex_d4db71516b8749dc594e5bf604c6a110.MatchString(m.Title) {
 		return fmt.Errorf(`title: value must only have valid characters`)
@@ -179,7 +179,7 @@ func (m *ValTestMessage) Validate() error {
 	m.ReplaceString = proto.UnsafeCharReplacer.Replace(m.ReplaceString)
 	var _len_ValTestMessage_ReplaceString = len(m.ReplaceString)
 	if !(_len_ValTestMessage_ReplaceString >= 1 && _len_ValTestMessage_ReplaceString <= 130) {
-		return fmt.Errorf(`replace_string: value must have length between 1 and 130`)
+		return fmt.Errorf(`replace_string: value must have a length between 1 and 130`)
 	}
 	if !_regex_7f420dacf785a9f7b630597663705292.MatchString(m.ReplaceString) {
 		return fmt.Errorf(`replace_string: value must only have valid characters`)
@@ -199,7 +199,7 @@ func (m *ValTestMessage) Validate() error {
 	}
 	var _len_ValTestMessage_NotReplaceString = len(m.NotReplaceString)
 	if !(_len_ValTestMessage_NotReplaceString >= 1 && _len_ValTestMessage_NotReplaceString <= 130) {
-		return fmt.Errorf(`not_replace_string: value must have length between 1 and 130`)
+		return fmt.Errorf(`not_replace_string: value must have a length between 1 and 130`)
 	}
 	if !_regex_d4db71516b8749dc594e5bf604c6a110.MatchString(m.NotReplaceString) {
 		return fmt.Errorf(`not_replace_string: value must only have valid characters`)
@@ -220,7 +220,7 @@ func (m *ValTestMessage) Validate() error {
 	m.AllowString = strings.ReplaceAll(m.AllowString, "\u0023", "\u0020")
 	var _len_ValTestMessage_AllowString = len(m.AllowString)
 	if !(_len_ValTestMessage_AllowString >= 1 && _len_ValTestMessage_AllowString <= 130) {
-		return fmt.Errorf(`allow_string: value must have length between 1 and 130`)
+		return fmt.Errorf(`allow_string: value must have a length between 1 and 130`)
 	}
 	if !_regex_2d8966526d95f557bf61ba41d6e869ca.MatchString(m.AllowString) {
 		return fmt.Errorf(`allow_string: value must only have valid characters`)
@@ -240,7 +240,7 @@ func (m *ValTestMessage) Validate() error {
 	}
 	var _len_ValTestMessage_SymbolString = len(m.SymbolString)
 	if !(_len_ValTestMessage_SymbolString >= 1 && _len_ValTestMessage_SymbolString <= 130) {
-		return fmt.Errorf(`symbol_string: value must have length between 1 and 130`)
+		return fmt.Errorf(`symbol_string: value must have a length between 1 and 130`)
 	}
 	if !_regex_cfc4f3f27c72b7eff33e9065de4993b8.MatchString(m.SymbolString) {
 		return fmt.Errorf(`symbol_string: value must only have valid characters`)
@@ -260,7 +260,7 @@ func (m *ValTestMessage) Validate() error {
 	}
 	var _len_ValTestMessage_SymbolsString = len(m.SymbolsString)
 	if !(_len_ValTestMessage_SymbolsString >= 1 && _len_ValTestMessage_SymbolsString <= 130) {
-		return fmt.Errorf(`symbols_string: value must have length between 1 and 130`)
+		return fmt.Errorf(`symbols_string: value must have a length between 1 and 130`)
 	}
 	if !_regex_c5418abde4a1025792e46f9de3e163a8.MatchString(m.SymbolsString) {
 		return fmt.Errorf(`symbols_string: value must only have valid characters`)
@@ -281,7 +281,7 @@ func (m *ValTestMessage) Validate() error {
 	m.NewlineString = strings.ReplaceAll(m.NewlineString, "\r", "")
 	var _len_ValTestMessage_NewlineString = len(m.NewlineString)
 	if !(_len_ValTestMessage_NewlineString >= 1 && _len_ValTestMessage_NewlineString <= 130) {
-		return fmt.Errorf(`newline_string: value must have length between 1 and 130`)
+		return fmt.Errorf(`newline_string: value must have a length between 1 and 130`)
 	}
 	if !_regex_b87d0bf989a4ccd3a8f851bcdcfadd5b.MatchString(m.NewlineString) {
 		return fmt.Errorf(`newline_string: value must only have valid characters`)
@@ -296,7 +296,7 @@ func (m *ValTestMessage) Validate() error {
 	}
 	var _len_ValTestMessage_InvalidEncodingString = len(m.InvalidEncodingString)
 	if !(_len_ValTestMessage_InvalidEncodingString >= 1 && _len_ValTestMessage_InvalidEncodingString <= 130) {
-		return fmt.Errorf(`invalid_encoding_string: value must have length between 1 and 130`)
+		return fmt.Errorf(`invalid_encoding_string: value must have a length between 1 and 130`)
 	}
 	if !_regex_721ec450fcf3c35a27a9e280064d4c50.MatchString(m.InvalidEncodingString) {
 		return fmt.Errorf(`invalid_encoding_string: value must only have valid characters`)
@@ -317,7 +317,7 @@ func (m *ValTestMessage) Validate() error {
 		}
 		var _len_ValTestMessage_OptString = len(m.OptString)
 		if !(_len_ValTestMessage_OptString >= 1 && _len_ValTestMessage_OptString <= 130) {
-			return fmt.Errorf(`opt_string: value must have length between 1 and 130`)
+			return fmt.Errorf(`opt_string: value must have a length between 1 and 130`)
 		}
 		if !_regex_d4db71516b8749dc594e5bf604c6a110.MatchString(m.OptString) {
 			return fmt.Errorf(`opt_string: value must only have valid characters`)
@@ -339,7 +339,7 @@ func (m *ValTestMessage) Validate() error {
 	m.TrimString = strings.TrimSpace(m.TrimString)
 	var _len_ValTestMessage_TrimString = len(m.TrimString)
 	if !(_len_ValTestMessage_TrimString >= 1 && _len_ValTestMessage_TrimString <= 130) {
-		return fmt.Errorf(`trim_string: value must have length between 1 and 130`)
+		return fmt.Errorf(`trim_string: value must have a length between 1 and 130`)
 	}
 	if !_regex_d4db71516b8749dc594e5bf604c6a110.MatchString(m.TrimString) {
 		return fmt.Errorf(`trim_string: value must only have valid characters`)
@@ -356,7 +356,7 @@ func (m *ValTestMessage) Validate() error {
 	m.AllString = proto.SymbolCharReplacer.Replace(m.AllString)
 	var _len_ValTestMessage_AllString = len(m.AllString)
 	if !(_len_ValTestMessage_AllString >= 1 && _len_ValTestMessage_AllString <= 130) {
-		return fmt.Errorf(`all_string: value must have length between 1 and 130`)
+		return fmt.Errorf(`all_string: value must have a length between 1 and 130`)
 	}
 	if !_regex_d834caddc03154e20f75eb8af178a1ac.MatchString(m.AllString) {
 		return fmt.Errorf(`all_string: value must only have valid characters`)
@@ -379,7 +379,7 @@ func (m *ValTestMessage) Validate() error {
 		m.Name = strings.ReplaceAll(m.Name, "\u002D", "\u2212")
 		var _len_ValTestMessage_Name = len(m.Name)
 		if !(_len_ValTestMessage_Name >= 1 && _len_ValTestMessage_Name <= 50) {
-			return fmt.Errorf(`name: value must have length between 1 and 50`)
+			return fmt.Errorf(`name: value must have a length between 1 and 50`)
 		}
 		if !_regex_d4a3ad03e6e76d647c361a8c16ac9395.MatchString(m.Name) {
 			return fmt.Errorf(`name: value must only have valid characters`)
@@ -402,7 +402,7 @@ func (m *ValTestMessage) Validate() error {
 		m.ScTitle = proto.UnsafeCharReplacer.Replace(m.ScTitle)
 		var _len_ValTestMessage_ScTitle = len(m.ScTitle)
 		if !(_len_ValTestMessage_ScTitle >= 1 && _len_ValTestMessage_ScTitle <= 500) {
-			return fmt.Errorf(`sc_title: value must have length between 1 and 500`)
+			return fmt.Errorf(`sc_title: value must have a length between 1 and 500`)
 		}
 		if !_regex_7f420dacf785a9f7b630597663705292.MatchString(m.ScTitle) {
 			return fmt.Errorf(`sc_title: value must only have valid characters`)
@@ -427,7 +427,7 @@ func (m *ValTestMessage) Validate() error {
 		m.ScPermissive = proto.RegexPua.ReplaceAllString(m.ScPermissive, "")
 		var _len_ValTestMessage_ScPermissive = len(m.ScPermissive)
 		if !(_len_ValTestMessage_ScPermissive >= 1 && _len_ValTestMessage_ScPermissive <= 1000) {
-			return fmt.Errorf(`sc_permissive: value must have length between 1 and 1000`)
+			return fmt.Errorf(`sc_permissive: value must have a length between 1 and 1000`)
 		}
 		if !_regex_b15160b6f45559b046acfd0ffd80eb84.MatchString(m.ScPermissive) {
 			return fmt.Errorf(`sc_permissive: value must only have valid characters`)
@@ -449,7 +449,7 @@ func (m *ValTestMessage) Validate() error {
 		}
 		var _len_ValTestMessage_NotSanitisePua = len(m.NotSanitisePua)
 		if !(_len_ValTestMessage_NotSanitisePua >= 1 && _len_ValTestMessage_NotSanitisePua <= 130) {
-			return fmt.Errorf(`not_sanitise_pua: value must have length between 1 and 130`)
+			return fmt.Errorf(`not_sanitise_pua: value must have a length between 1 and 130`)
 		}
 		if !_regex_d4db71516b8749dc594e5bf604c6a110.MatchString(m.NotSanitisePua) {
 			return fmt.Errorf(`not_sanitise_pua: value must only have valid characters`)
@@ -472,7 +472,7 @@ func (m *ValTestMessage) Validate() error {
 		m.SanitisePua = proto.RegexPua.ReplaceAllString(m.SanitisePua, "")
 		var _len_ValTestMessage_SanitisePua = len(m.SanitisePua)
 		if !(_len_ValTestMessage_SanitisePua >= 1 && _len_ValTestMessage_SanitisePua <= 130) {
-			return fmt.Errorf(`sanitise_pua: value must have length between 1 and 130`)
+			return fmt.Errorf(`sanitise_pua: value must have a length between 1 and 130`)
 		}
 		if !_regex_d4db71516b8749dc594e5bf604c6a110.MatchString(m.SanitisePua) {
 			return fmt.Errorf(`sanitise_pua: value must only have valid characters`)
@@ -639,7 +639,7 @@ func (m *ValTestMessage_NestedMessage) Validate() error {
 	}
 	var _len_ValTestMessage_NestedMessage_Val = len(m.Val)
 	if !(_len_ValTestMessage_NestedMessage_Val >= 1 && _len_ValTestMessage_NestedMessage_Val <= 100) {
-		return fmt.Errorf(`val: value must have length between 1 and 100`)
+		return fmt.Errorf(`val: value must have a length between 1 and 100`)
 	}
 	if !_regex_d4db71516b8749dc594e5bf604c6a110.MatchString(m.Val) {
 		return fmt.Errorf(`val: value must only have valid characters`)
@@ -677,7 +677,7 @@ func (m *ValTestMessage_NestedMessage_InnerNestedMessage) Validate() error {
 	}
 	var _len_ValTestMessage_NestedMessage_InnerNestedMessage_InnerVal = len(m.InnerVal)
 	if !(_len_ValTestMessage_NestedMessage_InnerNestedMessage_InnerVal >= 1 && _len_ValTestMessage_NestedMessage_InnerNestedMessage_InnerVal <= 100) {
-		return fmt.Errorf(`inner_val: value must have length between 1 and 100`)
+		return fmt.Errorf(`inner_val: value must have a length between 1 and 100`)
 	}
 	if !_regex_d4db71516b8749dc594e5bf604c6a110.MatchString(m.InnerVal) {
 		return fmt.Errorf(`inner_val: value must only have valid characters`)
@@ -733,6 +733,48 @@ func (m *LogOnlyValidationMessage) Validate() error {
 		if !isValidId {
 			fmt.Printf("[log-only] %s: value must %s: Base64Encoded input: %s\n", "owner_id", "be parsable as UUIDv4 or legacy ID or S12 ID", proto.Base64Encode(proto.FirstCharactersFromString(m.OwnerId, 50)))
 		}
+	}
+	if !norm.NFC.IsNormalString(m.Title) && norm.NFD.IsNormalString(m.Title) {
+		// normalise NFD to NFC string
+		var normErr error
+		m.Title, _, normErr = transform.String(transform.Chain(norm.NFD, norm.NFC), m.Title)
+		if normErr != nil {
+			fmt.Printf("[log-only] %s: value must %s: Base64Encoded input: %s\n", "title", "must be normalisable to NFC", proto.Base64Encode(proto.FirstCharactersFromString(m.Title, 50)))
+		}
+	}
+	if strings.ContainsRune(m.Title, utf8.RuneError) {
+		fmt.Printf("[log-only] %s: value must %s: Base64Encoded input: %s\n", "title", "must have valid encoding", proto.Base64Encode(proto.FirstCharactersFromString(m.Title, 50)))
+	} else if !utf8.ValidString(m.Title) {
+		fmt.Printf("[log-only] %s: value must %s: Base64Encoded input: %s\n", "title", "must be a valid UTF-8-encoded string", proto.Base64Encode(proto.FirstCharactersFromString(m.Title, 50)))
+	}
+	m.Title = proto.RegexPua.ReplaceAllString(m.Title, "")
+	var _len_LogOnlyValidationMessage_Title = len(m.Title)
+	if !(_len_LogOnlyValidationMessage_Title >= 1 && _len_LogOnlyValidationMessage_Title <= 5) {
+		fmt.Printf("[log-only] %s: value must %s: Base64Encoded input: %s\n", "title", "have a length between 1 and 5", proto.Base64Encode(proto.FirstCharactersFromString(m.Title, 50)))
+	}
+	if !_regex_b3f79e2470927c095fff6ea841e2a650.MatchString(m.Title) {
+		fmt.Printf("[log-only] %s: value must %s: Base64Encoded input: %s\n", "title", "only have valid characters", proto.Base64Encode(proto.FirstCharactersFromString(m.Title, 50)))
+	}
+	if !norm.NFC.IsNormalString(m.Name) && norm.NFD.IsNormalString(m.Name) {
+		// normalise NFD to NFC string
+		var normErr error
+		m.Name, _, normErr = transform.String(transform.Chain(norm.NFD, norm.NFC), m.Name)
+		if normErr != nil {
+			return fmt.Errorf(`name: value must must be normalisable to NFC`)
+		}
+	}
+	if strings.ContainsRune(m.Name, utf8.RuneError) {
+		return fmt.Errorf(`name: value must must have valid encoding`)
+	} else if !utf8.ValidString(m.Name) {
+		return fmt.Errorf(`name: value must must be a valid UTF-8-encoded string`)
+	}
+	m.Name = proto.RegexPua.ReplaceAllString(m.Name, "")
+	var _len_LogOnlyValidationMessage_Name = len(m.Name)
+	if !(_len_LogOnlyValidationMessage_Name >= 1 && _len_LogOnlyValidationMessage_Name <= 5) {
+		return fmt.Errorf(`name: value must have a length between 1 and 5`)
+	}
+	if !_regex_b3f79e2470927c095fff6ea841e2a650.MatchString(m.Name) {
+		return fmt.Errorf(`name: value must only have valid characters`)
 	}
 	return nil
 }
