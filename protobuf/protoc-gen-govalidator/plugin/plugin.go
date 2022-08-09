@@ -520,7 +520,7 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 		errStr = fmt.Sprintf(`have length %d`, minLen)
 	} else {
 		g.P("if !("+lenVar+" >= ", minLen, " && "+lenVar+" <= ", maxLen, ") {")
-		errStr = fmt.Sprintf(`have length between %d and %d`, minLen, maxLen)
+		errStr = fmt.Sprintf(`have a length between %d and %d`, minLen, maxLen)
 	}
 	if rules.GetLogOnly() {
 		printErrorString(g, varName, string(f.Desc.Name()), errStr, 50)
