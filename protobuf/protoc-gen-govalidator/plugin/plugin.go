@@ -219,6 +219,7 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 			genEmailValidator(g, f, varName)
 			genURLValidator(g, f, varName)
 			genTimezoneValidator(g, f, varName)
+			getTemplateRevIdValidator(g, f, varName)
 		case protoreflect.BytesKind:
 			// IdValidator not supported for bytes at this point
 			genBytesValidator(g, f, varName)
@@ -692,6 +693,29 @@ func genEmailValidator(g *protogen.GeneratedFile, f *protogen.Field, varName str
 	}
 }
 
+func getTemplateRevIdValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string) {
+	rules := getTemplateRevIdExtension(f, validator.E_TemplateRevision)
+	if rules == nil {
+		return
+	}
+
+	if rules.GetOptional() {
+		g.P("if ", varName, " != \"\" {")
+	}
+
+	g.P("if !", s12protoPackage.Ident("IsTemplateRevId"), "(", varName, ") {")
+	if rules.GetLogOnly() {
+		printErrorString(g, varName, string(f.Desc.Name()), "must be parsable", 50)
+	} else {
+		genErrorString(g, varName, string(f.Desc.Name()), "must be parsable")
+	}
+	g.P("}")
+
+	if rules.GetOptional() {
+		g.P("}")
+	}
+}
+
 func genURLValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string) {
 
 	rules := getURLExtension(f, validator.E_Url)
@@ -903,6 +927,7 @@ var validNonRepeatedExts = []protoreflect.ExtensionType{
 	validator.E_Email,
 	validator.E_Id,
 	validator.E_String,
+	validator.E_TemplateRevision,
 	validator.E_UnsafeString,
 	validator.E_EnumRequired,
 	validator.E_Url,
@@ -984,6 +1009,16 @@ func getURLExtension(f *protogen.Field, xt protoreflect.ExtensionType) *validato
 	if opts := f.Desc.Options(); opts != nil {
 		ext := proto.GetExtension(opts, xt)
 		if v, ok := ext.(*validator.URLRules); ok {
+			return v
+		}
+	}
+	return nil
+}
+
+func getTemplateRevIdExtension(f *protogen.Field, xt protoreflect.ExtensionType) *validator.TemplateRevisionRules {
+	if opts := f.Desc.Options(); opts != nil {
+		ext := proto.GetExtension(opts, xt)
+		if v, ok := ext.(*validator.TemplateRevisionRules); ok {
 			return v
 		}
 	}

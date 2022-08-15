@@ -2,7 +2,7 @@ package valtest
 
 import (
 	"bufio"
-	fmt "fmt"
+	"fmt"
 	"math"
 	"os"
 	"strings"
@@ -994,11 +994,15 @@ func (m *ValTestMessage) getMsgField() *ValTestMessage {
 
 func genLogOnlyValidationMessage() *LogOnlyValidationMessage {
 	return &LogOnlyValidationMessage{
-		ImageId:      id,
-		InspectionId: id,
-		OwnerId:      id,
-		Title:        "123",
-		Name:         "123",
+		ImageId:               id,
+		InspectionId:          id,
+		OwnerId:               id,
+		Title:                 "123",
+		Name:                  "123",
+		OldId:                 "",
+		TemplateRevIdOptional: "4-f6fd91720a594e66a6deb9874aca5fa1",
+		TemplateRevIdLogOnly:  "4-f6fd91720a594e66a6deb9874aca5fa1",
+		TemplateRevId:         "4-f6fd91720a594e66a6deb9874aca5fa1",
 	}
 }
 func TestSoftValidation_Validate(t *testing.T) {
@@ -1686,6 +1690,108 @@ func TestSoftValidation_ValidateString(t *testing.T) {
 				return m
 			}(),
 			shouldErr: true,
+		},
+		{
+			name: "Should pass when optional OldId size is in range",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.OldId = "B"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass when optional OldId size is out of range",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.OldId = "Hey!World!!!"
+				return m
+			}(),
+			shouldErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.msg.Validate()
+			if tt.shouldErr == (err == nil) {
+				t.Errorf("%s, supposed to return an error", tt.name)
+			}
+			if !tt.shouldErr && err != nil {
+				t.Errorf("%s, supposed not to return an error, but we received %v", tt.name, err)
+			}
+		})
+	}
+}
+
+func TestSoftValidation_ValidateTemplateRevisionID(t *testing.T) {
+	tests := []struct {
+		name      string
+		msg       *LogOnlyValidationMessage
+		shouldErr bool
+	}{
+		{
+			name: "Should pass when template_rev_id is correct",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.TemplateRevId = "6-afa783f791f34c1f9a58f106737014ef"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should fail when template_rev_id is invalid",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.TemplateRevId = "6-ef"
+				return m
+			}(),
+			shouldErr: true,
+		},
+		{
+			name: "Should pass when template_rev_id_log_only is correct",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.TemplateRevIdLogOnly = "6-afa783f791f34c1f9a58f106737014ef"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should not fail when template_rev_id_log_only is incorrect",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.TemplateRevIdLogOnly = "33444"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass when template_rev_id_optional is correct",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.TemplateRevIdOptional = "6-afa783f791f34c1f9a58f106737014ef"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass when template_rev_id_optional is not specified",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.TemplateRevIdOptional = ""
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should not fail when template_rev_id_optional log only is not correct",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.TemplateRevIdOptional = "x33"
+				return m
+			}(),
+			shouldErr: false,
 		},
 	}
 

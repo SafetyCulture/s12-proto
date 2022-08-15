@@ -165,6 +165,10 @@ message LogOnlyValidationMessage {
   string owner_id = 3 [(validator.id) = { legacy: true, s12id: true, log_only: true}];
   string title = 4 [(validator.unsafe_string) = { len: "1:5", sanitise_pua: true, symbols: [COMMON, CURRENCY, MARK, PUNCTUATION, MODIFIER, OTHER], log_only: true}];
   string name = 5 [(validator.unsafe_string) = { len: "1:5", sanitise_pua: true, symbols: [COMMON, CURRENCY, MARK, PUNCTUATION, MODIFIER, OTHER]}];
+  string old_id = 6 [(validator.unsafe_string) = { len: "1:5", optional: true, sanitise_pua: true, symbols: [COMMON, CURRENCY, MARK, PUNCTUATION, MODIFIER, OTHER], log_only: true}];
+  string template_rev_id_optional = 7 [(validator.template_revision) = { optional: true, log_only: true}];
+  string template_rev_id_log_only = 8 [(validator.template_revision) = { log_only: true}];
+  string template_rev_id = 9 [(validator.template_revision) = {}];
 }
 
 message OuterMessageUsingNestedMessage {
