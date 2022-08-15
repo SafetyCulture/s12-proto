@@ -168,14 +168,14 @@ message LogOnlyValidationMessage {
 }
 
 message LowercaseValidationMessage {
-  string uuidv4 = 3 [(validator.id) = {}];
-  string uuidv4_log_only = 2 [(validator.id) = {log_only: true}];
+  string uuidv4 = 3 [(validator.id) = {lowercase_only: true}];
+  string uuidv4_log_only = 2 [(validator.id) = {lowercase_only: true, log_only: true}];
 
-  string s12id = 6 [(validator.id) = {s12id: true}];
-  string s12id_log_only = 5 [(validator.id) = {log_only: true, s12id: true}];
+  string s12id = 6 [(validator.id) = {lowercase_only: true, s12id: true}];
+  string s12id_log_only = 5 [(validator.id) = {lowercase_only: true, s12id: true, log_only: true}];
 
-  string legacy = 9 [(validator.id) = {legacy: true}];
-  string legacy_log_only = 8 [(validator.id) = {log_only: true, legacy: true}];
+  string legacy = 9 [(validator.id) = {lowercase_only: true, legacy: true}];
+  string legacy_log_only = 8 [(validator.id) = {lowercase_only: true, legacy: true, log_only: true}];
 }
 
 message OuterMessageUsingNestedMessage {

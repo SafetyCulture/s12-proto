@@ -41,7 +41,7 @@ func (m *ValTestMessage) Validate() error {
 	}
 	if !proto.IsUUIDv4(m.LegacyId) {
 		isValidId := false
-		if proto.IsLegacyID(m.LegacyId) {
+		if proto.IsLegacyID(m.LegacyId, false) {
 			isValidId = true
 		}
 		if !isValidId {
@@ -571,7 +571,7 @@ func (m *ValTestMessage) Validate() error {
 	}
 	if !proto.IsUUIDv4(m.S12Id) {
 		isValidId := false
-		if !isValidId && proto.IsS12ID(m.S12Id) {
+		if !isValidId && proto.IsS12ID(m.S12Id, false) {
 			isValidId = true
 		}
 		if !isValidId {
@@ -588,10 +588,10 @@ func (m *ValTestMessage) Validate() error {
 	if m.AllId != "" {
 		if !proto.IsUUIDv4(m.AllId) {
 			isValidId := false
-			if proto.IsLegacyID(m.AllId) {
+			if proto.IsLegacyID(m.AllId, false) {
 				isValidId = true
 			}
-			if !isValidId && proto.IsS12ID(m.AllId) {
+			if !isValidId && proto.IsS12ID(m.AllId, false) {
 				isValidId = true
 			}
 			if !isValidId {
@@ -700,10 +700,10 @@ func (m *LogOnlyValidationMessage) Validate() error {
 	}
 	if !proto.IsUUIDv4(m.ImageId) {
 		isValidId := false
-		if proto.IsLegacyID(m.ImageId) {
+		if proto.IsLegacyID(m.ImageId, false) {
 			isValidId = true
 		}
-		if !isValidId && proto.IsS12ID(m.ImageId) {
+		if !isValidId && proto.IsS12ID(m.ImageId, false) {
 			isValidId = true
 		}
 		if !isValidId {
@@ -712,10 +712,10 @@ func (m *LogOnlyValidationMessage) Validate() error {
 	}
 	if !proto.IsUUIDv4(m.InspectionId) {
 		isValidId := false
-		if proto.IsLegacyID(m.InspectionId) {
+		if proto.IsLegacyID(m.InspectionId, false) {
 			isValidId = true
 		}
-		if !isValidId && proto.IsS12ID(m.InspectionId) {
+		if !isValidId && proto.IsS12ID(m.InspectionId, false) {
 			isValidId = true
 		}
 		if !isValidId {
@@ -724,10 +724,10 @@ func (m *LogOnlyValidationMessage) Validate() error {
 	}
 	if !proto.IsUUIDv4(m.OwnerId) {
 		isValidId := false
-		if proto.IsLegacyID(m.OwnerId) {
+		if proto.IsLegacyID(m.OwnerId, false) {
 			isValidId = true
 		}
-		if !isValidId && proto.IsS12ID(m.OwnerId) {
+		if !isValidId && proto.IsS12ID(m.OwnerId, false) {
 			isValidId = true
 		}
 		if !isValidId {
@@ -794,7 +794,7 @@ func (m *LowercaseValidationMessage) Validate() error {
 	}
 	if !proto.IsUUIDv4(m.S12Id) {
 		isValidId := false
-		if !isValidId && proto.IsS12ID(m.S12Id) {
+		if !isValidId && proto.IsS12ID(m.S12Id, true) {
 			isValidId = true
 		}
 		if !isValidId {
@@ -803,7 +803,7 @@ func (m *LowercaseValidationMessage) Validate() error {
 	}
 	if !proto.IsUUIDv4(m.S12IdLogOnly) {
 		isValidId := false
-		if !isValidId && proto.IsS12ID(m.S12IdLogOnly) {
+		if !isValidId && proto.IsS12ID(m.S12IdLogOnly, true) {
 			isValidId = true
 		}
 		if !isValidId {
@@ -812,7 +812,7 @@ func (m *LowercaseValidationMessage) Validate() error {
 	}
 	if !proto.IsUUIDv4(m.Legacy) {
 		isValidId := false
-		if proto.IsLegacyID(m.Legacy) {
+		if proto.IsLegacyID(m.Legacy, true) {
 			isValidId = true
 		}
 		if !isValidId {
@@ -821,7 +821,7 @@ func (m *LowercaseValidationMessage) Validate() error {
 	}
 	if !proto.IsUUIDv4(m.LegacyLogOnly) {
 		isValidId := false
-		if proto.IsLegacyID(m.LegacyLogOnly) {
+		if proto.IsLegacyID(m.LegacyLogOnly, true) {
 			isValidId = true
 		}
 		if !isValidId {
@@ -852,7 +852,7 @@ func (m *InnerMessage) Validate() error {
 func (m *InnerMessageWithLegacyId) Validate() error {
 	if !proto.IsUUIDv4(m.Id) {
 		isValidId := false
-		if proto.IsLegacyID(m.Id) {
+		if proto.IsLegacyID(m.Id, false) {
 			isValidId = true
 		}
 		if !isValidId {
@@ -865,7 +865,7 @@ func (m *InnerMessageWithLegacyId) Validate() error {
 func (m *InnerMessageWithS12Id) Validate() error {
 	if !proto.IsUUIDv4(m.Id) {
 		isValidId := false
-		if !isValidId && proto.IsS12ID(m.Id) {
+		if !isValidId && proto.IsS12ID(m.Id, false) {
 			isValidId = true
 		}
 		if !isValidId {
