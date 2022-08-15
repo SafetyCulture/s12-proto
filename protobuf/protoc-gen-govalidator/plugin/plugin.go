@@ -40,7 +40,7 @@ var regexGeneratedFile *protogen.GeneratedFile
 var regexHashLib = make(map[string]struct{})
 
 // Validator plugin version
-var validatorVersion = "v2.5.0"
+var validatorVersion = "v2.5.1"
 
 // Write a preamble in the auto generated files
 func genGeneratedHeader(gen *protogen.Plugin, g *protogen.GeneratedFile, f *protogen.File) {
@@ -635,7 +635,7 @@ func genIdValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string
 	// Check for valid legacy id if option enabled
 	if rules.GetLegacy() {
 		errMsg += " or legacy ID"
-		g.P("if ", s12protoPackage.Ident("IsLegacyID"), "(", varName, ") {")
+		g.P("if ", s12protoPackage.Ident("IsLegacyID"), "(", varName, ", ", rules.GetLowercaseOnly(), ") {")
 		g.P("isValidId = true")
 		g.P("}")
 	}
@@ -643,7 +643,7 @@ func genIdValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string
 	// Finally, if still no valid id found, also check for S12 Id if option enabled
 	if rules.GetS12Id() {
 		errMsg += " or S12 ID"
-		g.P("if !isValidId && ", s12protoPackage.Ident("IsS12ID"), "(", varName, ") {")
+		g.P("if !isValidId && ", s12protoPackage.Ident("IsS12ID"), "(", varName, ", ", rules.GetLowercaseOnly(), ") {")
 		g.P("isValidId = true")
 		g.P("}")
 	}

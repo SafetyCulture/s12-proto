@@ -1001,6 +1001,18 @@ func genLogOnlyValidationMessage() *LogOnlyValidationMessage {
 		Name:         "123",
 	}
 }
+
+func genLowercaseValidationMessage() *LowercaseValidationMessage {
+	return &LowercaseValidationMessage{
+		Uuidv4:        "92b6c2f9-abd8-48bc-a2c9-bf70e969751a",
+		Uuidv4LogOnly: "92b6c2f9-abd8-48bc-a2c9-bf70e969751a",
+		S12Id:         "audit_f6dad1c9334040739b1e67ca70f4cf4d",
+		S12IdLogOnly:  "audit_f6dad1c9334040739b1e67ca70f4cf4d",
+		Legacy:        "92b6c2f9abd848bca2c9bf70e969751a",
+		LegacyLogOnly: "92b6c2f9abd848bca2c9bf70e969751a",
+	}
+}
+
 func TestSoftValidation_Validate(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -1686,6 +1698,108 @@ func TestSoftValidation_ValidateString(t *testing.T) {
 				return m
 			}(),
 			shouldErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.msg.Validate()
+			if tt.shouldErr == (err == nil) {
+				t.Errorf("%s, supposed to return an error", tt.name)
+			}
+			if !tt.shouldErr && err != nil {
+				t.Errorf("%s, supposed not to return an error, but we received %v", tt.name, err)
+			}
+		})
+	}
+}
+
+func TestValidation_ValidateLowercaseIDs(t *testing.T) {
+	tests := []struct {
+		name      string
+		msg       *LowercaseValidationMessage
+		shouldErr bool
+	}{
+		{
+			name: "Should pass when UUID case is lowercase",
+			msg: func() *LowercaseValidationMessage {
+				m := genLowercaseValidationMessage()
+				m.Uuidv4 = "92b6c2f9-abd8-48bc-a2c9-bf70e969751a"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should not pass UUID when case is uppercase",
+			msg: func() *LowercaseValidationMessage {
+				m := genLowercaseValidationMessage()
+				m.Uuidv4 = "92B6C2F9-ABD8-48BC-A2C9-BF70E969751A"
+				return m
+			}(),
+			shouldErr: true,
+		},
+		{
+			name: "Should pass UUID when case is uppercase and log-only enabled",
+			msg: func() *LowercaseValidationMessage {
+				m := genLowercaseValidationMessage()
+				m.Uuidv4LogOnly = "92B6C2F9-ABD8-48BC-A2C9-BF70E969751A"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass when S12ID case is lowercase",
+			msg: func() *LowercaseValidationMessage {
+				m := genLowercaseValidationMessage()
+				m.S12Id = "audit_92b6c2f9abd848bca2c9bf70e969751a"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should not pass S12ID when case is uppercase",
+			msg: func() *LowercaseValidationMessage {
+				m := genLowercaseValidationMessage()
+				m.S12Id = "audit_92B6C2F9ABD848BCA2C9BF70E969751A"
+				return m
+			}(),
+			shouldErr: true,
+		},
+		{
+			name: "Should pass S12ID when case is uppercase and log-only enabled",
+			msg: func() *LowercaseValidationMessage {
+				m := genLowercaseValidationMessage()
+				m.S12IdLogOnly = "audit_92B6C2F9ABD848BCA2C9BF70E969751A"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass when Legacy case is lowercase",
+			msg: func() *LowercaseValidationMessage {
+				m := genLowercaseValidationMessage()
+				m.Legacy = "92b6c2f9abd848bca2c9bf70e969751a"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should not pass Legacy when case is uppercase",
+			msg: func() *LowercaseValidationMessage {
+				m := genLowercaseValidationMessage()
+				m.Legacy = "92B6C2F9ABD848BCA2C9BF70E969751A"
+				return m
+			}(),
+			shouldErr: true,
+		},
+		{
+			name: "Should pass Legacy when case is uppercase and log-only enabled",
+			msg: func() *LowercaseValidationMessage {
+				m := genLowercaseValidationMessage()
+				m.S12IdLogOnly = "92B6C2F9ABD848BCA2C9BF70E969751A"
+				return m
+			}(),
+			shouldErr: false,
 		},
 	}
 

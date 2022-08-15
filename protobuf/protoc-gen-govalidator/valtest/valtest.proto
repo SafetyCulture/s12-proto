@@ -167,6 +167,17 @@ message LogOnlyValidationMessage {
   string name = 5 [(validator.unsafe_string) = { len: "1:5", sanitise_pua: true, symbols: [COMMON, CURRENCY, MARK, PUNCTUATION, MODIFIER, OTHER]}];
 }
 
+message LowercaseValidationMessage {
+  string uuidv4 = 3 [(validator.id) = {lowercase_only: true}];
+  string uuidv4_log_only = 2 [(validator.id) = {lowercase_only: true, log_only: true}];
+
+  string s12id = 6 [(validator.id) = {lowercase_only: true, s12id: true}];
+  string s12id_log_only = 5 [(validator.id) = {lowercase_only: true, s12id: true, log_only: true}];
+
+  string legacy = 9 [(validator.id) = {lowercase_only: true, legacy: true}];
+  string legacy_log_only = 8 [(validator.id) = {lowercase_only: true, legacy: true, log_only: true}];
+}
+
 message OuterMessageUsingNestedMessage {
   ValTestMessage.NestedMessage some_message = 1;
 }
