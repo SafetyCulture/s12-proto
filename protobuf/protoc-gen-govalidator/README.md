@@ -31,6 +31,7 @@ make govalidator-valtest-test
 - [Number validation: validator.number (int, uint, float, double)](#validator.number)
 - [Enum validation: validator.enum_required](#validator.enum_required)
 - [URL validation: validator.url](#validator.url)
+- [Template RevisionID validation: validator.template_revision](#validator.template_revision)
 - [Testing](#validator.testing)
 - [Legacy Validator Fields](#validator.legacy)
 
@@ -291,6 +292,15 @@ Example usage:
 ```
 
 &nbsp;
+
+## TemplateRevisionID validation: validation.template_revision <a name="validator.template_revision"></a>
+Validate a string for a valid TemplateRevisionID format.
+
+| Option   | Type | Default | Description                                                                         |
+|----------|------|---------|-------------------------------------------------------------------------------------|
+| optional | bool | false   | Set this as an optional field. It will allow the value to be "", without validation |
+| log_only | bool | false   | When true, failed validation will be output to logs but not return errors           |
+
 
 ## Number Validation: validator.number (NumberRules) <a name="validator.number"></a>
 Validate a number value. Allows preventing NaN values being passed. Also allows providing a range within which the number value must lie for float, double, int32/64, uint32/64, sint32/64.
