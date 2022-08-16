@@ -1010,6 +1010,7 @@ func genLowercaseValidationMessage() *LowercaseValidationMessage {
 		S12IdLogOnly:  "audit_f6dad1c9334040739b1e67ca70f4cf4d",
 		Legacy:        "92b6c2f9abd848bca2c9bf70e969751a",
 		LegacyLogOnly: "92b6c2f9abd848bca2c9bf70e969751a",
+		RevId:         "",
 	}
 }
 
@@ -1800,6 +1801,33 @@ func TestValidation_ValidateLowercaseIDs(t *testing.T) {
 				return m
 			}(),
 			shouldErr: false,
+		},
+		{
+			name: "Should pass with empty value",
+			msg: func() *LowercaseValidationMessage {
+				m := genLowercaseValidationMessage()
+				m.RevId = ""
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass with proper value",
+			msg: func() *LowercaseValidationMessage {
+				m := genLowercaseValidationMessage()
+				m.RevId = "4-f6fd91720a594e66a6deb9874aca5fa1"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should fail with invalid value",
+			msg: func() *LowercaseValidationMessage {
+				m := genLowercaseValidationMessage()
+				m.RevId = "f6fd91720a594e66a6deb9874aca5fa1"
+				return m
+			}(),
+			shouldErr: true,
 		},
 	}
 
