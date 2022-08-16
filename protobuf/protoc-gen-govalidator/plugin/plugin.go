@@ -40,7 +40,7 @@ var regexGeneratedFile *protogen.GeneratedFile
 var regexHashLib = make(map[string]struct{})
 
 // Validator plugin version
-var validatorVersion = "v2.5.1"
+var validatorVersion = "v2.5.2"
 
 // Write a preamble in the auto generated files
 func genGeneratedHeader(gen *protogen.Plugin, g *protogen.GeneratedFile, f *protogen.File) {
@@ -282,7 +282,7 @@ func genLegacyStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varN
 	}
 
 	if getBoolExtension(f, validator.E_LegacyId) {
-		g.P("if !", s12protoPackage.Ident("IsLegacyID"), "(", varName, ") {")
+		g.P("if !", s12protoPackage.Ident("IsLegacyID"), "(", varName, ", false) {")
 		errStr := "be parsable as a UUID or a legacy ID"
 		genErrorString(g, varName, string(f.Desc.Name()), errStr)
 		g.P("}")
