@@ -1011,6 +1011,7 @@ func genLowercaseValidationMessage() *LowercaseValidationMessage {
 		Legacy:        "92b6c2f9abd848bca2c9bf70e969751a",
 		LegacyLogOnly: "92b6c2f9abd848bca2c9bf70e969751a",
 		RevId:         "",
+		QuestionId:    "92b6c2f9-abd8-48bc-a2c9-bf70e969751a",
 	}
 }
 
@@ -1635,6 +1636,24 @@ func TestSoftValidation_ValidateS12Strict(t *testing.T) {
 			shouldErr: false,
 		},
 		{
+			name: "Should pass with FOLDER",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.InspectionId = "folder_a109b645119b4eacb98ace52cce79fa7"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass with SCHEDULEITEM",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.InspectionId = "scheduleitem_d848b3a0a1e14dbb8c01fcae8cc2ce12"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
 			name: "Should fail with CHICKEN",
 			msg: func() *LogOnlyValidationMessage {
 				m := genLogOnlyValidationMessage()
@@ -1828,6 +1847,32 @@ func TestValidation_ValidateLowercaseIDs(t *testing.T) {
 				return m
 			}(),
 			shouldErr: true,
+		},
+		{
+			name: "Should pass with real legacy value #1",
+			msg: func() *LowercaseValidationMessage {
+				m := genLowercaseValidationMessage()
+				m.QuestionId = "e0590e4b-b63b-42f1-b225-4cfcf0afeb9c-101-00000006f"
+				return m
+			}(),
+			shouldErr: false,
+		}, {
+			name: "Should pass with a real legacy value #2",
+			msg: func() *LowercaseValidationMessage {
+				m := genLowercaseValidationMessage()
+				m.QuestionId = "f3545d44-ea77-11e1-aff1-0800200c9a66"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass with a real legacy value #3",
+			msg: func() *LowercaseValidationMessage {
+				m := genLowercaseValidationMessage()
+				m.QuestionId = "E7497185-5BED-4CDA-B293-81CCF13FEE31-1425-00000050"
+				return m
+			}(),
+			shouldErr: false,
 		},
 	}
 

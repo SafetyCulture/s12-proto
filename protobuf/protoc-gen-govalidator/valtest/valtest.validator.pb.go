@@ -836,6 +836,15 @@ func (m *LowercaseValidationMessage) Validate() error {
 	if !_regex_LowercaseValidationMessage_RevId.MatchString(m.RevId) {
 		return fmt.Errorf(`rev_id: value must be a string conforming to predefined pattern`)
 	}
+	if !proto.IsUUIDv4(m.QuestionId) {
+		isValidId := false
+		if proto.IsLegacyID(m.QuestionId, false) {
+			isValidId = true
+		}
+		if !isValidId {
+			return fmt.Errorf(`question_id: value must be parsable as UUIDv4 or legacy ID`)
+		}
+	}
 	return nil
 }
 
