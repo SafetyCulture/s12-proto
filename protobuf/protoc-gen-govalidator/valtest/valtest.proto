@@ -178,6 +178,7 @@ message LowercaseValidationMessage {
   string legacy_log_only = 6 [(validator.id) = {lowercase_only: true, legacy: true, log_only: true}];
 
   string rev_id = 7 [(validator.regex) = "^((\\d)+-([0-9a-f]){32})?$"];
+  string question_id = 8 [(validator.id) = {legacy: true}];
 }
 
 message OuterMessageUsingNestedMessage {

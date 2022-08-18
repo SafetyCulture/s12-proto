@@ -20,10 +20,10 @@ const (
 
 const (
 	uuid              string = "^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}$"
-	legacyId          string = "(?i)^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}(-?[0-9a-f]{2,5}-?[0-9a-f]{16})?$"
-	legacyIdLowercase string = "^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}(-?[0-9a-f]{2,5}-?[0-9a-f]{16})?$"
-	s12Id             string = "^(audit|template|action|user|ntfmsg|evidence|role|location|responseset|response|preference|heads_up|subscription)_([0-9a-fA-F]){32}$"
-	s12IdLowercase    string = "^(audit|template|action|user|ntfmsg|evidence|role|location|responseset|response|preference|heads_up|subscription)_([0-9a-f]){32}$"
+	legacyId          string = "(?i)^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}(-?[0-9a-f]{2,5}-?[0-9a-f]{1,16})?$"
+	legacyIdLowercase string = "^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}(-?[0-9a-f]{2,5}-?[0-9a-f]{1,16})?$"
+	s12Id             string = "^(audit|template|action|user|ntfmsg|evidence|role|location|responseset|response|preference|heads_up|subscription|folder|scheduleitem)_([0-9a-fA-F]){32}$"
+	s12IdLowercase    string = "^(audit|template|action|user|ntfmsg|evidence|role|location|responseset|response|preference|heads_up|subscription|folder|scheduleitem)_([0-9a-f]){32}$"
 	rePua             string = `[\x{E000}-\x{F8FF}]` // Private Use Codepoints in the Basic Multilingual Plane (not including planes 15, 16)
 	// govalidator package used before seems unmaintained at the moment and we needed changes to the regex so copied it from https://github.com/asaskevich/govalidator/blob/f21760c49a8d602d863493de796926d2a5c1138d/patterns.go#L77
 	// ensure all checks are performmed in IsValidEmail so we can revert this later if we want to

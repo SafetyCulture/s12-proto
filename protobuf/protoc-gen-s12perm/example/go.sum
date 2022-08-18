@@ -3,8 +3,8 @@ github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03
 github.com/Masterminds/glide v0.13.2/go.mod h1:STyF5vcenH/rUqTEv+/hBXlSTo7KYwg2oc2f4tzPWic=
 github.com/Masterminds/semver v1.4.2/go.mod h1:MB6lktGJrhw8PrUyiEoblNEGEQ+RzHPF078ddwwvV3Y=
 github.com/Masterminds/vcs v1.13.0/go.mod h1:N09YCmOQr6RLxC6UNHzuVwAdodYbbnycGHSmwVJjcKA=
-github.com/SafetyCulture/s12-proto v1.21.7 h1:5ZmTM7lVvCXLud8M3gtvXQPr2ZXtX+gr2/af/wugQeA=
-github.com/SafetyCulture/s12-proto v1.21.7/go.mod h1:JsC3JOHn7qSgH7FRba0DEyNv+Utwdb+hdEzEzfhNiqY=
+github.com/SafetyCulture/s12-proto v1.21.8 h1:sf45jaaN2yPLpVZruUig1OwpBNKXc7dq4b4FtaQUVb0=
+github.com/SafetyCulture/s12-proto v1.21.8/go.mod h1:JsC3JOHn7qSgH7FRba0DEyNv+Utwdb+hdEzEzfhNiqY=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
 github.com/cncf/udpa/go v0.0.0-20191209042840-269d4d468f6f/go.mod h1:M8M6+tZqaGXZJjfX53e64911xZQV5JYwmTeXPW+k8Sc=
