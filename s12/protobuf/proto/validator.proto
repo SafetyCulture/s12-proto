@@ -273,4 +273,9 @@ message NumberRules {
   // less than or equal to 20
   // Values can be left out to ignore that side of the check
   optional string range = 3;
+
+  // Only apply soft validation. Validation errors for this validator are logged, not returned.
+  // Be aware that due to multiples validators applying, and order of precedence
+  // this will not prevent errors from other validators being returned.
+  optional bool log_only = 5 [default = false];
 }

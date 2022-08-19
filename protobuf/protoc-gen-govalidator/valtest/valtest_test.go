@@ -999,6 +999,7 @@ func genLogOnlyValidationMessage() *LogOnlyValidationMessage {
 		OwnerId:      id,
 		Title:        "123",
 		Name:         "123",
+		Latitude:     0,
 	}
 }
 
@@ -1103,6 +1104,99 @@ func TestSoftValidation_Validate(t *testing.T) {
 			msg: func() *LogOnlyValidationMessage {
 				m := genLogOnlyValidationMessage()
 				m.InspectionId = "401D39E12A3C4D8B8021631E63E82492"
+				return m
+			}(),
+			shouldErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.msg.Validate()
+			if tt.shouldErr == (err == nil) {
+				t.Errorf("%s, supposed to return an error", tt.name)
+			}
+			if !tt.shouldErr && err != nil {
+				t.Errorf("%s, supposed not to return an error, but we received %v", tt.name, err)
+			}
+		})
+	}
+}
+
+func TestSoftValidation_ValidateLatitude(t *testing.T) {
+	tests := []struct {
+		name      string
+		msg       *LogOnlyValidationMessage
+		shouldErr bool
+	}{
+		{
+			name: "should pass with legitimate positive integer in range latitude",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Latitude = 5
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "should pass with legitimate negative integer in lower-range latitude",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Latitude = -90
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "should pass with legitimate negative doube in range latitude",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Latitude = -88.8888888888
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "should pass with legitimate positive doube in lower-range latitude",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Latitude = -90.00
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "should pass with legitimate zero doube in latitude",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Latitude = -0.00
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "should pass with legitimate positive doube in upper-range latitude",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Latitude = 90.00
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "should fail with positive doube higher than upper-range latitude",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Latitude = -91.05
+				return m
+			}(),
+			shouldErr: true,
+		},
+		{
+			name: "should not fail with invalid doube higher than upper-range latitude when log-only",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Longitude = -190.12233444
 				return m
 			}(),
 			shouldErr: false,
@@ -1870,6 +1964,14 @@ func TestValidation_ValidateLowercaseIDs(t *testing.T) {
 			msg: func() *LowercaseValidationMessage {
 				m := genLowercaseValidationMessage()
 				m.QuestionId = "E7497185-5BED-4CDA-B293-81CCF13FEE31-1425-00000050"
+				return m
+			}(),
+			shouldErr: false,
+		}, {
+			name: "Should pass with a real legacy value #4",
+			msg: func() *LowercaseValidationMessage {
+				m := genLowercaseValidationMessage()
+				m.QuestionId = "ca1cb1f1-d2df-414a-bf4f-8d9a65a52db3-18665-000068a"
 				return m
 			}(),
 			shouldErr: false,
