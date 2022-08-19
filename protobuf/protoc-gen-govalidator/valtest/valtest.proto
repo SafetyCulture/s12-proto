@@ -167,6 +167,7 @@ message LogOnlyValidationMessage {
   string name = 5 [(validator.unsafe_string) = { len: "1:5", sanitise_pua: true, symbols: [COMMON, CURRENCY, MARK, PUNCTUATION, MODIFIER, OTHER]}];
   double latitude = 6 [(validator.number) = { optional: true, range: "-90:90" }];
   double longitude = 7 [(validator.number) = { optional: true, log_only: true, range: "-180:180"}];
+  int32 accuracy = 9 [(validator.number) = { optional: true, log_only: true, range: "0:10000"}];
 }
 
 message LowercaseValidationMessage {
@@ -181,6 +182,8 @@ message LowercaseValidationMessage {
 
   string rev_id = 7 [(validator.regex) = "^((\\d)+-([0-9a-f]){32})?$"];
   string question_id = 8 [(validator.id) = {legacy: true}];
+
+  string item_id = 9  [(validator.id) = {optional: true,  s12id: true}];
 }
 
 message OuterMessageUsingNestedMessage {

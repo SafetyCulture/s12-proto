@@ -1201,6 +1201,33 @@ func TestSoftValidation_ValidateLatitude(t *testing.T) {
 			}(),
 			shouldErr: false,
 		},
+		{
+			name: "should pass with legitimate zero in range accuracy",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Accuracy = 0
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "should pass with legitimate value in upper-range accuracy",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Accuracy = 10_000
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "should not fail with value out-range accuracy",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Accuracy = 10_001
+				return m
+			}(),
+			shouldErr: false,
+		},
 	}
 
 	for _, tt := range tests {
