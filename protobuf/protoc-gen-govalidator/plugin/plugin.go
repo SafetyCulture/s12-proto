@@ -870,7 +870,8 @@ func genEnumValidator(g *protogen.GeneratedFile, f *protogen.Field, varName stri
 
 func printErrorString(g *protogen.GeneratedFile, varName, fieldName, specificErr string, maxLen int) {
 	// Do not reflect untrusted value in error, certainly not for sensitive fields like password or PII like email
-	g.P(fmtPackage.Ident("Printf"), `("[log-only] %s: value must %s: Base64Encoded input: %s\n", `, `"`, fieldName, `", "`, specificErr, `" `, ", proto.Base64Encode(proto.FirstCharactersFromString(", varName, ", ", maxLen, ")))")
+	g.P(fmtPackage.Ident("Printf"), `("[log-only] %s: value must %s: Base64Encoded input: %s\n", `, `"`, fieldName, `", "`, specificErr, `" `,
+		", proto.Base64Encode(proto.FirstCharactersFromString(fmt.Sprintf(\"%v\", ", varName, "), ", maxLen, ")))")
 }
 
 func genErrorString(g *protogen.GeneratedFile, varName, fieldName, specificErr string) {
@@ -1056,7 +1057,11 @@ func genNumberValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 			g.P("// Range check lower bounds")
 			g.P("if ", varName, " < ", rangeVals[0], " {")
 			errStr := fmt.Sprintf("be greater than or equal to %v", rangeVals[0])
-			genErrorString(g, varName, string(f.Desc.Name()), errStr)
+			if rules.GetLogOnly() {
+				printErrorString(g, varName, string(f.Desc.Name()), errStr, 50)
+			} else {
+				genErrorString(g, varName, string(f.Desc.Name()), errStr)
+			}
 			g.P("}")
 		}
 
@@ -1064,7 +1069,11 @@ func genNumberValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 			g.P("// Range check upper bounds")
 			g.P("if ", varName, " > ", rangeVals[1], " {")
 			errStr := fmt.Sprintf("be less than or equal to %v", rangeVals[1])
-			genErrorString(g, varName, string(f.Desc.Name()), errStr)
+			if rules.GetLogOnly() {
+				printErrorString(g, varName, string(f.Desc.Name()), errStr, 50)
+			} else {
+				genErrorString(g, varName, string(f.Desc.Name()), errStr)
+			}
 			g.P("}")
 		}
 	}
