@@ -6,10 +6,18 @@ generate:
 	--go_out=paths=source_relative:. \
 	s12/protobuf/proto/*.proto s12/flags/permissions/*.proto
 
+ARCH := $(shell uname -p)
+ifeq ($(ARCH), arm)
+	SYS_ROOT = /opt/homebrew/
+else
+	SYS_ROOT = /usr/local/
+endif
+
 CXX = g++
-CPPFLAGS += -I/usr/local/include -pthread
+CPPFLAGS += -I$(SYS_ROOT)include -pthread
+LDFLAGS += -L$(SYS_ROOT)lib -lprotoc -lprotobuf -lpthread -ldl
 CXXFLAGS += -std=c++17
-LDFLAGS += -L/usr/local/lib -lprotoc -lprotobuf -lpthread -ldl
+
 protoc-gen-cruxclient: protobuf/protoc-gen-cruxclient/cruxclient_generator.o protobuf/protoc-gen-cruxclient/legacy_generator.o protobuf/protoc-gen-cruxclient/api_generator.o
 	$(CXX) $^ $(LDFLAGS) -o $@
 
@@ -26,7 +34,7 @@ install-s12perm:
 
 .PHONY: install-cruxclient
 install-cruxclient: protoc-gen-cruxclient
-	install protoc-gen-cruxclient /usr/local/bin/protoc-gen-cruxclient
+	install protoc-gen-cruxclient $(SYS_ROOT)/bin/protoc-gen-cruxclient
 
 .PHONY: install
 install: install-govalidator install-logger
@@ -81,7 +89,7 @@ logger: install-logger
 cruxclient: install-cruxclient
 	protoc \
 	-I./protobuf/protoc-gen-cruxclient/proto \
-	--plugin=protoc-gen-grpc=/usr/local/bin/grpc_cpp_plugin \
+	--plugin=protoc-gen-grpc=$(SYS_ROOT)bin/grpc_cpp_plugin \
 	--cpp_out=:protobuf/protoc-gen-cruxclient/generated \
 	--grpc_out=:protobuf/protoc-gen-cruxclient/generated \
 	--cruxclient_out=:protobuf/protoc-gen-cruxclient/generated \
