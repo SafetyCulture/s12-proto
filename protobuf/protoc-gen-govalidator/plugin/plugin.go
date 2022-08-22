@@ -870,7 +870,7 @@ func genEnumValidator(g *protogen.GeneratedFile, f *protogen.Field, varName stri
 
 func printErrorString(g *protogen.GeneratedFile, varName, fieldName, specificErr string, maxLen int) {
 	// Do not reflect untrusted value in error, certainly not for sensitive fields like password or PII like email
-	g.P(fmtPackage.Ident("Printf"), `("[log-only] %s: value must %s: Base64Encoded input: %s\n", `, `"`, fieldName, `", "`, specificErr, `" `, ", ",
+	g.P(fmtPackage.Ident("Printf"), `("[log-only] %s: value must be %s: Base64Encoded input: %s\n", `, `"`, fieldName, `", "`, specificErr, `" `, ", ",
 		s12protoPackage.Ident("Base64Encode("),
 		s12protoPackage.Ident("FirstCharactersFromString("),
 		fmtPackage.Ident("Sprintf"), "(\"%v\", ", varName, "), ", maxLen, ")))")
