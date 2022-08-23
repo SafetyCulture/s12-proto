@@ -10,6 +10,7 @@
 #include "common.h"
 #include "legacy_generator.h"
 #include "api_generator.h"
+#include "mock_service_generator.h"
 
 using google::protobuf::Descriptor;
 using google::protobuf::FileDescriptor;
@@ -45,6 +46,9 @@ class Generator : public CodeGenerator {
 
     api_generator.Generate(file, parameter, context, error);
     api_generator.GenerateDjinniSupport(file, parameter, context, error);
+
+    MockServiceGenerator mock_service_generator;
+    mock_service_generator.Generate(file, parameter, context, error);
     return true;
   }
 };

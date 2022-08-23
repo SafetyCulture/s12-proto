@@ -18,7 +18,11 @@ CPPFLAGS += -I$(SYS_ROOT)include -pthread
 LDFLAGS += -L$(SYS_ROOT)lib -lprotoc -lprotobuf -lpthread -ldl
 CXXFLAGS += -std=c++17
 
-protoc-gen-cruxclient: protobuf/protoc-gen-cruxclient/cruxclient_generator.o protobuf/protoc-gen-cruxclient/legacy_generator.o protobuf/protoc-gen-cruxclient/api_generator.o
+protoc-gen-cruxclient: \
+protobuf/protoc-gen-cruxclient/cruxclient_generator.o \
+protobuf/protoc-gen-cruxclient/legacy_generator.o \
+protobuf/protoc-gen-cruxclient/api_generator.o \
+protobuf/protoc-gen-cruxclient/mock_service_generator.o
 	$(CXX) $^ $(LDFLAGS) -o $@
 
 .PHONY: install-govalidator
