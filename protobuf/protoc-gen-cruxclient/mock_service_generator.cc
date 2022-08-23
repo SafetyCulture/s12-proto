@@ -1,4 +1,4 @@
-// Copyright (c) 2020 SafetyCulture Pty Ltd. All Rights Reserved.
+// Copyright (c) 2022 SafetyCulture Pty Ltd. All Rights Reserved.
 #include "mock_service_generator.h"
 #include <google/protobuf/compiler/code_generator.h>
 #include <google/protobuf/compiler/plugin.h>
