@@ -9,9 +9,9 @@
 #include "crux_mock_support.h"
 
 namespace routeguide::v1 {
-class RouteGuideImpl final : public ::routeguide::v1::RouteGuide::Service {
+class RouteGuideMockImpl final : public ::routeguide::v1::RouteGuide::Service {
  public:
-  RouteGuideImpl(const GRPCServiceCallback& callback): mCallback(callback) {};
+  RouteGuideMockImpl(const GRPCServiceCallback& callback): mCallback(callback) {};
   ::grpc::Status GetFeature(::grpc::ServerContext* context, const ::routeguide::v1::Point* request, ::routeguide::v1::Feature* response) override {
     auto[status, bytes] = mCallback("routeguide.v1.RouteGuide.GetFeature", request->SerializeAsString(), context->client_metadata());
     if (bytes.has_value()) {
@@ -37,9 +37,9 @@ class RouteGuideImpl final : public ::routeguide::v1::RouteGuide::Service {
   const GRPCServiceCallback mCallback;
 };
 
-class PublicRouteGuideImpl final : public ::routeguide::v1::PublicRouteGuide::Service {
+class PublicRouteGuideMockImpl final : public ::routeguide::v1::PublicRouteGuide::Service {
  public:
-  PublicRouteGuideImpl(const GRPCServiceCallback& callback): mCallback(callback) {};
+  PublicRouteGuideMockImpl(const GRPCServiceCallback& callback): mCallback(callback) {};
   ::grpc::Status GetFeature(::grpc::ServerContext* context, const ::routeguide::v1::Point* request, ::routeguide::v1::Feature* response) override {
     auto[status, bytes] = mCallback("routeguide.v1.PublicRouteGuide.GetFeature", request->SerializeAsString(), context->client_metadata());
     if (bytes.has_value()) {

@@ -62,13 +62,13 @@ void MockServiceGenerator::GenerateHeader(
 
   for (int service_index = 0; service_index < file->service_count(); ++service_index) {
     const ServiceDescriptor *service = file->service(service_index);
-    vars["service_name"] = service->name();
+    vars["class_name"] = service->name() + "MockImpl";
     vars["service_fullname"] = DotsToColons(service->full_name());
 
-    printer.Print(vars, "class $service_name$Impl final : public ::$service_fullname$::Service {\n");
+    printer.Print(vars, "class $class_name$ final : public ::$service_fullname$::Service {\n");
     printer.Print(" public:\n");
     printer.Indent();
-    printer.Print(vars, "$service_name$Impl(const GRPCServiceCallback& callback): mCallback(callback) {};\n");
+    printer.Print(vars, "$class_name$(const GRPCServiceCallback& callback): mCallback(callback) {};\n");
     for (int method_index = 0; method_index < service->method_count(); ++method_index) {
       const MethodDescriptor *method = service->method(method_index);
       vars["method_name"] = method->name();
