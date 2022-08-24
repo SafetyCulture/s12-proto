@@ -30,7 +30,7 @@ class RouteGuideMockImpl final : public ::routeguide::v1::RouteGuide::Service {
     auto[status, bytes] = mCallback("routeguide.v1.RouteGuide.ListFeatures", request->SerializeAsString(), context->client_metadata());
     if (bytes.has_value()) {
       ::routeguide::v1::Feature response;
-      response->ParseFromString(*bytes);
+      response.ParseFromString(*bytes);
       writer->Write(response);
     }
     return status;
