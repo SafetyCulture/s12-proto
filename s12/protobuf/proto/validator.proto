@@ -54,6 +54,8 @@ extend google.protobuf.FieldOptions {
   optional TimezoneRules timezone = 65220;
   // Validates for number values
   optional NumberRules number = 65221;
+  // Validates simple strings
+  optional SimpleStringRules simple_string = 65222;
 }
 
 // SymbolCategory defines which special characters (Unicode symbols and the like) are allowed
@@ -88,6 +90,23 @@ enum SymbolCategory {
   // SC defined list of common symbols we need
   // See validation_definitinos.go for the current chars
   COMMON = 6;
+}
+
+message SimpleStringRules {
+  // Set this as optional field (not required)
+  // default = false
+  optional bool optional = 1 [default = false];
+
+  // Only apply soft validation. Validation errors for this validator are logged, not returned.
+  // Be aware that due to multiples validators applying, and order of precedence
+  // this will not prevent errors from other validators being returned.
+  optional bool log_only = 2 [default = false];
+
+  // Min Length
+  optional int32 min_len = 3;
+
+  // Max Length
+  optional int32 max_len = 4;
 }
 
 // StringRules describe the constraints applied to `string` values (for both string and unsafe_string)

@@ -219,6 +219,7 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 			genEmailValidator(g, f, varName)
 			genURLValidator(g, f, varName)
 			genTimezoneValidator(g, f, varName)
+			genSimpleStringValidator(g, f, varName)
 		case protoreflect.BytesKind:
 			// IdValidator not supported for bytes at this point
 			genBytesValidator(g, f, varName)
@@ -291,6 +292,36 @@ func genLegacyStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varN
 	genLenValidator(g, f, varName)
 
 	if optional {
+		g.P("}")
+	}
+}
+
+func genSimpleStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string) {
+	rules := getSimpleStringExtension(f, validator.E_SimpleString)
+	if rules == nil {
+		return
+	}
+
+	// "optional" can be provided via the legacy directive or set as option on the `string`/`unsafe_string` validator
+	// To allow deprecation of the 'old' directive later, we duplicate the logic here
+	if rules.GetOptional() {
+		g.P("if ", varName, " != \"\" {")
+	}
+
+	if rules.GetMinLen() >= 1 || rules.GetMaxLen() >= 1 {
+		g.P("var length = ", utfPackage.Ident("RuneCountInString"), "(", varName, ")")
+		g.P("if (length > ", rules.GetMaxLen(), " || length < ", rules.GetMinLen(), ") {")
+		errStr := fmt.Sprintf(`have a length between %d and %d`, rules.GetMinLen(), rules.GetMaxLen())
+		if rules.GetLogOnly() {
+			printErrorString(g, varName, string(f.Desc.Name()), errStr, 50)
+		} else {
+			genErrorString(g, varName, string(f.Desc.Name()), errStr)
+		}
+		g.P("}")
+	}
+
+	// Optional value: close the if statement
+	if rules.GetOptional() {
 		g.P("}")
 	}
 }
@@ -911,6 +942,7 @@ var validNonRepeatedExts = []protoreflect.ExtensionType{
 	validator.E_Url,
 	validator.E_Timezone,
 	validator.E_Number,
+	validator.E_SimpleString,
 }
 
 var validRepeatedExts = []protoreflect.ExtensionType{
@@ -951,6 +983,16 @@ func getRegexValue(f *protogen.Field) string {
 		}
 	}
 	return ""
+}
+
+func getSimpleStringExtension(f *protogen.Field, xt protoreflect.ExtensionType) *validator.SimpleStringRules {
+	if opts := f.Desc.Options(); opts != nil {
+		ext := proto.GetExtension(opts, xt)
+		if v, ok := ext.(*validator.SimpleStringRules); ok {
+			return v
+		}
+	}
+	return nil
 }
 
 func getStringExtension(f *protogen.Field, xt protoreflect.ExtensionType) *validator.StringRules {
