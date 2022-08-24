@@ -26,10 +26,12 @@ class RouteGuideMockImpl final : public ::routeguide::v1::RouteGuide::Service {
     }
     return status;
   }
-  ::grpc::Status ListFeatures(::grpc::ServerContext* context, const ::routeguide::v1::Rectangle* request, ::routeguide::v1::Feature* response) override {
+  ::grpc::Status ListFeatures(::grpc::ServerContext* context, const ::routeguide::v1::Rectangle* request, ::grpc::ServerWriter<::routeguide::v1::Feature>* writer) override {
     auto[status, bytes] = mCallback("routeguide.v1.RouteGuide.ListFeatures", request->SerializeAsString(), context->client_metadata());
     if (bytes.has_value()) {
+      ::routeguide::v1::Feature response;
       response->ParseFromString(*bytes);
+      writer->Write(response);
     }
     return status;
   }
