@@ -81,17 +81,34 @@ void MockServiceGenerator::GenerateHeader(
         continue;
       }
 
-      printer.Print(vars, "::grpc::Status $method_name$(::grpc::ServerContext* context, const ::$request$* request, ::$response$* response) override {\n");
-      printer.Indent();
-      printer.Print(vars, "auto[status, bytes] = mCallback(\"$method_fullname$\", request->SerializeAsString(), context->client_metadata());\n");
-      printer.Print("if (bytes.has_value()) {\n");
-      printer.Indent();
-      printer.Print("response->ParseFromString(*bytes);\n");
-      printer.Outdent();
-      printer.Print("}\n");
-      printer.Print("return status;\n");
-      printer.Outdent();
-      printer.Print("}\n");
+      if (method->server_streaming()) {
+        printer.Print(vars, "::grpc::Status $method_name$(::grpc::ServerContext* context, const ::$request$* request, ::grpc::ServerWriter<::$response$>* writer) override {\n");
+        printer.Indent();
+        printer.Print(vars, "auto[status, bytes] = mCallback(\"$method_fullname$\", request->SerializeAsString(), context->client_metadata());\n");
+        printer.Print("if (bytes.has_value()) {\n");
+        printer.Indent();
+        printer.Print(vars, "::$response$ response;\n");
+        printer.Print("response->ParseFromString(*bytes);\n");
+        printer.Print("writer->Write(response);\n");
+        printer.Outdent();
+        printer.Print("}\n");
+        printer.Print("return status;\n");
+        printer.Outdent();
+        printer.Print("}\n");
+      } else {
+        printer.Print(vars, "::grpc::Status $method_name$(::grpc::ServerContext* context, const ::$request$* request, ::$response$* response) override {\n");
+        printer.Indent();
+        printer.Print(vars, "auto[status, bytes] = mCallback(\"$method_fullname$\", request->SerializeAsString(), context->client_metadata());\n");
+        printer.Print("if (bytes.has_value()) {\n");
+        printer.Indent();
+        printer.Print("response->ParseFromString(*bytes);\n");
+        printer.Outdent();
+        printer.Print("}\n");
+        printer.Print("return status;\n");
+        printer.Outdent();
+        printer.Print("}\n");
+      }
+      
     }
     printer.Outdent();
     printer.Print(" private:\n");
