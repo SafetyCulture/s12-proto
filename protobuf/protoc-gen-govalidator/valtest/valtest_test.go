@@ -2,7 +2,7 @@ package valtest
 
 import (
 	"bufio"
-	fmt "fmt"
+	"fmt"
 	"math"
 	"os"
 	"strings"
@@ -2002,6 +2002,108 @@ func TestValidation_ValidateLowercaseIDs(t *testing.T) {
 				return m
 			}(),
 			shouldErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.msg.Validate()
+			if tt.shouldErr == (err == nil) {
+				t.Errorf("%s, supposed to return an error", tt.name)
+			}
+			if !tt.shouldErr && err != nil {
+				t.Errorf("%s, supposed not to return an error, but we received %v", tt.name, err)
+			}
+		})
+	}
+}
+
+func TestSoftValidation_ValidateUnsafeString(t *testing.T) {
+	tests := []struct {
+		name      string
+		msg       *LogOnlyValidationMessage
+		shouldErr bool
+	}{
+		{
+			name: "Should pass when size is correct",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Title = "Hey!!"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass when size is correct with accents",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Title = "èéśș"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass when size is incorrect and log-only",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Title = "Hey There!!!"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass case when string is optional log-only and falls within the length constraints",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Answer = "Dean O’Callaghan "
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass case when string is optional and empty",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Answer = ""
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass case when string is optional log-only but is greater than max allowed",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Answer = "● Evidence of rat activities were recorded in fe..///...Re Branded 8x V5, Relocated 4x V5 and cladded 4x V"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should pass case when string is optional and falls within the length constraints",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Note = "Dean O’Callaghan "
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "Should fail case when string is optional and less than 5 min declared",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Note = "123"
+				return m
+			}(),
+			shouldErr: true,
+		},
+		{
+			name: "Should fail case when string is optional and greater than 40 min declared",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Note = "● Evidence of rat activities were recorded in fe..///...Re Branded 8x V5, Relocated 4x V5 and cladded 4x V"
+				return m
+			}(),
+			shouldErr: true,
 		},
 	}
 

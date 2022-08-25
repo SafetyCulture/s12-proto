@@ -314,6 +314,17 @@ Example usage:
 
 &nbsp;
 
+## Simple String Validation: validator.simple_string
+Validates a string for its length only
+
+| Option   | Type | Default | Description                                                                                                     |
+|----------|------|---------|-----------------------------------------------------------------------------------------------------------------|
+| optional | bool | false   | Set this as an optional field. Will validate only if there is a value                                           |
+| min_len  | int  | 0       | When specified a value greater than 0, will make sure the length of the passed value is greater than the filter |
+| max_len  | int  | 0       | When specified a value greater than 0, will make sure the length of the passed value is smaller than the filter |                                                                                                               |
+| log_only | bool | false   | Set this to true, and the validation will not return an error, will print a message instead                     |
+
+
 ### Testing <a name="validator.testing"></a>
 There is a new testing suite available in the [valtest](valtest/) folder that can be invoked to test almost any of the validator options. Run it as follows:
 
