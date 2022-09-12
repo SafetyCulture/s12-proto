@@ -101,7 +101,7 @@ func (m *ValTestMessage) Validate() error {
 	if !(_len_ValTestMessage_Password >= 8 && _len_ValTestMessage_Password <= 130) {
 		return fmt.Errorf(`password: value must have a length between 8 and 130`)
 	}
-	if !_regex_09b6a9f7d69de2921c44cc9f2582dc11.MatchString(m.Password) {
+	if !_regex_51116fcfa477f1949f7055f2f1bf33db.MatchString(m.Password) {
 		return fmt.Errorf(`password: value must only have valid characters`)
 	}
 	if !norm.NFC.IsNormalString(m.Title) && norm.NFD.IsNormalString(m.Title) {
@@ -764,7 +764,7 @@ func (m *LogOnlyValidationMessage) Validate() error {
 		if !(_len_LogOnlyValidationMessage_Title >= 1 && _len_LogOnlyValidationMessage_Title <= 10) {
 			fmt.Printf("[log-only] %s: value must be %s: Base64Encoded input: %s\n", "title", "have a length between 1 and 10", proto.Base64Encode(proto.FirstCharactersFromString(fmt.Sprintf("%v", m.Title), 50)))
 		}
-		if !_regex_1c9a7c333585d465fa7363aa729f2911.MatchString(m.Title) {
+		if !_regex_7d80f76b8ba61834c54bce3793157935.MatchString(m.Title) {
 			fmt.Printf("[log-only] %s: value must be %s: Base64Encoded input: %s\n", "title", "only have valid characters", proto.Base64Encode(proto.FirstCharactersFromString(fmt.Sprintf("%v", m.Title), 50)))
 		}
 	}
@@ -786,7 +786,7 @@ func (m *LogOnlyValidationMessage) Validate() error {
 	if !(_len_LogOnlyValidationMessage_Name >= 1 && _len_LogOnlyValidationMessage_Name <= 5) {
 		return fmt.Errorf(`name: value must have a length between 1 and 5`)
 	}
-	if !_regex_e4c46a1e3eaaae755227ba1a59497c3d.MatchString(m.Name) {
+	if !_regex_b3f79e2470927c095fff6ea841e2a650.MatchString(m.Name) {
 		return fmt.Errorf(`name: value must only have valid characters`)
 	}
 	if m.Latitude != 0 {
@@ -838,7 +838,7 @@ func (m *LogOnlyValidationMessage) Validate() error {
 		if !(_len_LogOnlyValidationMessage_Answer >= 1 && _len_LogOnlyValidationMessage_Answer <= 40) {
 			fmt.Printf("[log-only] %s: value must be %s: Base64Encoded input: %s\n", "answer", "have a length between 1 and 40", proto.Base64Encode(proto.FirstCharactersFromString(fmt.Sprintf("%v", m.Answer), 50)))
 		}
-		if !_regex_e4c46a1e3eaaae755227ba1a59497c3d.MatchString(m.Answer) {
+		if !_regex_b3f79e2470927c095fff6ea841e2a650.MatchString(m.Answer) {
 			fmt.Printf("[log-only] %s: value must be %s: Base64Encoded input: %s\n", "answer", "only have valid characters", proto.Base64Encode(proto.FirstCharactersFromString(fmt.Sprintf("%v", m.Answer), 50)))
 		}
 	}

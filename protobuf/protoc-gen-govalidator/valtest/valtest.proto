@@ -177,7 +177,7 @@ message LogOnlyValidationMessage {
   double longitude = 8 [(validator.number) = { optional: true, log_only: true, range: "-180:180"}];
   int32 accuracy = 9 [(validator.number) = { optional: true, log_only: true, range: "0:10000"}];
   string answer = 10 [(validator.unsafe_string) = { optional: true, log_only: true, len: "0:40", sanitise_pua: true, symbols: [COMMON, CURRENCY, MARK, PUNCTUATION, MODIFIER, OTHER]}];
-  string note = 11 [(validator.unsafe_string) = { optional: true, len: "5:40", multiline: true, sanitise_pua: true, symbols: [COMMON, CURRENCY, MARK, PUNCTUATION, MODIFIER, OTHER]}];
+  string note = 11 [(validator.unsafe_string) = { allow: "\t", optional: true, len: "5:40", multiline: true, sanitise_pua: true, symbols: [COMMON, CURRENCY, MARK, PUNCTUATION, MODIFIER, OTHER]}];
 }
 
 message LowercaseValidationMessage {

@@ -54,7 +54,6 @@ var stringReDefaultUnsafe = []string{
 	`\x{002D}`, // -  Hyphen-Minus      Dash Punctuation (Pd)
 	`\x{002F}`, // /  Solidus           Other Punctuation (Po)
 	`\x{005C}`, // \  Reverse Solidus   Other Punctuation (Po)
-	`\x{0009}`, // Tab                  Other Punctuation (Po)
 }
 
 var stringReLineBreaks = []string{
