@@ -997,6 +997,7 @@ func genLogOnlyValidationMessage() *LogOnlyValidationMessage {
 		ImageId:      id,
 		InspectionId: id,
 		OwnerId:      id,
+		QuestionId:   id,
 		Title:        "123",
 		Name:         "123",
 		Latitude:     0,
@@ -1061,6 +1062,42 @@ func TestSoftValidation_Validate(t *testing.T) {
 		{
 			name:      "should pass with legitimate UUIDs",
 			msg:       genLogOnlyValidationMessage(),
+			shouldErr: false,
+		},
+		{
+			name: "should pass with legitimate question UUIDs",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.QuestionId = "da200160-77fd-47c9-82da-c7652896582d"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "should pass with legitimate Note ",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Note = "545mm left\n525mm right"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "should pass with legitimate Note 2 TAB",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Note = "!#Cr# J10\t25 Ton st PE VIC 36  C00\t"
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "should pass with legitimate Note 3 LF",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Note = "33\n25"
+				return m
+			}(),
 			shouldErr: false,
 		},
 		{
@@ -2104,6 +2141,15 @@ func TestSoftValidation_ValidateUnsafeString(t *testing.T) {
 				return m
 			}(),
 			shouldErr: true,
+		},
+		{
+			name: "Should not fail on missing note",
+			msg: func() *LogOnlyValidationMessage {
+				m := genLogOnlyValidationMessage()
+				m.Note = ""
+				return m
+			}(),
+			shouldErr: false,
 		},
 	}
 
