@@ -343,7 +343,7 @@ message ExampleMessage {
   string id = 1 [(validator.uuid) = true];
   // bytes can also be parsed as UUID with support for gogo
   bytes user_id = 2 [(gogoproto.customname) = "UserID", (validator.uuid) = true];
-  // strings can validate against a regular expresion
+  // strings can validate against a regular expression
   string email = 3 [(validator.regex) = ".+\\@.+\\..+"];
   // integers can be greater than a value
   int32 age = 4 [(validator.int_gt) = 0];

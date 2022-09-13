@@ -1,0 +1,16 @@
+---
+# https://pre-commit.com/
+# Install pre-commit itself (once):
+#   $ brew install pre-commit
+# Add to your git hooks (once per repo):
+#   $ pre-commit install
+# Manually run all hooks (any time):
+#   $ pre-commit run -a
+
+repos:
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.1
+    hooks:
+      - id: codespell
+        files: \.proto$
+        args: ['-w']

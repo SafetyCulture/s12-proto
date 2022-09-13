@@ -80,7 +80,7 @@ message ExampleMessage {
 
   map<string, string> not_supported = 100;
 
-  // strings can validate against a regular expresion
+  // strings can validate against a regular expression
   string url = 21 [(validator.regex) = "https:\\/\\/www\\.safetyculture\\.(io|com)"];
 
   message Contact {

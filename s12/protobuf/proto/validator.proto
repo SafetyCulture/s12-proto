@@ -40,7 +40,7 @@ extend google.protobuf.FieldOptions {
   // Email validation using IsEmail helper
   optional EmailRules email = 65214;
   // New string validators
-  // String should be used wherever possible; it does not allow many unsafe inputs by default (can be overriden for limited chars)
+  // String should be used wherever possible; it does not allow many unsafe inputs by default (can be overridden for limited chars)
   optional StringRules string = 65215; // == safe_string
   // Unsafe_string is less strict (and less secure) by default, but still does not just accept any values - has to be valid printable ASCII or Unicode letters
   optional StringRules unsafe_string = 65216;
@@ -246,7 +246,7 @@ message IdRules {
   // this will not prevent errors from other validators being returned.
   optional bool log_only = 5 [default = false];
 
-  // Allows to check the input agaist lowercase regex only
+  // Allows to check the input against lowercase regex only
   optional bool lowercase_only = 6 [default = false];
 }
 
