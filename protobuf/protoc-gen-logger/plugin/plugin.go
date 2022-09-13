@@ -39,7 +39,7 @@ func (p *plugin) Generate(file *generator.FileDescriptor) {
 
 func (p *plugin) generateParseFunction(file *generator.FileDescriptor, message *generator.Descriptor) {
 	if message.GetOptions().GetMapEntry() {
-		// maps are messages for Go proto generator but they dont actually have phisically created a new type for the map therefore we may skip
+		// maps are messages for Go proto generator but they dont actually have physically created a new type for the map therefore we may skip
 		return
 	}
 

@@ -7,7 +7,7 @@ package example;
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 import "github.com/SafetyCulture/s12-proto/protobuf/s12proto/logger.proto";
 
-message ExampleMessage { 
+message ExampleMessage {
   string id = 1 [(logger.level) = DEBUG];
   string user_name = 2; // never logged
   string password = 3 [(logger.level) = ERROR];

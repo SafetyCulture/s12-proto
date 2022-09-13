@@ -18,4 +18,4 @@ enum Level {
 
 extend google.protobuf.FieldOptions {
   optional Level level = 66200;
-} 
+}

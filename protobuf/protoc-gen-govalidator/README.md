@@ -101,15 +101,15 @@ Validate string fields that do not represent a common or predefined format. This
 Strings pose a potential security risk as by default they can contain any character including control characters and potentially dangerous special characters.
 <details>
   <summary>More details</summary>
-  If an insecure application is using input data in (sub)system commands or unescaped output, it can result in high impact vulnerabilities like HTML injection (e.g. Cross-Site Scripting, XSS), Command injection, SQL injection, and Path traversal amongst others. The underlying problem is that user supplied data is interpreted as code instead of data, often as the result of a specific character that is used to escape the data context. Therefore, reserved characters that have a meaning in a specific context such as `< > ' " | / & ` should be treaten with care.      
-     
-  Not allowing certain potentially dangerous special characters or replacing them with a safe equivalent can prevent or impede successfull exploitation of a vulnerable application. While this should be considered an additional layer of protection and certainly not the primary method to prevent against injection vulnerabilities (use secure coding practices like output escaping and safe APIs), it is still an effective method and more often than not a field shouldn't even need to accept all those special characters. For instance, a person's name is highly unlikely to contain a `<` character (yes, I know, [names are tricky](https://www.w3.org/International/questions/qa-personal-names)) so such characters should not be accepted in the first place. 
-   
+  If an insecure application is using input data in (sub)system commands or unescaped output, it can result in high impact vulnerabilities like HTML injection (e.g. Cross-Site Scripting, XSS), Command injection, SQL injection, and Path traversal amongst others. The underlying problem is that user supplied data is interpreted as code instead of data, often as the result of a specific character that is used to escape the data context. Therefore, reserved characters that have a meaning in a specific context such as `< > ' " | / & ` should be treated with care.
+
+  Not allowing certain potentially dangerous special characters or replacing them with a safe equivalent can prevent or impede successful exploitation of a vulnerable application. While this should be considered an additional layer of protection and certainly not the primary method to prevent against injection vulnerabilities (use secure coding practices like output escaping and safe APIs), it is still an effective method and more often than not a field shouldn't even need to accept all those special characters. For instance, a person's name is highly unlikely to contain a `<` character (yes, I know, [names are tricky](https://www.w3.org/International/questions/qa-personal-names)) so such characters should not be accepted in the first place.
+
   If an application is accepting one of these characters in a string field, it has to properly output-encode the data for the right context and also never use the untrusted data to dynamically create strings for communication with subsystems (e.g. SQL queries, OS commands). When following secure coding best practices, an application should be able to handle these characters correctly, interpreting them as data, not code but reality shows that this is not always the case.
 </details>
-   
-&nbsp;   
-The following is a list of restricted characters that are considered potentially dangerous as they are often used in web app attacks. 
+
+&nbsp;
+The following is a list of restricted characters that are considered potentially dangerous as they are often used in web app attacks.
 
 | Restricted characters  |    |                        |    |                        |
 |------------------------|----|------------------------|----|------------------------|
@@ -123,9 +123,9 @@ The following is a list of restricted characters that are considered potentially
 Refer to `stringUnsafeReplacerMap` in [validation_definitions.go](plugin/validation_definitions.go) for the full list.
 
 ### Accepting restricted characters with `replace_unsafe` <a name="validator.string.replace_unsafe"></a>
-Enable the `replace_unsafe` option in the `string` validator to accept any of these restricted characters. The validator will replace the character with a safe equivalent or space character instead. Refer to `stringUnsafeReplacerMap` in [validation_definitions.go](plugin/validation_definitions.go) for the mapping. Note that enabling this option will mutate the input data (can be undone by reversing the process if required, except for characters that are mapped to a space).   
+Enable the `replace_unsafe` option in the `string` validator to accept any of these restricted characters. The validator will replace the character with a safe equivalent or space character instead. Refer to `stringUnsafeReplacerMap` in [validation_definitions.go](plugin/validation_definitions.go) for the mapping. Note that enabling this option will mutate the input data (can be undone by reversing the process if required, except for characters that are mapped to a space).
 
-__Note: not suitable for fields that require one of the restricted characters to be represented in their original form.__ 
+__Note: not suitable for fields that require one of the restricted characters to be represented in their original form.__
 <details>
   <summary>Embedded URL example</summary>
   For instance, if an application needs to accept URLs as part of generic text, the `replace_unsafe` option might break the URL as the `/` character in `https://` will be replace by `∕` (it's not visible, but it is a different character) and any `&`-characters in the URL parameters will be replaced by a space if not URL-encoded. This could result in a URL that is not working. For instance, Chrome browser will replace `http:∕∕example.com` with `http://xn--example-bf0da.com/`.
@@ -174,7 +174,7 @@ Refer to `stringReDefaultSafe` and `stringReDefaultUnsafe` in [validation_defini
 ### Choosing between string or unsafe_string
 Rule of thumb: use `validator.string` with `replace_unsafe` option.
 
-The main difference between the two is that `unsafe_string` will allow you to accept certain reserved characters and accepts longer length strings. Really only use `unsafe_string` if you need to accept restricted characters and cannot use `replace_unsafe` option or if dealing with strings longer than 1000 bytes. There should not be many fields where this applies.   
+The main difference between the two is that `unsafe_string` will allow you to accept certain reserved characters and accepts longer length strings. Really only use `unsafe_string` if you need to accept restricted characters and cannot use `replace_unsafe` option or if dealing with strings longer than 1000 bytes. There should not be many fields where this applies.
 
 Reality is that often at least few of the reserved characters are required. While generally less than 2% of data contains such characters (at least in SafetyCulture's iAuditor), it is not always possible to just reject the input that contains such characters for legit use like `Daily vehicle inspection (<5 ton GVM)`.
 By defining the `replace_unsafe` option, the validator will accept restricted characters and replaces these will a similar looking Unicode character, e.g. `Daily vehicle inspection (˂5 ton GVM)`.
@@ -197,24 +197,24 @@ During generation of the validators (protoc compilation), some checks are in pla
 Example usage:
 ```
 string title = 1 [(validator.string) = { len: "2:30" }];
- 
+
 // In a name, restricted ' and - characters are required, so enable replace_unsafe
 string name = 2 [(validator.string) = { len: "1:50", replace_unsafe: true, allow: "'-" }];
- 
+
 // In case many restricted characters are required, omit the allow option to allow all of them
 string permissive = 3 [(validator.string) = { len: ":100", replace_unsafe: true  }];
 
 // Example with all options, for illustration purposes only
-string all_options = 4 [(validator.string) = { 
-    optional: true, 
-    trim: true, 
-    len: "6-20", 
-    runes: true, 
-    replace_unsafe: true, 
-    replace_other: true, 
+string all_options = 4 [(validator.string) = {
+    optional: true,
+    trim: true,
+    len: "6-20",
+    runes: true,
+    replace_unsafe: true,
+    replace_other: true,
     sanitise_pua: true,
     allow: "+#/-",
-    symbols: [COMMON, CURRENCY, MARK, PUNCTUATION, MODIFIER, OTHER], 
+    symbols: [COMMON, CURRENCY, MARK, PUNCTUATION, MODIFIER, OTHER],
     multiline: true,
     validate_encoding: false
   }];
@@ -222,12 +222,12 @@ string all_options = 4 [(validator.string) = {
 // Example of a very permissive string that will accept almost any legit input.
 // Try to make validation more restrictive, but could be used as a starting point.
 // It will still reject bad inputs like invalid encoded data and control characters.
-string sc_permissive = 5 [(validator.string) = { 
+string sc_permissive = 5 [(validator.string) = {
      len: ":1000",
-     replace_unsafe: true, 
+     replace_unsafe: true,
      replace_other: true,
-     sanitise_pua: true, 
-     symbols: [COMMON, CURRENCY, MARK, PUNCTUATION, MODIFIER, OTHER], 
+     sanitise_pua: true,
+     symbols: [COMMON, CURRENCY, MARK, PUNCTUATION, MODIFIER, OTHER],
   }];
 
 ```
@@ -243,7 +243,7 @@ String validation comprises of the following steps:
 1. Sanitisation
    1. Sanitise whitespace: with `trim` enabled, strip whitespace using `strings.TrimSpace`.
    1. Replace restricted characters: with `replace_unsafe` enabled:
-      1. With `allow` option defined: allow and replace restricted characters defined in the allow option. Will not accept other restricted chracters. Uses `string.ReplaceAll` to replace the characters with the alternative that is defined in `stringUnsafeReplacerMap`.
+      1. With `allow` option defined: allow and replace restricted characters defined in the allow option. Will not accept other restricted characters. Uses `string.ReplaceAll` to replace the characters with the alternative that is defined in `stringUnsafeReplacerMap`.
       1. With `allow` option not defined: allow and replace all restricted characters in the [restricted characters](#validator.string.restricted_characters) list. Uses a previously prepared replacer `_unsafe_char_replacer` to replace all characters in `stringUnsafeReplacerMap`.
    1. Strip carriage return characters: with `multiline` enabled, removes `\r` characters and leaves `\n` for consistent new line behaviour (some systems use `\r\n` for new lines).
    1. Replace other, rare symbols (non-restricted) with a more common alternative: replace symbols in the `stringSymbolReplacerMap` list using a previously prepared replacer `replacer_symbol_allowed`.
@@ -267,10 +267,10 @@ Example usage:
 ```
 
 ## URL validation: validator.url (URLRules) <a name="validator.url"></a>
-Validate a string for a valid URL format. This is a loose validation, focusing on safe characters in the URL and basic format. This validator does not validate if domains are valid and also accepts IP addresses and localhost values.   
-*Warning:* when validation passes, it does _not_ result in a URL that is necessarily safe to fetch/resolve, only that the characters in the provided string are expected in a URL. Additional validations are required if you need to fetch the URL on the server to prevent SSRF including access to internal URLs.   
+Validate a string for a valid URL format. This is a loose validation, focusing on safe characters in the URL and basic format. This validator does not validate if domains are valid and also accepts IP addresses and localhost values.
+*Warning:* when validation passes, it does _not_ result in a URL that is necessarily safe to fetch/resolve, only that the characters in the provided string are expected in a URL. Additional validations are required if you need to fetch the URL on the server to prevent SSRF including access to internal URLs.
 
-Implementation details including acceptable characters and default min/max length in IsValidURL method in [validation_helpers.go](../../s12/protobuf/proto/validator_helpers.go).    
+Implementation details including acceptable characters and default min/max length in IsValidURL method in [validation_helpers.go](../../s12/protobuf/proto/validator_helpers.go).
 
 | Option       | Type | Default | Description |
 |--------------|------|---------|-------------|
@@ -283,8 +283,8 @@ Example usage:
 ```
     string url = 1 [(validator.url) = {}];
 
-    string url_demo = 2 [(validator.url) = { 
-            optional: true, 
+    string url_demo = 2 [(validator.url) = {
+            optional: true,
              schemes: ["ftp", "ftps"],
       allow_fragment: true,
           allow_http: true
@@ -347,9 +347,9 @@ message ExampleMessage {
   string email = 3 [(validator.regex) = ".+\\@.+\\..+"];
   // integers can be greater than a value
   int32 age = 4 [(validator.int_gt) = 0];
-  // intergers can be less than a value
+  // integers can be less than a value
   int64 speed = 5 [(validator.int_lt) = 110];
-  // intergers greater/less than or equal, the can also be combined
+  // integers greater/less than or equal, the can also be combined
   int32 score = 6 [(validator.int_gte) = 0, (validator.int_lte) = 100];
   // validation is created for all messages
   InnerMessage inner = 7;
@@ -371,4 +371,3 @@ message InnerMessage {
   string id = 1 [(validator.uuid) = true];
 }
 ```
-

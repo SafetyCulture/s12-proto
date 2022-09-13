@@ -11,8 +11,8 @@ A `protoc` plugin that generates a mock implementation of a gRPC service.
 - [x] int types
 - [x] float types
 - [x] inner messages
-- [x] enum types 
-- [x] bool types 
+- [x] enum types
+- [x] bool types
 - [ ] bytes type
 - [x] oneof type
 - [ ] map type
