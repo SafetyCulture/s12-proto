@@ -42,7 +42,7 @@ func GenerateFile(p *protogen.Plugin, file *protogen.File) *protogen.GeneratedFi
 	g.P("package ", file.GoPackageName)
 	g.P()
 
-	// blank import to register extention for gRPC Reflection API
+	// blank import to register extension for gRPC Reflection API
 	g.Import(s12permPackage)
 
 	for _, srv := range file.Services {

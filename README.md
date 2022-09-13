@@ -51,5 +51,5 @@ In this case, the new file should be located at
 $ make cruxclient
 ```
 
-This command will first compile the crux code generator as a protoc plugin and install it to the system bin directory. 
-Then it will be used to generate custom crux code in c++.  
+This command will first compile the crux code generator as a protoc plugin and install it to the system bin directory.
+Then it will be used to generate custom crux code in c++.

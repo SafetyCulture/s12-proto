@@ -1148,7 +1148,7 @@ func TestSoftValidation_ValidateLatitude(t *testing.T) {
 			shouldErr: false,
 		},
 		{
-			name: "should pass with legitimate negative doube in range latitude",
+			name: "should pass with legitimate negative double in range latitude",
 			msg: func() *LogOnlyValidationMessage {
 				m := genLogOnlyValidationMessage()
 				m.Latitude = -88.8888888888
@@ -1157,7 +1157,7 @@ func TestSoftValidation_ValidateLatitude(t *testing.T) {
 			shouldErr: false,
 		},
 		{
-			name: "should pass with legitimate positive doube in lower-range latitude",
+			name: "should pass with legitimate positive double in lower-range latitude",
 			msg: func() *LogOnlyValidationMessage {
 				m := genLogOnlyValidationMessage()
 				m.Latitude = -90.00
@@ -1166,7 +1166,7 @@ func TestSoftValidation_ValidateLatitude(t *testing.T) {
 			shouldErr: false,
 		},
 		{
-			name: "should pass with legitimate zero doube in latitude",
+			name: "should pass with legitimate zero double in latitude",
 			msg: func() *LogOnlyValidationMessage {
 				m := genLogOnlyValidationMessage()
 				m.Latitude = -0.00
@@ -1175,7 +1175,7 @@ func TestSoftValidation_ValidateLatitude(t *testing.T) {
 			shouldErr: false,
 		},
 		{
-			name: "should pass with legitimate positive doube in upper-range latitude",
+			name: "should pass with legitimate positive double in upper-range latitude",
 			msg: func() *LogOnlyValidationMessage {
 				m := genLogOnlyValidationMessage()
 				m.Latitude = 90.00
@@ -1184,7 +1184,7 @@ func TestSoftValidation_ValidateLatitude(t *testing.T) {
 			shouldErr: false,
 		},
 		{
-			name: "should fail with positive doube higher than upper-range latitude",
+			name: "should fail with positive double higher than upper-range latitude",
 			msg: func() *LogOnlyValidationMessage {
 				m := genLogOnlyValidationMessage()
 				m.Latitude = -91.05
@@ -1193,7 +1193,7 @@ func TestSoftValidation_ValidateLatitude(t *testing.T) {
 			shouldErr: true,
 		},
 		{
-			name: "should not fail with invalid doube higher than upper-range latitude when log-only",
+			name: "should not fail with invalid double higher than upper-range latitude when log-only",
 			msg: func() *LogOnlyValidationMessage {
 				m := genLogOnlyValidationMessage()
 				m.Longitude = -190.12233444

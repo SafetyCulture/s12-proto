@@ -174,7 +174,7 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 
 		// shouldLoopOverField decides whether to generate the for loop or not:
 		// - don't generate the for loop for an array of msg because it wil be handled differently
-		// - only generate the for loop if there are validations for each elment
+		// - only generate the for loop if there are validations for each element
 		shouldLoopOverField := hasRepeatedExt && !isMessageField && hasNonRepeatedValidationExtensions(f)
 
 		if hasRepeatedExt {
@@ -1094,7 +1094,7 @@ func genNumberValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 
 		var rangeVals = strings.Split(rules.GetRange(), ":")
 		if len(rangeVals) < 1 || len(rangeVals) > 2 {
-			panic("unparseable range for number validator")
+			panic("unparsable range for number validator")
 		}
 
 		if rangeVals[0] != "" {
