@@ -480,6 +480,9 @@ void APIGenerator::PrintDjinniObjcSupport(
   vars["dir"] = dir;
   auto messages = GetMessagesFromFile(file);
   for (const auto message : messages) {
+    if (message->map_key() != nullptr) {
+      continue;
+    }
     vars["message_name"] = ClassName(message, false);
     vars["objc_file_name"] = ToCamelCase(tokenize(StripProto(file->name()), "/").back());
     vars["cpp_type_name"] = DotsToColons(message->full_name());
@@ -561,6 +564,9 @@ void APIGenerator::PrintDjinniJNISupport(
   vars["dir"] = dir;
   auto messages = GetMessagesFromFile(file);
   for (const auto message : messages) {
+    if (message->map_key() != nullptr) {
+      continue;
+    }
     vars["message_name"] = UnderscoresToDollar(ClassName(message, false));
     vars["cpp_type_name"] = DotsToColons(message->full_name());
     vars["file_name"] = StripProto(file->name());
