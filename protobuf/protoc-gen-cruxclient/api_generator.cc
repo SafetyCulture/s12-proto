@@ -400,6 +400,9 @@ void APIGenerator::PrintDjinniYAML(
   vars["dir"] = dir;
   auto messages = GetMessagesFromFile(file);
   for (const auto message : messages) {
+    if (message->map_key() != nullptr) {
+      continue;
+    }
     vars["message_name"] = ClassName(message, false);
     vars["java_message_name"] = UnderscoresToDollar(vars["message_name"]);
     vars["java_message_box_name"] = UnderscoresToDots(vars["message_name"]);

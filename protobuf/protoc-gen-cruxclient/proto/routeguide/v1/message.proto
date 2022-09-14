@@ -76,4 +76,6 @@ message RouteSummary {
 
   // Details of the summary, use nested message
   Details details = 5;
+  
+  map<string, Details> details_map = 6;
 }
