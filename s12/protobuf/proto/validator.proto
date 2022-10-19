@@ -9,29 +9,30 @@ option go_package = "github.com/SafetyCulture/s12-proto/s12/protobuf/proto";
 
 extend google.protobuf.FieldOptions {
   // @deprecated: Use validator.id instead
-  optional bool uuid = 65200;
+  optional bool uuid = 65200 [deprecated = true];
   // Uses a Golang RE2-syntax regex to match the field contents.
+  // Suggest to use validator.string instead if you can.
   optional string regex = 65201;
   // @deprecated: Use validator.number instead
-  optional int64 int_gt = 65202;
+  optional int64 int_gt = 65202 [deprecated = true];
   // @deprecated: Use validator.number instead
-  optional int64 int_lt = 65203;
+  optional int64 int_lt = 65203 [deprecated = true];
   // @deprecated: Use validator.number instead
-  optional int64 int_gte = 65204;
+  optional int64 int_gte = 65204 [deprecated = true];
   // @deprecated: Use validator.number instead
-  optional int64 int_lte = 65205;
-  // Field value of length greater than this value.
-  optional int64 length_gte = 65206;
-  // Field value of length smaller than this value.
-  optional int64 length_lte = 65207;
+  optional int64 int_lte = 65205 [deprecated = true];
+  // @deprecated: Use validator.string instead
+  optional int64 length_gte = 65206 [deprecated = true];
+  // @deprecated: Use validator.string instead
+  optional int64 length_lte = 65207 [deprecated = true];
   // Validation only applies to non-zero values.
   optional bool optional = 65208;
   // Validates that an inner message is required.
   optional bool msg_required = 65209;
   // @deprecated: Use validator.id instead
-  optional bool legacy_id = 65210;
+  optional bool legacy_id = 65210 [deprecated = true];
   // @deprecated: Use validator.string instead
-  optional bool trim_len_check = 65211;
+  optional bool trim_len_check = 65211 [deprecated = true];
   // collection size greater than or equal to this value.
   optional int64 repeated_len_gte = 65212;
   // collection size lesser than or equal to this value.
