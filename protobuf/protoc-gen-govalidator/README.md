@@ -25,7 +25,7 @@ make govalidator-valtest-test
 ```
 
 ## Table of Contents
-- [Validators] (validators)
+- [Validators] (#validators)
 - [Legacy Validator Fields](#validator.legacy)
 - [Testing Validators](#validator.testing)
 
