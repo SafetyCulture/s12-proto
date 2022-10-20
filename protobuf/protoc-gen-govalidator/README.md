@@ -1,15 +1,25 @@
-# protocol buffer validators compiler
+# Protocol buffer validators compiler
 
 A `protoc` plugin that generates `Validate() error` functions on Go proto `struct`s based on field options inside `.proto` files. The validation functions are code-generated and thus don't suffer on performance from tag-based reflection on deeply-nested messages.
 
-## Usage
+## Table of Contents
+- [Usage] (#usage)
+- [Development] (#development)
+- [Validators] (#validator.list)
+- [Legacy Validator Fields](#validator.legacy)
+- [Testing Validators](#validator.testing)
+
+&nbsp;
+
+## Usage <a name="usage"></a>
 
 ```
 $ go get github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-govalidator
 $ protoc -I. --gogo_out=:. --govalidator_out=. example.proto
 ```
+&nbsp;
 
-## Development
+## Development <a name="development"></a>
 
 Use these commands at the root folder of this repository for testing:
 ```bash
@@ -23,15 +33,9 @@ make govalidator-test
 make govalidator-valtest
 make govalidator-valtest-test
 ```
-
-## Table of Contents
-- [Validators] (#validators)
-- [Legacy Validator Fields](#validator.legacy)
-- [Testing Validators](#validator.testing)
-
 &nbsp;
 
-## Validators <a name="validators"></a>
+## Validators <a name="validator.list"></a>
 There are a number of common fields for which validators have been developed. For detailed documentation and usage, visit the links to the confluence pages.
 - Email Validation - https://safetyculture.atlassian.net/l/cp/KadCa73c 
 - ID Validation - https://safetyculture.atlassian.net/l/cp/Esbr10vG 
@@ -42,7 +46,7 @@ There are a number of common fields for which validators have been developed. Fo
 
 If new validators are added, please be sure to document them including their usage and options. 
 
-Link to the last version of the readme which had the complete documentation to date - https://github.com/SafetyCulture/s12-proto/blob/f8d868b8135e3f2438bfaca234e27b2f305c59d9/README.md
+Link to the last version of the readme which had the complete documentation to date - https://github.com/SafetyCulture/s12-proto/blob/f8d868b8135e3f2438bfaca234e27b2f305c59d9/protobuf/protoc-gen-govalidator/README.md
 
 &nbsp;
 
