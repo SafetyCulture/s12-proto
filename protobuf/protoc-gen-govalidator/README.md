@@ -41,12 +41,12 @@ Link to the last public version of the readme which had the complete documentati
 
 __Deprecated: do not define the following validators for new fields. Use one of the newer validation options above.__
 
-validator.uuid
-validator.int_gt
-validator.int_lt
-validator.int_gte
-validator.int_lte
-validator.length_lte
-validator.length_gte
-validator.legacy_id
-validator.trim_len_check
+- validator.uuid
+- validator.int_gt
+- validator.int_lt
+- validator.int_gte
+- validator.int_lte
+- validator.length_lte
+- validator.length_gte
+- validator.legacy_id
+- validator.trim_len_check
