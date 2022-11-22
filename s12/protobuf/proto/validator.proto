@@ -223,7 +223,7 @@ message IdRules {
   // default = false
   optional bool optional = 1 [default = false];
 
-  // The UUID version that is expected, v4 by default but allows us to upgrade if we need to later
+  // The UUID version that is expected, v4 by default but allows us to upgrade if we need to later (e.g. 'any')
   optional string version = 2 [default = "v4"];
 
   // Also allow legacy_id format, similar to validator.legacy_id

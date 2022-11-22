@@ -8,7 +8,7 @@ import "s12/protobuf/proto/validator.proto";
 option go_package = "github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-govalidator/valtest";
 
 message ValTestMessage {
-  // returns an error if the string cannot be parsed as a UUID
+  // returns an error if the string cannot be parsed as a UUIDv4
   string id = 1 [(validator.id) = {}];
   // we do not support bytes currently for id
   // bytes user_id = 2 [(validator.id) = {}];
@@ -20,6 +20,8 @@ message ValTestMessage {
   string legacy_id = 5 [(validator.id) = { legacy: true }];
   // InnerMessage can contain a legacy id too
   InnerMessageWithLegacyId inner_legacy_id = 6;
+  // returns an error if the string cannot be parsed as a UUID
+  string uuid = 7 [(validator.id) = { version : "any" }];
 
   // email validation
   string email = 11 [(validator.email) = {}];
