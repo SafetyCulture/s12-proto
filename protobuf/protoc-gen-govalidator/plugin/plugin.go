@@ -648,18 +648,26 @@ func genIdValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string
 		g.P("if ", varName, " != \"\" {")
 	}
 
-	if rules.GetVersion() != "v4" {
+	var errMsg string
+
+	switch rules.GetVersion() {
+	case "v4":
+		// Try to validate the value for valid UUIDv4
+		g.P("if !", s12protoPackage.Ident("IsUUIDv4"), "(", varName, ") {")
+		errMsg = "be parsable as UUIDv4"
+	case "any":
+		// Try to validate the value for valid UUID (any version)
+		g.P("if !", s12protoPackage.Ident("IsUUID"), "(", varName, ") {")
+		errMsg = "be parsable as UUID"
+	default:
 		// Unsupported version; do not generate the validators without having an implementation for this version
-		panic("unsupported UUID version in field " + f.GoIdent.GoName + ": expected v4, got: " + rules.GetVersion())
+		panic("unsupported UUID version in field " + f.GoIdent.GoName + ", got: " + rules.GetVersion())
 	}
 
 	// Check what ID formats are accepted in addition to UUID
 	// Validation passes if the provided value passes at least one of the validators
 	// UUID format is always accepted where LegacyId and S12 Id can be enabled as an option
-	errMsg := "be parsable as UUIDv4"
 
-	// Always try to validate the value for valid UUIDv4
-	g.P("if !", s12protoPackage.Ident("IsUUIDv4"), "(", varName, ") {")
 	// Invalid UUID: check other formats or error if no other options enabled
 	g.P("isValidId := false")
 

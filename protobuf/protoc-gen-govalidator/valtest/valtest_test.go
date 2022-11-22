@@ -24,6 +24,7 @@ const (
 	password         string = "1234567!"
 	name             string = "Γιώργος Νταλάρας"
 	idv4             string = "92b6c2f9-abd8-48bc-a2c9-bf70e969751a"
+	uuidNotV4        string = "e07b6ac0-8a05-11e2-9951-ddd1182f65d9"
 	valid            bool   = false
 	invalid          bool   = true
 	emptyString      string = "<EMPTY>"
@@ -143,6 +144,7 @@ var valMsg = ValTestMessage{
 	MediaId:               id,
 	InnerLegacyId:         &InnerMessageWithLegacyId{Id: id},
 	InnerS12Id:            &InnerMessageWithS12Id{Id: s12Id},
+	Uuid:                  id,
 	Email:                 email,
 	OptEmail:              email,
 	Description:           "François Truffaut 久保田 利伸 text",
@@ -193,6 +195,7 @@ var valMsgOpts = ValTestMessage{
 	S12Id:                 s12Id,
 	InnerLegacyId:         &InnerMessageWithLegacyId{Id: legacyId},
 	InnerS12Id:            &InnerMessageWithS12Id{Id: s12Id},
+	Uuid:                  id,
 	Email:                 email,
 	Description:           "François Truffaut 久保田 利伸 text",
 	Password:              password,
@@ -288,6 +291,9 @@ func getValMsg(m ValTestMessage) *ValTestMessage {
 	}
 	if m.MediaId != "" {
 		newMsg.MediaId = replaceEmpty(m.MediaId)
+	}
+	if m.Uuid != "" {
+		newMsg.Uuid = replaceEmpty(m.Uuid)
 	}
 	// if m.InnerLegacyId != "" {
 	// 	newMsg.InnerLegacyId = m.InnerLegacyId
@@ -415,6 +421,11 @@ func TestValidationRules(t *testing.T) {
 			invalid,
 		},
 		{
+			"InvalidIdWithUUIDNotV4",
+			getValMsg(ValTestMessage{Id: uuidNotV4}),
+			invalid,
+		},
+		{
 			"InvalidLegacyId",
 			getValMsg(ValTestMessage{LegacyId: legacyLongIdFail}),
 			invalid,
@@ -493,6 +504,21 @@ func TestValidationRules(t *testing.T) {
 			"ValidS12IDUppercase",
 			getValMsg(ValTestMessage{S12Id: "audit_C6C011ED4ADE460DA04BDA730834B667"}),
 			valid,
+		},
+		{
+			"ValidIDAnyVersionWithUUIDv4",
+			getValMsg(ValTestMessage{Uuid: id}),
+			valid,
+		},
+		{
+			"ValidIDAnyVersionWithUUIDNotV4",
+			getValMsg(ValTestMessage{Uuid: uuidNotV4}),
+			valid,
+		},
+		{
+			"InvalidIDAnyVersionWithInvalidId",
+			getValMsg(ValTestMessage{Uuid: "invalid"}),
+			invalid,
 		},
 		{
 			"ValidEmail",
