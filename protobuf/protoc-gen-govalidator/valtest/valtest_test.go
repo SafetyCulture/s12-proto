@@ -779,6 +779,93 @@ func TestValidationRules(t *testing.T) {
 			"InvalidTimezoneOptional",
 			getValMsg(ValTestMessage{TimezoneOptional: "Australia/BonnieDoon"}),
 			invalid,
+		}, {
+			"AuthCallbackRequestValidState",
+			&AuthCallbackRequest{
+				RawState:     "eyJ0b2tlbiI6ImJmMjhmMDQzLWM0ZmMtNDg4Ny1iMjkzLTQxMjIyZGFmMTZiZiIsImNsaWVudElEIjoiaEdrZ3BEVzNPRm5leUxHNnp3S1J5OG52Y1R3SWhTTnAiLCJkZXN0aW5hdGlvblVSSSI6Ii8vZ29vZ2xlLmNvbSIsInF1ZXJ5IjoiP2Rlc3RpbmF0aW9uPWphdmFzY3JpcHQ6YWxlcnQob3JpZ2luKTsvL3YxJnJlZGlyZWN0Um91dGU9JTJGZGFzaGJvY,XJkIn0=",
+				ErrorMsg:     "",
+				TrueClientIp: "",
+				UserAgent:    "",
+			},
+			valid,
+		}, {
+			"AuthCallbackRequestInvalidState",
+			&AuthCallbackRequest{
+				RawState: "x",
+			},
+			invalid,
+		}, {
+			"AuthCallbackRequestValidErrorMsg1",
+			&AuthCallbackRequest{
+				ErrorMsg: "password_no_user_info_error",
+			},
+			valid,
+		}, {
+			"AuthCallbackRequestInvalidErrorMsg1",
+			&AuthCallbackRequest{
+				ErrorMsg: "<h1>Hello!</h1>",
+			},
+			invalid,
+		}, {
+			"AuthCallbackRequestValidErrorMsg2",
+			&AuthCallbackRequest{
+				ErrorMsg: "PasswordStrengthError",
+			},
+			valid,
+		}, {
+			"AuthCallbackRequestValidTrueClientIpv61",
+			&AuthCallbackRequest{
+				TrueClientIp: "FE80:0000:0000:0000:0202:B3FF:FE1E:8329",
+			},
+			valid,
+		}, {
+			"AuthCallbackRequestValidTrueClientIpv62",
+			&AuthCallbackRequest{
+				TrueClientIp: "1200:0000:AB00:1234:0000:2552:7777:1313",
+			},
+			valid,
+		}, {
+			"AuthCallbackRequestValidTrueClientIpv63",
+			&AuthCallbackRequest{
+				TrueClientIp: "1200:0000:AB00:1234:::",
+			},
+			valid,
+		}, {
+			"AuthCallbackRequestValidTrueClientIpv41",
+			&AuthCallbackRequest{
+				TrueClientIp: "1.1.1.1",
+			},
+			valid,
+		}, {
+			"AuthCallbackRequestInvalidTrueClientIp1",
+			&AuthCallbackRequest{
+				TrueClientIp: "x",
+			},
+			invalid,
+		}, {
+			"AuthCallbackRequestValidUA1",
+			&AuthCallbackRequest{
+				UserAgent: "CERN-LineMode/2.15 libwww/2.17b3",
+			},
+			valid,
+		}, {
+			"AuthCallbackRequestValidUA1",
+			&AuthCallbackRequest{
+				UserAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36",
+			},
+			valid,
+		}, {
+			"AuthCallbackRequestInvalidUA1",
+			&AuthCallbackRequest{
+				UserAgent: "x\x00 nullbyte 1",
+			},
+			invalid,
+		}, {
+			"AuthCallbackRequestInvalidUA2",
+			&AuthCallbackRequest{
+				UserAgent: "x\u0000 nullbyte 2",
+			},
+			invalid,
 		},
 	}
 

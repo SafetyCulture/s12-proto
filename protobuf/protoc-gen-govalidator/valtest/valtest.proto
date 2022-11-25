@@ -305,3 +305,28 @@ message NumberMessage {
   }
   NestedNumber nested_number = 15;
 }
+
+message AuthCallbackRequest {
+  // base64 encoded string: A-Z a-z 0-9 + / =
+  string raw_state = 1 [(validator.unsafe_string) = {
+    len: "50:500",
+    optional: true,
+    allow: "+/=",
+  }];
+  // int64 error_code = 2 [(validator.number) = { optional: true, range: "1:10000" }];
+  string error_msg = 3 [(validator.string) = {
+    len: "1:100",
+    optional: true,
+    allow: "_",
+  }];
+  string true_client_ip = 4 [(validator.string) = {
+    len: "7:50",
+    optional: true,
+    allow: ".:",
+  }];
+  string user_agent = 5 [(validator.unsafe_string) = {
+    len: "1:500",
+    optional: true,
+    allow: "-/;",
+  }];
+}
