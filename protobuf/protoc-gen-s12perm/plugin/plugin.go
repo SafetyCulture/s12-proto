@@ -58,10 +58,6 @@ func genSrvInterceptor(g *protogen.GeneratedFile, srv *protogen.Service) {
 	genStreamInterceptor(g, srv)
 }
 
-func genPermissionCheck(methods []*protogen.Method) {
-
-}
-
 func genUnaryInterceptor(g *protogen.GeneratedFile, srv *protogen.Service) {
 	g.P("// ", srv.GoName, "PermissionsUnaryInterceptor is a gRPC unary server interceptor that validates the S12 JWT claims")
 	g.P("// for defined permissions for a service method. Returns PermissionDenied status on permission error.")
