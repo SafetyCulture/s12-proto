@@ -80,6 +80,10 @@ s12perm: install-s12perm
 	--s12perm_out=paths=source_relative:protobuf/protoc-gen-s12perm/example \
 	protobuf/protoc-gen-s12perm/example/*proto
 
+.PHONY: s12perm-test
+s12perm-test: s12perm
+	cd protobuf/protoc-gen-s12perm/example && go test
+
 .PHONY: logger
 logger: install-logger
 	protoc \
