@@ -21,11 +21,12 @@ const (
 
 // Other library dependencies.
 const (
-	grpcPackage       = protogen.GoImportPath("google.golang.org/grpc")
-	grpccodesPackage  = protogen.GoImportPath("google.golang.org/grpc/codes")
-	grpcstatusPackage = protogen.GoImportPath("google.golang.org/grpc/status")
-	s12permPackage    = protogen.GoImportPath("github.com/SafetyCulture/s12-proto/s12/flags/permissions")
-	jwtclaimsPackage  = protogen.GoImportPath("sc-go.io/pkg/jwtclaims")
+	grpcPackage        = protogen.GoImportPath("google.golang.org/grpc")
+	grpccodesPackage   = protogen.GoImportPath("google.golang.org/grpc/codes")
+	grpcstatusPackage  = protogen.GoImportPath("google.golang.org/grpc/status")
+	s12permPackage     = protogen.GoImportPath("github.com/SafetyCulture/s12-proto/s12/flags/permissions")
+	jwtclaimsPackage   = protogen.GoImportPath("sc-go.io/pkg/jwtclaims")
+	credentialsPackage = protogen.GoImportPath("sc-go.io/pkg/credentials")
 )
 
 // GenerateFile generates the .perm.pb.go file
@@ -57,6 +58,10 @@ func genSrvInterceptor(g *protogen.GeneratedFile, srv *protogen.Service) {
 	genStreamInterceptor(g, srv)
 }
 
+func genPermissionCheck(methods []*protogen.Method) {
+
+}
+
 func genUnaryInterceptor(g *protogen.GeneratedFile, srv *protogen.Service) {
 	g.P("// ", srv.GoName, "PermissionsUnaryInterceptor is a gRPC unary server interceptor that validates the S12 JWT claims")
 	g.P("// for defined permissions for a service method. Returns PermissionDenied status on permission error.")
@@ -65,26 +70,44 @@ func genUnaryInterceptor(g *protogen.GeneratedFile, srv *protogen.Service) {
 	g.P("c, _ := ctx.Value(", jwtclaimsPackage.Ident("ContextKeyS12JWTClaims"), ").(", jwtclaimsPackage.Ident("S12JWTClaims"), ")")
 	g.P("_ = c")
 
+	g.P("scopes, _ := ctx.Value(", credentialsPackage.Ident("ContextKeyCredentialsScope"), ").(", credentialsPackage.Ident("Scope"), ")")
+	g.P("_ = scopes")
+
 	for _, md := range srv.Methods {
 		if md.Desc.IsStreamingClient() || md.Desc.IsStreamingServer() {
 			continue
 		}
 		flags := getStringSliceExtension(md, permissions.E_RequiredFlags)
-		if len(flags) == 0 {
+		scopeFlags := getStringSliceExtension(md, permissions.E_RequiredScopes)
+		if len(flags) == 0 && len(scopeFlags) == 0 {
 			continue
 		}
 
 		sname := fmt.Sprintf("/%s/%s", srv.Desc.FullName(), md.Desc.Name())
 		g.P("if info.FullMethod == \"", sname, "\" {")
-		var perms []string
-		for _, perm := range flags {
-			perms = append(perms, fmt.Sprintf("%s(%q)", g.QualifiedGoIdent(jwtclaimsPackage.Ident("Permission")), perm))
+		if len(flags) > 0 {
+			var perms []string
+			for _, perm := range flags {
+				perms = append(perms, fmt.Sprintf("%s(%q)", g.QualifiedGoIdent(jwtclaimsPackage.Ident("Permission")), perm))
+			}
+			g.P("if !c.HasPermission(", strings.Join(perms, ", "), ") {")
+			g.P(logPackage.Ident("Println"), "(\"s12perm: claims does not contain the required permissions\")")
+			g.P("return ctx, ", grpcstatusPackage.Ident("Errorf"), "(", grpccodesPackage.Ident("PermissionDenied"), ", ", "\"Permission Denied\"", ")")
+			g.P("}")
 		}
-		g.P("if !c.HasPermission(", strings.Join(perms, ", "), ") {")
-		g.P(logPackage.Ident("Println"), "(\"s12perm: claims does not contain the required permissions\")")
-		g.P("return ctx, ", grpcstatusPackage.Ident("Errorf"), "(", grpccodesPackage.Ident("PermissionDenied"), ", ", "\"Permission Denied\"", ")")
-		g.P("}")
-		g.P("}")
+
+		if len(scopeFlags) > 0 {
+			scopes := make([]string, 0, len(scopeFlags))
+			for _, flag := range scopeFlags {
+				scopes = append(scopes, fmt.Sprintf("%q", flag))
+			}
+			g.P("if !scopes.Contains(", strings.Join(scopes, ", "), ") {")
+			g.P(logPackage.Ident("Println"), "(\"s12perm: claims does not contain the required scopes\")")
+			g.P("return ctx, ", grpcstatusPackage.Ident("Errorf"), "(", grpccodesPackage.Ident("PermissionDenied"), ", ", "\"Permission Denied\"", ")")
+			g.P("}")
+		}
+
+		g.P("}") // end if
 	}
 
 	g.P("return handler(ctx, req)")
@@ -101,6 +124,8 @@ func genStreamInterceptor(g *protogen.GeneratedFile, srv *protogen.Service) {
 	g.P("c, _ := stream.Context().Value(", jwtclaimsPackage.Ident("ContextKeyS12JWTClaims"), ").(", jwtclaimsPackage.Ident("S12JWTClaims"), ")")
 	g.P("_ = c")
 
+	g.P("scopes, _ := stream.Context().Value(", credentialsPackage.Ident("ContextKeyCredentialsScope"), ").(", credentialsPackage.Ident("Scope"), ")")
+	g.P("_ = scopes")
 	// (rogchap) A lot of this is repeated from the unary interceptor; a refactor to make this more DRY
 	// is possible, however it would remove some of the readability, so keeping the repetition.
 	for _, md := range srv.Methods {
@@ -108,20 +133,34 @@ func genStreamInterceptor(g *protogen.GeneratedFile, srv *protogen.Service) {
 			continue
 		}
 		flags := getStringSliceExtension(md, permissions.E_RequiredFlags)
-		if len(flags) == 0 {
+		scopeFlags := getStringSliceExtension(md, permissions.E_RequiredScopes)
+		if len(flags) == 0 && len(scopeFlags) == 0 {
 			continue
 		}
 
 		sname := fmt.Sprintf("/%s/%s", srv.Desc.FullName(), md.Desc.Name())
 		g.P("if info.FullMethod == \"", sname, "\" {")
-		var perms []string
-		for _, perm := range flags {
-			perms = append(perms, fmt.Sprintf("%s(%q)", g.QualifiedGoIdent(jwtclaimsPackage.Ident("Permission")), perm))
+		if len(flags) > 0 {
+			var perms []string
+			for _, perm := range flags {
+				perms = append(perms, fmt.Sprintf("%s(%q)", g.QualifiedGoIdent(jwtclaimsPackage.Ident("Permission")), perm))
+			}
+			g.P("if !c.HasPermission(", strings.Join(perms, ", "), ") {")
+			g.P(logPackage.Ident("Println"), "(\"s12perm: claims does not contain the required permissions\")")
+			g.P("return ", grpcstatusPackage.Ident("Errorf"), "(", grpccodesPackage.Ident("PermissionDenied"), ", ", "\"Permission Denied\"", ")")
+			g.P("}")
 		}
-		g.P("if !c.HasPermission(", strings.Join(perms, ", "), ") {")
-		g.P(logPackage.Ident("Println"), "(\"s12perm: claims does contain the required permissions\")")
-		g.P("return ", grpcstatusPackage.Ident("Errorf"), "(", grpccodesPackage.Ident("PermissionDenied"), ", ", "\"Permission Denied\"", ")")
-		g.P("}")
+
+		if len(scopeFlags) > 0 {
+			scopes := make([]string, 0, len(scopeFlags))
+			for _, flag := range scopeFlags {
+				scopes = append(scopes, fmt.Sprintf("%q", flag))
+			}
+			g.P("if !scopes.Contains(", strings.Join(scopes, ", "), ") {")
+			g.P(logPackage.Ident("Println"), "(\"s12perm: claims does not contain the required scopes\")")
+			g.P("return ", grpcstatusPackage.Ident("Errorf"), "(", grpccodesPackage.Ident("PermissionDenied"), ", ", "\"Permission Denied\"", ")")
+			g.P("}")
+		}
 		g.P("}")
 	}
 

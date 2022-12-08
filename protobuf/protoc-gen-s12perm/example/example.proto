@@ -20,6 +20,17 @@ service NoPermissions {
     rpc Unary(Request) returns (Response) {}
 }
 
+service ExampleWithScopes {
+    rpc Unary(Request) returns (Response) {
+        option (s12.flags.permissions.required_scopes) = "admin";
+    }
+
+    rpc ServerStream(Request) returns (stream Response) {
+        option (s12.flags.permissions.required_flags) = "write:users";
+        option (s12.flags.permissions.required_scopes) = "user";
+    }
+}
+
 message Request {}
 
 message Response {}

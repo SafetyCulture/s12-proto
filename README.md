@@ -12,7 +12,8 @@
 Make sure you have `protoc-gen-go` installed:
 https://pkg.go.dev/google.golang.org/protobuf#section-readme
 ```
-$ go install github.com/golang/protobuf/protoc-gen-go@latest
+$ cd s12-proto
+$ go install google.golang.org/protobuf/cmd/protoc-gen-go
 ```
 
 Run the generate command:
