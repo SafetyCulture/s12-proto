@@ -74,8 +74,8 @@ func genUnaryInterceptor(g *protogen.GeneratedFile, srv *protogen.Service) {
 			continue
 		}
 		flags := getStringSliceExtension(md, permissions.E_RequiredFlags)
-		scopeFlags := getStringSliceExtension(md, permissions.E_RequiredScopes)
-		if len(flags) == 0 && len(scopeFlags) == 0 {
+		scopeFlag := getStringExtension(md, permissions.E_RequiredScope)
+		if len(flags) == 0 && scopeFlag == "" {
 			continue
 		}
 
@@ -92,12 +92,8 @@ func genUnaryInterceptor(g *protogen.GeneratedFile, srv *protogen.Service) {
 			g.P("}")
 		}
 
-		if len(scopeFlags) > 0 {
-			scopes := make([]string, 0, len(scopeFlags))
-			for _, flag := range scopeFlags {
-				scopes = append(scopes, fmt.Sprintf("%q", flag))
-			}
-			g.P("if !scopes.Contains(", strings.Join(scopes, ", "), ") {")
+		if scopeFlag != "" {
+			g.P("if !scopes.Contains(", fmt.Sprintf("%q", scopeFlag), ") {")
 			g.P(logPackage.Ident("Println"), "(\"s12perm: claims does not contain the required scopes\")")
 			g.P("return ctx, ", grpcstatusPackage.Ident("Errorf"), "(", grpccodesPackage.Ident("PermissionDenied"), ", ", "\"Permission Denied\"", ")")
 			g.P("}")
@@ -129,8 +125,8 @@ func genStreamInterceptor(g *protogen.GeneratedFile, srv *protogen.Service) {
 			continue
 		}
 		flags := getStringSliceExtension(md, permissions.E_RequiredFlags)
-		scopeFlags := getStringSliceExtension(md, permissions.E_RequiredScopes)
-		if len(flags) == 0 && len(scopeFlags) == 0 {
+		scopeFlag := getStringExtension(md, permissions.E_RequiredScope)
+		if len(flags) == 0 && scopeFlag == "" {
 			continue
 		}
 
@@ -147,12 +143,8 @@ func genStreamInterceptor(g *protogen.GeneratedFile, srv *protogen.Service) {
 			g.P("}")
 		}
 
-		if len(scopeFlags) > 0 {
-			scopes := make([]string, 0, len(scopeFlags))
-			for _, flag := range scopeFlags {
-				scopes = append(scopes, fmt.Sprintf("%q", flag))
-			}
-			g.P("if !scopes.Contains(", strings.Join(scopes, ", "), ") {")
+		if scopeFlag != "" {
+			g.P("if !scopes.Contains(", fmt.Sprintf("%q", scopeFlag), ") {")
 			g.P(logPackage.Ident("Println"), "(\"s12perm: claims does not contain the required scopes\")")
 			g.P("return ", grpcstatusPackage.Ident("Errorf"), "(", grpccodesPackage.Ident("PermissionDenied"), ", ", "\"Permission Denied\"", ")")
 			g.P("}")
@@ -174,4 +166,13 @@ func getStringSliceExtension(md *protogen.Method, xt protoreflect.ExtensionType)
 		}
 	}
 	return nil
+}
+func getStringExtension(md *protogen.Method, xt protoreflect.ExtensionType) string {
+	if opts := md.Desc.Options(); opts != nil {
+		ext := proto.GetExtension(opts, xt)
+		if v, ok := ext.(string); ok {
+			return v
+		}
+	}
+	return ""
 }

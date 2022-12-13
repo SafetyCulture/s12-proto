@@ -14,10 +14,10 @@ extend google.protobuf.MethodOptions {
   //       option (google.api.http).get = "/users/v1/profiles:GetUser"
   //     }
   repeated string required_flags = 20100;
-  // A list of required scopes for the given method.
+  // Specify the required scope for the given method.
   // For example:
   //     rpc Getuser(Request) returns (Response) {
-  //       option (s12.flags.permissions.required_scopes) = "admin"
+  //       option (s12.flags.permissions.required_scope) = "admin"
   //     }
-  repeated string required_scopes = 20101;
+  optional string required_scope = 20101;
 }
