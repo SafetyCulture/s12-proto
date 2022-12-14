@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/SafetyCulture/s12-proto v1.23.2
 	google.golang.org/grpc v1.32.0
-	sc-go.io/pkg/credentials v0.1.1-0.20221208011651-3230c2132441
+	sc-go.io/pkg/credentials v0.2.0
 	sc-go.io/pkg/jwtclaims v1.4.0
 )
 

@@ -128,7 +128,7 @@ gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b h1:h8qDotaEPuJATrMmW04NCwg7v
 gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 honnef.co/go/tools v0.0.0-20190102054323-c2f93a96b099/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
 honnef.co/go/tools v0.0.0-20190523083050-ea95bdfd59fc/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
-sc-go.io/pkg/credentials v0.1.1-0.20221208011651-3230c2132441 h1:WaUVcAp+UrFCfH1RHWanuh9waYrgZCm4OysN4VOG+SE=
-sc-go.io/pkg/credentials v0.1.1-0.20221208011651-3230c2132441/go.mod h1:zjyKd81/VoErHw9/Pg39arOFzf/kYgagr7K/4bsgRbQ=
+sc-go.io/pkg/credentials v0.2.0 h1:HVY27wV3kbtALu6EUdU5wyGYzaT6wdT49No+s8h8uPo=
+sc-go.io/pkg/credentials v0.2.0/go.mod h1:zjyKd81/VoErHw9/Pg39arOFzf/kYgagr7K/4bsgRbQ=
 sc-go.io/pkg/jwtclaims v1.4.0 h1:wHl9+Ekd0Um9uG5QSVnNswyRTP++j2vXVidTC07RvuM=
 sc-go.io/pkg/jwtclaims v1.4.0/go.mod h1:5un+IDDx+o3AuGErGSfBK434sWNc5tJYZE0JdIC7T6w=
