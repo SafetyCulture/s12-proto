@@ -33,7 +33,7 @@ install-govalidator:
 	go install github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-logger
 
 .PHONY: install-s12perm
-install-s12perm:
+install-s12perm: generate
 	go install ./protobuf/protoc-gen-s12perm
 
 .PHONY: install-cruxclient
@@ -79,6 +79,10 @@ s12perm: install-s12perm
 	-I. \
 	--s12perm_out=paths=source_relative:protobuf/protoc-gen-s12perm/example \
 	protobuf/protoc-gen-s12perm/example/*proto
+
+.PHONY: s12perm-test
+s12perm-test: s12perm
+	cd protobuf/protoc-gen-s12perm/example && go test
 
 .PHONY: logger
 logger: install-logger

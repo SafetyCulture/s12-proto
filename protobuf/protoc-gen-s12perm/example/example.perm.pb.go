@@ -9,6 +9,7 @@ import (
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
 	log "log"
+	credentials "sc-go.io/pkg/credentials"
 	jwtclaims "sc-go.io/pkg/jwtclaims"
 )
 
@@ -18,6 +19,8 @@ func ExamplePermissionsUnaryInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		c, _ := ctx.Value(jwtclaims.ContextKeyS12JWTClaims).(jwtclaims.S12JWTClaims)
 		_ = c
+		scopes, _ := ctx.Value(credentials.ContextKeyCredentialsScope).(credentials.Scope)
+		_ = scopes
 		if info.FullMethod == "/example.Example/Unary" {
 			if !c.HasPermission(jwtclaims.Permission("write:users")) {
 				log.Println("s12perm: claims does not contain the required permissions")
@@ -34,9 +37,11 @@ func ExamplePermissionsStreamInterceptor() grpc.StreamServerInterceptor {
 	return func(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 		c, _ := stream.Context().Value(jwtclaims.ContextKeyS12JWTClaims).(jwtclaims.S12JWTClaims)
 		_ = c
+		scopes, _ := stream.Context().Value(credentials.ContextKeyCredentialsScope).(credentials.Scope)
+		_ = scopes
 		if info.FullMethod == "/example.Example/ServerStream" {
 			if !c.HasPermission(jwtclaims.Permission("write:users")) {
-				log.Println("s12perm: claims does contain the required permissions")
+				log.Println("s12perm: claims does not contain the required permissions")
 				return status.Errorf(codes.PermissionDenied, "Permission Denied")
 			}
 		}
@@ -50,6 +55,8 @@ func NoPermissionsPermissionsUnaryInterceptor() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		c, _ := ctx.Value(jwtclaims.ContextKeyS12JWTClaims).(jwtclaims.S12JWTClaims)
 		_ = c
+		scopes, _ := ctx.Value(credentials.ContextKeyCredentialsScope).(credentials.Scope)
+		_ = scopes
 		return handler(ctx, req)
 	}
 }
@@ -60,6 +67,48 @@ func NoPermissionsPermissionsStreamInterceptor() grpc.StreamServerInterceptor {
 	return func(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 		c, _ := stream.Context().Value(jwtclaims.ContextKeyS12JWTClaims).(jwtclaims.S12JWTClaims)
 		_ = c
+		scopes, _ := stream.Context().Value(credentials.ContextKeyCredentialsScope).(credentials.Scope)
+		_ = scopes
+		return handler(srv, stream)
+	}
+}
+
+// ExampleWithScopesPermissionsUnaryInterceptor is a gRPC unary server interceptor that validates the S12 JWT claims
+// for defined permissions for a service method. Returns PermissionDenied status on permission error.
+func ExampleWithScopesPermissionsUnaryInterceptor() grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		c, _ := ctx.Value(jwtclaims.ContextKeyS12JWTClaims).(jwtclaims.S12JWTClaims)
+		_ = c
+		scopes, _ := ctx.Value(credentials.ContextKeyCredentialsScope).(credentials.Scope)
+		_ = scopes
+		if info.FullMethod == "/example.ExampleWithScopes/Unary" {
+			if !scopes.Contains("admin") {
+				log.Println("s12perm: claims does not contain the required scopes")
+				return ctx, status.Errorf(codes.PermissionDenied, "Permission Denied")
+			}
+		}
+		return handler(ctx, req)
+	}
+}
+
+// ExampleWithScopesPermissionsStreamInterceptor is a gRPC stream server interceptor that validates the S12 JWT claims
+// for defined permissions for a service method. Returns PermissionDenied status on permission error.
+func ExampleWithScopesPermissionsStreamInterceptor() grpc.StreamServerInterceptor {
+	return func(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+		c, _ := stream.Context().Value(jwtclaims.ContextKeyS12JWTClaims).(jwtclaims.S12JWTClaims)
+		_ = c
+		scopes, _ := stream.Context().Value(credentials.ContextKeyCredentialsScope).(credentials.Scope)
+		_ = scopes
+		if info.FullMethod == "/example.ExampleWithScopes/ServerStream" {
+			if !c.HasPermission(jwtclaims.Permission("write:users")) {
+				log.Println("s12perm: claims does not contain the required permissions")
+				return status.Errorf(codes.PermissionDenied, "Permission Denied")
+			}
+			if !scopes.Contains("user") {
+				log.Println("s12perm: claims does not contain the required scopes")
+				return status.Errorf(codes.PermissionDenied, "Permission Denied")
+			}
+		}
 		return handler(srv, stream)
 	}
 }
