@@ -11,5 +11,5 @@ require (
 
 require (
 	github.com/corpix/uarand v0.1.1 // indirect
-	golang.org/x/text v0.3.7
+	golang.org/x/text v0.3.8
 )
