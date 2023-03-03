@@ -88,6 +88,7 @@ message ValTestMessage {
   string not_sanitise_pua = 39 [(validator.string) = { sanitise_pua: false, optional: true }];
   string sanitise_pua = 40 [(validator.string) = { sanitise_pua: true, optional: true }];
   string sanitise_length = 41 [(validator.string) = { len: "2", sanitise_pua: true, optional: true }];
+  optional string optional_string = 42 [(validator.string) = {}];
 
   // field without any validation
   string no_validation = 50;
