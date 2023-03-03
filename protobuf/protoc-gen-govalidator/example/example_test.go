@@ -23,7 +23,9 @@ func TestValidationRules(t *testing.T) {
 		url              string = "https://www.safetyculture.io"
 	)
 	var (
-		byteID []byte = []byte{53, 30, 208, 165, 196, 219, 75, 61, 142, 60, 101, 84, 229, 43, 61, 108}
+		byteID      []byte = []byte{53, 30, 208, 165, 196, 219, 75, 61, 142, 60, 101, 84, 229, 43, 61, 108}
+		emptyStr    string = ""
+		optionalStr string = "optional"
 	)
 
 	sb := strings.Builder{}
@@ -1121,6 +1123,57 @@ func TestValidationRules(t *testing.T) {
 				TimezoneOptional: "Australia/BonnieDoon",
 			},
 			true,
+		},
+		{
+			"ValidNilOptionalField",
+			&ExampleMessage{
+				Id:             id,
+				UserId:         byteID,
+				Email:          email,
+				Age:            18,
+				Password:       password,
+				MsgRequired:    &InnerMessage{Id: id},
+				LegacyId:       legacyId,
+				Name:           name,
+				Url:            url,
+				Timezone:       "Australia/Sydney",
+				StringOptional: nil,
+			},
+			false,
+		},
+		{
+			"InvalidEmptyOptionalField",
+			&ExampleMessage{
+				Id:             id,
+				UserId:         byteID,
+				Email:          email,
+				Age:            18,
+				Password:       password,
+				MsgRequired:    &InnerMessage{Id: id},
+				LegacyId:       legacyId,
+				Name:           name,
+				Url:            url,
+				Timezone:       "Australia/Sydney",
+				StringOptional: &emptyStr,
+			},
+			true,
+		},
+		{
+			"ValidNonEmptyOptionalField",
+			&ExampleMessage{
+				Id:             id,
+				UserId:         byteID,
+				Email:          email,
+				Age:            18,
+				Password:       password,
+				MsgRequired:    &InnerMessage{Id: id},
+				LegacyId:       legacyId,
+				Name:           name,
+				Url:            url,
+				Timezone:       "Australia/Sydney",
+				StringOptional: &optionalStr,
+			},
+			false,
 		},
 		{
 			"enum_required is failed",
