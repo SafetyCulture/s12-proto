@@ -106,6 +106,8 @@ message ExampleMessage {
       optional: true
     }
   ];
+
+  optional string string_optional = 27 [(validator.string) = {}];
 }
 
 message OuterMessageUsingNestedMessage {

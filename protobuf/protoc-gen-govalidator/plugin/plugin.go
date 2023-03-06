@@ -14,6 +14,7 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/descriptorpb"
+	"google.golang.org/protobuf/types/pluginpb"
 
 	validator "github.com/SafetyCulture/s12-proto/s12/protobuf/proto"
 )
@@ -40,7 +41,7 @@ var regexGeneratedFile *protogen.GeneratedFile
 var regexHashLib = make(map[string]struct{})
 
 // Validator plugin version
-var validatorVersion = "v2.5.5"
+var validatorVersion = "v2.6.0"
 
 // Write a preamble in the auto generated files
 func genGeneratedHeader(gen *protogen.Plugin, g *protogen.GeneratedFile, f *protogen.File) {
@@ -66,6 +67,8 @@ func genGeneratedHeader(gen *protogen.Plugin, g *protogen.GeneratedFile, f *prot
 
 // GenerateFile generates the validator.pb.go file
 func GenerateFile(p *protogen.Plugin, file *protogen.File) *protogen.GeneratedFile {
+	p.SupportedFeatures |= uint64(pluginpb.CodeGeneratorResponse_FEATURE_PROTO3_OPTIONAL)
+
 	filename := file.GeneratedFilenamePrefix + ".validator.pb.go"
 	g := p.NewGeneratedFile(filename, file.GoImportPath)
 
@@ -203,9 +206,15 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 			continue
 		}
 
-		if f.Oneof != nil {
+		// exclude synthetic oneof fields, e.g. fields with the optional keyword
+		if f.Oneof != nil && !f.Oneof.Desc.IsSynthetic() {
 			g.P("if x, ok := m.", f.Oneof.GoName, ".(*", g.QualifiedGoIdent(f.GoIdent), "); ok {")
 			varName = "x." + f.GoName
+		}
+
+		if f.Desc.HasOptionalKeyword() {
+			g.P("if ", varName, " != nil {")
+			varName = "*" + varName
 		}
 
 		switch f.Desc.Kind() {
@@ -236,7 +245,11 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 			genNumberValidator(g, f, varName)
 		}
 
-		if f.Oneof != nil {
+		if f.Desc.HasOptionalKeyword() {
+			g.P("}")
+		}
+
+		if f.Oneof != nil && !f.Oneof.Desc.IsSynthetic() {
 			g.P("}")
 		}
 

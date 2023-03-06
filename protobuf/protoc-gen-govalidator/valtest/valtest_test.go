@@ -367,6 +367,9 @@ func getValMsg(m ValTestMessage) *ValTestMessage {
 	if m.SanitiseLength != "" {
 		newMsg.SanitiseLength = replaceEmpty(m.SanitiseLength)
 	}
+	if m.OptionalString != nil {
+		newMsg.OptionalString = m.OptionalString
+	}
 	if m.NoValidation != "" {
 		newMsg.NoValidation = replaceEmpty(m.NoValidation)
 	}
@@ -397,6 +400,9 @@ func TestValidationRules(t *testing.T) {
 	for i := 0; i < 2001; i++ {
 		sb.WriteRune('a')
 	}
+
+	emptyStr := ""
+	optionalStr := "optional"
 
 	type TestSet struct {
 		name        string
@@ -663,6 +669,18 @@ func TestValidationRules(t *testing.T) {
 		}, {
 			"ValidTrimStringCustomTest",
 			getValMsg(ValTestMessage{TrimString: " \t 1 2 3 \n\t"}), // expected result is 1 2 3
+			valid,
+		}, {
+			"ValidNilOptionalString",
+			getValMsg(ValTestMessage{OptionalString: nil}),
+			valid,
+		}, {
+			"InvalidEmptyOptionalString",
+			getValMsg(ValTestMessage{OptionalString: &emptyStr}),
+			invalid,
+		}, {
+			"ValidNonEmptyOptionalString",
+			getValMsg(ValTestMessage{OptionalString: &optionalStr}),
 			valid,
 		}, {
 			// Custom test for deeply nested messages; these should still be validated, expecting an error at level 3
