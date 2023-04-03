@@ -399,6 +399,13 @@ void APIGenerator::PrintDjinniYAML(
   std::map<string, string> vars;
   vars["dir"] = dir;
   auto messages = GetMessagesFromFile(file);
+  if ("s12" == paths[0]) {
+    // s12 is the top folder if exists, and domains are in s12 folder.
+    vars["domain_name"] = paths[1];
+  }
+  else {
+    vars["domain_name"] = paths[0];
+  }
   for (const auto message : messages) {
     if (message->map_key() != nullptr) {
       continue;
@@ -420,7 +427,7 @@ void APIGenerator::PrintDjinniYAML(
     vars["objc_class_prefix"] = options.objc_class_prefix();
 
     printer->Print("---\n");
-    printer->Print(vars, "name: pb_$file_name_camel$_$message_name$\n");
+    printer->Print(vars, "name: pb_$domain_name$_$file_name_camel$_$message_name$\n");
     printer->Print("typedef: 'record deriving(eq, ord, parcelable)'\n");
     printer->Print("params: []\n");
     printer->Print("prefix: 'pb'\n");
