@@ -86,7 +86,7 @@ func genUnaryInterceptor(g *protogen.GeneratedFile, srv *protogen.Service) {
 			for _, perm := range flags {
 				perms = append(perms, fmt.Sprintf("%s(%q)", g.QualifiedGoIdent(jwtclaimsPackage.Ident("Permission")), perm))
 			}
-			g.P("if !c.HasPermission(", strings.Join(perms, ", "), ") {")
+			g.P("if !scopes.IsAdmin() && !c.HasPermission(", strings.Join(perms, ", "), ") {")
 			g.P(logPackage.Ident("Println"), "(\"s12perm: claims does not contain the required permissions\")")
 			g.P("return ctx, ", grpcstatusPackage.Ident("Errorf"), "(", grpccodesPackage.Ident("PermissionDenied"), ", ", "\"Permission Denied\"", ")")
 			g.P("}")
