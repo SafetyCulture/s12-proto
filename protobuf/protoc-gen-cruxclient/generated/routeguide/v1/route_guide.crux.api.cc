@@ -134,26 +134,6 @@ grpc::Status Invoke(const std::shared_ptr<crux::engine::ChannelProvider>& provid
     return api.Execute(context, request, &response);
   }
 
-  if (method_name == "RecordRoute") {
-    routeguide::v1::Point request;
-    if (!request_data.UnpackTo(&request)) {
-      return grpc::Status(grpc::StatusCode::DATA_LOSS, "Unable to unpack the request data");
-    }
-    RecordRouteAPI api = RecordRouteAPI(provider);
-    routeguide::v1::RouteSummary response;
-    return api.Execute(context, request, &response);
-  }
-
-  if (method_name == "RouteChat") {
-    routeguide::v1::RouteNote request;
-    if (!request_data.UnpackTo(&request)) {
-      return grpc::Status(grpc::StatusCode::DATA_LOSS, "Unable to unpack the request data");
-    }
-    RouteChatAPI api = RouteChatAPI(provider);
-    routeguide::v1::RouteNote response;
-    return api.Execute(context, request, &response);
-  }
-
   return grpc::Status(grpc::StatusCode::DATA_LOSS, "Invalid method name");
 }
 

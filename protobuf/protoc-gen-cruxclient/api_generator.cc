@@ -268,6 +268,10 @@ void APIGenerator::PrintSourceAPIs(
     for (int method_index = 0; method_index < service->method_count();
         ++method_index) {
       const MethodDescriptor *method = service->method(method_index);
+      if (method->client_streaming()) {
+        // [RC]: Client Steaming not supported yet
+        continue;
+      }
       vars["method_name"] = method->name();
       vars["request"] = ClassName(method->input_type(), true);
       vars["response"] = ClassName(method->output_type(), true);
