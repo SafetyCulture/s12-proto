@@ -16,169 +16,180 @@
 #include <google/protobuf/port_def.inc>
 
 PROTOBUF_PRAGMA_INIT_SEG
+
+namespace _pb = ::PROTOBUF_NAMESPACE_ID;
+namespace _pbi = _pb::internal;
+
 namespace routeguide {
 namespace v1 {
-constexpr Point::Point(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : latitude_(0)
-  , longitude_(0){}
+PROTOBUF_CONSTEXPR Point::Point(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.latitude_)*/0
+  , /*decltype(_impl_.longitude_)*/0
+  , /*decltype(_impl_._cached_size_)*/{}} {}
 struct PointDefaultTypeInternal {
-  constexpr PointDefaultTypeInternal()
-    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  PROTOBUF_CONSTEXPR PointDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
   ~PointDefaultTypeInternal() {}
   union {
     Point _instance;
   };
 };
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PointDefaultTypeInternal _Point_default_instance_;
-constexpr Rectangle::Rectangle(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : lo_(nullptr)
-  , hi_(nullptr){}
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 PointDefaultTypeInternal _Point_default_instance_;
+PROTOBUF_CONSTEXPR Rectangle::Rectangle(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.lo_)*/nullptr
+  , /*decltype(_impl_.hi_)*/nullptr
+  , /*decltype(_impl_._cached_size_)*/{}} {}
 struct RectangleDefaultTypeInternal {
-  constexpr RectangleDefaultTypeInternal()
-    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  PROTOBUF_CONSTEXPR RectangleDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
   ~RectangleDefaultTypeInternal() {}
   union {
     Rectangle _instance;
   };
 };
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT RectangleDefaultTypeInternal _Rectangle_default_instance_;
-constexpr Feature::Feature(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : name_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
-  , location_(nullptr){}
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 RectangleDefaultTypeInternal _Rectangle_default_instance_;
+PROTOBUF_CONSTEXPR Feature::Feature(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.name_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.location_)*/nullptr
+  , /*decltype(_impl_._cached_size_)*/{}} {}
 struct FeatureDefaultTypeInternal {
-  constexpr FeatureDefaultTypeInternal()
-    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  PROTOBUF_CONSTEXPR FeatureDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
   ~FeatureDefaultTypeInternal() {}
   union {
     Feature _instance;
   };
 };
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT FeatureDefaultTypeInternal _Feature_default_instance_;
-constexpr RouteNote::RouteNote(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : message_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
-  , location_(nullptr){}
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 FeatureDefaultTypeInternal _Feature_default_instance_;
+PROTOBUF_CONSTEXPR RouteNote::RouteNote(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.message_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.location_)*/nullptr
+  , /*decltype(_impl_._cached_size_)*/{}} {}
 struct RouteNoteDefaultTypeInternal {
-  constexpr RouteNoteDefaultTypeInternal()
-    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  PROTOBUF_CONSTEXPR RouteNoteDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
   ~RouteNoteDefaultTypeInternal() {}
   union {
     RouteNote _instance;
   };
 };
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT RouteNoteDefaultTypeInternal _RouteNote_default_instance_;
-constexpr RouteSummary_Details_MoreDetails::RouteSummary_Details_MoreDetails(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : body_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string){}
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 RouteNoteDefaultTypeInternal _RouteNote_default_instance_;
+PROTOBUF_CONSTEXPR RouteSummary_Details_MoreDetails::RouteSummary_Details_MoreDetails(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.body_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_._cached_size_)*/{}} {}
 struct RouteSummary_Details_MoreDetailsDefaultTypeInternal {
-  constexpr RouteSummary_Details_MoreDetailsDefaultTypeInternal()
-    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  PROTOBUF_CONSTEXPR RouteSummary_Details_MoreDetailsDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
   ~RouteSummary_Details_MoreDetailsDefaultTypeInternal() {}
   union {
     RouteSummary_Details_MoreDetails _instance;
   };
 };
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT RouteSummary_Details_MoreDetailsDefaultTypeInternal _RouteSummary_Details_MoreDetails_default_instance_;
-constexpr RouteSummary_Details::RouteSummary_Details(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : id_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
-  , body_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
-  , details_(nullptr){}
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 RouteSummary_Details_MoreDetailsDefaultTypeInternal _RouteSummary_Details_MoreDetails_default_instance_;
+PROTOBUF_CONSTEXPR RouteSummary_Details::RouteSummary_Details(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.id_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.body_)*/{&::_pbi::fixed_address_empty_string, ::_pbi::ConstantInitialized{}}
+  , /*decltype(_impl_.details_)*/nullptr
+  , /*decltype(_impl_._cached_size_)*/{}} {}
 struct RouteSummary_DetailsDefaultTypeInternal {
-  constexpr RouteSummary_DetailsDefaultTypeInternal()
-    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  PROTOBUF_CONSTEXPR RouteSummary_DetailsDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
   ~RouteSummary_DetailsDefaultTypeInternal() {}
   union {
     RouteSummary_Details _instance;
   };
 };
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT RouteSummary_DetailsDefaultTypeInternal _RouteSummary_Details_default_instance_;
-constexpr RouteSummary_DetailsMapEntry_DoNotUse::RouteSummary_DetailsMapEntry_DoNotUse(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized){}
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 RouteSummary_DetailsDefaultTypeInternal _RouteSummary_Details_default_instance_;
+PROTOBUF_CONSTEXPR RouteSummary_DetailsMapEntry_DoNotUse::RouteSummary_DetailsMapEntry_DoNotUse(
+    ::_pbi::ConstantInitialized) {}
 struct RouteSummary_DetailsMapEntry_DoNotUseDefaultTypeInternal {
-  constexpr RouteSummary_DetailsMapEntry_DoNotUseDefaultTypeInternal()
-    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  PROTOBUF_CONSTEXPR RouteSummary_DetailsMapEntry_DoNotUseDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
   ~RouteSummary_DetailsMapEntry_DoNotUseDefaultTypeInternal() {}
   union {
     RouteSummary_DetailsMapEntry_DoNotUse _instance;
   };
 };
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT RouteSummary_DetailsMapEntry_DoNotUseDefaultTypeInternal _RouteSummary_DetailsMapEntry_DoNotUse_default_instance_;
-constexpr RouteSummary::RouteSummary(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
-  : details_map_(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{})
-  , details_(nullptr)
-  , point_count_(0)
-  , feature_count_(0)
-  , distance_(0)
-  , elapsed_time_(0){}
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 RouteSummary_DetailsMapEntry_DoNotUseDefaultTypeInternal _RouteSummary_DetailsMapEntry_DoNotUse_default_instance_;
+PROTOBUF_CONSTEXPR RouteSummary::RouteSummary(
+    ::_pbi::ConstantInitialized): _impl_{
+    /*decltype(_impl_.details_map_)*/{::_pbi::ConstantInitialized()}
+  , /*decltype(_impl_.details_)*/nullptr
+  , /*decltype(_impl_.point_count_)*/0
+  , /*decltype(_impl_.feature_count_)*/0
+  , /*decltype(_impl_.distance_)*/0
+  , /*decltype(_impl_.elapsed_time_)*/0
+  , /*decltype(_impl_._cached_size_)*/{}} {}
 struct RouteSummaryDefaultTypeInternal {
-  constexpr RouteSummaryDefaultTypeInternal()
-    : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
+  PROTOBUF_CONSTEXPR RouteSummaryDefaultTypeInternal()
+      : _instance(::_pbi::ConstantInitialized{}) {}
   ~RouteSummaryDefaultTypeInternal() {}
   union {
     RouteSummary _instance;
   };
 };
-PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT RouteSummaryDefaultTypeInternal _RouteSummary_default_instance_;
+PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 RouteSummaryDefaultTypeInternal _RouteSummary_default_instance_;
 }  // namespace v1
 }  // namespace routeguide
-static ::PROTOBUF_NAMESPACE_ID::Metadata file_level_metadata_routeguide_2fv1_2fmessage_2eproto[8];
-static constexpr ::PROTOBUF_NAMESPACE_ID::EnumDescriptor const** file_level_enum_descriptors_routeguide_2fv1_2fmessage_2eproto = nullptr;
-static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_routeguide_2fv1_2fmessage_2eproto = nullptr;
+static ::_pb::Metadata file_level_metadata_routeguide_2fv1_2fmessage_2eproto[8];
+static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_routeguide_2fv1_2fmessage_2eproto = nullptr;
+static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_routeguide_2fv1_2fmessage_2eproto = nullptr;
 
-const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_routeguide_2fv1_2fmessage_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
+const uint32_t TableStruct_routeguide_2fv1_2fmessage_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::routeguide::v1::Point, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::routeguide::v1::Point, latitude_),
-  PROTOBUF_FIELD_OFFSET(::routeguide::v1::Point, longitude_),
+  PROTOBUF_FIELD_OFFSET(::routeguide::v1::Point, _impl_.latitude_),
+  PROTOBUF_FIELD_OFFSET(::routeguide::v1::Point, _impl_.longitude_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::routeguide::v1::Rectangle, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::routeguide::v1::Rectangle, lo_),
-  PROTOBUF_FIELD_OFFSET(::routeguide::v1::Rectangle, hi_),
+  PROTOBUF_FIELD_OFFSET(::routeguide::v1::Rectangle, _impl_.lo_),
+  PROTOBUF_FIELD_OFFSET(::routeguide::v1::Rectangle, _impl_.hi_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::routeguide::v1::Feature, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::routeguide::v1::Feature, name_),
-  PROTOBUF_FIELD_OFFSET(::routeguide::v1::Feature, location_),
+  PROTOBUF_FIELD_OFFSET(::routeguide::v1::Feature, _impl_.name_),
+  PROTOBUF_FIELD_OFFSET(::routeguide::v1::Feature, _impl_.location_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::routeguide::v1::RouteNote, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::routeguide::v1::RouteNote, location_),
-  PROTOBUF_FIELD_OFFSET(::routeguide::v1::RouteNote, message_),
+  PROTOBUF_FIELD_OFFSET(::routeguide::v1::RouteNote, _impl_.location_),
+  PROTOBUF_FIELD_OFFSET(::routeguide::v1::RouteNote, _impl_.message_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::routeguide::v1::RouteSummary_Details_MoreDetails, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::routeguide::v1::RouteSummary_Details_MoreDetails, body_),
+  PROTOBUF_FIELD_OFFSET(::routeguide::v1::RouteSummary_Details_MoreDetails, _impl_.body_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::routeguide::v1::RouteSummary_Details, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::routeguide::v1::RouteSummary_Details, id_),
-  PROTOBUF_FIELD_OFFSET(::routeguide::v1::RouteSummary_Details, body_),
-  PROTOBUF_FIELD_OFFSET(::routeguide::v1::RouteSummary_Details, details_),
+  PROTOBUF_FIELD_OFFSET(::routeguide::v1::RouteSummary_Details, _impl_.id_),
+  PROTOBUF_FIELD_OFFSET(::routeguide::v1::RouteSummary_Details, _impl_.body_),
+  PROTOBUF_FIELD_OFFSET(::routeguide::v1::RouteSummary_Details, _impl_.details_),
   PROTOBUF_FIELD_OFFSET(::routeguide::v1::RouteSummary_DetailsMapEntry_DoNotUse, _has_bits_),
   PROTOBUF_FIELD_OFFSET(::routeguide::v1::RouteSummary_DetailsMapEntry_DoNotUse, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -195,14 +206,14 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_routeguide_2fv1_2fmessage_2epr
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   ~0u,  // no _inlined_string_donated_
-  PROTOBUF_FIELD_OFFSET(::routeguide::v1::RouteSummary, point_count_),
-  PROTOBUF_FIELD_OFFSET(::routeguide::v1::RouteSummary, feature_count_),
-  PROTOBUF_FIELD_OFFSET(::routeguide::v1::RouteSummary, distance_),
-  PROTOBUF_FIELD_OFFSET(::routeguide::v1::RouteSummary, elapsed_time_),
-  PROTOBUF_FIELD_OFFSET(::routeguide::v1::RouteSummary, details_),
-  PROTOBUF_FIELD_OFFSET(::routeguide::v1::RouteSummary, details_map_),
+  PROTOBUF_FIELD_OFFSET(::routeguide::v1::RouteSummary, _impl_.point_count_),
+  PROTOBUF_FIELD_OFFSET(::routeguide::v1::RouteSummary, _impl_.feature_count_),
+  PROTOBUF_FIELD_OFFSET(::routeguide::v1::RouteSummary, _impl_.distance_),
+  PROTOBUF_FIELD_OFFSET(::routeguide::v1::RouteSummary, _impl_.elapsed_time_),
+  PROTOBUF_FIELD_OFFSET(::routeguide::v1::RouteSummary, _impl_.details_),
+  PROTOBUF_FIELD_OFFSET(::routeguide::v1::RouteSummary, _impl_.details_map_),
 };
-static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
+static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, -1, sizeof(::routeguide::v1::Point)},
   { 8, -1, -1, sizeof(::routeguide::v1::Rectangle)},
   { 16, -1, -1, sizeof(::routeguide::v1::Feature)},
@@ -213,15 +224,15 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
   { 58, -1, -1, sizeof(::routeguide::v1::RouteSummary)},
 };
 
-static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::routeguide::v1::_Point_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::routeguide::v1::_Rectangle_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::routeguide::v1::_Feature_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::routeguide::v1::_RouteNote_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::routeguide::v1::_RouteSummary_Details_MoreDetails_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::routeguide::v1::_RouteSummary_Details_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::routeguide::v1::_RouteSummary_DetailsMapEntry_DoNotUse_default_instance_),
-  reinterpret_cast<const ::PROTOBUF_NAMESPACE_ID::Message*>(&::routeguide::v1::_RouteSummary_default_instance_),
+static const ::_pb::Message* const file_default_instances[] = {
+  &::routeguide::v1::_Point_default_instance_._instance,
+  &::routeguide::v1::_Rectangle_default_instance_._instance,
+  &::routeguide::v1::_Feature_default_instance_._instance,
+  &::routeguide::v1::_RouteNote_default_instance_._instance,
+  &::routeguide::v1::_RouteSummary_Details_MoreDetails_default_instance_._instance,
+  &::routeguide::v1::_RouteSummary_Details_default_instance_._instance,
+  &::routeguide::v1::_RouteSummary_DetailsMapEntry_DoNotUse_default_instance_._instance,
+  &::routeguide::v1::_RouteSummary_default_instance_._instance,
 };
 
 const char descriptor_table_protodef_routeguide_2fv1_2fmessage_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
@@ -248,22 +259,24 @@ const char descriptor_table_protodef_routeguide_2fv1_2fmessage_2eproto[] PROTOBU
   "uteguideB\017RouteGuideProtoP\001\242\002\003RTGb\006proto"
   "3"
   ;
-static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_routeguide_2fv1_2fmessage_2eproto_deps[1] = {
+static const ::_pbi::DescriptorTable* const descriptor_table_routeguide_2fv1_2fmessage_2eproto_deps[1] = {
   &::descriptor_table_google_2fprotobuf_2fempty_2eproto,
 };
-static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_routeguide_2fv1_2fmessage_2eproto_once;
-const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_routeguide_2fv1_2fmessage_2eproto = {
-  false, false, 841, descriptor_table_protodef_routeguide_2fv1_2fmessage_2eproto, "routeguide/v1/message.proto", 
-  &descriptor_table_routeguide_2fv1_2fmessage_2eproto_once, descriptor_table_routeguide_2fv1_2fmessage_2eproto_deps, 1, 8,
-  schemas, file_default_instances, TableStruct_routeguide_2fv1_2fmessage_2eproto::offsets,
-  file_level_metadata_routeguide_2fv1_2fmessage_2eproto, file_level_enum_descriptors_routeguide_2fv1_2fmessage_2eproto, file_level_service_descriptors_routeguide_2fv1_2fmessage_2eproto,
+static ::_pbi::once_flag descriptor_table_routeguide_2fv1_2fmessage_2eproto_once;
+const ::_pbi::DescriptorTable descriptor_table_routeguide_2fv1_2fmessage_2eproto = {
+    false, false, 841, descriptor_table_protodef_routeguide_2fv1_2fmessage_2eproto,
+    "routeguide/v1/message.proto",
+    &descriptor_table_routeguide_2fv1_2fmessage_2eproto_once, descriptor_table_routeguide_2fv1_2fmessage_2eproto_deps, 1, 8,
+    schemas, file_default_instances, TableStruct_routeguide_2fv1_2fmessage_2eproto::offsets,
+    file_level_metadata_routeguide_2fv1_2fmessage_2eproto, file_level_enum_descriptors_routeguide_2fv1_2fmessage_2eproto,
+    file_level_service_descriptors_routeguide_2fv1_2fmessage_2eproto,
 };
-PROTOBUF_ATTRIBUTE_WEAK const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable* descriptor_table_routeguide_2fv1_2fmessage_2eproto_getter() {
+PROTOBUF_ATTRIBUTE_WEAK const ::_pbi::DescriptorTable* descriptor_table_routeguide_2fv1_2fmessage_2eproto_getter() {
   return &descriptor_table_routeguide_2fv1_2fmessage_2eproto;
 }
 
 // Force running AddDescriptors() at dynamic initialization time.
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY static ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptorsRunner dynamic_init_dummy_routeguide_2fv1_2fmessage_2eproto(&descriptor_table_routeguide_2fv1_2fmessage_2eproto);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY2 static ::_pbi::AddDescriptorsRunner dynamic_init_dummy_routeguide_2fv1_2fmessage_2eproto(&descriptor_table_routeguide_2fv1_2fmessage_2eproto);
 namespace routeguide {
 namespace v1 {
 
@@ -276,79 +289,82 @@ class Point::_Internal {
 Point::Point(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
-  SharedCtor();
-  if (!is_message_owned) {
-    RegisterArenaDtor(arena);
-  }
+  SharedCtor(arena, is_message_owned);
   // @@protoc_insertion_point(arena_constructor:routeguide.v1.Point)
 }
 Point::Point(const Point& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
+  Point* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.latitude_){}
+    , decltype(_impl_.longitude_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  ::memcpy(&latitude_, &from.latitude_,
-    static_cast<size_t>(reinterpret_cast<char*>(&longitude_) -
-    reinterpret_cast<char*>(&latitude_)) + sizeof(longitude_));
+  ::memcpy(&_impl_.latitude_, &from._impl_.latitude_,
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.longitude_) -
+    reinterpret_cast<char*>(&_impl_.latitude_)) + sizeof(_impl_.longitude_));
   // @@protoc_insertion_point(copy_constructor:routeguide.v1.Point)
 }
 
-void Point::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&latitude_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&longitude_) -
-    reinterpret_cast<char*>(&latitude_)) + sizeof(longitude_));
+inline void Point::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.latitude_){0}
+    , decltype(_impl_.longitude_){0}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
 }
 
 Point::~Point() {
   // @@protoc_insertion_point(destructor:routeguide.v1.Point)
-  if (GetArenaForAllocation() != nullptr) return;
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
   SharedDtor();
-  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 inline void Point::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
 }
 
-void Point::ArenaDtor(void* object) {
-  Point* _this = reinterpret_cast< Point* >(object);
-  (void)_this;
-}
-void Point::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
 void Point::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
+  _impl_._cached_size_.Set(size);
 }
 
 void Point::Clear() {
 // @@protoc_insertion_point(message_clear_start:routeguide.v1.Point)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  ::memset(&latitude_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&longitude_) -
-      reinterpret_cast<char*>(&latitude_)) + sizeof(longitude_));
+  ::memset(&_impl_.latitude_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&_impl_.longitude_) -
+      reinterpret_cast<char*>(&_impl_.latitude_)) + sizeof(_impl_.longitude_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
-const char* Point::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+const char* Point::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
       // int32 latitude = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
-          latitude_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          _impl_.latitude_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
       // int32 longitude = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
-          longitude_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
+          _impl_.longitude_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
@@ -376,26 +392,26 @@ failure:
 #undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* Point::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+uint8_t* Point::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:routeguide.v1.Point)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   // int32 latitude = 1;
   if (this->_internal_latitude() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_latitude(), target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(1, this->_internal_latitude(), target);
   }
 
   // int32 longitude = 2;
   if (this->_internal_longitude() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(2, this->_internal_longitude(), target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(2, this->_internal_longitude(), target);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:routeguide.v1.Point)
@@ -406,49 +422,45 @@ size_t Point::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:routeguide.v1.Point)
   size_t total_size = 0;
 
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
   // int32 latitude = 1;
   if (this->_internal_latitude() != 0) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_latitude());
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_latitude());
   }
 
   // int32 longitude = 2;
   if (this->_internal_longitude() != 0) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_longitude());
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_longitude());
   }
 
-  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Point::_class_data_ = {
-    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
     Point::MergeImpl
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Point::GetClassData() const { return &_class_data_; }
 
-void Point::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<Point *>(to)->MergeFrom(
-      static_cast<const Point &>(from));
-}
 
-
-void Point::MergeFrom(const Point& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:routeguide.v1.Point)
-  GOOGLE_DCHECK_NE(&from, this);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+void Point::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<Point*>(&to_msg);
+  auto& from = static_cast<const Point&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:routeguide.v1.Point)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (from._internal_latitude() != 0) {
-    _internal_set_latitude(from._internal_latitude());
+    _this->_internal_set_latitude(from._internal_latitude());
   }
   if (from._internal_longitude() != 0) {
-    _internal_set_longitude(from._internal_longitude());
+    _this->_internal_set_longitude(from._internal_longitude());
   }
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void Point::CopyFrom(const Point& from) {
@@ -466,15 +478,15 @@ void Point::InternalSwap(Point* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(Point, longitude_)
-      + sizeof(Point::longitude_)
-      - PROTOBUF_FIELD_OFFSET(Point, latitude_)>(
-          reinterpret_cast<char*>(&latitude_),
-          reinterpret_cast<char*>(&other->latitude_));
+      PROTOBUF_FIELD_OFFSET(Point, _impl_.longitude_)
+      + sizeof(Point::_impl_.longitude_)
+      - PROTOBUF_FIELD_OFFSET(Point, _impl_.latitude_)>(
+          reinterpret_cast<char*>(&_impl_.latitude_),
+          reinterpret_cast<char*>(&other->_impl_.latitude_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Point::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+  return ::_pbi::AssignDescriptors(
       &descriptor_table_routeguide_2fv1_2fmessage_2eproto_getter, &descriptor_table_routeguide_2fv1_2fmessage_2eproto_once,
       file_level_metadata_routeguide_2fv1_2fmessage_2eproto[0]);
 }
@@ -489,93 +501,92 @@ class Rectangle::_Internal {
 
 const ::routeguide::v1::Point&
 Rectangle::_Internal::lo(const Rectangle* msg) {
-  return *msg->lo_;
+  return *msg->_impl_.lo_;
 }
 const ::routeguide::v1::Point&
 Rectangle::_Internal::hi(const Rectangle* msg) {
-  return *msg->hi_;
+  return *msg->_impl_.hi_;
 }
 Rectangle::Rectangle(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
-  SharedCtor();
-  if (!is_message_owned) {
-    RegisterArenaDtor(arena);
-  }
+  SharedCtor(arena, is_message_owned);
   // @@protoc_insertion_point(arena_constructor:routeguide.v1.Rectangle)
 }
 Rectangle::Rectangle(const Rectangle& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
+  Rectangle* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.lo_){nullptr}
+    , decltype(_impl_.hi_){nullptr}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   if (from._internal_has_lo()) {
-    lo_ = new ::routeguide::v1::Point(*from.lo_);
-  } else {
-    lo_ = nullptr;
+    _this->_impl_.lo_ = new ::routeguide::v1::Point(*from._impl_.lo_);
   }
   if (from._internal_has_hi()) {
-    hi_ = new ::routeguide::v1::Point(*from.hi_);
-  } else {
-    hi_ = nullptr;
+    _this->_impl_.hi_ = new ::routeguide::v1::Point(*from._impl_.hi_);
   }
   // @@protoc_insertion_point(copy_constructor:routeguide.v1.Rectangle)
 }
 
-void Rectangle::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&lo_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&hi_) -
-    reinterpret_cast<char*>(&lo_)) + sizeof(hi_));
+inline void Rectangle::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.lo_){nullptr}
+    , decltype(_impl_.hi_){nullptr}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
 }
 
 Rectangle::~Rectangle() {
   // @@protoc_insertion_point(destructor:routeguide.v1.Rectangle)
-  if (GetArenaForAllocation() != nullptr) return;
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
   SharedDtor();
-  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 inline void Rectangle::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  if (this != internal_default_instance()) delete lo_;
-  if (this != internal_default_instance()) delete hi_;
+  if (this != internal_default_instance()) delete _impl_.lo_;
+  if (this != internal_default_instance()) delete _impl_.hi_;
 }
 
-void Rectangle::ArenaDtor(void* object) {
-  Rectangle* _this = reinterpret_cast< Rectangle* >(object);
-  (void)_this;
-}
-void Rectangle::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
 void Rectangle::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
+  _impl_._cached_size_.Set(size);
 }
 
 void Rectangle::Clear() {
 // @@protoc_insertion_point(message_clear_start:routeguide.v1.Rectangle)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  if (GetArenaForAllocation() == nullptr && lo_ != nullptr) {
-    delete lo_;
+  if (GetArenaForAllocation() == nullptr && _impl_.lo_ != nullptr) {
+    delete _impl_.lo_;
   }
-  lo_ = nullptr;
-  if (GetArenaForAllocation() == nullptr && hi_ != nullptr) {
-    delete hi_;
+  _impl_.lo_ = nullptr;
+  if (GetArenaForAllocation() == nullptr && _impl_.hi_ != nullptr) {
+    delete _impl_.hi_;
   }
-  hi_ = nullptr;
+  _impl_.hi_ = nullptr;
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
-const char* Rectangle::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+const char* Rectangle::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
       // .routeguide.v1.Point lo = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr = ctx->ParseMessage(_internal_mutable_lo(), ptr);
           CHK_(ptr);
         } else
@@ -583,7 +594,7 @@ const char* Rectangle::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
         continue;
       // .routeguide.v1.Point hi = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr = ctx->ParseMessage(_internal_mutable_hi(), ptr);
           CHK_(ptr);
         } else
@@ -612,30 +623,28 @@ failure:
 #undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* Rectangle::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+uint8_t* Rectangle::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:routeguide.v1.Rectangle)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   // .routeguide.v1.Point lo = 1;
   if (this->_internal_has_lo()) {
-    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        1, _Internal::lo(this), target, stream);
+      InternalWriteMessage(1, _Internal::lo(this),
+        _Internal::lo(this).GetCachedSize(), target, stream);
   }
 
   // .routeguide.v1.Point hi = 2;
   if (this->_internal_has_hi()) {
-    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        2, _Internal::hi(this), target, stream);
+      InternalWriteMessage(2, _Internal::hi(this),
+        _Internal::hi(this).GetCachedSize(), target, stream);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:routeguide.v1.Rectangle)
@@ -646,7 +655,7 @@ size_t Rectangle::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:routeguide.v1.Rectangle)
   size_t total_size = 0;
 
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
@@ -654,45 +663,43 @@ size_t Rectangle::ByteSizeLong() const {
   if (this->_internal_has_lo()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *lo_);
+        *_impl_.lo_);
   }
 
   // .routeguide.v1.Point hi = 2;
   if (this->_internal_has_hi()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *hi_);
+        *_impl_.hi_);
   }
 
-  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Rectangle::_class_data_ = {
-    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
     Rectangle::MergeImpl
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Rectangle::GetClassData() const { return &_class_data_; }
 
-void Rectangle::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<Rectangle *>(to)->MergeFrom(
-      static_cast<const Rectangle &>(from));
-}
 
-
-void Rectangle::MergeFrom(const Rectangle& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:routeguide.v1.Rectangle)
-  GOOGLE_DCHECK_NE(&from, this);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+void Rectangle::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<Rectangle*>(&to_msg);
+  auto& from = static_cast<const Rectangle&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:routeguide.v1.Rectangle)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (from._internal_has_lo()) {
-    _internal_mutable_lo()->::routeguide::v1::Point::MergeFrom(from._internal_lo());
+    _this->_internal_mutable_lo()->::routeguide::v1::Point::MergeFrom(
+        from._internal_lo());
   }
   if (from._internal_has_hi()) {
-    _internal_mutable_hi()->::routeguide::v1::Point::MergeFrom(from._internal_hi());
+    _this->_internal_mutable_hi()->::routeguide::v1::Point::MergeFrom(
+        from._internal_hi());
   }
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void Rectangle::CopyFrom(const Rectangle& from) {
@@ -710,15 +717,15 @@ void Rectangle::InternalSwap(Rectangle* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(Rectangle, hi_)
-      + sizeof(Rectangle::hi_)
-      - PROTOBUF_FIELD_OFFSET(Rectangle, lo_)>(
-          reinterpret_cast<char*>(&lo_),
-          reinterpret_cast<char*>(&other->lo_));
+      PROTOBUF_FIELD_OFFSET(Rectangle, _impl_.hi_)
+      + sizeof(Rectangle::_impl_.hi_)
+      - PROTOBUF_FIELD_OFFSET(Rectangle, _impl_.lo_)>(
+          reinterpret_cast<char*>(&_impl_.lo_),
+          reinterpret_cast<char*>(&other->_impl_.lo_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Rectangle::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+  return ::_pbi::AssignDescriptors(
       &descriptor_table_routeguide_2fv1_2fmessage_2eproto_getter, &descriptor_table_routeguide_2fv1_2fmessage_2eproto_once,
       file_level_metadata_routeguide_2fv1_2fmessage_2eproto[1]);
 }
@@ -732,94 +739,104 @@ class Feature::_Internal {
 
 const ::routeguide::v1::Point&
 Feature::_Internal::location(const Feature* msg) {
-  return *msg->location_;
+  return *msg->_impl_.location_;
 }
 Feature::Feature(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
-  SharedCtor();
-  if (!is_message_owned) {
-    RegisterArenaDtor(arena);
-  }
+  SharedCtor(arena, is_message_owned);
   // @@protoc_insertion_point(arena_constructor:routeguide.v1.Feature)
 }
 Feature::Feature(const Feature& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
+  Feature* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.name_){}
+    , decltype(_impl_.location_){nullptr}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  _impl_.name_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.name_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if (!from._internal_name().empty()) {
-    name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_name(), 
-      GetArenaForAllocation());
+    _this->_impl_.name_.Set(from._internal_name(), 
+      _this->GetArenaForAllocation());
   }
   if (from._internal_has_location()) {
-    location_ = new ::routeguide::v1::Point(*from.location_);
-  } else {
-    location_ = nullptr;
+    _this->_impl_.location_ = new ::routeguide::v1::Point(*from._impl_.location_);
   }
   // @@protoc_insertion_point(copy_constructor:routeguide.v1.Feature)
 }
 
-void Feature::SharedCtor() {
-name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-location_ = nullptr;
+inline void Feature::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.name_){}
+    , decltype(_impl_.location_){nullptr}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+  _impl_.name_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.name_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
 }
 
 Feature::~Feature() {
   // @@protoc_insertion_point(destructor:routeguide.v1.Feature)
-  if (GetArenaForAllocation() != nullptr) return;
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
   SharedDtor();
-  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 inline void Feature::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  name_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (this != internal_default_instance()) delete location_;
+  _impl_.name_.Destroy();
+  if (this != internal_default_instance()) delete _impl_.location_;
 }
 
-void Feature::ArenaDtor(void* object) {
-  Feature* _this = reinterpret_cast< Feature* >(object);
-  (void)_this;
-}
-void Feature::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
 void Feature::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
+  _impl_._cached_size_.Set(size);
 }
 
 void Feature::Clear() {
 // @@protoc_insertion_point(message_clear_start:routeguide.v1.Feature)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  name_.ClearToEmpty();
-  if (GetArenaForAllocation() == nullptr && location_ != nullptr) {
-    delete location_;
+  _impl_.name_.ClearToEmpty();
+  if (GetArenaForAllocation() == nullptr && _impl_.location_ != nullptr) {
+    delete _impl_.location_;
   }
-  location_ = nullptr;
+  _impl_.location_ = nullptr;
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
-const char* Feature::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+const char* Feature::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
       // string name = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           auto str = _internal_mutable_name();
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "routeguide.v1.Feature.name"));
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "routeguide.v1.Feature.name"));
         } else
           goto handle_unusual;
         continue;
       // .routeguide.v1.Point location = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr = ctx->ParseMessage(_internal_mutable_location(), ptr);
           CHK_(ptr);
         } else
@@ -848,10 +865,10 @@ failure:
 #undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* Feature::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+uint8_t* Feature::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:routeguide.v1.Feature)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string name = 1;
@@ -866,14 +883,13 @@ failure:
 
   // .routeguide.v1.Point location = 2;
   if (this->_internal_has_location()) {
-    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        2, _Internal::location(this), target, stream);
+      InternalWriteMessage(2, _Internal::location(this),
+        _Internal::location(this).GetCachedSize(), target, stream);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:routeguide.v1.Feature)
@@ -884,7 +900,7 @@ size_t Feature::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:routeguide.v1.Feature)
   size_t total_size = 0;
 
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
@@ -899,38 +915,35 @@ size_t Feature::ByteSizeLong() const {
   if (this->_internal_has_location()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *location_);
+        *_impl_.location_);
   }
 
-  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData Feature::_class_data_ = {
-    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
     Feature::MergeImpl
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Feature::GetClassData() const { return &_class_data_; }
 
-void Feature::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<Feature *>(to)->MergeFrom(
-      static_cast<const Feature &>(from));
-}
 
-
-void Feature::MergeFrom(const Feature& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:routeguide.v1.Feature)
-  GOOGLE_DCHECK_NE(&from, this);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+void Feature::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<Feature*>(&to_msg);
+  auto& from = static_cast<const Feature&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:routeguide.v1.Feature)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (!from._internal_name().empty()) {
-    _internal_set_name(from._internal_name());
+    _this->_internal_set_name(from._internal_name());
   }
   if (from._internal_has_location()) {
-    _internal_mutable_location()->::routeguide::v1::Point::MergeFrom(from._internal_location());
+    _this->_internal_mutable_location()->::routeguide::v1::Point::MergeFrom(
+        from._internal_location());
   }
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void Feature::CopyFrom(const Feature& from) {
@@ -950,15 +963,14 @@ void Feature::InternalSwap(Feature* other) {
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &name_, lhs_arena,
-      &other->name_, rhs_arena
+      &_impl_.name_, lhs_arena,
+      &other->_impl_.name_, rhs_arena
   );
-  swap(location_, other->location_);
+  swap(_impl_.location_, other->_impl_.location_);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata Feature::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+  return ::_pbi::AssignDescriptors(
       &descriptor_table_routeguide_2fv1_2fmessage_2eproto_getter, &descriptor_table_routeguide_2fv1_2fmessage_2eproto_once,
       file_level_metadata_routeguide_2fv1_2fmessage_2eproto[2]);
 }
@@ -972,84 +984,94 @@ class RouteNote::_Internal {
 
 const ::routeguide::v1::Point&
 RouteNote::_Internal::location(const RouteNote* msg) {
-  return *msg->location_;
+  return *msg->_impl_.location_;
 }
 RouteNote::RouteNote(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
-  SharedCtor();
-  if (!is_message_owned) {
-    RegisterArenaDtor(arena);
-  }
+  SharedCtor(arena, is_message_owned);
   // @@protoc_insertion_point(arena_constructor:routeguide.v1.RouteNote)
 }
 RouteNote::RouteNote(const RouteNote& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
+  RouteNote* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.message_){}
+    , decltype(_impl_.location_){nullptr}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  message_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  _impl_.message_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.message_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if (!from._internal_message().empty()) {
-    message_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_message(), 
-      GetArenaForAllocation());
+    _this->_impl_.message_.Set(from._internal_message(), 
+      _this->GetArenaForAllocation());
   }
   if (from._internal_has_location()) {
-    location_ = new ::routeguide::v1::Point(*from.location_);
-  } else {
-    location_ = nullptr;
+    _this->_impl_.location_ = new ::routeguide::v1::Point(*from._impl_.location_);
   }
   // @@protoc_insertion_point(copy_constructor:routeguide.v1.RouteNote)
 }
 
-void RouteNote::SharedCtor() {
-message_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-location_ = nullptr;
+inline void RouteNote::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.message_){}
+    , decltype(_impl_.location_){nullptr}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+  _impl_.message_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.message_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
 }
 
 RouteNote::~RouteNote() {
   // @@protoc_insertion_point(destructor:routeguide.v1.RouteNote)
-  if (GetArenaForAllocation() != nullptr) return;
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
   SharedDtor();
-  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 inline void RouteNote::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  message_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (this != internal_default_instance()) delete location_;
+  _impl_.message_.Destroy();
+  if (this != internal_default_instance()) delete _impl_.location_;
 }
 
-void RouteNote::ArenaDtor(void* object) {
-  RouteNote* _this = reinterpret_cast< RouteNote* >(object);
-  (void)_this;
-}
-void RouteNote::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
 void RouteNote::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
+  _impl_._cached_size_.Set(size);
 }
 
 void RouteNote::Clear() {
 // @@protoc_insertion_point(message_clear_start:routeguide.v1.RouteNote)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  message_.ClearToEmpty();
-  if (GetArenaForAllocation() == nullptr && location_ != nullptr) {
-    delete location_;
+  _impl_.message_.ClearToEmpty();
+  if (GetArenaForAllocation() == nullptr && _impl_.location_ != nullptr) {
+    delete _impl_.location_;
   }
-  location_ = nullptr;
+  _impl_.location_ = nullptr;
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
-const char* RouteNote::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+const char* RouteNote::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
       // .routeguide.v1.Point location = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr = ctx->ParseMessage(_internal_mutable_location(), ptr);
           CHK_(ptr);
         } else
@@ -1057,11 +1079,11 @@ const char* RouteNote::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
         continue;
       // string message = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           auto str = _internal_mutable_message();
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "routeguide.v1.RouteNote.message"));
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "routeguide.v1.RouteNote.message"));
         } else
           goto handle_unusual;
         continue;
@@ -1088,18 +1110,17 @@ failure:
 #undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* RouteNote::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+uint8_t* RouteNote::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:routeguide.v1.RouteNote)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   // .routeguide.v1.Point location = 1;
   if (this->_internal_has_location()) {
-    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        1, _Internal::location(this), target, stream);
+      InternalWriteMessage(1, _Internal::location(this),
+        _Internal::location(this).GetCachedSize(), target, stream);
   }
 
   // string message = 2;
@@ -1113,7 +1134,7 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:routeguide.v1.RouteNote)
@@ -1124,7 +1145,7 @@ size_t RouteNote::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:routeguide.v1.RouteNote)
   size_t total_size = 0;
 
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
@@ -1139,38 +1160,35 @@ size_t RouteNote::ByteSizeLong() const {
   if (this->_internal_has_location()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *location_);
+        *_impl_.location_);
   }
 
-  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData RouteNote::_class_data_ = {
-    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
     RouteNote::MergeImpl
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*RouteNote::GetClassData() const { return &_class_data_; }
 
-void RouteNote::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<RouteNote *>(to)->MergeFrom(
-      static_cast<const RouteNote &>(from));
-}
 
-
-void RouteNote::MergeFrom(const RouteNote& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:routeguide.v1.RouteNote)
-  GOOGLE_DCHECK_NE(&from, this);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+void RouteNote::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<RouteNote*>(&to_msg);
+  auto& from = static_cast<const RouteNote&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:routeguide.v1.RouteNote)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (!from._internal_message().empty()) {
-    _internal_set_message(from._internal_message());
+    _this->_internal_set_message(from._internal_message());
   }
   if (from._internal_has_location()) {
-    _internal_mutable_location()->::routeguide::v1::Point::MergeFrom(from._internal_location());
+    _this->_internal_mutable_location()->::routeguide::v1::Point::MergeFrom(
+        from._internal_location());
   }
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void RouteNote::CopyFrom(const RouteNote& from) {
@@ -1190,15 +1208,14 @@ void RouteNote::InternalSwap(RouteNote* other) {
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &message_, lhs_arena,
-      &other->message_, rhs_arena
+      &_impl_.message_, lhs_arena,
+      &other->_impl_.message_, rhs_arena
   );
-  swap(location_, other->location_);
+  swap(_impl_.location_, other->_impl_.location_);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata RouteNote::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+  return ::_pbi::AssignDescriptors(
       &descriptor_table_routeguide_2fv1_2fmessage_2eproto_getter, &descriptor_table_routeguide_2fv1_2fmessage_2eproto_once,
       file_level_metadata_routeguide_2fv1_2fmessage_2eproto[3]);
 }
@@ -1212,72 +1229,83 @@ class RouteSummary_Details_MoreDetails::_Internal {
 RouteSummary_Details_MoreDetails::RouteSummary_Details_MoreDetails(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
-  SharedCtor();
-  if (!is_message_owned) {
-    RegisterArenaDtor(arena);
-  }
+  SharedCtor(arena, is_message_owned);
   // @@protoc_insertion_point(arena_constructor:routeguide.v1.RouteSummary.Details.MoreDetails)
 }
 RouteSummary_Details_MoreDetails::RouteSummary_Details_MoreDetails(const RouteSummary_Details_MoreDetails& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
+  RouteSummary_Details_MoreDetails* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.body_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  body_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  _impl_.body_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.body_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if (!from._internal_body().empty()) {
-    body_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_body(), 
-      GetArenaForAllocation());
+    _this->_impl_.body_.Set(from._internal_body(), 
+      _this->GetArenaForAllocation());
   }
   // @@protoc_insertion_point(copy_constructor:routeguide.v1.RouteSummary.Details.MoreDetails)
 }
 
-void RouteSummary_Details_MoreDetails::SharedCtor() {
-body_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+inline void RouteSummary_Details_MoreDetails::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.body_){}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+  _impl_.body_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.body_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
 }
 
 RouteSummary_Details_MoreDetails::~RouteSummary_Details_MoreDetails() {
   // @@protoc_insertion_point(destructor:routeguide.v1.RouteSummary.Details.MoreDetails)
-  if (GetArenaForAllocation() != nullptr) return;
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
   SharedDtor();
-  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 inline void RouteSummary_Details_MoreDetails::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  body_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  _impl_.body_.Destroy();
 }
 
-void RouteSummary_Details_MoreDetails::ArenaDtor(void* object) {
-  RouteSummary_Details_MoreDetails* _this = reinterpret_cast< RouteSummary_Details_MoreDetails* >(object);
-  (void)_this;
-}
-void RouteSummary_Details_MoreDetails::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
 void RouteSummary_Details_MoreDetails::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
+  _impl_._cached_size_.Set(size);
 }
 
 void RouteSummary_Details_MoreDetails::Clear() {
 // @@protoc_insertion_point(message_clear_start:routeguide.v1.RouteSummary.Details.MoreDetails)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  body_.ClearToEmpty();
+  _impl_.body_.ClearToEmpty();
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
-const char* RouteSummary_Details_MoreDetails::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+const char* RouteSummary_Details_MoreDetails::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
       // string body = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           auto str = _internal_mutable_body();
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "routeguide.v1.RouteSummary.Details.MoreDetails.body"));
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "routeguide.v1.RouteSummary.Details.MoreDetails.body"));
         } else
           goto handle_unusual;
         continue;
@@ -1304,10 +1332,10 @@ failure:
 #undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* RouteSummary_Details_MoreDetails::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+uint8_t* RouteSummary_Details_MoreDetails::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:routeguide.v1.RouteSummary.Details.MoreDetails)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string body = 1;
@@ -1321,7 +1349,7 @@ failure:
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:routeguide.v1.RouteSummary.Details.MoreDetails)
@@ -1332,7 +1360,7 @@ size_t RouteSummary_Details_MoreDetails::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:routeguide.v1.RouteSummary.Details.MoreDetails)
   size_t total_size = 0;
 
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
@@ -1343,32 +1371,28 @@ size_t RouteSummary_Details_MoreDetails::ByteSizeLong() const {
         this->_internal_body());
   }
 
-  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData RouteSummary_Details_MoreDetails::_class_data_ = {
-    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
     RouteSummary_Details_MoreDetails::MergeImpl
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*RouteSummary_Details_MoreDetails::GetClassData() const { return &_class_data_; }
 
-void RouteSummary_Details_MoreDetails::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<RouteSummary_Details_MoreDetails *>(to)->MergeFrom(
-      static_cast<const RouteSummary_Details_MoreDetails &>(from));
-}
 
-
-void RouteSummary_Details_MoreDetails::MergeFrom(const RouteSummary_Details_MoreDetails& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:routeguide.v1.RouteSummary.Details.MoreDetails)
-  GOOGLE_DCHECK_NE(&from, this);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+void RouteSummary_Details_MoreDetails::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<RouteSummary_Details_MoreDetails*>(&to_msg);
+  auto& from = static_cast<const RouteSummary_Details_MoreDetails&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:routeguide.v1.RouteSummary.Details.MoreDetails)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (!from._internal_body().empty()) {
-    _internal_set_body(from._internal_body());
+    _this->_internal_set_body(from._internal_body());
   }
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void RouteSummary_Details_MoreDetails::CopyFrom(const RouteSummary_Details_MoreDetails& from) {
@@ -1388,14 +1412,13 @@ void RouteSummary_Details_MoreDetails::InternalSwap(RouteSummary_Details_MoreDet
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &body_, lhs_arena,
-      &other->body_, rhs_arena
+      &_impl_.body_, lhs_arena,
+      &other->_impl_.body_, rhs_arena
   );
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata RouteSummary_Details_MoreDetails::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+  return ::_pbi::AssignDescriptors(
       &descriptor_table_routeguide_2fv1_2fmessage_2eproto_getter, &descriptor_table_routeguide_2fv1_2fmessage_2eproto_once,
       file_level_metadata_routeguide_2fv1_2fmessage_2eproto[4]);
 }
@@ -1409,112 +1432,130 @@ class RouteSummary_Details::_Internal {
 
 const ::routeguide::v1::RouteSummary_Details_MoreDetails&
 RouteSummary_Details::_Internal::details(const RouteSummary_Details* msg) {
-  return *msg->details_;
+  return *msg->_impl_.details_;
 }
 RouteSummary_Details::RouteSummary_Details(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
-  SharedCtor();
-  if (!is_message_owned) {
-    RegisterArenaDtor(arena);
-  }
+  SharedCtor(arena, is_message_owned);
   // @@protoc_insertion_point(arena_constructor:routeguide.v1.RouteSummary.Details)
 }
 RouteSummary_Details::RouteSummary_Details(const RouteSummary_Details& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
+  RouteSummary_Details* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      decltype(_impl_.id_){}
+    , decltype(_impl_.body_){}
+    , decltype(_impl_.details_){nullptr}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  id_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  _impl_.id_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.id_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if (!from._internal_id().empty()) {
-    id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_id(), 
-      GetArenaForAllocation());
+    _this->_impl_.id_.Set(from._internal_id(), 
+      _this->GetArenaForAllocation());
   }
-  body_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
+  _impl_.body_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.body_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
   if (!from._internal_body().empty()) {
-    body_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_body(), 
-      GetArenaForAllocation());
+    _this->_impl_.body_.Set(from._internal_body(), 
+      _this->GetArenaForAllocation());
   }
   if (from._internal_has_details()) {
-    details_ = new ::routeguide::v1::RouteSummary_Details_MoreDetails(*from.details_);
-  } else {
-    details_ = nullptr;
+    _this->_impl_.details_ = new ::routeguide::v1::RouteSummary_Details_MoreDetails(*from._impl_.details_);
   }
   // @@protoc_insertion_point(copy_constructor:routeguide.v1.RouteSummary.Details)
 }
 
-void RouteSummary_Details::SharedCtor() {
-id_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-body_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-details_ = nullptr;
+inline void RouteSummary_Details::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      decltype(_impl_.id_){}
+    , decltype(_impl_.body_){}
+    , decltype(_impl_.details_){nullptr}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
+  _impl_.id_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.id_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
+  _impl_.body_.InitDefault();
+  #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
+    _impl_.body_.Set("", GetArenaForAllocation());
+  #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
 }
 
 RouteSummary_Details::~RouteSummary_Details() {
   // @@protoc_insertion_point(destructor:routeguide.v1.RouteSummary.Details)
-  if (GetArenaForAllocation() != nullptr) return;
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    return;
+  }
   SharedDtor();
-  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 inline void RouteSummary_Details::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  id_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  body_.DestroyNoArena(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
-  if (this != internal_default_instance()) delete details_;
+  _impl_.id_.Destroy();
+  _impl_.body_.Destroy();
+  if (this != internal_default_instance()) delete _impl_.details_;
 }
 
-void RouteSummary_Details::ArenaDtor(void* object) {
-  RouteSummary_Details* _this = reinterpret_cast< RouteSummary_Details* >(object);
-  (void)_this;
-}
-void RouteSummary_Details::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
 void RouteSummary_Details::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
+  _impl_._cached_size_.Set(size);
 }
 
 void RouteSummary_Details::Clear() {
 // @@protoc_insertion_point(message_clear_start:routeguide.v1.RouteSummary.Details)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  id_.ClearToEmpty();
-  body_.ClearToEmpty();
-  if (GetArenaForAllocation() == nullptr && details_ != nullptr) {
-    delete details_;
+  _impl_.id_.ClearToEmpty();
+  _impl_.body_.ClearToEmpty();
+  if (GetArenaForAllocation() == nullptr && _impl_.details_ != nullptr) {
+    delete _impl_.details_;
   }
-  details_ = nullptr;
+  _impl_.details_ = nullptr;
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
-const char* RouteSummary_Details::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+const char* RouteSummary_Details::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
       // string id = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 10)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           auto str = _internal_mutable_id();
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "routeguide.v1.RouteSummary.Details.id"));
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "routeguide.v1.RouteSummary.Details.id"));
         } else
           goto handle_unusual;
         continue;
       // string body = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 18)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           auto str = _internal_mutable_body();
-          ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
-          CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "routeguide.v1.RouteSummary.Details.body"));
+          ptr = ::_pbi::InlineGreedyStringParser(str, ptr, ctx);
           CHK_(ptr);
+          CHK_(::_pbi::VerifyUTF8(str, "routeguide.v1.RouteSummary.Details.body"));
         } else
           goto handle_unusual;
         continue;
       // .routeguide.v1.RouteSummary.Details.MoreDetails details = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           ptr = ctx->ParseMessage(_internal_mutable_details(), ptr);
           CHK_(ptr);
         } else
@@ -1543,10 +1584,10 @@ failure:
 #undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* RouteSummary_Details::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+uint8_t* RouteSummary_Details::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:routeguide.v1.RouteSummary.Details)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   // string id = 1;
@@ -1571,14 +1612,13 @@ failure:
 
   // .routeguide.v1.RouteSummary.Details.MoreDetails details = 3;
   if (this->_internal_has_details()) {
-    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        3, _Internal::details(this), target, stream);
+      InternalWriteMessage(3, _Internal::details(this),
+        _Internal::details(this).GetCachedSize(), target, stream);
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:routeguide.v1.RouteSummary.Details)
@@ -1589,7 +1629,7 @@ size_t RouteSummary_Details::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:routeguide.v1.RouteSummary.Details)
   size_t total_size = 0;
 
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
@@ -1611,41 +1651,38 @@ size_t RouteSummary_Details::ByteSizeLong() const {
   if (this->_internal_has_details()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *details_);
+        *_impl_.details_);
   }
 
-  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData RouteSummary_Details::_class_data_ = {
-    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
     RouteSummary_Details::MergeImpl
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*RouteSummary_Details::GetClassData() const { return &_class_data_; }
 
-void RouteSummary_Details::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<RouteSummary_Details *>(to)->MergeFrom(
-      static_cast<const RouteSummary_Details &>(from));
-}
 
-
-void RouteSummary_Details::MergeFrom(const RouteSummary_Details& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:routeguide.v1.RouteSummary.Details)
-  GOOGLE_DCHECK_NE(&from, this);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+void RouteSummary_Details::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<RouteSummary_Details*>(&to_msg);
+  auto& from = static_cast<const RouteSummary_Details&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:routeguide.v1.RouteSummary.Details)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   if (!from._internal_id().empty()) {
-    _internal_set_id(from._internal_id());
+    _this->_internal_set_id(from._internal_id());
   }
   if (!from._internal_body().empty()) {
-    _internal_set_body(from._internal_body());
+    _this->_internal_set_body(from._internal_body());
   }
   if (from._internal_has_details()) {
-    _internal_mutable_details()->::routeguide::v1::RouteSummary_Details_MoreDetails::MergeFrom(from._internal_details());
+    _this->_internal_mutable_details()->::routeguide::v1::RouteSummary_Details_MoreDetails::MergeFrom(
+        from._internal_details());
   }
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void RouteSummary_Details::CopyFrom(const RouteSummary_Details& from) {
@@ -1665,20 +1702,18 @@ void RouteSummary_Details::InternalSwap(RouteSummary_Details* other) {
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &id_, lhs_arena,
-      &other->id_, rhs_arena
+      &_impl_.id_, lhs_arena,
+      &other->_impl_.id_, rhs_arena
   );
   ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &body_, lhs_arena,
-      &other->body_, rhs_arena
+      &_impl_.body_, lhs_arena,
+      &other->_impl_.body_, rhs_arena
   );
-  swap(details_, other->details_);
+  swap(_impl_.details_, other->_impl_.details_);
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata RouteSummary_Details::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+  return ::_pbi::AssignDescriptors(
       &descriptor_table_routeguide_2fv1_2fmessage_2eproto_getter, &descriptor_table_routeguide_2fv1_2fmessage_2eproto_once,
       file_level_metadata_routeguide_2fv1_2fmessage_2eproto[5]);
 }
@@ -1692,7 +1727,7 @@ void RouteSummary_DetailsMapEntry_DoNotUse::MergeFrom(const RouteSummary_Details
   MergeFromInternal(other);
 }
 ::PROTOBUF_NAMESPACE_ID::Metadata RouteSummary_DetailsMapEntry_DoNotUse::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+  return ::_pbi::AssignDescriptors(
       &descriptor_table_routeguide_2fv1_2fmessage_2eproto_getter, &descriptor_table_routeguide_2fv1_2fmessage_2eproto_once,
       file_level_metadata_routeguide_2fv1_2fmessage_2eproto[6]);
 }
@@ -1706,124 +1741,138 @@ class RouteSummary::_Internal {
 
 const ::routeguide::v1::RouteSummary_Details&
 RouteSummary::_Internal::details(const RouteSummary* msg) {
-  return *msg->details_;
+  return *msg->_impl_.details_;
 }
 RouteSummary::RouteSummary(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
-  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
-  details_map_(arena) {
-  SharedCtor();
-  if (!is_message_owned) {
-    RegisterArenaDtor(arena);
+  : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
+  SharedCtor(arena, is_message_owned);
+  if (arena != nullptr && !is_message_owned) {
+    arena->OwnCustomDestructor(this, &RouteSummary::ArenaDtor);
   }
   // @@protoc_insertion_point(arena_constructor:routeguide.v1.RouteSummary)
 }
 RouteSummary::RouteSummary(const RouteSummary& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
+  RouteSummary* const _this = this; (void)_this;
+  new (&_impl_) Impl_{
+      /*decltype(_impl_.details_map_)*/{}
+    , decltype(_impl_.details_){nullptr}
+    , decltype(_impl_.point_count_){}
+    , decltype(_impl_.feature_count_){}
+    , decltype(_impl_.distance_){}
+    , decltype(_impl_.elapsed_time_){}
+    , /*decltype(_impl_._cached_size_)*/{}};
+
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
-  details_map_.MergeFrom(from.details_map_);
+  _this->_impl_.details_map_.MergeFrom(from._impl_.details_map_);
   if (from._internal_has_details()) {
-    details_ = new ::routeguide::v1::RouteSummary_Details(*from.details_);
-  } else {
-    details_ = nullptr;
+    _this->_impl_.details_ = new ::routeguide::v1::RouteSummary_Details(*from._impl_.details_);
   }
-  ::memcpy(&point_count_, &from.point_count_,
-    static_cast<size_t>(reinterpret_cast<char*>(&elapsed_time_) -
-    reinterpret_cast<char*>(&point_count_)) + sizeof(elapsed_time_));
+  ::memcpy(&_impl_.point_count_, &from._impl_.point_count_,
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.elapsed_time_) -
+    reinterpret_cast<char*>(&_impl_.point_count_)) + sizeof(_impl_.elapsed_time_));
   // @@protoc_insertion_point(copy_constructor:routeguide.v1.RouteSummary)
 }
 
-void RouteSummary::SharedCtor() {
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&details_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&elapsed_time_) -
-    reinterpret_cast<char*>(&details_)) + sizeof(elapsed_time_));
+inline void RouteSummary::SharedCtor(
+    ::_pb::Arena* arena, bool is_message_owned) {
+  (void)arena;
+  (void)is_message_owned;
+  new (&_impl_) Impl_{
+      /*decltype(_impl_.details_map_)*/{::_pbi::ArenaInitialized(), arena}
+    , decltype(_impl_.details_){nullptr}
+    , decltype(_impl_.point_count_){0}
+    , decltype(_impl_.feature_count_){0}
+    , decltype(_impl_.distance_){0}
+    , decltype(_impl_.elapsed_time_){0}
+    , /*decltype(_impl_._cached_size_)*/{}
+  };
 }
 
 RouteSummary::~RouteSummary() {
   // @@protoc_insertion_point(destructor:routeguide.v1.RouteSummary)
-  if (GetArenaForAllocation() != nullptr) return;
+  if (auto *arena = _internal_metadata_.DeleteReturnArena<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>()) {
+  (void)arena;
+    ArenaDtor(this);
+    return;
+  }
   SharedDtor();
-  _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
 inline void RouteSummary::SharedDtor() {
   GOOGLE_DCHECK(GetArenaForAllocation() == nullptr);
-  if (this != internal_default_instance()) delete details_;
+  _impl_.details_map_.Destruct();
+  _impl_.details_map_.~MapField();
+  if (this != internal_default_instance()) delete _impl_.details_;
 }
 
 void RouteSummary::ArenaDtor(void* object) {
   RouteSummary* _this = reinterpret_cast< RouteSummary* >(object);
-  (void)_this;
-  _this->details_map_. ~MapField();
-}
-inline void RouteSummary::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena) {
-  if (arena != nullptr) {
-    arena->OwnCustomDestructor(this, &RouteSummary::ArenaDtor);
-  }
+  _this->_impl_.details_map_.Destruct();
 }
 void RouteSummary::SetCachedSize(int size) const {
-  _cached_size_.Set(size);
+  _impl_._cached_size_.Set(size);
 }
 
 void RouteSummary::Clear() {
 // @@protoc_insertion_point(message_clear_start:routeguide.v1.RouteSummary)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  details_map_.Clear();
-  if (GetArenaForAllocation() == nullptr && details_ != nullptr) {
-    delete details_;
+  _impl_.details_map_.Clear();
+  if (GetArenaForAllocation() == nullptr && _impl_.details_ != nullptr) {
+    delete _impl_.details_;
   }
-  details_ = nullptr;
-  ::memset(&point_count_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&elapsed_time_) -
-      reinterpret_cast<char*>(&point_count_)) + sizeof(elapsed_time_));
+  _impl_.details_ = nullptr;
+  ::memset(&_impl_.point_count_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&_impl_.elapsed_time_) -
+      reinterpret_cast<char*>(&_impl_.point_count_)) + sizeof(_impl_.elapsed_time_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
-const char* RouteSummary::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
+const char* RouteSummary::_InternalParse(const char* ptr, ::_pbi::ParseContext* ctx) {
 #define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   while (!ctx->Done(&ptr)) {
-    ::PROTOBUF_NAMESPACE_ID::uint32 tag;
-    ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
+    uint32_t tag;
+    ptr = ::_pbi::ReadTag(ptr, &tag);
     switch (tag >> 3) {
       // int32 point_count = 1;
       case 1:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 8)) {
-          point_count_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 8)) {
+          _impl_.point_count_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
       // int32 feature_count = 2;
       case 2:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
-          feature_count_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 16)) {
+          _impl_.feature_count_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
       // int32 distance = 3;
       case 3:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 24)) {
-          distance_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 24)) {
+          _impl_.distance_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
       // int32 elapsed_time = 4;
       case 4:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 32)) {
-          elapsed_time_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 32)) {
+          _impl_.elapsed_time_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
       // .routeguide.v1.RouteSummary.Details details = 5;
       case 5:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 42)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
           ptr = ctx->ParseMessage(_internal_mutable_details(), ptr);
           CHK_(ptr);
         } else
@@ -1831,11 +1880,11 @@ const char* RouteSummary::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         continue;
       // map<string, .routeguide.v1.RouteSummary.Details> details_map = 6;
       case 6:
-        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 50)) {
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
           ptr -= 1;
           do {
             ptr += 1;
-            ptr = ctx->ParseMessage(&details_map_, ptr);
+            ptr = ctx->ParseMessage(&_impl_.details_map_, ptr);
             CHK_(ptr);
             if (!ctx->DataAvailable(ptr)) break;
           } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<50>(ptr));
@@ -1865,88 +1914,71 @@ failure:
 #undef CHK_
 }
 
-::PROTOBUF_NAMESPACE_ID::uint8* RouteSummary::_InternalSerialize(
-    ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
+uint8_t* RouteSummary::_InternalSerialize(
+    uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const {
   // @@protoc_insertion_point(serialize_to_array_start:routeguide.v1.RouteSummary)
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
   // int32 point_count = 1;
   if (this->_internal_point_count() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(1, this->_internal_point_count(), target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(1, this->_internal_point_count(), target);
   }
 
   // int32 feature_count = 2;
   if (this->_internal_feature_count() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(2, this->_internal_feature_count(), target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(2, this->_internal_feature_count(), target);
   }
 
   // int32 distance = 3;
   if (this->_internal_distance() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(3, this->_internal_distance(), target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(3, this->_internal_distance(), target);
   }
 
   // int32 elapsed_time = 4;
   if (this->_internal_elapsed_time() != 0) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(4, this->_internal_elapsed_time(), target);
+    target = ::_pbi::WireFormatLite::WriteInt32ToArray(4, this->_internal_elapsed_time(), target);
   }
 
   // .routeguide.v1.RouteSummary.Details details = 5;
   if (this->_internal_has_details()) {
-    target = stream->EnsureSpace(target);
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        5, _Internal::details(this), target, stream);
+      InternalWriteMessage(5, _Internal::details(this),
+        _Internal::details(this).GetCachedSize(), target, stream);
   }
 
   // map<string, .routeguide.v1.RouteSummary.Details> details_map = 6;
   if (!this->_internal_details_map().empty()) {
-    typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::routeguide::v1::RouteSummary_Details >::const_pointer
-        ConstPtr;
-    typedef ConstPtr SortItem;
-    typedef ::PROTOBUF_NAMESPACE_ID::internal::CompareByDerefFirst<SortItem> Less;
-    struct Utf8Check {
-      static void Check(ConstPtr p) {
-        (void)p;
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
-          p->first.data(), static_cast<int>(p->first.length()),
-          ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
-          "routeguide.v1.RouteSummary.DetailsMapEntry.key");
-      }
+    using MapType = ::_pb::Map<std::string, ::routeguide::v1::RouteSummary_Details>;
+    using WireHelper = RouteSummary_DetailsMapEntry_DoNotUse::Funcs;
+    const auto& map_field = this->_internal_details_map();
+    auto check_utf8 = [](const MapType::value_type& entry) {
+      (void)entry;
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::VerifyUtf8String(
+        entry.first.data(), static_cast<int>(entry.first.length()),
+        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::SERIALIZE,
+        "routeguide.v1.RouteSummary.DetailsMapEntry.key");
     };
 
-    if (stream->IsSerializationDeterministic() &&
-        this->_internal_details_map().size() > 1) {
-      ::std::unique_ptr<SortItem[]> items(
-          new SortItem[this->_internal_details_map().size()]);
-      typedef ::PROTOBUF_NAMESPACE_ID::Map< std::string, ::routeguide::v1::RouteSummary_Details >::size_type size_type;
-      size_type n = 0;
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::routeguide::v1::RouteSummary_Details >::const_iterator
-          it = this->_internal_details_map().begin();
-          it != this->_internal_details_map().end(); ++it, ++n) {
-        items[static_cast<ptrdiff_t>(n)] = SortItem(&*it);
-      }
-      ::std::sort(&items[0], &items[static_cast<ptrdiff_t>(n)], Less());
-      for (size_type i = 0; i < n; i++) {
-        target = RouteSummary_DetailsMapEntry_DoNotUse::Funcs::InternalSerialize(6, items[static_cast<ptrdiff_t>(i)]->first, items[static_cast<ptrdiff_t>(i)]->second, target, stream);
-        Utf8Check::Check(&(*items[static_cast<ptrdiff_t>(i)]));
+    if (stream->IsSerializationDeterministic() && map_field.size() > 1) {
+      for (const auto& entry : ::_pbi::MapSorterPtr<MapType>(map_field)) {
+        target = WireHelper::InternalSerialize(6, entry.first, entry.second, target, stream);
+        check_utf8(entry);
       }
     } else {
-      for (::PROTOBUF_NAMESPACE_ID::Map< std::string, ::routeguide::v1::RouteSummary_Details >::const_iterator
-          it = this->_internal_details_map().begin();
-          it != this->_internal_details_map().end(); ++it) {
-        target = RouteSummary_DetailsMapEntry_DoNotUse::Funcs::InternalSerialize(6, it->first, it->second, target, stream);
-        Utf8Check::Check(&(*it));
+      for (const auto& entry : map_field) {
+        target = WireHelper::InternalSerialize(6, entry.first, entry.second, target, stream);
+        check_utf8(entry);
       }
     }
   }
 
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
+    target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:routeguide.v1.RouteSummary)
@@ -1957,7 +1989,7 @@ size_t RouteSummary::ByteSizeLong() const {
 // @@protoc_insertion_point(message_byte_size_start:routeguide.v1.RouteSummary)
   size_t total_size = 0;
 
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+  uint32_t cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
@@ -1974,68 +2006,65 @@ size_t RouteSummary::ByteSizeLong() const {
   if (this->_internal_has_details()) {
     total_size += 1 +
       ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *details_);
+        *_impl_.details_);
   }
 
   // int32 point_count = 1;
   if (this->_internal_point_count() != 0) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_point_count());
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_point_count());
   }
 
   // int32 feature_count = 2;
   if (this->_internal_feature_count() != 0) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_feature_count());
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_feature_count());
   }
 
   // int32 distance = 3;
   if (this->_internal_distance() != 0) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_distance());
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_distance());
   }
 
   // int32 elapsed_time = 4;
   if (this->_internal_elapsed_time() != 0) {
-    total_size += ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32SizePlusOne(this->_internal_elapsed_time());
+    total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(this->_internal_elapsed_time());
   }
 
-  return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
+  return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData RouteSummary::_class_data_ = {
-    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSizeCheck,
+    ::PROTOBUF_NAMESPACE_ID::Message::CopyWithSourceCheck,
     RouteSummary::MergeImpl
 };
 const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*RouteSummary::GetClassData() const { return &_class_data_; }
 
-void RouteSummary::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message* to,
-                      const ::PROTOBUF_NAMESPACE_ID::Message& from) {
-  static_cast<RouteSummary *>(to)->MergeFrom(
-      static_cast<const RouteSummary &>(from));
-}
 
-
-void RouteSummary::MergeFrom(const RouteSummary& from) {
-// @@protoc_insertion_point(class_specific_merge_from_start:routeguide.v1.RouteSummary)
-  GOOGLE_DCHECK_NE(&from, this);
-  ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
+void RouteSummary::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg) {
+  auto* const _this = static_cast<RouteSummary*>(&to_msg);
+  auto& from = static_cast<const RouteSummary&>(from_msg);
+  // @@protoc_insertion_point(class_specific_merge_from_start:routeguide.v1.RouteSummary)
+  GOOGLE_DCHECK_NE(&from, _this);
+  uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  details_map_.MergeFrom(from.details_map_);
+  _this->_impl_.details_map_.MergeFrom(from._impl_.details_map_);
   if (from._internal_has_details()) {
-    _internal_mutable_details()->::routeguide::v1::RouteSummary_Details::MergeFrom(from._internal_details());
+    _this->_internal_mutable_details()->::routeguide::v1::RouteSummary_Details::MergeFrom(
+        from._internal_details());
   }
   if (from._internal_point_count() != 0) {
-    _internal_set_point_count(from._internal_point_count());
+    _this->_internal_set_point_count(from._internal_point_count());
   }
   if (from._internal_feature_count() != 0) {
-    _internal_set_feature_count(from._internal_feature_count());
+    _this->_internal_set_feature_count(from._internal_feature_count());
   }
   if (from._internal_distance() != 0) {
-    _internal_set_distance(from._internal_distance());
+    _this->_internal_set_distance(from._internal_distance());
   }
   if (from._internal_elapsed_time() != 0) {
-    _internal_set_elapsed_time(from._internal_elapsed_time());
+    _this->_internal_set_elapsed_time(from._internal_elapsed_time());
   }
-  _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
+  _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
 void RouteSummary::CopyFrom(const RouteSummary& from) {
@@ -2052,17 +2081,17 @@ bool RouteSummary::IsInitialized() const {
 void RouteSummary::InternalSwap(RouteSummary* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
-  details_map_.InternalSwap(&other->details_map_);
+  _impl_.details_map_.InternalSwap(&other->_impl_.details_map_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(RouteSummary, elapsed_time_)
-      + sizeof(RouteSummary::elapsed_time_)
-      - PROTOBUF_FIELD_OFFSET(RouteSummary, details_)>(
-          reinterpret_cast<char*>(&details_),
-          reinterpret_cast<char*>(&other->details_));
+      PROTOBUF_FIELD_OFFSET(RouteSummary, _impl_.elapsed_time_)
+      + sizeof(RouteSummary::_impl_.elapsed_time_)
+      - PROTOBUF_FIELD_OFFSET(RouteSummary, _impl_.details_)>(
+          reinterpret_cast<char*>(&_impl_.details_),
+          reinterpret_cast<char*>(&other->_impl_.details_));
 }
 
 ::PROTOBUF_NAMESPACE_ID::Metadata RouteSummary::GetMetadata() const {
-  return ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(
+  return ::_pbi::AssignDescriptors(
       &descriptor_table_routeguide_2fv1_2fmessage_2eproto_getter, &descriptor_table_routeguide_2fv1_2fmessage_2eproto_once,
       file_level_metadata_routeguide_2fv1_2fmessage_2eproto[7]);
 }
@@ -2071,28 +2100,36 @@ void RouteSummary::InternalSwap(RouteSummary* other) {
 }  // namespace v1
 }  // namespace routeguide
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::routeguide::v1::Point* Arena::CreateMaybeMessage< ::routeguide::v1::Point >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::routeguide::v1::Point*
+Arena::CreateMaybeMessage< ::routeguide::v1::Point >(Arena* arena) {
   return Arena::CreateMessageInternal< ::routeguide::v1::Point >(arena);
 }
-template<> PROTOBUF_NOINLINE ::routeguide::v1::Rectangle* Arena::CreateMaybeMessage< ::routeguide::v1::Rectangle >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::routeguide::v1::Rectangle*
+Arena::CreateMaybeMessage< ::routeguide::v1::Rectangle >(Arena* arena) {
   return Arena::CreateMessageInternal< ::routeguide::v1::Rectangle >(arena);
 }
-template<> PROTOBUF_NOINLINE ::routeguide::v1::Feature* Arena::CreateMaybeMessage< ::routeguide::v1::Feature >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::routeguide::v1::Feature*
+Arena::CreateMaybeMessage< ::routeguide::v1::Feature >(Arena* arena) {
   return Arena::CreateMessageInternal< ::routeguide::v1::Feature >(arena);
 }
-template<> PROTOBUF_NOINLINE ::routeguide::v1::RouteNote* Arena::CreateMaybeMessage< ::routeguide::v1::RouteNote >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::routeguide::v1::RouteNote*
+Arena::CreateMaybeMessage< ::routeguide::v1::RouteNote >(Arena* arena) {
   return Arena::CreateMessageInternal< ::routeguide::v1::RouteNote >(arena);
 }
-template<> PROTOBUF_NOINLINE ::routeguide::v1::RouteSummary_Details_MoreDetails* Arena::CreateMaybeMessage< ::routeguide::v1::RouteSummary_Details_MoreDetails >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::routeguide::v1::RouteSummary_Details_MoreDetails*
+Arena::CreateMaybeMessage< ::routeguide::v1::RouteSummary_Details_MoreDetails >(Arena* arena) {
   return Arena::CreateMessageInternal< ::routeguide::v1::RouteSummary_Details_MoreDetails >(arena);
 }
-template<> PROTOBUF_NOINLINE ::routeguide::v1::RouteSummary_Details* Arena::CreateMaybeMessage< ::routeguide::v1::RouteSummary_Details >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::routeguide::v1::RouteSummary_Details*
+Arena::CreateMaybeMessage< ::routeguide::v1::RouteSummary_Details >(Arena* arena) {
   return Arena::CreateMessageInternal< ::routeguide::v1::RouteSummary_Details >(arena);
 }
-template<> PROTOBUF_NOINLINE ::routeguide::v1::RouteSummary_DetailsMapEntry_DoNotUse* Arena::CreateMaybeMessage< ::routeguide::v1::RouteSummary_DetailsMapEntry_DoNotUse >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::routeguide::v1::RouteSummary_DetailsMapEntry_DoNotUse*
+Arena::CreateMaybeMessage< ::routeguide::v1::RouteSummary_DetailsMapEntry_DoNotUse >(Arena* arena) {
   return Arena::CreateMessageInternal< ::routeguide::v1::RouteSummary_DetailsMapEntry_DoNotUse >(arena);
 }
-template<> PROTOBUF_NOINLINE ::routeguide::v1::RouteSummary* Arena::CreateMaybeMessage< ::routeguide::v1::RouteSummary >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::routeguide::v1::RouteSummary*
+Arena::CreateMaybeMessage< ::routeguide::v1::RouteSummary >(Arena* arena) {
   return Arena::CreateMessageInternal< ::routeguide::v1::RouteSummary >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE

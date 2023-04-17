@@ -16,15 +16,19 @@
 #include <google/protobuf/port_def.inc>
 
 PROTOBUF_PRAGMA_INIT_SEG
+
+namespace _pb = ::PROTOBUF_NAMESPACE_ID;
+namespace _pbi = _pb::internal;
+
 namespace routeguide {
 namespace v1 {
 }  // namespace v1
 }  // namespace routeguide
-static constexpr ::PROTOBUF_NAMESPACE_ID::EnumDescriptor const** file_level_enum_descriptors_routeguide_2fv1_2froute_5fguide_2eproto = nullptr;
-static constexpr ::PROTOBUF_NAMESPACE_ID::ServiceDescriptor const** file_level_service_descriptors_routeguide_2fv1_2froute_5fguide_2eproto = nullptr;
-const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_routeguide_2fv1_2froute_5fguide_2eproto::offsets[1] = {};
-static constexpr ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema* schemas = nullptr;
-static constexpr ::PROTOBUF_NAMESPACE_ID::Message* const* file_default_instances = nullptr;
+static constexpr ::_pb::EnumDescriptor const** file_level_enum_descriptors_routeguide_2fv1_2froute_5fguide_2eproto = nullptr;
+static constexpr ::_pb::ServiceDescriptor const** file_level_service_descriptors_routeguide_2fv1_2froute_5fguide_2eproto = nullptr;
+const uint32_t TableStruct_routeguide_2fv1_2froute_5fguide_2eproto::offsets[1] = {};
+static constexpr ::_pbi::MigrationSchema* schemas = nullptr;
+static constexpr ::_pb::Message* const* file_default_instances = nullptr;
 
 const char descriptor_table_protodef_routeguide_2fv1_2froute_5fguide_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\037routeguide/v1/route_guide.proto\022\rroute"
@@ -44,23 +48,25 @@ const char descriptor_table_protodef_routeguide_2fv1_2froute_5fguide_2eproto[] P
   "s.routeguideB\017RouteGuideProtoP\001\242\002\003RTGb\006p"
   "roto3"
   ;
-static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_routeguide_2fv1_2froute_5fguide_2eproto_deps[2] = {
+static const ::_pbi::DescriptorTable* const descriptor_table_routeguide_2fv1_2froute_5fguide_2eproto_deps[2] = {
   &::descriptor_table_google_2fprotobuf_2fempty_2eproto,
   &::descriptor_table_routeguide_2fv1_2fmessage_2eproto,
 };
-static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_routeguide_2fv1_2froute_5fguide_2eproto_once;
-const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_routeguide_2fv1_2froute_5fguide_2eproto = {
-  false, false, 605, descriptor_table_protodef_routeguide_2fv1_2froute_5fguide_2eproto, "routeguide/v1/route_guide.proto", 
-  &descriptor_table_routeguide_2fv1_2froute_5fguide_2eproto_once, descriptor_table_routeguide_2fv1_2froute_5fguide_2eproto_deps, 2, 0,
-  schemas, file_default_instances, TableStruct_routeguide_2fv1_2froute_5fguide_2eproto::offsets,
-  nullptr, file_level_enum_descriptors_routeguide_2fv1_2froute_5fguide_2eproto, file_level_service_descriptors_routeguide_2fv1_2froute_5fguide_2eproto,
+static ::_pbi::once_flag descriptor_table_routeguide_2fv1_2froute_5fguide_2eproto_once;
+const ::_pbi::DescriptorTable descriptor_table_routeguide_2fv1_2froute_5fguide_2eproto = {
+    false, false, 605, descriptor_table_protodef_routeguide_2fv1_2froute_5fguide_2eproto,
+    "routeguide/v1/route_guide.proto",
+    &descriptor_table_routeguide_2fv1_2froute_5fguide_2eproto_once, descriptor_table_routeguide_2fv1_2froute_5fguide_2eproto_deps, 2, 0,
+    schemas, file_default_instances, TableStruct_routeguide_2fv1_2froute_5fguide_2eproto::offsets,
+    nullptr, file_level_enum_descriptors_routeguide_2fv1_2froute_5fguide_2eproto,
+    file_level_service_descriptors_routeguide_2fv1_2froute_5fguide_2eproto,
 };
-PROTOBUF_ATTRIBUTE_WEAK const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable* descriptor_table_routeguide_2fv1_2froute_5fguide_2eproto_getter() {
+PROTOBUF_ATTRIBUTE_WEAK const ::_pbi::DescriptorTable* descriptor_table_routeguide_2fv1_2froute_5fguide_2eproto_getter() {
   return &descriptor_table_routeguide_2fv1_2froute_5fguide_2eproto;
 }
 
 // Force running AddDescriptors() at dynamic initialization time.
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY static ::PROTOBUF_NAMESPACE_ID::internal::AddDescriptorsRunner dynamic_init_dummy_routeguide_2fv1_2froute_5fguide_2eproto(&descriptor_table_routeguide_2fv1_2froute_5fguide_2eproto);
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY2 static ::_pbi::AddDescriptorsRunner dynamic_init_dummy_routeguide_2fv1_2froute_5fguide_2eproto(&descriptor_table_routeguide_2fv1_2froute_5fguide_2eproto);
 namespace routeguide {
 namespace v1 {
 
