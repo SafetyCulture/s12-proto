@@ -22,7 +22,7 @@ func ExamplePermissionsUnaryInterceptor() grpc.UnaryServerInterceptor {
 		scopes, _ := ctx.Value(credentials.ContextKeyCredentialsScope).(credentials.Scope)
 		_ = scopes
 		if info.FullMethod == "/example.Example/Unary" {
-			if !c.HasPermission(jwtclaims.Permission("write:users")) {
+			if !scopes.IsAdmin() && !c.HasPermission(jwtclaims.Permission("write:users")) {
 				log.Println("s12perm: claims does not contain the required permissions")
 				return ctx, status.Errorf(codes.PermissionDenied, "Permission Denied")
 			}
@@ -40,7 +40,7 @@ func ExamplePermissionsStreamInterceptor() grpc.StreamServerInterceptor {
 		scopes, _ := stream.Context().Value(credentials.ContextKeyCredentialsScope).(credentials.Scope)
 		_ = scopes
 		if info.FullMethod == "/example.Example/ServerStream" {
-			if !c.HasPermission(jwtclaims.Permission("write:users")) {
+			if !scopes.IsAdmin() && !c.HasPermission(jwtclaims.Permission("write:users")) {
 				log.Println("s12perm: claims does not contain the required permissions")
 				return status.Errorf(codes.PermissionDenied, "Permission Denied")
 			}
@@ -100,7 +100,7 @@ func ExampleWithScopesPermissionsStreamInterceptor() grpc.StreamServerIntercepto
 		scopes, _ := stream.Context().Value(credentials.ContextKeyCredentialsScope).(credentials.Scope)
 		_ = scopes
 		if info.FullMethod == "/example.ExampleWithScopes/ServerStream" {
-			if !c.HasPermission(jwtclaims.Permission("write:users")) {
+			if !scopes.IsAdmin() && !c.HasPermission(jwtclaims.Permission("write:users")) {
 				log.Println("s12perm: claims does not contain the required permissions")
 				return status.Errorf(codes.PermissionDenied, "Permission Denied")
 			}
