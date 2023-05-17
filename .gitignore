@@ -5,3 +5,4 @@
 /protoc-gen-cruxclient
 *.o
 .DS_Store
+protobuf/protoc-gen-govalidator/playground/gen
