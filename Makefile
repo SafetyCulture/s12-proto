@@ -67,6 +67,31 @@ govalidator-valtest: install-govalidator
 	--govalidator_out=paths=source_relative:protobuf/protoc-gen-govalidator/valtest \
 	protobuf/protoc-gen-govalidator/valtest/*.proto
 
+PLAYGROUND=./protobuf/protoc-gen-govalidator/playground
+PLAYGROUND_GEN=$(PLAYGROUND)/gen
+
+playground-req-object: # Generate the code-generator-request object
+ifeq ($(shell which protoc-gen-debug),)
+	go install github.com/lyft/protoc-gen-star/protoc-gen-debug@latest
+endif
+	protoc \
+		-I$(PLAYGROUND) \
+		-I$(GOPATH)/src \
+		-I. \
+  		--plugin=protoc-gen-debug=$(shell which protoc-gen-debug) \
+  		--debug_out="${PLAYGROUND}:${PLAYGROUND}" \
+  		$(PLAYGROUND)/*.proto
+
+.PHONY: govalidator-valtest1
+playground-generated-code: install-govalidator # Generates code from protobuf files
+	protoc \
+	-I$(PLAYGROUND) \
+	-I$(GOPATH)/src \
+	-I. \
+	--go_out=paths=source_relative:$(PLAYGROUND_GEN) \
+	--govalidator_out=paths=source_relative:$(PLAYGROUND_GEN) \
+	$(PLAYGROUND)/*.proto
+
 .PHONY: govalidator-valtest-test
 govalidator-valtest-test:
 	go test github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-govalidator/valtest
