@@ -121,8 +121,8 @@ var invalidURLs = []string{
 	"https:/example.com",
 	"https//:example.com",
 	"https://example.com/" + strings.Repeat("a", 1000), // too long
-	"ftp://example.com/",             // default scheme is https
-	"https://example.com/a#fragment", // fragment not allowed unless option enabled
+	"ftp://example.com/",                               // default scheme is https
+	"https://example.com/a#fragment",                   // fragment not allowed unless option enabled
 	"https://example.com/\na",
 	" https://example.com/a",  // leading whitespace
 	"\thttps://example.com/a", // leading whitespace
@@ -184,7 +184,8 @@ var valMsg = ValTestMessage{
 	Url:        "https://example.com/test",
 	UrlAllOpts: "http://app.safetyculture.com/report/media?param=test#fragment",
 	// NotSupported: ,
-	Timezone: "Australia/Sydney",
+	Timezone:   "Australia/Sydney",
+	LongString: strings.Repeat("x", 30000),
 }
 
 // omit optional fields here
@@ -390,6 +391,9 @@ func getValMsg(m ValTestMessage) *ValTestMessage {
 	}
 	if m.TimezoneOptional != "" {
 		newMsg.TimezoneOptional = replaceEmpty(m.TimezoneOptional)
+	}
+	if m.LongString != "" {
+		newMsg.LongString = replaceEmpty(m.LongString)
 	}
 	return &newMsg
 }
@@ -1001,6 +1005,12 @@ func TestValidationRules(t *testing.T) {
 		emptyTimezoneMsg,
 		invalid,
 	})
+	tests = append(tests, TestSet{
+		"InvalidLongString",
+		getValMsg(ValTestMessage{LongString: strings.Repeat("y", 30002)}),
+		invalid,
+	})
+	fmt.Println("###### LEN = ", len(strings.Repeat("y", 30002)))
 
 	for _, test := range tests {
 		test := test
