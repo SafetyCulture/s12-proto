@@ -160,6 +160,8 @@ message ValTestMessage {
       optional: true
     }
   ];
+
+  string long_string = 67 [(validator.unsafe_string) = { len: ":30000", optional: true }];
 }
 
 message LogOnlyValidationMessage {

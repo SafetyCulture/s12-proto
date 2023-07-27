@@ -15,7 +15,7 @@ const (
 	stringLenMinSafe    = uint32(1)
 	stringLenMinUnsafe  = uint32(1) // <1 not allowed, use optional instead of empty strings
 	stringLenMaxSafe    = uint32(1000)
-	stringLenMaxUnsafe  = uint32(10000)
+	stringLenMaxUnsafe  = uint32(30000)
 	stringLenMinDefault = uint32(1)
 	stringLenMaxDefault = uint32(130)
 )
