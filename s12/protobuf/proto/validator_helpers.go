@@ -24,7 +24,8 @@ const (
 	legacyIdLowercase string = "^[0-9a-f]{8}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{4}-?[0-9a-f]{12}(-?[0-9a-f]{2,5}-?[0-9a-f]{1,16})?$"
 	s12Id             string = "^(audit|template|action|user|ntfmsg|evidence|role|location|responseset|response|preference|heads_up|subscription|folder|scheduleitem)_([0-9a-fA-F]){32}$"
 	s12IdLowercase    string = "^(audit|template|action|user|ntfmsg|evidence|role|location|responseset|response|preference|heads_up|subscription|folder|scheduleitem)_([0-9a-f]){32}$"
-	// longPrefixedLegacyId is similar to s12Id but allows for 50-53 character ID part length, uppercase letters only and only 2 prefixes
+	// longPrefixedLegacyId is similar to s12Id and legacyId combined
+	// audit_ or template_ prefix and 50-53 character ID part length, uppercase letters only
 	longPrefixedLegacyId string = "^(audit|template)_([0-9A-F]){50,53}$"
 	rePua                string = `[\x{E000}-\x{F8FF}]` // Private Use Codepoints in the Basic Multilingual Plane (not including planes 15, 16)
 	// govalidator package used before seems unmaintained at the moment and we needed changes to the regex so copied it from https://github.com/asaskevich/govalidator/blob/f21760c49a8d602d863493de796926d2a5c1138d/patterns.go#L77
