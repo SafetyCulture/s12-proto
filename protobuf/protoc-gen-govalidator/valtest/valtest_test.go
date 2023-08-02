@@ -551,6 +551,16 @@ func TestValidationRules(t *testing.T) {
 			valid,
 		},
 		{
+			"InValidIdAllOptsLongPrefixedLegacyId54",
+			getValMsg(ValTestMessage{AllId: "template_5033F701076E47FCA698F84E05557A6D2024300002267A44444445"}),
+			invalid,
+		},
+		{
+			"InValidIdAllOptsLongPrefixedLegacyId44",
+			getValMsg(ValTestMessage{AllId: "template_5033F7A698F84E05557A6D2024300002267A44444445"}),
+			invalid,
+		},
+		{
 			"ValidEmail",
 			getValMsg(ValTestMessage{Email: email}),
 			valid,
