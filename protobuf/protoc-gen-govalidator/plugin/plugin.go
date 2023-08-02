@@ -692,10 +692,17 @@ func genIdValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string
 		g.P("}")
 	}
 
-	// Finally, if still no valid id found, also check for S12 Id if option enabled
+	// If still no valid id found, also check for S12 Id if option enabled
 	if rules.GetS12Id() {
 		errMsg += " or S12 ID"
 		g.P("if !isValidId && ", s12protoPackage.Ident("IsS12ID"), "(", varName, ", ", rules.GetLowercaseOnly(), ") {")
+		g.P("isValidId = true")
+		g.P("}")
+	}
+
+	// Finally, we have a special case for prefixed, long legacy format Ids which requires both s12 and legacy option
+	if rules.GetLegacy() && rules.GetS12Id() {
+		g.P("if !isValidId && ", s12protoPackage.Ident("IsLongPrefixedLegacyID"), "(", varName, ") {")
 		g.P("isValidId = true")
 		g.P("}")
 	}
