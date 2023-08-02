@@ -547,7 +547,7 @@ func TestValidationRules(t *testing.T) {
 		},
 		{
 			"ValidIdAllOptsLongPrefixedLegacyId53",
-			getValMsg(ValTestMessage{AllId: "audit_5033F701076E47FCA698F84E05557A6D2024300002267A4444444"}),
+			getValMsg(ValTestMessage{AllId: "template_5033F701076E47FCA698F84E05557A6D2024300002267A4444444"}),
 			valid,
 		},
 		{
