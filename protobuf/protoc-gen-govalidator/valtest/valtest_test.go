@@ -531,6 +531,36 @@ func TestValidationRules(t *testing.T) {
 			invalid,
 		},
 		{
+			"ValidIdAllOptsLongPrefixedLegacyId50",
+			getValMsg(ValTestMessage{AllId: "audit_1CC51EFA600C4F6285B9652A32D714D69500000013D6801111"}),
+			valid,
+		},
+		{
+			"ValidIdAllOptsLongPrefixedLegacyId51",
+			getValMsg(ValTestMessage{AllId: "audit_0CEE3E70B3584D40B1E7B4A485C19D8A23500000154D3322222"}),
+			valid,
+		},
+		{
+			"ValidIdAllOptsLongPrefixedLegacyId52",
+			getValMsg(ValTestMessage{AllId: "audit_072F8B1B16594188A8B906ACED430CA889670000153EA8333333"}),
+			valid,
+		},
+		{
+			"ValidIdAllOptsLongPrefixedLegacyId53",
+			getValMsg(ValTestMessage{AllId: "template_5033F701076E47FCA698F84E05557A6D2024300002267A4444444"}),
+			valid,
+		},
+		{
+			"InValidIdAllOptsLongPrefixedLegacyId54",
+			getValMsg(ValTestMessage{AllId: "template_5033F701076E47FCA698F84E05557A6D2024300002267A44444445"}),
+			invalid,
+		},
+		{
+			"InValidIdAllOptsLongPrefixedLegacyId44",
+			getValMsg(ValTestMessage{AllId: "template_5033F7A698F84E05557A6D2024300002267A44444445"}),
+			invalid,
+		},
+		{
 			"ValidEmail",
 			getValMsg(ValTestMessage{Email: email}),
 			valid,

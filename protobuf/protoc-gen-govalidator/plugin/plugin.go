@@ -176,7 +176,7 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 		isMessageField := f.Desc.Kind() == protoreflect.MessageKind
 
 		// shouldLoopOverField decides whether to generate the for loop or not:
-		// - don't generate the for loop for an array of msg because it wil be handled differently
+		// - don't generate the for loop for an array of msg because it will be handled differently
 		// - only generate the for loop if there are validations for each element
 		shouldLoopOverField := hasRepeatedExt && !isMessageField && hasNonRepeatedValidationExtensions(f)
 
@@ -692,10 +692,17 @@ func genIdValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string
 		g.P("}")
 	}
 
-	// Finally, if still no valid id found, also check for S12 Id if option enabled
+	// If still no valid id found, also check for S12 Id if option enabled
 	if rules.GetS12Id() {
 		errMsg += " or S12 ID"
 		g.P("if !isValidId && ", s12protoPackage.Ident("IsS12ID"), "(", varName, ", ", rules.GetLowercaseOnly(), ") {")
+		g.P("isValidId = true")
+		g.P("}")
+	}
+
+	// Finally, we have a special case for prefixed, long legacy format Ids which requires both s12 and legacy option
+	if rules.GetLegacy() && rules.GetS12Id() {
+		g.P("if !isValidId && ", s12protoPackage.Ident("IsLongPrefixedLegacyID"), "(", varName, ") {")
 		g.P("isValidId = true")
 		g.P("}")
 	}
