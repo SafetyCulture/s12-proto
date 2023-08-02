@@ -176,7 +176,7 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 		isMessageField := f.Desc.Kind() == protoreflect.MessageKind
 
 		// shouldLoopOverField decides whether to generate the for loop or not:
-		// - don't generate the for loop for an array of msg because it wil be handled differently
+		// - don't generate the for loop for an array of msg because it will be handled differently
 		// - only generate the for loop if there are validations for each element
 		shouldLoopOverField := hasRepeatedExt && !isMessageField && hasNonRepeatedValidationExtensions(f)
 
