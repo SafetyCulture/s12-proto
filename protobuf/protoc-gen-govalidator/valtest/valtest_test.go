@@ -1396,6 +1396,17 @@ func TestNumberValidation_Validate(t *testing.T) {
 			invalid,
 		},
 		{
+			"number disallows +Inf when allow_nan is false",
+			func() *NumberMessage {
+				m := genNumberMessage()
+				m.NanDisallowed = math.Inf(0)
+				m.OptionalNoNanValue = math.Inf(0)
+				m.OptionalOnly = math.Inf(0)
+				return m
+			}(),
+			invalid,
+		},
+		{
 			"number disallows nan when optional",
 			func() *NumberMessage {
 				m := genNumberMessage()
