@@ -4,6 +4,7 @@ syntax = "proto3";
 package valtest;
 
 import "s12/protobuf/proto/validator.proto";
+import "google/protobuf/wrappers.proto";
 
 option go_package = "github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-govalidator/valtest";
 
@@ -162,6 +163,11 @@ message ValTestMessage {
   ];
 
   string long_string = 67 [(validator.unsafe_string) = { len: ":30000", optional: true }];
+}
+
+message TestStringValue {
+  google.protobuf.StringValue test_value = 1 [(validator.string) = { len: "1:2", optional: true }];
+  repeated google.protobuf.StringValue test_values = 2 [(validator.string) = { len: "1:2", optional: true }];
 }
 
 message LogOnlyValidationMessage {

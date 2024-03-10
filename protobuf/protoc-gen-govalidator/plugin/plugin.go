@@ -888,6 +888,30 @@ func genIntValidator(g *protogen.GeneratedFile, f *protogen.Field, varName strin
 }
 
 func genMsgValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string) {
+	// Custom validator for String Value Wrapper.
+	// We access the value field and generate string validator code against it
+	if f.Message.Desc.FullName() == "google.protobuf.StringValue" {
+		newVarName := varName
+		repeated := f.Desc.Cardinality() == protoreflect.Repeated
+
+		if repeated {
+			// Please leave the len check in place here as I have identified edge cases where it is required (will add test case for it later)
+			g.P("if len(", newVarName, ") > 0 {")
+			g.P("for _, item := range ", newVarName, "{")
+			newVarName = "item." + f.Message.Fields[0].GoName
+		} else {
+			newVarName = varName + "." + f.Message.Fields[0].GoName
+		}
+
+		genStringValidator(g, f, newVarName)
+
+		if repeated {
+			g.P("}") // for
+			g.P("}") // if len
+		}
+		return
+	}
+
 	if getBoolExtension(f, validator.E_MsgRequired) {
 		g.P("if ", varName, " == nil {")
 		g.P("return ", fmtPackage.Ident("Errorf"), "(\"field ", f.Desc.Name(), " is required\")")

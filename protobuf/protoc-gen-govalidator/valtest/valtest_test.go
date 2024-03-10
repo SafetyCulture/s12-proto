@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/SafetyCulture/s12-proto/s12/protobuf/proto"
+	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 )
 
 const (
@@ -2199,6 +2200,35 @@ func TestSoftValidation_ValidateUnsafeString(t *testing.T) {
 			}
 			if !tt.shouldErr && err != nil {
 				t.Errorf("%s, supposed not to return an error, but we received %v", tt.name, err)
+			}
+		})
+	}
+}
+
+func Test(t *testing.T) {
+	tests := []struct {
+		name        string
+		stringValue *TestStringValue
+		shouldErr   bool
+	}{
+		{
+			name: "test constraint",
+			stringValue: &TestStringValue{
+				TestValue: &wrapperspb.StringValue{
+					Value: "sfdfhasd",
+				},
+			},
+			shouldErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.stringValue.Validate()
+			if tt.shouldErr == (err == nil) {
+				t.Errorf("%s, should have errored", tt.name)
+			}
+			if !tt.shouldErr && err != nil {
+				t.Errorf("%s, should not have errored, but received %s", tt.name, err)
 			}
 		})
 	}
