@@ -33,8 +33,11 @@ const validStrictMessages = [
     accuracy: 0,
   },
 ];
-const invalidStrictMessages = [{ something: 1 }]
-const validNonStrictMessages = [...validStrictMessages, ...invalidStrictMessages,]
+const invalidStrictMessages = [{ something: 1 }];
+const validNonStrictMessages = [
+  ...validStrictMessages,
+  ...invalidStrictMessages,
+];
 const invalidMessages = [undefined];
 
 describe("validate geo", () => {
@@ -119,7 +122,9 @@ describe("validate geo", () => {
 
     test("invalid errors when strict", () => {
       invalidStrictMessages.forEach((msg) => {
-        expect(() => GeoValidationMessageValidator.strict().parse(msg)).toThrow();
+        expect(() =>
+          GeoValidationMessageValidator.strict().parse(msg),
+        ).toThrow();
       });
     });
 

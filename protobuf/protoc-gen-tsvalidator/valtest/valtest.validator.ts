@@ -6,22 +6,28 @@
 
 import { z } from "zod";
 
-const enumEnum = {
-  MY_ENUM_UNSPECIFIED: 0,
-  MY_ENUM_FIRST: 1,
-} as const;
-export const MyMessageWithEnum_Enum = z.nativeEnum(enumEnum);
+export const ValTestMessage_NestedMessage_Val = z.string().min(1).max(100);
+export const ValTestMessage_NestedMessage_NestedEmail = z.string().email();
+export const ValTestMessage_NestedMessage_MemberEmails = z.string().email();
+export const ValTestMessage_NestedMessage_MemberEmailsArray =
+  ValTestMessage_NestedMessage_MemberEmails.array().min(2).max(5);
+export const ValTestMessage_NestedMessageValidator = z.object({
+  memberEmails: ValTestMessage_NestedMessage_MemberEmailsArray,
+  val: ValTestMessage_NestedMessage_Val,
+  nestedEmail: ValTestMessage_NestedMessage_NestedEmail,
+});
+
+export const OuterMessageUsingNestedMessage_SomeMessage =
+  ValTestMessage_NestedMessageValidator.optional();
+export const OuterMessageUsingNestedMessageValidator = z.object({});
+
+export const ScimEmail_Value = z.string().email();
+export const ScimEmailValidator = z.object({ value: ScimEmail_Value });
+
 const enumsEnum = {
   MY_ENUM_UNSPECIFIED: 0,
   MY_ENUM_FIRST: 1,
 } as const;
-export const MyMessageWithEnum_Enums = z.nativeEnum(enumsEnum);
-export const MyMessageWithEnum_EnumsArray = MyMessageWithEnum_Enums.array();
-export const MyMessageWithEnumValidator = z.object({
-  enum: MyMessageWithEnum_Enum,
-  enums: MyMessageWithEnum_EnumsArray,
-});
-
 export const MyMessageWithRepeatedEnum_Enums = z.nativeEnum(enumsEnum);
 export const MyMessageWithRepeatedEnum_EnumsArray =
   MyMessageWithRepeatedEnum_Enums.array();
@@ -29,42 +35,83 @@ export const MyMessageWithRepeatedEnumValidator = z.object({
   enums: MyMessageWithRepeatedEnum_EnumsArray,
 });
 
-export const InnerMessage_Id = z.string().uuid();
-export const InnerMessageValidator = z.object({ id: InnerMessage_Id });
-
-export const InnerMessageWithLegacyId_Id = z.string().uuid();
-export const InnerMessageWithLegacyIdValidator = z.object({
-  id: InnerMessageWithLegacyId_Id,
+export const GeoValidationMessage_Latitude = z
+  .number()
+  .min(-90)
+  .max(90)
+  .optional();
+export const GeoValidationMessage_Longitude = z
+  .number()
+  .min(-180)
+  .max(180)
+  .optional();
+export const GeoValidationMessage_Accuracy = z
+  .number()
+  .int()
+  .min(0)
+  .max(10000)
+  .optional();
+export const GeoValidationMessageValidator = z.object({
+  latitude: GeoValidationMessage_Latitude,
+  longitude: GeoValidationMessage_Longitude,
+  accuracy: GeoValidationMessage_Accuracy,
 });
 
-export const NestedLevel3Message_OrgId5 = z.string().min(5).max(5);
-export const NestedLevel3MessageValidator = z.object({
-  orgId5: NestedLevel3Message_OrgId5,
+export const LogOnlyValidationMessage_ImageId = z.string().uuid().uuid();
+export const LogOnlyValidationMessage_InspectionId = z.string().uuid();
+export const LogOnlyValidationMessage_OwnerId = z.string().uuid();
+export const LogOnlyValidationMessage_Title = z
+  .string()
+  .min(1)
+  .max(10)
+  .optional();
+export const LogOnlyValidationMessage_Name = z.string().min(1).max(5);
+export const LogOnlyValidationMessage_Latitude = z
+  .number()
+  .min(-90)
+  .max(90)
+  .optional();
+export const LogOnlyValidationMessage_Longitude = z
+  .number()
+  .min(-180)
+  .max(180)
+  .optional();
+export const LogOnlyValidationMessage_Accuracy = z
+  .number()
+  .int()
+  .min(0)
+  .max(10000)
+  .optional();
+export const LogOnlyValidationMessage_Answer = z.string().max(40).optional();
+export const LogOnlyValidationMessage_Note = z
+  .string()
+  .min(5)
+  .max(40)
+  .optional();
+export const LogOnlyValidationMessageValidator = z.object({
+  longitude: LogOnlyValidationMessage_Longitude,
+  note: LogOnlyValidationMessage_Note,
+  inspectionId: LogOnlyValidationMessage_InspectionId,
+  ownerId: LogOnlyValidationMessage_OwnerId,
+  latitude: LogOnlyValidationMessage_Latitude,
+  accuracy: LogOnlyValidationMessage_Accuracy,
+  answer: LogOnlyValidationMessage_Answer,
+  imageId: LogOnlyValidationMessage_ImageId,
+  title: LogOnlyValidationMessage_Title,
+  name: LogOnlyValidationMessage_Name,
 });
 
-export const NestedLevel2Message_OrgId4 = z.string().min(4).max(4);
-export const NestedLevel2Message_OrgNested =
-  NestedLevel3MessageValidator.optional();
-export const NestedLevel2MessageValidator = z.object({
-  orgId4: NestedLevel2Message_OrgId4,
+const enumEnum = {
+  MY_ENUM_UNSPECIFIED: 0,
+  MY_ENUM_FIRST: 1,
+} as const;
+export const MyMessageWithEnum_Enum = z.nativeEnum(enumEnum);
+export const MyMessageWithEnum_Enums = z.nativeEnum(enumsEnum);
+export const MyMessageWithEnum_EnumsArray = MyMessageWithEnum_Enums.array();
+export const MyMessageWithEnumValidator = z.object({
+  enum: MyMessageWithEnum_Enum,
+  enums: MyMessageWithEnum_EnumsArray,
 });
-
-export const NestedLevel1Message_OrgId3 = z.string().min(3).max(3);
-export const NestedLevel1Message_OrgNested =
-  NestedLevel2MessageValidator.optional();
-export const NestedLevel1MessageValidator = z.object({
-  orgId3: NestedLevel1Message_OrgId3,
-});
-
-export const MyReqMessage_UserId = z.string().min(2).max(2);
-export const MyReqMessage_OrgNested = NestedLevel1MessageValidator.optional();
-export const MyReqMessageValidator = z.object({ userId: MyReqMessage_UserId });
-
-export const ScimEmail_Value = z.string().email();
-export const ScimEmailValidator = z.object({ value: ScimEmail_Value });
-
-export const ScimUser_Emails = ScimEmailValidator.optional();
-export const ScimUserValidator = z.object({});
 
 export const MyMessageWithRepeatedField_MyInt = z.number().int();
 export const MyMessageWithRepeatedField_MyIntArray =
@@ -73,78 +120,37 @@ export const MyMessageWithRepeatedFieldValidator = z.object({
   myInt: MyMessageWithRepeatedField_MyIntArray,
 });
 
-export const NumberMessage_NestedNumber_Value = z
-  .number()
-  .int()
-  .max(100)
-  .optional();
-export const NumberMessage_NestedNumberValidator = z.object({
-  value: NumberMessage_NestedNumber_Value,
+export const MyOneOfMsg_FirstType_Value = z.number().int();
+export const MyOneOfMsg_FirstTypeValidator = z.object({
+  value: MyOneOfMsg_FirstType_Value,
 });
 
-export const NumberMessage_NanAllowed = z.number();
-export const NumberMessage_NanDisallowed = z.number();
-export const NumberMessage_OptionalNoNanValue = z.number().optional();
-export const NumberMessage_OptionalOnly = z.number().optional();
-export const NumberMessage_RangeBasic = z.number().min(1).max(10).optional();
-export const NumberMessage_RangeLow = z.number().min(1).optional();
-export const NumberMessage_RangeHigh = z.number().max(10).optional();
-export const NumberMessage_RangeNovalues = z.number().optional();
-export const NumberMessage_RangeNotOptional = z.number().min(1).max(10);
-export const NumberMessage_IntTest = z.number().int().min(1).max(99);
-export const NumberMessage_Int64Test = z
-  .number()
-  .int()
-  .min(-100)
-  .max(100)
-  .optional();
-export const NumberMessage_UintTest = z
-  .number()
-  .int()
-  .min(5)
-  .max(99)
-  .optional();
-export const NumberMessage_RepeatedInt = z
-  .number()
-  .int()
-  .min(10)
-  .max(20)
-  .optional();
-export const NumberMessage_RepeatedIntArray = NumberMessage_RepeatedInt.array();
-export const NumberMessage_NestedNumber =
-  NumberMessage_NestedNumberValidator.optional();
-export const NumberMessageValidator = z.object({
-  rangeNotOptional: NumberMessage_RangeNotOptional,
-  int64Test: NumberMessage_Int64Test,
-  nanAllowed: NumberMessage_NanAllowed,
-  optionalOnly: NumberMessage_OptionalOnly,
-  rangeLow: NumberMessage_RangeLow,
-  rangeHigh: NumberMessage_RangeHigh,
-  rangeNovalues: NumberMessage_RangeNovalues,
-  repeatedInt: NumberMessage_RepeatedIntArray,
-  nanDisallowed: NumberMessage_NanDisallowed,
-  optionalNoNanValue: NumberMessage_OptionalNoNanValue,
-  rangeBasic: NumberMessage_RangeBasic,
-  intTest: NumberMessage_IntTest,
-  uintTest: NumberMessage_UintTest,
+export const MyOneOfMsg_SecondType_Value = z.number().int();
+export const MyOneOfMsg_SecondTypeValidator = z.object({
+  value: MyOneOfMsg_SecondType_Value,
 });
 
-export const ValTestMessage_NestedMessage_Val = z.string().min(1).max(100);
-export const ValTestMessage_NestedMessage_NestedEmail = z.string().email();
-export const ValTestMessage_NestedMessage_MemberEmails = z.string().email();
-export const ValTestMessage_NestedMessage_MemberEmailsArray =
-  ValTestMessage_NestedMessage_MemberEmails.array().min(2).max(5);
-export const ValTestMessage_NestedMessageValidator = z.object({
-  val: ValTestMessage_NestedMessage_Val,
-  nestedEmail: ValTestMessage_NestedMessage_NestedEmail,
-  memberEmails: ValTestMessage_NestedMessage_MemberEmailsArray,
+export const MyOneOfMsg_MyFirstField = MyOneOfMsg_FirstTypeValidator.optional();
+export const MyOneOfMsg_MySecondField =
+  MyOneOfMsg_SecondTypeValidator.optional();
+export const MyOneOfMsg_MyThirdField = z.string().min(1);
+export const MyOneOfMsgValidator = z.object({
+  myThirdField: MyOneOfMsg_MyThirdField,
 });
+
+export const InnerMessageWithLegacyId_Id = z.string().uuid();
+export const InnerMessageWithLegacyIdValidator = z.object({
+  id: InnerMessageWithLegacyId_Id,
+});
+
+export const InnerMessage_Id = z.string().uuid();
+export const InnerMessageValidator = z.object({ id: InnerMessage_Id });
 
 export const ValTestMessage_Contact_Phone = z.string().optional();
 export const ValTestMessage_Contact_Email = z.string().email();
 export const ValTestMessage_ContactValidator = z.object({
-  email: ValTestMessage_Contact_Email,
   phone: ValTestMessage_Contact_Phone,
+  email: ValTestMessage_Contact_Email,
 });
 
 export const InnerMessageWithS12Id_Id = z.string().uuid();
@@ -234,88 +240,44 @@ export const ValTestMessage_LongString = z
   .max(30000)
   .optional();
 export const ValTestMessageValidator = z.object({
-  symbolString: ValTestMessage_SymbolString,
-  allString: ValTestMessage_AllString,
-  notSupported: ValTestMessage_NotSupported,
-  mediaId: ValTestMessage_MediaId,
-  password: ValTestMessage_Password,
-  runeString: ValTestMessage_RuneString,
-  notReplaceString: ValTestMessage_NotReplaceString,
-  invalidEncodingString: ValTestMessage_InvalidEncodingString,
-  notSanitisePua: ValTestMessage_NotSanitisePua,
-  phone: ValTestMessage_Phone,
-  longString: ValTestMessage_LongString,
-  legacyId: ValTestMessage_LegacyId,
-  email: ValTestMessage_Email,
-  fixedString: ValTestMessage_FixedString,
-  allowString: ValTestMessage_AllowString,
-  newlineString: ValTestMessage_NewlineString,
-  allId: ValTestMessage_AllId,
-  urlAllOpts: ValTestMessage_UrlAllOpts,
-  trimString: ValTestMessage_TrimString,
-  timezone: ValTestMessage_Timezone,
-  replaceString: ValTestMessage_ReplaceString,
-  optString: ValTestMessage_OptString,
-  scTitle: ValTestMessage_ScTitle,
   sanitiseLength: ValTestMessage_SanitiseLength,
-  url: ValTestMessage_Url,
+  urlAllOpts: ValTestMessage_UrlAllOpts,
   timezoneOptional: ValTestMessage_TimezoneOptional,
-  uuid: ValTestMessage_Uuid,
+  notSanitisePua: ValTestMessage_NotSanitisePua,
+  description: ValTestMessage_Description,
   symbolsString: ValTestMessage_SymbolsString,
   name: ValTestMessage_Name,
+  notSupported: ValTestMessage_NotSupported,
+  replaceString: ValTestMessage_ReplaceString,
   scPermissive: ValTestMessage_ScPermissive,
-  sanitisePua: ValTestMessage_SanitisePua,
-  id: ValTestMessage_Id,
-  ids: ValTestMessage_IdsArray,
-  optEmail: ValTestMessage_OptEmail,
-  title: ValTestMessage_Title,
-  s12Id: ValTestMessage_S12Id,
-  description: ValTestMessage_Description,
   optionalString: ValTestMessage_OptionalString,
-});
-
-export const LogOnlyValidationMessage_ImageId = z.string().uuid().uuid();
-export const LogOnlyValidationMessage_InspectionId = z.string().uuid();
-export const LogOnlyValidationMessage_OwnerId = z.string().uuid();
-export const LogOnlyValidationMessage_Title = z
-  .string()
-  .min(1)
-  .max(10)
-  .optional();
-export const LogOnlyValidationMessage_Name = z.string().min(1).max(5);
-export const LogOnlyValidationMessage_Latitude = z
-  .number()
-  .min(-90)
-  .max(90)
-  .optional();
-export const LogOnlyValidationMessage_Longitude = z
-  .number()
-  .min(-180)
-  .max(180)
-  .optional();
-export const LogOnlyValidationMessage_Accuracy = z
-  .number()
-  .int()
-  .min(0)
-  .max(10000)
-  .optional();
-export const LogOnlyValidationMessage_Answer = z.string().max(40).optional();
-export const LogOnlyValidationMessage_Note = z
-  .string()
-  .min(5)
-  .max(40)
-  .optional();
-export const LogOnlyValidationMessageValidator = z.object({
-  imageId: LogOnlyValidationMessage_ImageId,
-  ownerId: LogOnlyValidationMessage_OwnerId,
-  name: LogOnlyValidationMessage_Name,
-  accuracy: LogOnlyValidationMessage_Accuracy,
-  note: LogOnlyValidationMessage_Note,
-  inspectionId: LogOnlyValidationMessage_InspectionId,
-  title: LogOnlyValidationMessage_Title,
-  latitude: LogOnlyValidationMessage_Latitude,
-  longitude: LogOnlyValidationMessage_Longitude,
-  answer: LogOnlyValidationMessage_Answer,
+  optString: ValTestMessage_OptString,
+  phone: ValTestMessage_Phone,
+  timezone: ValTestMessage_Timezone,
+  id: ValTestMessage_Id,
+  uuid: ValTestMessage_Uuid,
+  password: ValTestMessage_Password,
+  mediaId: ValTestMessage_MediaId,
+  s12Id: ValTestMessage_S12Id,
+  notReplaceString: ValTestMessage_NotReplaceString,
+  newlineString: ValTestMessage_NewlineString,
+  trimString: ValTestMessage_TrimString,
+  scTitle: ValTestMessage_ScTitle,
+  sanitisePua: ValTestMessage_SanitisePua,
+  ids: ValTestMessage_IdsArray,
+  email: ValTestMessage_Email,
+  fixedString: ValTestMessage_FixedString,
+  allId: ValTestMessage_AllId,
+  longString: ValTestMessage_LongString,
+  symbolString: ValTestMessage_SymbolString,
+  legacyId: ValTestMessage_LegacyId,
+  title: ValTestMessage_Title,
+  runeString: ValTestMessage_RuneString,
+  allString: ValTestMessage_AllString,
+  url: ValTestMessage_Url,
+  optEmail: ValTestMessage_OptEmail,
+  allowString: ValTestMessage_AllowString,
+  invalidEncodingString: ValTestMessage_InvalidEncodingString,
 });
 
 export const LowercaseValidationMessage_Uuidv4 = z.string().uuid();
@@ -330,57 +292,95 @@ export const LowercaseValidationMessage_RevId = z
 export const LowercaseValidationMessage_QuestionId = z.string().uuid();
 export const LowercaseValidationMessage_ItemId = z.string().uuid().optional();
 export const LowercaseValidationMessageValidator = z.object({
-  questionId: LowercaseValidationMessage_QuestionId,
-  uuidv4: LowercaseValidationMessage_Uuidv4,
-  legacy: LowercaseValidationMessage_Legacy,
   legacyLogOnly: LowercaseValidationMessage_LegacyLogOnly,
-  revId: LowercaseValidationMessage_RevId,
-  uuidv4LogOnly: LowercaseValidationMessage_Uuidv4LogOnly,
+  uuidv4: LowercaseValidationMessage_Uuidv4,
   s12id: LowercaseValidationMessage_S12Id,
   s12idLogOnly: LowercaseValidationMessage_S12IdLogOnly,
+  legacy: LowercaseValidationMessage_Legacy,
+  revId: LowercaseValidationMessage_RevId,
+  questionId: LowercaseValidationMessage_QuestionId,
   itemId: LowercaseValidationMessage_ItemId,
+  uuidv4LogOnly: LowercaseValidationMessage_Uuidv4LogOnly,
 });
 
-export const MyOneOfMsg_FirstType_Value = z.number().int();
-export const MyOneOfMsg_FirstTypeValidator = z.object({
-  value: MyOneOfMsg_FirstType_Value,
+export const NestedLevel3Message_OrgId5 = z.string().min(5).max(5);
+export const NestedLevel3MessageValidator = z.object({
+  orgId5: NestedLevel3Message_OrgId5,
 });
 
-export const MyOneOfMsg_SecondType_Value = z.number().int();
-export const MyOneOfMsg_SecondTypeValidator = z.object({
-  value: MyOneOfMsg_SecondType_Value,
+export const NestedLevel2Message_OrgId4 = z.string().min(4).max(4);
+export const NestedLevel2Message_OrgNested =
+  NestedLevel3MessageValidator.optional();
+export const NestedLevel2MessageValidator = z.object({
+  orgId4: NestedLevel2Message_OrgId4,
 });
 
-export const MyOneOfMsg_MyFirstField = MyOneOfMsg_FirstTypeValidator.optional();
-export const MyOneOfMsg_MySecondField =
-  MyOneOfMsg_SecondTypeValidator.optional();
-export const MyOneOfMsg_MyThirdField = z.string().min(1);
-export const MyOneOfMsgValidator = z.object({
-  myThirdField: MyOneOfMsg_MyThirdField,
+export const ScimUser_Emails = ScimEmailValidator.optional();
+export const ScimUserValidator = z.object({});
+
+export const NestedLevel1Message_OrgId3 = z.string().min(3).max(3);
+export const NestedLevel1Message_OrgNested =
+  NestedLevel2MessageValidator.optional();
+export const NestedLevel1MessageValidator = z.object({
+  orgId3: NestedLevel1Message_OrgId3,
 });
 
-export const GeoValidationMessage_Latitude = z
-  .number()
-  .min(-90)
-  .max(90)
-  .optional();
-export const GeoValidationMessage_Longitude = z
-  .number()
-  .min(-180)
-  .max(180)
-  .optional();
-export const GeoValidationMessage_Accuracy = z
+export const MyReqMessage_UserId = z.string().min(2).max(2);
+export const MyReqMessage_OrgNested = NestedLevel1MessageValidator.optional();
+export const MyReqMessageValidator = z.object({ userId: MyReqMessage_UserId });
+
+export const NumberMessage_NestedNumber_Value = z
   .number()
   .int()
-  .min(0)
-  .max(10000)
+  .max(100)
   .optional();
-export const GeoValidationMessageValidator = z.object({
-  latitude: GeoValidationMessage_Latitude,
-  longitude: GeoValidationMessage_Longitude,
-  accuracy: GeoValidationMessage_Accuracy,
+export const NumberMessage_NestedNumberValidator = z.object({
+  value: NumberMessage_NestedNumber_Value,
 });
 
-export const OuterMessageUsingNestedMessage_SomeMessage =
-  ValTestMessage_NestedMessageValidator.optional();
-export const OuterMessageUsingNestedMessageValidator = z.object({});
+export const NumberMessage_NanAllowed = z.number();
+export const NumberMessage_NanDisallowed = z.number();
+export const NumberMessage_OptionalNoNanValue = z.number().optional();
+export const NumberMessage_OptionalOnly = z.number().optional();
+export const NumberMessage_RangeBasic = z.number().min(1).max(10).optional();
+export const NumberMessage_RangeLow = z.number().min(1).optional();
+export const NumberMessage_RangeHigh = z.number().max(10).optional();
+export const NumberMessage_RangeNovalues = z.number().optional();
+export const NumberMessage_RangeNotOptional = z.number().min(1).max(10);
+export const NumberMessage_IntTest = z.number().int().min(1).max(99);
+export const NumberMessage_Int64Test = z
+  .number()
+  .int()
+  .min(-100)
+  .max(100)
+  .optional();
+export const NumberMessage_UintTest = z
+  .number()
+  .int()
+  .min(5)
+  .max(99)
+  .optional();
+export const NumberMessage_RepeatedInt = z
+  .number()
+  .int()
+  .min(10)
+  .max(20)
+  .optional();
+export const NumberMessage_RepeatedIntArray = NumberMessage_RepeatedInt.array();
+export const NumberMessage_NestedNumber =
+  NumberMessage_NestedNumberValidator.optional();
+export const NumberMessageValidator = z.object({
+  rangeNovalues: NumberMessage_RangeNovalues,
+  rangeNotOptional: NumberMessage_RangeNotOptional,
+  repeatedInt: NumberMessage_RepeatedIntArray,
+  nanAllowed: NumberMessage_NanAllowed,
+  optionalOnly: NumberMessage_OptionalOnly,
+  rangeHigh: NumberMessage_RangeHigh,
+  rangeLow: NumberMessage_RangeLow,
+  intTest: NumberMessage_IntTest,
+  int64Test: NumberMessage_Int64Test,
+  uintTest: NumberMessage_UintTest,
+  nanDisallowed: NumberMessage_NanDisallowed,
+  optionalNoNanValue: NumberMessage_OptionalNoNanValue,
+  rangeBasic: NumberMessage_RangeBasic,
+});
