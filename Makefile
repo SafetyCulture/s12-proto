@@ -4,7 +4,7 @@ generate:
 	protoc \
 	-I. \
 	--go_out=paths=source_relative:. \
-	s12/protobuf/proto/*.proto s12/flags/permissions/*.proto s12/flags/authorization/*.proto
+	s12/protobuf/proto/*.proto s12/flags/permissions/*.proto
 
 ARCH := $(shell uname -p)
 ifeq ($(ARCH), arm)
