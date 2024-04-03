@@ -4,7 +4,6 @@ package plugin
 
 import (
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 
@@ -38,7 +37,7 @@ const (
 var regexHashLib = make(map[string]struct{})
 
 var dependencies = make(map[*protogen.Message][]*protogen.Message)
-var tsVars = []string{"Timestamp"}
+var tsVars = make(map[string]bool)
 
 // Validator plugin version
 var validatorVersion = "v2.6.0"
@@ -73,7 +72,7 @@ func TopologicalSort(dependencies map[*protogen.Message][]*protogen.Message) ([]
 	var visit func(m *protogen.Message) error
 	visit = func(m *protogen.Message) error {
 		if temp[m] {
-			log.Printf("circular dependency detected: %s ", m)
+			// log.Printf("circular dependency detected: %s ", m)
 			return nil
 		}
 		if !visited[m] {
@@ -130,13 +129,13 @@ func GenerateFile(p *protogen.Plugin, file *protogen.File) *protogen.GeneratedFi
 	}
 
 	orderedMessages, _ := TopologicalSort(dependencies)
-	log.Printf("orderedMessages: %s", orderedMessages)
+	// log.Printf("orderedMessages: %s", orderedMessages)
 
 	for _, msg := range orderedMessages {
 		if opts, ok := msg.Desc.Options().(*descriptorpb.MessageOptions); !ok || opts.GetMapEntry() {
 			continue
 		}
-		log.Printf("msg: %s", msg.GoIdent.GoName)
+		// log.Printf("msg: %s", msg.GoIdent.GoName)
 		genValidateFunc(g, msg)
 		g.P()
 	}
@@ -154,14 +153,14 @@ func updateDependencies(msg *protogen.Message) {
 			}
 			dependant = true
 			dependencies[msg] = append(dependencies[msg], f.Message)
-			log.Printf("dependencies: %s", dependencies)
+			// log.Printf("dependencies: %s", dependencies)
 
 		}
 	}
 	if !dependant {
 		dependencies[msg] = []*protogen.Message{}
 	}
-	log.Printf("dependencies: %s", dependencies)
+	// log.Printf("dependencies: %s", dependencies)
 
 }
 
@@ -228,7 +227,7 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 		case protoreflect.Int32Kind, protoreflect.Int64Kind,
 			protoreflect.Uint32Kind, protoreflect.Uint64Kind,
 			protoreflect.Sint32Kind, protoreflect.Sint64Kind:
-			g.P(validatorAttrConst + "z" + genNumberValidator(g, f, varName) + ".int()" + ";")
+			g.P(validatorAttrConst + "z" + genNumberValidator(g, f, varName, true) + ";")
 			messagePropsMap[f.Desc.JSONName()] = varName
 		case protoreflect.MessageKind:
 			g.P(validatorAttrConst + genMsgValidator(g, f, varName))
@@ -236,7 +235,7 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 			g.P(validatorAttrConst + "z" + genEnumValidator(g, f, varName) + ";")
 			messagePropsMap[f.Desc.JSONName()] = varName
 		case protoreflect.DoubleKind, protoreflect.FloatKind:
-			g.P(validatorAttrConst + "z" + genNumberValidator(g, f, varName) + ";")
+			g.P(validatorAttrConst + "z" + genNumberValidator(g, f, varName, false) + ";")
 			messagePropsMap[f.Desc.JSONName()] = varName
 		default:
 			g.P(validatorAttrConst + "z.string();")
@@ -270,7 +269,6 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 		}
 		g.P(validatorConst + "})")
 		g.P()
-		tsVars = append(tsVars, msg.GoIdent.GoName)
 	}
 
 }
@@ -287,10 +285,6 @@ func genLegacyStringValidator(g *protogen.GeneratedFile, f *protogen.Field, stri
 		*stringValidator += ".uuid()"
 	}
 
-	if optional {
-		*stringValidator += ".optional()"
-	}
-
 	// if getBoolExtension(f, validator.E_LegacyId) {
 	// 	g.P("if !", s12protoPackage.Ident("IsLegacyID"), "(", varName, ", false) {")
 	// 	errStr := "be parsable as a UUID or a legacy ID"
@@ -299,6 +293,10 @@ func genLegacyStringValidator(g *protogen.GeneratedFile, f *protogen.Field, stri
 	// }
 
 	genLenValidator(g, f, stringValidator)
+
+	if optional {
+		*stringValidator += ".optional()"
+	}
 
 }
 
@@ -816,12 +814,14 @@ func genMsgValidator(g *protogen.GeneratedFile, f *protogen.Field, varName strin
 
 func genEnumValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string) string {
 	enumName := f.Desc.JSONName() + "Enum"
-	g.P("const " + enumName + " = {")
-
-	for _, v := range f.Enum.Values {
-		g.P("  ", v.Desc.Name(), ": ", v.Desc.Number(), ",")
+	if !tsVars[enumName] {
+		g.P("const " + enumName + " = {")
+		for _, v := range f.Enum.Values {
+			g.P("  ", v.Desc.Name(), ": ", v.Desc.Number(), ",")
+		}
+		g.P("} as const")
+		tsVars[enumName] = true
 	}
-	g.P("} as const")
 
 	enumValidator := ".nativeEnum(" + enumName + ")"
 
@@ -1001,11 +1001,11 @@ func getIntExtention(f *protogen.Field, xt protoreflect.ExtensionType) int64 {
 	return -1
 }
 
-func genNumberValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string) string {
+func genNumberValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string, isInt bool) string {
 	rules := getNumberExtension(f, validator.E_Number)
 	numberValidation := ".number()"
-	if rules.GetOptional() || f.Desc.HasOptionalKeyword() {
-		numberValidation += ".optional()"
+	if isInt {
+		numberValidation += ".int()"
 	}
 
 	if !rules.GetAllowNan() {
@@ -1038,7 +1038,9 @@ func genNumberValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 			numberValidation += ".max(" + rangeVals[1] + ")"
 		}
 	}
-
+	if rules.GetOptional() || f.Desc.HasOptionalKeyword() {
+		numberValidation += ".optional()"
+	}
 	return numberValidation
 }
 

@@ -29,10 +29,6 @@ protobuf/protoc-gen-cruxclient/mock_service_generator.o
 install-govalidator:
 	go install ./protobuf/protoc-gen-govalidator
 
-.PHONY: install-tsvalidator
-install-tsvalidator:
-	go install ./protobuf/protoc-gen-tsvalidator
-
 .PHONY: install-logger
 	go install github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-logger
 
@@ -56,15 +52,6 @@ govalidator: install-govalidator
 	--go_out=paths=source_relative:protobuf/protoc-gen-govalidator/example \
 	--govalidator_out=paths=source_relative:protobuf/protoc-gen-govalidator/example \
 	protobuf/protoc-gen-govalidator/example/*.proto
-
-.PHONY: tsvalidator
-tsvalidator: install-tsvalidator
-	protoc \
-	-I./protobuf/protoc-gen-tsvalidator/example \
-	-I. \
-	--go_out=paths=source_relative:protobuf/protoc-gen-tsvalidator/example \
-	--tsvalidator_out=paths=source_relative:protobuf/protoc-gen-tsvalidator/example \
-	protobuf/protoc-gen-tsvalidator/example/*.proto
 
 .PHONY: govalidator-test
 govalidator-test:
