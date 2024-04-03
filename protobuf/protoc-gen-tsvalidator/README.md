@@ -1,74 +1,46 @@
-# Protocol buffer validators compiler
+# Typescript protocol buffer validators compiler
 
-A `protoc` plugin that generates `Validate() error` functions on Go proto `struct`s based on field options inside `.proto` files. The validation functions are code-generated and thus don't suffer on performance from tag-based reflection on deeply-nested messages.
+A `protoc` plugin that generates `Zod` schemas for messages and attributes based on field options inside `.proto` files. The validation functions are code-generated and thus don't suffer on performance from tag-based reflection on deeply-nested messages.
 
-&nbsp;
+The intent of this validation library is to provide input level validations on the client side. We aim to ensure 100% compatibility with the govalidator package and if it is not possible to validate effectively on the frontend for some of the validations/replacements then it should be captured by the backend validation.
+
+> Backend validation has a primary objective of creating a secure and reliable system
+> Frontend validation is used to provide the users immediate feedback where possible and to aid by centralizing the validation logic to the proto specification. Thereby also increasing the developer experience.
 
 ## Usage
 
+```shell
+go get github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-tsvalidator
+protoc -I. --gogo_out=:. --tsvalidator_out=. example.proto
 ```
-$ go get github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-tsvalidator
-$ protoc -I. --gogo_out=:. --tsvalidator_out=. example.proto
-```
-&nbsp;
 
 ## Development
 
-Use these commands at the root folder of this repository for testing:
-```bash
-cd s12-proto
+Use these commands at current folder:
 
-# regenerate examples and run tests
-make tsvalidator
-make tsvalidator-test
+```shell
+cd s12-proto/protobuf/protoc-gen-tsvalidator
+
+# regenerate examples
+task gen-example
+
+# Or any custom folder
+make gen FOLDER=folder
 
 # regenerate valtest and run tests
-make tsvalidator-valtest
-make tsvalidator-valtest-test
+task test
 ```
-&nbsp;
 
-## Playground
+## In Progress
 
-The validator plugin is invoked by the protobuf compiler tool directly to generate the respective validator code.
-As a result, it makes it very hard to attach the plugin to a debugger and inspect the code during that process.
-
-A sample code has been provided that allows you to attach and step through the plugin during the code generation process. 
-The basic premise of the playground approach is
-- generate the `CodeGeneratorRequest` object of the proto files (via makefile)
-- run the validator plugin on the request object (via the .go code)
-- the resulting files are printed to `stdout`
-
-The `CodeGeneratorRequest` object is what is consumed by the protobuf compiler as well. 
-The code in `playground_main.go` is a standard go file with a main function.
-
-There are a couple of Makefile targets that help us to achieve this 
-- `make playground-req-object`: generate the request object from the `playground.proto`
-- `make playground-generated-code`: generate the eventual code in the respective `validator_regex.pb.go` and `validator.pb.go`
-
-At minimum, you are required to run the `playground-req-object` target before you run the code in `playground_main.go`
-
-You can modify the `playground.proto` to add in a new type of message or use existing validators to see how the plugin works in action.
-
-## Protobuf Validators
-There are a number of common fields for which validators have been developed. For detailed documentation and usage, visit the following link to a private SafetyCulture confluence page - https://safetyculture.atlassian.net/l/cp/wC1Xz6np. 
-
-If new validators are added, please be sure to document them including their usage and options.
-
-Link to the last public version of the readme which had the complete documentation to date - https://github.com/SafetyCulture/s12-proto/blob/f8d868b8135e3f2438bfaca234e27b2f305c59d9/protobuf/protoc-gen-tsvalidator/README.md 
-
-&nbsp;
-
-## Legacy Validator Fields
-
-__Deprecated: do not define the following validators for new fields. Use one of the newer validation options above.__
-
-- validator.uuid
-- validator.int_gt
-- validator.int_lt
-- validator.int_gte
-- validator.int_lte
-- validator.length_lte
-- validator.length_gte
-- validator.legacy_id
-- validator.trim_len_check
+- types of s12 id
+- upper/lower case uuid
+- unsafe/safe string
+- replace unsafe
+- Latitude/Longitude
+- rune length vs string length // will result in 7 bytes and 4 runes
+- rune length // this NFD string (e + ´) will be normalised to NFC string before len check so still 4 bytes
+- run length // len 4 in runes, 5 in bytes
+- SanitiseLength
+- SanitisePua
+- NotSanitisePua

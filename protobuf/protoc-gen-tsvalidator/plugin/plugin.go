@@ -238,7 +238,7 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 			g.P(validatorAttrConst + "z" + genNumberValidator(g, f, varName, false) + ";")
 			messagePropsMap[f.Desc.JSONName()] = varName
 		default:
-			g.P(validatorAttrConst + "z.string();")
+			g.P(validatorAttrConst + "z.any();")
 			messagePropsMap[f.Desc.JSONName()] = varName
 		}
 
@@ -694,7 +694,7 @@ func genEmailValidator(g *protogen.GeneratedFile, f *protogen.Field, stringValid
 		return
 	}
 
-	*stringValidator += ".email()"
+	*stringValidator += ".email().max(231)"
 
 	if rules.GetOptional() {
 		*stringValidator += ".optional()"
