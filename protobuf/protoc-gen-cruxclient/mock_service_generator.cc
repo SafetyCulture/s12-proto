@@ -88,7 +88,7 @@ void MockServiceGenerator::GenerateHeader(
         printer.Print("for (auto& bytes : bytes_list) {\n");
         printer.Indent();
         printer.Print(vars, "::$response$ response;\n");
-        printer.Print("response.ParseFromString(*bytes);\n");
+        printer.Print("response.ParseFromString(bytes);\n");
         printer.Print("writer->Write(response);\n");
         printer.Outdent();
         printer.Print("}\n");
