@@ -82,7 +82,6 @@ void MockServiceGenerator::GenerateHeader(
       }
 
       if (method->server_streaming()) {
-        // Handle server streaming of objects (i.e., answers).
         printer.Print(vars, "::grpc::Status $method_name$(::grpc::ServerContext* context, const ::$request$* request, ::grpc::ServerWriter<::$response$>* writer) override {\n");
         printer.Indent();
         printer.Print(vars, "auto[status, bytes_list] = mCallback(\"$method_fullname$\", request->SerializeAsString(), context->client_metadata());\n");
