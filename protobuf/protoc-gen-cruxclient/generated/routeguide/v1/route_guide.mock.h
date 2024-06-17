@@ -13,24 +13,24 @@ class RouteGuideMockImpl final : public ::routeguide::v1::RouteGuide::Service {
  public:
   RouteGuideMockImpl(const GRPCServiceCallback& callback): mCallback(callback) {};
   ::grpc::Status GetFeature(::grpc::ServerContext* context, const ::routeguide::v1::Point* request, ::routeguide::v1::Feature* response) override {
-    auto[status, bytes] = mCallback("routeguide.v1.RouteGuide.GetFeature", request->SerializeAsString(), context->client_metadata());
-    if (bytes.has_value()) {
-      response->ParseFromString(*bytes);
+    auto[status, bytes_list] = mCallback("routeguide.v1.RouteGuide.GetFeature", request->SerializeAsString(), context->client_metadata());
+    if (!bytes_list.empty()) {
+      response->ParseFromString(bytes_list[0]);
     }
     return status;
   }
   ::grpc::Status UpdateFeature(::grpc::ServerContext* context, const ::routeguide::v1::Point* request, ::routeguide::v1::Feature* response) override {
-    auto[status, bytes] = mCallback("routeguide.v1.RouteGuide.UpdateFeature", request->SerializeAsString(), context->client_metadata());
-    if (bytes.has_value()) {
-      response->ParseFromString(*bytes);
+    auto[status, bytes_list] = mCallback("routeguide.v1.RouteGuide.UpdateFeature", request->SerializeAsString(), context->client_metadata());
+    if (!bytes_list.empty()) {
+      response->ParseFromString(bytes_list[0]);
     }
     return status;
   }
   ::grpc::Status ListFeatures(::grpc::ServerContext* context, const ::routeguide::v1::Rectangle* request, ::grpc::ServerWriter<::routeguide::v1::Feature>* writer) override {
-    auto[status, bytes] = mCallback("routeguide.v1.RouteGuide.ListFeatures", request->SerializeAsString(), context->client_metadata());
-    if (bytes.has_value()) {
+    auto[status, bytes_list] = mCallback("routeguide.v1.RouteGuide.ListFeatures", request->SerializeAsString(), context->client_metadata());
+    for (auto& bytes : bytes_list) {
       ::routeguide::v1::Feature response;
-      response.ParseFromString(*bytes);
+      response.ParseFromString(bytes);
       writer->Write(response);
     }
     return status;
@@ -43,9 +43,9 @@ class PublicRouteGuideMockImpl final : public ::routeguide::v1::PublicRouteGuide
  public:
   PublicRouteGuideMockImpl(const GRPCServiceCallback& callback): mCallback(callback) {};
   ::grpc::Status GetFeature(::grpc::ServerContext* context, const ::routeguide::v1::Point* request, ::routeguide::v1::Feature* response) override {
-    auto[status, bytes] = mCallback("routeguide.v1.PublicRouteGuide.GetFeature", request->SerializeAsString(), context->client_metadata());
-    if (bytes.has_value()) {
-      response->ParseFromString(*bytes);
+    auto[status, bytes_list] = mCallback("routeguide.v1.PublicRouteGuide.GetFeature", request->SerializeAsString(), context->client_metadata());
+    if (!bytes_list.empty()) {
+      response->ParseFromString(bytes_list[0]);
     }
     return status;
   }
