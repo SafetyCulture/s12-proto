@@ -85,6 +85,7 @@ var stringUnsafeReplacerMap = map[string]string{
 	`\u003E`: `\u02C3`, //  > : ˃   GREATER-THAN SIGN to MODIFIER LETTER RIGHT ARROWHEAD (alternative in other script: U+16F3F)
 	`\u005C`: `\uFF3C`, //  \ : ＼  REVERSE SOLIDUS to FULLWIDTH REVERSE SOLIDUS (alternative ⧵ U+29F5)
 	`\u0060`: `\u2019`, //  ` : ’   GRAVE ACCENT to RIGHT SINGLE QUOTATION MARK
+	`\u00B4`: `\u2019`, //  ` : ’   ACUTE ACCENT to RIGHT SINGLE QUOTATION MARK
 	`\u007C`: `\uFFE8`, //  | : ￨  VERTICAL LINE to HALFWIDTH FORMS LIGHT VERTICAL
 	`\u3164`: `\u0020`, //  ㅤ :    HANGUL FILLER to normal space (HANGUL FILLER is in Letter, other so accepted by default)
 	// NOTE: when updating, also need to update UnsafeCharReplacer in validator_helpers.go (TODO PA: improve this)
