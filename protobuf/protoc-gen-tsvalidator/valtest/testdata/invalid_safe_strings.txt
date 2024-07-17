@@ -1,0 +1,14 @@
+<xss> (HTMLi)
+ព្រះ​ពុទ្ឋឃោសាចារ‌្យ​ជួន​ណាត (Khmer script)
+সুকুমার রায় (Bengali script)
+माधुरी दीक्षित (Devanagari script)
+ธงไชย แม็คอินไตย์ (Thai script)
+མགོན་པོ་རྡོ་རྗེ། (Tibetran script)
+சிவாஜி கனேசன் (Tibetran script)
+Audit - M&R Process (中文版）(Han script)
+><img src=x onerror=alert(1)> (HTMLi)
+#\"><img src=x onerror=prompt(1 (HTMLi)
+<script>alert(document.cookie)</script>
+' OR 1=1
+../etc/passwd
+1+1=2/4&a|b
