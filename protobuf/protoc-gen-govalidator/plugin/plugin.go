@@ -418,7 +418,14 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 	}
 
 	// ### STEP 3: sanitise
-	// ##### 3A. sanitise whitespace (trim option)
+	// #### 3A-1. 'Break' partial URLs by introducing a space after each dot between characters.
+	// Note this will PERMANENTLY mutate the message field data. Further iterations will ignore these '. ' patterns,
+	// we only care about patterns like 'a.b'
+	if rules.GetBreakPartialUrl() {
+		g.P(varName, " = ", s12protoPackage.Ident("BreakURLMatcher"), ".ReplaceAllString(", varName, ", \". $1\")")
+	}
+
+	// ##### 3A-2. sanitise whitespace (trim option)
 	// Note this will PERMANENTLY mutate the message field data, this trim is not for length check only but for sanitisation
 	// WARNING: Any leading/trailing whitespace will be permanently removed (this is intended here)
 	if rules.GetTrim() {
@@ -531,6 +538,14 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 		if fMaxLen > 0 {
 			maxLen = uint32(fMaxLen)
 		}
+	}
+
+	// If the text contains a full URL anywhere in it, reject it. This should help us control spam.
+	if rules.GetRejectUrl() {
+		g.P("containsUrl, _ := ", s12protoPackage.Ident("ContainsUrl"), "(", varName, ")")
+		g.P("if containsUrl {")
+		genErrorStringWithParams(g, varName, string(f.Desc.Name()), "not contain a URL")
+		g.P("}")
 	}
 
 	// Now both minLen and maxLen are set

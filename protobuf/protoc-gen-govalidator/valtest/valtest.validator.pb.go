@@ -1322,3 +1322,56 @@ func (m *NumberMessage_NestedNumber) Validate() error {
 	}
 	return nil
 }
+
+func (m *NonUrlMessage) Validate() error {
+	if m.RejectUrlTest != "" {
+		if !norm.NFC.IsNormalString(m.RejectUrlTest) && norm.NFD.IsNormalString(m.RejectUrlTest) {
+			// normalise NFD to NFC string
+			var normErr error
+			m.RejectUrlTest, _, normErr = transform.String(transform.Chain(norm.NFD, norm.NFC), m.RejectUrlTest)
+			if normErr != nil {
+				return fmt.Errorf(`reject_url_test: value must must be normalisable to NFC`)
+			}
+		}
+		if strings.ContainsRune(m.RejectUrlTest, utf8.RuneError) {
+			return fmt.Errorf(`reject_url_test: value must must have valid encoding`)
+		} else if !utf8.ValidString(m.RejectUrlTest) {
+			return fmt.Errorf(`reject_url_test: value must must be a valid UTF-8-encoded string`)
+		}
+		containsUrl, _ := proto.ContainsUrl(m.RejectUrlTest)
+		if containsUrl {
+			return fmt.Errorf(`reject_url_test: value must not contain a URL`)
+		}
+		var _len_NonUrlMessage_RejectUrlTest = len(m.RejectUrlTest)
+		if !(_len_NonUrlMessage_RejectUrlTest >= 1 && _len_NonUrlMessage_RejectUrlTest <= 130) {
+			return fmt.Errorf(`reject_url_test: value must have a length between 1 and 130`)
+		}
+		if !_regex_1bb1e0a2437db38577f49b4f31ccfca2.MatchString(m.RejectUrlTest) {
+			return fmt.Errorf(`reject_url_test: value must only have valid characters`)
+		}
+	}
+	if m.BreakPartialUrlTest != "" {
+		if !norm.NFC.IsNormalString(m.BreakPartialUrlTest) && norm.NFD.IsNormalString(m.BreakPartialUrlTest) {
+			// normalise NFD to NFC string
+			var normErr error
+			m.BreakPartialUrlTest, _, normErr = transform.String(transform.Chain(norm.NFD, norm.NFC), m.BreakPartialUrlTest)
+			if normErr != nil {
+				return fmt.Errorf(`break_partial_url_test: value must must be normalisable to NFC`)
+			}
+		}
+		if strings.ContainsRune(m.BreakPartialUrlTest, utf8.RuneError) {
+			return fmt.Errorf(`break_partial_url_test: value must must have valid encoding`)
+		} else if !utf8.ValidString(m.BreakPartialUrlTest) {
+			return fmt.Errorf(`break_partial_url_test: value must must be a valid UTF-8-encoded string`)
+		}
+		m.BreakPartialUrlTest = proto.BreakURLMatcher.ReplaceAllString(m.BreakPartialUrlTest, ". $1")
+		var _len_NonUrlMessage_BreakPartialUrlTest = len(m.BreakPartialUrlTest)
+		if !(_len_NonUrlMessage_BreakPartialUrlTest >= 1 && _len_NonUrlMessage_BreakPartialUrlTest <= 130) {
+			return fmt.Errorf(`break_partial_url_test: value must have a length between 1 and 130`)
+		}
+		if !_regex_1bb1e0a2437db38577f49b4f31ccfca2.MatchString(m.BreakPartialUrlTest) {
+			return fmt.Errorf(`break_partial_url_test: value must only have valid characters`)
+		}
+	}
+	return nil
+}

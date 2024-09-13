@@ -3,6 +3,8 @@ package valtest
 import (
 	"bufio"
 	"fmt"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"math"
 	"os"
 	"strings"
@@ -1042,6 +1044,46 @@ func TestValidationRules(t *testing.T) {
 	})
 	fmt.Println("###### LEN = ", len(strings.Repeat("y", 30002)))
 
+	// RejectUrl
+	//TODO @sc-lachlanrobertson:
+	// Reject, only things that look like URLs
+	// Sanitise: [A-Z].[A-Z] (replace with ". ", do not do this if it is already ". "
+	rejectUrlTestUrlsToReject := map[string]string{
+		"[RejectUrl] Text is only a full URL":       "https://full-url-only.com",
+		"[RejectUrl] Text starts with a full URL":   "http://full-url-at-start.org is a place you should go",
+		"[RejectUrl] Text ends with a full URL":     "You should trust ftp://full-url-at-end.io",
+		"[RejectUrl] Full URL with comma":           "sftp://comma.org,",
+		"[RejectUrl] Full URL with semicolon":       "sftp://semicolon.org;",
+		"[RejectUrl] Full URL with colon":           "sftp://colon.org:",
+		"[RejectUrl] Full URL with hash":            "https://hash.org#spam",
+		"[RejectUrl] Full URL with multiple spaces": "   sftp://multiple-spaces.org   ",
+		"[RejectUrl] Full URL is in the middle":     "Go to file://full-url-in-middle.gov.au, it's definitely legit",
+	}
+	for testName, input := range rejectUrlTestUrlsToReject {
+		tests = append(tests, TestSet{
+			name: testName,
+			input: &NonUrlMessage{
+				RejectUrlTest: input,
+			},
+			shouldError: invalid,
+		})
+	}
+	rejectUrlTestUrlToAllow := map[string]string{
+		"[RejectUrl] Text contains a partial URL":       "This isn't a full URL not-a-full-url.com as it is missing a scheme",
+		"[RejectUrl] Text contains a hash":              "#NewOrg",
+		"[RejectUrl] Text contains a split up full URL": "https:// split-url .com",
+		"[RejectUrl] Text is empty":                     "",
+	}
+	for testName, input := range rejectUrlTestUrlToAllow {
+		tests = append(tests, TestSet{
+			name: testName,
+			input: &NonUrlMessage{
+				RejectUrlTest: input,
+			},
+			shouldError: valid,
+		})
+	}
+
 	for _, test := range tests {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
@@ -1070,8 +1112,67 @@ func TestValidationRules(t *testing.T) {
 			// }
 		})
 	}
-
 }
+
+// TestBreakPartialUrl is a special test case that verifies that a message contents is modified, not that an error is
+// returned
+func TestBreakPartialUrl(t *testing.T) {
+	tests := map[string]struct {
+		input    string
+		expected string
+	}{
+		//TODO @sc-lachlanrobertson: MARK
+		"Does not modify text without URLs": {
+			input:    "This is a normal sentence. It has no URLs",
+			expected: "This is a normal sentence. It has no URLs",
+		},
+		"Break partial URLs in text": {
+			input:    "Check out example.com and another.example.com for more info.",
+			expected: "Check out example. com and another. example. com for more info.",
+		},
+		"Handles multiple URLs in a single line": {
+			input:    "Visit site1.com, site2.org, and site3.net for examples.",
+			expected: "Visit site1. com, site2. org, and site3. net for examples.",
+		},
+		"Does not affect email addresses": {
+			input:    "Contact me at user@example.com or support@company.org.",
+			expected: "Contact me at user@example. com or support@company. org.",
+		},
+		"Handles URLs at the end of sentences": {
+			input:    "Check this website: example.com. Then visit another.site.",
+			expected: "Check this website: example. com. Then visit another. site.",
+		},
+		"Handles empty inputs": {
+			input:    "",
+			expected: "",
+		},
+		"Handles input with only URLs": {
+			input:    "example.com another.example.com",
+			expected: "example. com another. example. com",
+		},
+		"Does not affect numbers or other punctuation": {
+			input:    "Pi is about 3.14159. Visit example.com for more math!",
+			expected: "Pi is about 3.14159. Visit example. com for more math!",
+		},
+		"Does not affect strings that already has spaces afterwards": {
+			input:    "Already. Split",
+			expected: "Already. Split",
+		},
+	}
+
+	for testName, test := range tests {
+		test := test
+		t.Run(testName, func(t *testing.T) {
+			t.Parallel()
+			msg := &NonUrlMessage{
+				BreakPartialUrlTest: test.input,
+			}
+			require.NoError(t, msg.Validate())
+			assert.Equal(t, test.expected, msg.GetBreakPartialUrlTest())
+		})
+	}
+}
+
 func (m *ValTestMessage) getMsgField() *ValTestMessage {
 	return m
 }
