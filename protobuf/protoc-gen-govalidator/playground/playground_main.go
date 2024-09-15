@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-govalidator/plugin"
-	"github.com/golang/protobuf/proto"
 	"google.golang.org/protobuf/compiler/protogen"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/pluginpb"
 	"log"
 	"os"
