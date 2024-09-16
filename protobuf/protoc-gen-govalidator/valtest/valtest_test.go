@@ -123,8 +123,8 @@ var invalidURLs = []string{
 	"https:/example.com",
 	"https//:example.com",
 	"https://example.com/" + strings.Repeat("a", 1000), // too long
-	"ftp://example.com/",             // default scheme is https
-	"https://example.com/a#fragment", // fragment not allowed unless option enabled
+	"ftp://example.com/",                               // default scheme is https
+	"https://example.com/a#fragment",                   // fragment not allowed unless option enabled
 	"https://example.com/\na",
 	" https://example.com/a",  // leading whitespace
 	"\thttps://example.com/a", // leading whitespace
@@ -1044,41 +1044,39 @@ func TestValidationRules(t *testing.T) {
 	})
 	fmt.Println("###### LEN = ", len(strings.Repeat("y", 30002)))
 
-	// RejectUrl
-	//TODO @sc-lachlanrobertson:
-	// Reject, only things that look like URLs
-	// Sanitise: [A-Z].[A-Z] (replace with ". ", do not do this if it is already ". "
-	rejectUrlTestUrlsToReject := map[string]string{
-		"[RejectUrl] Text is only a full URL":       "https://full-url-only.com",
-		"[RejectUrl] Text starts with a full URL":   "http://full-url-at-start.org is a place you should go",
-		"[RejectUrl] Text ends with a full URL":     "You should trust ftp://full-url-at-end.io",
-		"[RejectUrl] Full URL with comma":           "sftp://comma.org,",
-		"[RejectUrl] Full URL with semicolon":       "sftp://semicolon.org;",
-		"[RejectUrl] Full URL with colon":           "sftp://colon.org:",
-		"[RejectUrl] Full URL with hash":            "https://hash.org#spam",
-		"[RejectUrl] Full URL with multiple spaces": "   sftp://multiple-spaces.org   ",
-		"[RejectUrl] Full URL is in the middle":     "Go to file://full-url-in-middle.gov.au, it's definitely legit",
+	// RejectPartialUrl
+	rejectPartialUrlTestUrlsToReject := map[string]string{
+		"[RejectPartialUrl] Text is only a full URL":                      "https://full-url-only.com",
+		"[RejectPartialUrl] Text starts with a full URL":                  "http://full-url-at-start.org is a place you should go",
+		"[RejectPartialUrl] Text ends with a full URL":                    "You should trust ftp://full-url-at-end.io",
+		"[RejectPartialUrl] Full URL with comma":                          "sftp://comma.org,",
+		"[RejectPartialUrl] Full URL with semicolon":                      "sftp://semicolon.org;",
+		"[RejectPartialUrl] Full URL with colon":                          "sftp://colon.org:",
+		"[RejectPartialUrl] Full URL with hash":                           "https://hash.org#spam",
+		"[RejectPartialUrl] Full URL with multiple spaces":                "   sftp://multiple-spaces.org   ",
+		"[RejectPartialUrl] Full URL is in the middle":                    "Go to file://full-url-in-middle.gov.au, it's definitely legit",
+		"[RejectPartialUrl] URL with emoji and uncommon space characters": "https://example.com  👯",
+		"[RejectPartialUrl] Text contains a partial URL":                  "This isn't a full URL not-a-full-url.com as it is missing a scheme",
 	}
-	for testName, input := range rejectUrlTestUrlsToReject {
+	for testName, input := range rejectPartialUrlTestUrlsToReject {
 		tests = append(tests, TestSet{
 			name: testName,
 			input: &NonUrlMessage{
-				RejectUrlTest: input,
+				RejectPartialUrlTest: input,
 			},
 			shouldError: invalid,
 		})
 	}
-	rejectUrlTestUrlToAllow := map[string]string{
-		"[RejectUrl] Text contains a partial URL":       "This isn't a full URL not-a-full-url.com as it is missing a scheme",
-		"[RejectUrl] Text contains a hash":              "#NewOrg",
-		"[RejectUrl] Text contains a split up full URL": "https:// split-url .com",
-		"[RejectUrl] Text is empty":                     "",
+	rejectPartialUrlTestUrlToAllow := map[string]string{
+		"[RejectPartialUrl] Text contains a hash":              "#NewOrg",
+		"[RejectPartialUrl] Text contains a split up full URL": "https:// split-url .com",
+		"[RejectPartialUrl] Text is empty":                     "",
 	}
-	for testName, input := range rejectUrlTestUrlToAllow {
+	for testName, input := range rejectPartialUrlTestUrlToAllow {
 		tests = append(tests, TestSet{
 			name: testName,
 			input: &NonUrlMessage{
-				RejectUrlTest: input,
+				RejectPartialUrlTest: input,
 			},
 			shouldError: valid,
 		})
@@ -1121,7 +1119,6 @@ func TestBreakPartialUrl(t *testing.T) {
 		input    string
 		expected string
 	}{
-		//TODO @sc-lachlanrobertson: MARK
 		"Does not modify text without URLs": {
 			input:    "This is a normal sentence. It has no URLs",
 			expected: "This is a normal sentence. It has no URLs",
@@ -1134,13 +1131,17 @@ func TestBreakPartialUrl(t *testing.T) {
 			input:    "Visit site1.com, site2.org, and site3.net for examples.",
 			expected: "Visit site1. com, site2. org, and site3. net for examples.",
 		},
-		"Does not affect email addresses": {
+		"Also affects email addresses": {
 			input:    "Contact me at user@example.com or support@company.org.",
 			expected: "Contact me at user@example. com or support@company. org.",
 		},
 		"Handles URLs at the end of sentences": {
 			input:    "Check this website: example.com. Then visit another.site.",
 			expected: "Check this website: example. com. Then visit another. site.",
+		},
+		"Handles multiple subdomains, spacing after each dot": {
+			input:    "Look at https://multiple-subdomains.gov.qld.au",
+			expected: "Look at https://multiple-subdomains. gov. qld. au",
 		},
 		"Handles empty inputs": {
 			input:    "",
@@ -1157,6 +1158,10 @@ func TestBreakPartialUrl(t *testing.T) {
 		"Does not affect strings that already has spaces afterwards": {
 			input:    "Already. Split",
 			expected: "Already. Split",
+		},
+		"Does not affect a split up URL": {
+			input:    "https:// split-url .com",
+			expected: "https:// split-url .com",
 		},
 	}
 

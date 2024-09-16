@@ -33,8 +33,9 @@ const (
 	reEmail string = "^((((([a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+(\\.([a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+)*)|((\\x22)((((\\x20|\\x09)*(\\x0d\\x0a))?(\\x20|\\x09)+)?(([\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f]|\\x21|[\\x23-\\x5b]|[\\x5d-\\x7e]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(\\([\\x01-\\x09\\x0b\\x0c\\x0d-\\x7f]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}]))))*(((\\x20|\\x09)*(\\x0d\\x0a))?(\\x20|\\x09)+)?(\\x22)))){1,14}@((([a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(([a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])([a-zA-Z]|\\d|-|\\.|_|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*([a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))\\.)+(([a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(([a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])([a-zA-Z]|\\d|-|_|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*([a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))$"
 	reUUID4 string = "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
 	reURL   string = `^[@\:\/\?#\.\-\_\%\;\=\~\&\+a-zA-Z0-9]+$` // Does not validate format, only characters
-	// breakURLRegex is a pre-compiled regular expression to match a period followed by anything other than a space, newline, or digit.
-	breakURLRegex string = `\.([^\s\n\d])`
+	// breakURLRegex is a pre-compiled regular expression to match a period followed by anything other than a space,
+	// newline, or digit.
+	breakURLRegex string = `\b\.([^\s\n\d])`
 )
 
 var (
@@ -164,28 +165,6 @@ func IsValidURL(str string, schemes []string, allowFragment bool) (bool, error) 
 	}
 
 	return true, nil
-}
-
-// ContainsUrl determines if a string contains a URL anywhere inside it by breaking apart the string at certain
-// characters and inspecting each part.
-//
-// Uses IsValidURL and a subset of schemes to find a URL match.
-func ContainsUrl(fullString string) (bool, error) {
-	stringParts := strings.FieldsFunc(fullString, func(r rune) bool {
-		return r == ' ' || r == ',' || r == '#'
-	})
-	for _, str := range stringParts {
-		// Because the error can be for things like too short a string, we don't want to use it. Instead, ignore it and
-		// continue on to the rest of the string in case we can detect anything further on.
-		//
-		// This is not a perfect solution - nor will it always catch everything - but this should filter out most spam.
-		validUrl, _ := IsValidURL(str, []string{"https", "http", "sftp", "ftp", "file"}, true)
-		if validUrl {
-			return true, nil
-		}
-	}
-
-	return false, nil
 }
 
 type Validator interface {

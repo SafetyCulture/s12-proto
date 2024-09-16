@@ -103,5 +103,5 @@ var _regex_b3f79e2470927c095fff6ea841e2a650 = regexp.MustCompile(_regex_val_b3f7
 // NestedLevel2Message_OrgId4 is using regex d4db71516b8749dc594e5bf604c6a110
 // NestedLevel1Message_OrgId3 is using regex d4db71516b8749dc594e5bf604c6a110
 // MyReqMessage_UserId is using regex d4db71516b8749dc594e5bf604c6a110
-// NonUrlMessage_RejectUrlTest is using regex 1bb1e0a2437db38577f49b4f31ccfca2
+// NonUrlMessage_RejectPartialUrlTest is using regex 1bb1e0a2437db38577f49b4f31ccfca2
 // NonUrlMessage_BreakPartialUrlTest is using regex 1bb1e0a2437db38577f49b4f31ccfca2

@@ -541,9 +541,8 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 	}
 
 	// If the text contains a full URL anywhere in it, reject it. This should help us control spam.
-	if rules.GetRejectUrl() {
-		g.P("containsUrl, _ := ", s12protoPackage.Ident("ContainsUrl"), "(", varName, ")")
-		g.P("if containsUrl {")
+	if rules.GetRejectPartialUrl() {
+		g.P("if ", s12protoPackage.Ident("BreakURLMatcher"), ".MatchString(", varName, ") {")
 		genErrorStringWithParams(g, varName, string(f.Desc.Name()), "not contain a URL")
 		g.P("}")
 	}

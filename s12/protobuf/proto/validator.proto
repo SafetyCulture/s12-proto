@@ -166,10 +166,11 @@ message StringRules {
 
   // Do not allow URLs anywhere in the field. Any present URLs anywhere in the string will return an error.
   //
-  // URLs must be full URLs, including scheme, partial URLs will be ignored.
-  // For example: "Click on http://evil.com/scam for more stuff" will return an error, but "Come and see
-  // let-me-steal-your-info.org for free things" will not (missing scheme)
-  optional bool reject_url = 13 [default = false];
+  // Partial URLs are defined as a dot between two non-whitespace characters and does not require a scheme
+  // (ex: "spam.com", "this.is.fake.com", "https://evil.org.au").
+  //
+  // If you wish to replace these items with sanitised version, use `break_partial_url` instead.
+  optional bool reject_partial_url = 13 [default = false];
 
   // Partial URLs present anywhere in the field will be REPLACED (broken) with a sanitised version. Will NOT return
   // an error.
@@ -178,6 +179,8 @@ message StringRules {
   // (ex: "spam.com", "this.is.fake.com", "https://evil.org.au").
   // Generally a sanitised version will replace "." with ". " to break automatic URL rendering. Further calls will
   // ignore these.
+  //
+  // If you wish to reject these items instead of sanitising them, use `reject_partial_url` instead.
   optional bool break_partial_url = 14 [default = false];
 
   // Unicode Bidirectional Algorithm
