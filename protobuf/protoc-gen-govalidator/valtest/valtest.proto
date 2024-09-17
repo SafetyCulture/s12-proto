@@ -312,8 +312,8 @@ message NumberMessage {
 }
 
 message NonUrlMessage {
-  // Returns an error if the string contains a partial URL
-  string reject_partial_url_test = 1 [(validator.unsafe_string) = {reject_partial_url: true, optional: true}];
+  // Returns an error if the string contains a full URL
+  string reject_url_test = 1 [(validator.unsafe_string) = {reject_url: true, optional: true}];
   // Replaces partial URLs with a "safer" version
   string break_partial_url_test = 2 [(validator.unsafe_string) = {break_partial_url: true, optional: true}];
 }

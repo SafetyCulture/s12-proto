@@ -36,6 +36,9 @@ const (
 	// breakURLRegex is a pre-compiled regular expression to match a period followed by anything other than a space,
 	// newline, or digit.
 	breakURLRegex string = `\b\.([^\s\n\d])`
+	// breakURLRegex is a pre-compiled regular expression to match a "complete" URL. Partial URLs (ex: those without a
+	// scheme) will be ignored
+	rejectURLRegex string = `https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)`
 )
 
 var (
@@ -53,6 +56,7 @@ var (
 	RegexUUID4                  = regexp.MustCompile(reUUID4)
 	rxURL                       = regexp.MustCompile(reURL)
 	BreakURLMatcher             = regexp.MustCompile(breakURLRegex)
+	RejectURLMatcher            = regexp.MustCompile(rejectURLRegex)
 )
 
 // IsUUID checks if the string is a UUID (version 3, 4 or 5).

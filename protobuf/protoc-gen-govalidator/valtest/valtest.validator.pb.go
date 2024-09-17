@@ -1324,29 +1324,29 @@ func (m *NumberMessage_NestedNumber) Validate() error {
 }
 
 func (m *NonUrlMessage) Validate() error {
-	if m.RejectPartialUrlTest != "" {
-		if !norm.NFC.IsNormalString(m.RejectPartialUrlTest) && norm.NFD.IsNormalString(m.RejectPartialUrlTest) {
+	if m.RejectUrlTest != "" {
+		if !norm.NFC.IsNormalString(m.RejectUrlTest) && norm.NFD.IsNormalString(m.RejectUrlTest) {
 			// normalise NFD to NFC string
 			var normErr error
-			m.RejectPartialUrlTest, _, normErr = transform.String(transform.Chain(norm.NFD, norm.NFC), m.RejectPartialUrlTest)
+			m.RejectUrlTest, _, normErr = transform.String(transform.Chain(norm.NFD, norm.NFC), m.RejectUrlTest)
 			if normErr != nil {
-				return fmt.Errorf(`reject_partial_url_test: value must must be normalisable to NFC`)
+				return fmt.Errorf(`reject_url_test: value must must be normalisable to NFC`)
 			}
 		}
-		if strings.ContainsRune(m.RejectPartialUrlTest, utf8.RuneError) {
-			return fmt.Errorf(`reject_partial_url_test: value must must have valid encoding`)
-		} else if !utf8.ValidString(m.RejectPartialUrlTest) {
-			return fmt.Errorf(`reject_partial_url_test: value must must be a valid UTF-8-encoded string`)
+		if strings.ContainsRune(m.RejectUrlTest, utf8.RuneError) {
+			return fmt.Errorf(`reject_url_test: value must must have valid encoding`)
+		} else if !utf8.ValidString(m.RejectUrlTest) {
+			return fmt.Errorf(`reject_url_test: value must must be a valid UTF-8-encoded string`)
 		}
-		if proto.BreakURLMatcher.MatchString(m.RejectPartialUrlTest) {
-			return fmt.Errorf(`reject_partial_url_test: value must not contain a URL`)
+		if proto.RejectURLMatcher.MatchString(m.RejectUrlTest) {
+			return fmt.Errorf(`reject_url_test: value must not contain a URL`)
 		}
-		var _len_NonUrlMessage_RejectPartialUrlTest = len(m.RejectPartialUrlTest)
-		if !(_len_NonUrlMessage_RejectPartialUrlTest >= 1 && _len_NonUrlMessage_RejectPartialUrlTest <= 130) {
-			return fmt.Errorf(`reject_partial_url_test: value must have a length between 1 and 130`)
+		var _len_NonUrlMessage_RejectUrlTest = len(m.RejectUrlTest)
+		if !(_len_NonUrlMessage_RejectUrlTest >= 1 && _len_NonUrlMessage_RejectUrlTest <= 130) {
+			return fmt.Errorf(`reject_url_test: value must have a length between 1 and 130`)
 		}
-		if !_regex_1bb1e0a2437db38577f49b4f31ccfca2.MatchString(m.RejectPartialUrlTest) {
-			return fmt.Errorf(`reject_partial_url_test: value must only have valid characters`)
+		if !_regex_1bb1e0a2437db38577f49b4f31ccfca2.MatchString(m.RejectUrlTest) {
+			return fmt.Errorf(`reject_url_test: value must only have valid characters`)
 		}
 	}
 	if m.BreakPartialUrlTest != "" {
