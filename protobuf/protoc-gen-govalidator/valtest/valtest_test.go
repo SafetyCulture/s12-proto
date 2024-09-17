@@ -123,8 +123,8 @@ var invalidURLs = []string{
 	"https:/example.com",
 	"https//:example.com",
 	"https://example.com/" + strings.Repeat("a", 1000), // too long
-	"ftp://example.com/",                               // default scheme is https
-	"https://example.com/a#fragment",                   // fragment not allowed unless option enabled
+	"ftp://example.com/",             // default scheme is https
+	"https://example.com/a#fragment", // fragment not allowed unless option enabled
 	"https://example.com/\na",
 	" https://example.com/a",  // leading whitespace
 	"\thttps://example.com/a", // leading whitespace
