@@ -1,8 +1,6 @@
 module github.com/SafetyCulture/s12-proto
 
-go 1.21
-
-toolchain go1.23.0
+go 1.18
 
 require (
 	github.com/gofrs/uuid v3.3.0+incompatible
