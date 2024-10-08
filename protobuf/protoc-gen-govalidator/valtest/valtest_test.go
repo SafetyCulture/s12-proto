@@ -123,8 +123,8 @@ var invalidURLs = []string{
 	"https:/example.com",
 	"https//:example.com",
 	"https://example.com/" + strings.Repeat("a", 1000), // too long
-	"ftp://example.com/",             // default scheme is https
-	"https://example.com/a#fragment", // fragment not allowed unless option enabled
+	"ftp://example.com/",                               // default scheme is https
+	"https://example.com/a#fragment",                   // fragment not allowed unless option enabled
 	"https://example.com/\na",
 	" https://example.com/a",  // leading whitespace
 	"\thttps://example.com/a", // leading whitespace
@@ -1057,7 +1057,8 @@ func TestValidationRules(t *testing.T) {
 		tests = append(tests, TestSet{
 			name: testName,
 			input: &NonUrlMessage{
-				RejectUrlTest: input,
+				BreakPartialUrlTest: input,
+				RejectUrlTest:       input,
 			},
 			shouldError: invalid,
 		})
@@ -1170,6 +1171,80 @@ func TestBreakPartialUrl(t *testing.T) {
 			}
 			require.NoError(t, msg.Validate())
 			assert.Equal(t, test.expected, msg.GetBreakPartialUrlTest())
+		})
+	}
+}
+
+// TestBreakPartialUrl is a special test case that verifies that a message contents is modified, not that an error is
+// returned
+func TestRejectUrlAndBreakPartialUrl(t *testing.T) {
+	tests := map[string]struct {
+		input    string
+		expected string
+		error    bool
+	}{
+		"Does not modify text without URLs": {
+			input:    "This is a normal sentence. It has no URLs",
+			expected: "This is a normal sentence. It has no URLs",
+		},
+		"Break partial URLs in text": {
+			input:    "Check out example.com and another.example.com for more info.",
+			expected: "Check out example. com and another. example. com for more info.",
+		},
+		"Handles multiple URLs in a single line": {
+			input:    "Visit site1.com, site2.org, and site3.net for examples.",
+			expected: "Visit site1. com, site2. org, and site3. net for examples.",
+		},
+		"Also affects email addresses": {
+			input:    "Contact me at user@example.com or support@company.org.",
+			expected: "Contact me at user@example. com or support@company. org.",
+		},
+		"Handles URLs at the end of sentences": {
+			input:    "Check this website: example.com. Then visit another.site.",
+			expected: "Check this website: example. com. Then visit another. site.",
+		},
+		"Reject takes precedence over break": {
+			input:    "Look at https://multiple-subdomains.gov.qld.au",
+			expected: "reject_url_test: value must not contain a URL",
+			error:    true,
+		},
+		"Handles empty inputs": {
+			input:    "",
+			expected: "",
+		},
+		"Handles input with only URLs": {
+			input:    "example.com another.example.com",
+			expected: "example. com another. example. com",
+		},
+		"Does not affect numbers or other punctuation": {
+			input:    "Pi is about 3.14159. Visit example.com for more math!",
+			expected: "Pi is about 3.14159. Visit example. com for more math!",
+		},
+		"Does not affect strings that already has spaces afterwards": {
+			input:    "Already. Split",
+			expected: "Already. Split",
+		},
+		"Does not affect a split up URL": {
+			input:    "https:// split-url .com",
+			expected: "https:// split-url .com",
+		},
+	}
+
+	for testName, test := range tests {
+		test := test
+		t.Run(testName, func(t *testing.T) {
+			t.Parallel()
+			msg := &NonUrlMessage{
+				BreakPartialUrlTest: test.input,
+				RejectUrlTest:       test.input,
+			}
+			if test.error {
+				require.Error(t, msg.Validate())
+			} else {
+				require.NoError(t, msg.Validate())
+				assert.Equal(t, test.expected, msg.GetBreakPartialUrlTest())
+			}
+
 		})
 	}
 }

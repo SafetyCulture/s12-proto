@@ -41,7 +41,7 @@ var regexGeneratedFile *protogen.GeneratedFile
 var regexHashLib = make(map[string]struct{})
 
 // Validator plugin version
-var validatorVersion = "v2.7.0"
+var validatorVersion = "v2.7.1"
 
 // Write a preamble in the auto generated files
 func genGeneratedHeader(gen *protogen.Plugin, g *protogen.GeneratedFile, f *protogen.File) {
@@ -417,6 +417,13 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 		prepareRegex(allowListReId, `\x{FFFD}`)
 	}
 
+	// If the text contains a full URL anywhere in it, reject it. This should help us control spam.
+	if rules.GetRejectUrl() {
+		g.P("if ", s12protoPackage.Ident("RejectURLMatcher"), ".MatchString(", varName, ") {")
+		genErrorStringWithParams(g, varName, string(f.Desc.Name()), "not contain a URL")
+		g.P("}")
+	}
+
 	// ### STEP 3: sanitise
 	// #### 3A-1. 'Break' partial URLs by introducing a space after each dot between characters.
 	// Note this will PERMANENTLY mutate the message field data. Further iterations will ignore these '. ' patterns,
@@ -538,13 +545,6 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 		if fMaxLen > 0 {
 			maxLen = uint32(fMaxLen)
 		}
-	}
-
-	// If the text contains a full URL anywhere in it, reject it. This should help us control spam.
-	if rules.GetRejectUrl() {
-		g.P("if ", s12protoPackage.Ident("RejectURLMatcher"), ".MatchString(", varName, ") {")
-		genErrorStringWithParams(g, varName, string(f.Desc.Name()), "not contain a URL")
-		g.P("}")
 	}
 
 	// Now both minLen and maxLen are set
