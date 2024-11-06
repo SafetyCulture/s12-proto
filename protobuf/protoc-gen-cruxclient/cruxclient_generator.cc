@@ -8,7 +8,6 @@
 #include <iostream>
 #include <string>
 #include "common.h"
-#include "legacy_generator.h"
 #include "api_generator.h"
 #include "mock_service_generator.h"
 
@@ -40,9 +39,6 @@ class Generator : public CodeGenerator {
       api_generator.GenerateDjinniSupport(file, parameter, context, error);
       return true;
     }
-
-    LegacyGenerator legacy_generator;
-    legacy_generator.Generate(file, parameter, context, error);
 
     api_generator.Generate(file, parameter, context, error);
     api_generator.GenerateDjinniSupport(file, parameter, context, error);
