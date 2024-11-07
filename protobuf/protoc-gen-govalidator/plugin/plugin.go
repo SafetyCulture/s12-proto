@@ -41,7 +41,7 @@ var regexGeneratedFile *protogen.GeneratedFile
 var regexHashLib = make(map[string]struct{})
 
 // Validator plugin version
-var validatorVersion = "v2.7.1"
+var validatorVersion = "v2.7.2"
 
 // Write a preamble in the auto generated files
 func genGeneratedHeader(gen *protogen.Plugin, g *protogen.GeneratedFile, f *protogen.File) {
@@ -913,13 +913,16 @@ func genMsgValidator(g *protogen.GeneratedFile, f *protogen.Field, varName strin
 	if repeated {
 		// Please leave the len check in place here as I have identified edge cases where it is required (will add test case for it later)
 		g.P("if len(", varName, ") > 0 {")
-		g.P("for _, item := range ", varName, "{")
+		g.P("for i, item := range ", varName, "{")
 		varName = "item"
 	}
 
 	g.P("if ", varName, " != nil {")
 	g.P("if v, ok := interface{}(", varName, ").(", s12protoPackage.Ident("Validator"), "); ok {")
 	g.P("if err := v.Validate(); err != nil {")
+	if repeated {
+		g.P("err = ", fmtPackage.Ident("Errorf"), "(\"at index %d: %v\", i, err)")
+	}
 	g.P("return ", s12protoPackage.Ident("FieldError"), "(\"", f.Desc.Name(), "\", err)")
 	g.P("}")
 	g.P("}")
