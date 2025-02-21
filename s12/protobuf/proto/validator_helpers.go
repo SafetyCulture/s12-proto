@@ -14,7 +14,7 @@ import (
 const (
 	// UUIDSize is the size of a UUID in bytes.
 	UUIDSize        int = 16
-	maxURLRuneCount int = 1000
+	maxURLRuneCount int = 2048
 	minURLRuneCount int = 3
 )
 
