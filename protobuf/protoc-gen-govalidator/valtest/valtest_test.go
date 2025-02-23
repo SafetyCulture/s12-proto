@@ -3,12 +3,13 @@ package valtest
 import (
 	"bufio"
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"math"
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/SafetyCulture/s12-proto/s12/protobuf/proto"
 )
@@ -122,7 +123,7 @@ var invalidURLs = []string{
 	"https:example.com",
 	"https:/example.com",
 	"https//:example.com",
-	"https://example.com/" + strings.Repeat("a", 1000), // too long
+	"https://example.com/" + strings.Repeat("a", 2050), // too long
 	"ftp://example.com/",                               // default scheme is https
 	"https://example.com/a#fragment",                   // fragment not allowed unless option enabled
 	"https://example.com/\na",
