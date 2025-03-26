@@ -1,0 +1,50 @@
+version: "3"
+
+tasks:
+
+  install:
+    cmds:
+      - go install
+      - cd valtest && pnpm i
+
+  fmt:
+    cmds:
+      - prettier --log-level silent --config .prettierrc --write ./**/*.ts
+  gen:
+    deps:
+      - install
+    cmds:
+      - |
+        protoc \
+        -I./{{.FOLDER}} \
+        -I../.. \
+        --go_out=paths=source_relative:./{{.FOLDER}} \
+        --tsvalidator_out=paths=source_relative:./{{.FOLDER}} \
+        ./{{.FOLDER}}/*.proto
+      - task fmt
+
+  gen-example:
+    deps:
+      - task: gen
+        vars: { FOLDER: 'example' }    
+    cmds:
+      - fswatch -o plugin/plugin.go | xargs -n1 -I{} task gen-example
+  
+  gen-valtest:
+    deps:
+      - task: gen
+        vars: { FOLDER: 'valtest' }   
+    cmds:
+      - fswatch -o plugin/plugin.go | xargs -n1 -I{} task gen-valtest
+
+    
+  test:
+    deps:
+      - task: gen
+        vars: { FOLDER: 'valtest' }
+    dir: ./valtest
+    cmds:
+      - fswatch -o plugin/plugin.go | xargs -n1 -I{} task gen FOLDER=valtest &
+      - export GEN_VALTEST_PID=$!
+      - defer: kill ${GEN_VALTEST_PID}
+      - pnpm run test --watch

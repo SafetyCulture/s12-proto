@@ -1,0 +1,17 @@
+{
+  "trailingComma": "all",
+  "overrides": [
+    {
+      "files": "**/*.ts"
+    },
+    {
+      "files": "{**/.vscode /*.json,**/tsconfig.json,**/tsconfig.*.json}",
+      "options": {
+        "parser": "json5",
+        "quoteProps": "preserve",
+        "singleQuote": false,
+        "trailingComma": "none"
+      }
+    }
+  ]
+}
