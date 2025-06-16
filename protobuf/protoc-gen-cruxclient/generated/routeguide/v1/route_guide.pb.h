@@ -31,6 +31,7 @@
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
 #include "routeguide/v1/message.pb.h"
 #include <google/protobuf/empty.pb.h>
+#include "wire_options.pb.h"
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 #define PROTOBUF_INTERNAL_EXPORT_routeguide_2fv1_2froute_5fguide_2eproto
