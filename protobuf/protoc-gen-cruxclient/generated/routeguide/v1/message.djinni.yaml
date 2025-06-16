@@ -28,6 +28,10 @@ jni:
   header: '"routeguide/v1/message.djinni.jni.h"'
   typename: jobject
   typeSignature: 'Lio/grpc/examples/routeguide/Point;'
+kotlin:
+  typename: 'Point'
+  package: 'io.grpc.examples.kotlin.routeguide'
+  isProtobufMessage: true
 
 ---
 name: pb_routeguide_Message_Rectangle
@@ -58,6 +62,10 @@ jni:
   header: '"routeguide/v1/message.djinni.jni.h"'
   typename: jobject
   typeSignature: 'Lio/grpc/examples/routeguide/Rectangle;'
+kotlin:
+  typename: 'Rectangle'
+  package: 'io.grpc.examples.kotlin.routeguide'
+  isProtobufMessage: true
 
 ---
 name: pb_routeguide_Message_Feature
@@ -88,6 +96,10 @@ jni:
   header: '"routeguide/v1/message.djinni.jni.h"'
   typename: jobject
   typeSignature: 'Lio/grpc/examples/routeguide/Feature;'
+kotlin:
+  typename: 'Feature'
+  package: 'io.grpc.examples.kotlin.routeguide'
+  isProtobufMessage: true
 
 ---
 name: pb_routeguide_Message_RouteNote
@@ -118,6 +130,10 @@ jni:
   header: '"routeguide/v1/message.djinni.jni.h"'
   typename: jobject
   typeSignature: 'Lio/grpc/examples/routeguide/RouteNote;'
+kotlin:
+  typename: 'RouteNote'
+  package: 'io.grpc.examples.kotlin.routeguide'
+  isProtobufMessage: true
 
 ---
 name: pb_routeguide_Message_RouteSummary
@@ -148,6 +164,10 @@ jni:
   header: '"routeguide/v1/message.djinni.jni.h"'
   typename: jobject
   typeSignature: 'Lio/grpc/examples/routeguide/RouteSummary;'
+kotlin:
+  typename: 'RouteSummary'
+  package: 'io.grpc.examples.kotlin.routeguide'
+  isProtobufMessage: true
 
 ---
 name: pb_routeguide_Message_RouteSummary_Details
@@ -178,6 +198,10 @@ jni:
   header: '"routeguide/v1/message.djinni.jni.h"'
   typename: jobject
   typeSignature: 'Lio/grpc/examples/routeguide/RouteSummary$Details;'
+kotlin:
+  typename: 'RouteSummary_Details'
+  package: 'io.grpc.examples.kotlin.routeguide'
+  isProtobufMessage: true
 
 ---
 name: pb_routeguide_Message_RouteSummary_Details_MoreDetails
@@ -208,4 +232,8 @@ jni:
   header: '"routeguide/v1/message.djinni.jni.h"'
   typename: jobject
   typeSignature: 'Lio/grpc/examples/routeguide/RouteSummary$Details$MoreDetails;'
+kotlin:
+  typename: 'RouteSummary_Details_MoreDetails'
+  package: 'io.grpc.examples.kotlin.routeguide'
+  isProtobufMessage: true
 
