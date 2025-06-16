@@ -432,7 +432,7 @@ void APIGenerator::PrintDjinniYAML(
     vars["objc_class_prefix"] = options.objc_class_prefix();
 
     if (options.HasExtension(wire::wire_package)) {
-      vars["wire_package"] = wire_package;
+      vars["wire_package"] = options.GetExtension(wire::wire_package);
     }
 
     printer->Print("---\n");
