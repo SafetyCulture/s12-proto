@@ -21,7 +21,8 @@ CXXFLAGS += -std=c++17
 protoc-gen-cruxclient: \
 protobuf/protoc-gen-cruxclient/cruxclient_generator.o \
 protobuf/protoc-gen-cruxclient/api_generator.o \
-protobuf/protoc-gen-cruxclient/mock_service_generator.o
+protobuf/protoc-gen-cruxclient/mock_service_generator.o \
+protobuf/protoc-gen-cruxclient/wire_options.pb.o
 	$(CXX) $^ $(LDFLAGS) -o $@
 
 .PHONY: install-govalidator
@@ -121,6 +122,7 @@ logger: install-logger
 cruxclient: install-cruxclient
 	protoc \
 	-I./protobuf/protoc-gen-cruxclient/proto \
+	-I./protobuf/protoc-gen-cruxclient \
 	--plugin=protoc-gen-grpc=$(SYS_ROOT)bin/grpc_cpp_plugin \
 	--cpp_out=:protobuf/protoc-gen-cruxclient/generated \
 	--grpc_out=:protobuf/protoc-gen-cruxclient/generated \

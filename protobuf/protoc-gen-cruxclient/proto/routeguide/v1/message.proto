@@ -2,11 +2,13 @@ syntax = "proto3";
 
 package routeguide.v1;
 import "google/protobuf/empty.proto";
+import "wire_options.proto";
 
 option java_multiple_files = true;
 option java_package = "io.grpc.examples.routeguide";
 option java_outer_classname = "RouteGuideProto";
 option objc_class_prefix = "RTG";
+option (wire.wire_package) = "io.grpc.examples.kotlin.routeguide";
 
 // Points are represented as latitude-longitude pairs in the E7 representation
 // (degrees multiplied by 10**7 and rounded to the nearest integer).

@@ -6,6 +6,7 @@
 #include <google/protobuf/descriptor.pb.h>
 #include <google/protobuf/io/printer.h>
 #include <google/protobuf/io/zero_copy_stream.h>
+#include "wire_options.pb.h"
 #include <iostream>
 #include <vector>
 #include <map>
@@ -430,6 +431,10 @@ void APIGenerator::PrintDjinniYAML(
     vars["java_package_slashes"] = DotsToSlashs(options.java_package());
     vars["objc_class_prefix"] = options.objc_class_prefix();
 
+    if (options.HasExtension(wire::wire_package)) {
+      vars["wire_package"] = options.GetExtension(wire::wire_package);
+    }
+
     printer->Print("---\n");
     printer->Print(vars, "name: pb_$domain_name$_$file_name_camel$_$message_name$\n");
     printer->Print("typedef: 'record deriving(eq, ord, parcelable)'\n");
@@ -475,6 +480,13 @@ void APIGenerator::PrintDjinniYAML(
     printer->Print(vars, "typeSignature: 'L$java_package_slashes$/$java_message_name$;'\n");
     printer->Outdent();
 
+    if (vars.find("wire_package") != vars.end()) {
+      printer->Print("kotlin:\n");
+      printer->Indent();
+      printer->Print(vars, "typename: '$wire_package$.$java_message_box_name$'\n");
+      printer->Print("isProtobufMessage: true\n");
+      printer->Outdent();
+    }
     printer->Print("\n");
   }
 }

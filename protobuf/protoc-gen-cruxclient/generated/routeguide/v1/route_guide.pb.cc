@@ -29,29 +29,31 @@ static constexpr ::PROTOBUF_NAMESPACE_ID::Message* const* file_default_instances
 const char descriptor_table_protodef_routeguide_2fv1_2froute_5fguide_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\037routeguide/v1/route_guide.proto\022\rroute"
   "guide.v1\032\033routeguide/v1/message.proto\032\033g"
-  "oogle/protobuf/empty.proto2\336\002\n\nRouteGuid"
-  "e\022<\n\nGetFeature\022\024.routeguide.v1.Point\032\026."
-  "routeguide.v1.Feature\"\000\022\?\n\rUpdateFeature"
-  "\022\024.routeguide.v1.Point\032\026.routeguide.v1.F"
-  "eature\"\000\022D\n\014ListFeatures\022\030.routeguide.v1"
-  ".Rectangle\032\026.routeguide.v1.Feature\"\0000\001\022D"
-  "\n\013RecordRoute\022\024.routeguide.v1.Point\032\033.ro"
-  "uteguide.v1.RouteSummary\"\000(\001\022E\n\tRouteCha"
-  "t\022\030.routeguide.v1.RouteNote\032\030.routeguide"
-  ".v1.RouteNote\"\000(\0010\0012P\n\020PublicRouteGuide\022"
-  "<\n\nGetFeature\022\024.routeguide.v1.Point\032\026.ro"
-  "uteguide.v1.Feature\"\000B6\n\033io.grpc.example"
-  "s.routeguideB\017RouteGuideProtoP\001\242\002\003RTGb\006p"
-  "roto3"
+  "oogle/protobuf/empty.proto\032\022wire_options"
+  ".proto2\336\002\n\nRouteGuide\022<\n\nGetFeature\022\024.ro"
+  "uteguide.v1.Point\032\026.routeguide.v1.Featur"
+  "e\"\000\022\?\n\rUpdateFeature\022\024.routeguide.v1.Poi"
+  "nt\032\026.routeguide.v1.Feature\"\000\022D\n\014ListFeat"
+  "ures\022\030.routeguide.v1.Rectangle\032\026.routegu"
+  "ide.v1.Feature\"\0000\001\022D\n\013RecordRoute\022\024.rout"
+  "eguide.v1.Point\032\033.routeguide.v1.RouteSum"
+  "mary\"\000(\001\022E\n\tRouteChat\022\030.routeguide.v1.Ro"
+  "uteNote\032\030.routeguide.v1.RouteNote\"\000(\0010\0012"
+  "P\n\020PublicRouteGuide\022<\n\nGetFeature\022\024.rout"
+  "eguide.v1.Point\032\026.routeguide.v1.Feature\""
+  "\000B[\n\033io.grpc.examples.routeguideB\017RouteG"
+  "uideProtoP\001\242\002\003RTG\372C\"io.grpc.examples.kot"
+  "lin.routeguideb\006proto3"
   ;
-static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_routeguide_2fv1_2froute_5fguide_2eproto_deps[2] = {
+static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_routeguide_2fv1_2froute_5fguide_2eproto_deps[3] = {
   &::descriptor_table_google_2fprotobuf_2fempty_2eproto,
   &::descriptor_table_routeguide_2fv1_2fmessage_2eproto,
+  &::descriptor_table_wire_5foptions_2eproto,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_routeguide_2fv1_2froute_5fguide_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_routeguide_2fv1_2froute_5fguide_2eproto = {
-  false, false, 605, descriptor_table_protodef_routeguide_2fv1_2froute_5fguide_2eproto, "routeguide/v1/route_guide.proto", 
-  &descriptor_table_routeguide_2fv1_2froute_5fguide_2eproto_once, descriptor_table_routeguide_2fv1_2froute_5fguide_2eproto_deps, 2, 0,
+  false, false, 662, descriptor_table_protodef_routeguide_2fv1_2froute_5fguide_2eproto, "routeguide/v1/route_guide.proto", 
+  &descriptor_table_routeguide_2fv1_2froute_5fguide_2eproto_once, descriptor_table_routeguide_2fv1_2froute_5fguide_2eproto_deps, 3, 0,
   schemas, file_default_instances, TableStruct_routeguide_2fv1_2froute_5fguide_2eproto::offsets,
   nullptr, file_level_enum_descriptors_routeguide_2fv1_2froute_5fguide_2eproto, file_level_service_descriptors_routeguide_2fv1_2froute_5fguide_2eproto,
 };

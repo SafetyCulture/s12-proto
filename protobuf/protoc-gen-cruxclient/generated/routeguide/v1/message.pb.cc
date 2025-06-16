@@ -226,35 +226,37 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 
 const char descriptor_table_protodef_routeguide_2fv1_2fmessage_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\033routeguide/v1/message.proto\022\rrouteguid"
-  "e.v1\032\033google/protobuf/empty.proto\",\n\005Poi"
-  "nt\022\020\n\010latitude\030\001 \001(\005\022\021\n\tlongitude\030\002 \001(\005\""
-  "O\n\tRectangle\022 \n\002lo\030\001 \001(\0132\024.routeguide.v1"
-  ".Point\022 \n\002hi\030\002 \001(\0132\024.routeguide.v1.Point"
-  "\"\?\n\007Feature\022\014\n\004name\030\001 \001(\t\022&\n\010location\030\002 "
-  "\001(\0132\024.routeguide.v1.Point\"D\n\tRouteNote\022&"
-  "\n\010location\030\001 \001(\0132\024.routeguide.v1.Point\022\017"
-  "\n\007message\030\002 \001(\t\"\267\003\n\014RouteSummary\022\023\n\013poin"
-  "t_count\030\001 \001(\005\022\025\n\rfeature_count\030\002 \001(\005\022\020\n\010"
-  "distance\030\003 \001(\005\022\024\n\014elapsed_time\030\004 \001(\005\0224\n\007"
-  "details\030\005 \001(\0132#.routeguide.v1.RouteSumma"
-  "ry.Details\022@\n\013details_map\030\006 \003(\0132+.routeg"
-  "uide.v1.RouteSummary.DetailsMapEntry\032\202\001\n"
-  "\007Details\022\n\n\002id\030\001 \001(\t\022\014\n\004body\030\002 \001(\t\022@\n\007de"
-  "tails\030\003 \001(\0132/.routeguide.v1.RouteSummary"
-  ".Details.MoreDetails\032\033\n\013MoreDetails\022\014\n\004b"
-  "ody\030\001 \001(\t\032V\n\017DetailsMapEntry\022\013\n\003key\030\001 \001("
-  "\t\0222\n\005value\030\002 \001(\0132#.routeguide.v1.RouteSu"
-  "mmary.Details:\0028\001B6\n\033io.grpc.examples.ro"
-  "uteguideB\017RouteGuideProtoP\001\242\002\003RTGb\006proto"
-  "3"
+  "e.v1\032\033google/protobuf/empty.proto\032\022wire_"
+  "options.proto\",\n\005Point\022\020\n\010latitude\030\001 \001(\005"
+  "\022\021\n\tlongitude\030\002 \001(\005\"O\n\tRectangle\022 \n\002lo\030\001"
+  " \001(\0132\024.routeguide.v1.Point\022 \n\002hi\030\002 \001(\0132\024"
+  ".routeguide.v1.Point\"\?\n\007Feature\022\014\n\004name\030"
+  "\001 \001(\t\022&\n\010location\030\002 \001(\0132\024.routeguide.v1."
+  "Point\"D\n\tRouteNote\022&\n\010location\030\001 \001(\0132\024.r"
+  "outeguide.v1.Point\022\017\n\007message\030\002 \001(\t\"\267\003\n\014"
+  "RouteSummary\022\023\n\013point_count\030\001 \001(\005\022\025\n\rfea"
+  "ture_count\030\002 \001(\005\022\020\n\010distance\030\003 \001(\005\022\024\n\014el"
+  "apsed_time\030\004 \001(\005\0224\n\007details\030\005 \001(\0132#.rout"
+  "eguide.v1.RouteSummary.Details\022@\n\013detail"
+  "s_map\030\006 \003(\0132+.routeguide.v1.RouteSummary"
+  ".DetailsMapEntry\032\202\001\n\007Details\022\n\n\002id\030\001 \001(\t"
+  "\022\014\n\004body\030\002 \001(\t\022@\n\007details\030\003 \001(\0132/.routeg"
+  "uide.v1.RouteSummary.Details.MoreDetails"
+  "\032\033\n\013MoreDetails\022\014\n\004body\030\001 \001(\t\032V\n\017Details"
+  "MapEntry\022\013\n\003key\030\001 \001(\t\0222\n\005value\030\002 \001(\0132#.r"
+  "outeguide.v1.RouteSummary.Details:\0028\001B[\n"
+  "\033io.grpc.examples.routeguideB\017RouteGuide"
+  "ProtoP\001\242\002\003RTG\372C\"io.grpc.examples.kotlin."
+  "routeguideb\006proto3"
   ;
-static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_routeguide_2fv1_2fmessage_2eproto_deps[1] = {
+static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_routeguide_2fv1_2fmessage_2eproto_deps[2] = {
   &::descriptor_table_google_2fprotobuf_2fempty_2eproto,
+  &::descriptor_table_wire_5foptions_2eproto,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_routeguide_2fv1_2fmessage_2eproto_once;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_routeguide_2fv1_2fmessage_2eproto = {
-  false, false, 841, descriptor_table_protodef_routeguide_2fv1_2fmessage_2eproto, "routeguide/v1/message.proto", 
-  &descriptor_table_routeguide_2fv1_2fmessage_2eproto_once, descriptor_table_routeguide_2fv1_2fmessage_2eproto_deps, 1, 8,
+  false, false, 898, descriptor_table_protodef_routeguide_2fv1_2fmessage_2eproto, "routeguide/v1/message.proto", 
+  &descriptor_table_routeguide_2fv1_2fmessage_2eproto_once, descriptor_table_routeguide_2fv1_2fmessage_2eproto_deps, 2, 8,
   schemas, file_default_instances, TableStruct_routeguide_2fv1_2fmessage_2eproto::offsets,
   file_level_metadata_routeguide_2fv1_2fmessage_2eproto, file_level_enum_descriptors_routeguide_2fv1_2fmessage_2eproto, file_level_service_descriptors_routeguide_2fv1_2fmessage_2eproto,
 };

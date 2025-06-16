@@ -28,6 +28,9 @@ jni:
   header: '"routeguide/v1/message.djinni.jni.h"'
   typename: jobject
   typeSignature: 'Lio/grpc/examples/routeguide/Point;'
+kotlin:
+  typename: 'io.grpc.examples.kotlin.routeguide.Point'
+  isProtobufMessage: true
 
 ---
 name: pb_routeguide_Message_Rectangle
@@ -58,6 +61,9 @@ jni:
   header: '"routeguide/v1/message.djinni.jni.h"'
   typename: jobject
   typeSignature: 'Lio/grpc/examples/routeguide/Rectangle;'
+kotlin:
+  typename: 'io.grpc.examples.kotlin.routeguide.Rectangle'
+  isProtobufMessage: true
 
 ---
 name: pb_routeguide_Message_Feature
@@ -88,6 +94,9 @@ jni:
   header: '"routeguide/v1/message.djinni.jni.h"'
   typename: jobject
   typeSignature: 'Lio/grpc/examples/routeguide/Feature;'
+kotlin:
+  typename: 'io.grpc.examples.kotlin.routeguide.Feature'
+  isProtobufMessage: true
 
 ---
 name: pb_routeguide_Message_RouteNote
@@ -118,6 +127,9 @@ jni:
   header: '"routeguide/v1/message.djinni.jni.h"'
   typename: jobject
   typeSignature: 'Lio/grpc/examples/routeguide/RouteNote;'
+kotlin:
+  typename: 'io.grpc.examples.kotlin.routeguide.RouteNote'
+  isProtobufMessage: true
 
 ---
 name: pb_routeguide_Message_RouteSummary
@@ -148,6 +160,9 @@ jni:
   header: '"routeguide/v1/message.djinni.jni.h"'
   typename: jobject
   typeSignature: 'Lio/grpc/examples/routeguide/RouteSummary;'
+kotlin:
+  typename: 'io.grpc.examples.kotlin.routeguide.RouteSummary'
+  isProtobufMessage: true
 
 ---
 name: pb_routeguide_Message_RouteSummary_Details
@@ -178,6 +193,9 @@ jni:
   header: '"routeguide/v1/message.djinni.jni.h"'
   typename: jobject
   typeSignature: 'Lio/grpc/examples/routeguide/RouteSummary$Details;'
+kotlin:
+  typename: 'io.grpc.examples.kotlin.routeguide.RouteSummary.Details'
+  isProtobufMessage: true
 
 ---
 name: pb_routeguide_Message_RouteSummary_Details_MoreDetails
@@ -208,4 +226,7 @@ jni:
   header: '"routeguide/v1/message.djinni.jni.h"'
   typename: jobject
   typeSignature: 'Lio/grpc/examples/routeguide/RouteSummary$Details$MoreDetails;'
+kotlin:
+  typename: 'io.grpc.examples.kotlin.routeguide.RouteSummary.Details.MoreDetails'
+  isProtobufMessage: true
 
