@@ -29,8 +29,7 @@ jni:
   typename: jobject
   typeSignature: 'Lio/grpc/examples/routeguide/Point;'
 kotlin:
-  typename: 'Point'
-  package: 'io.grpc.examples.kotlin.routeguide'
+  typename: 'io.grpc.examples.kotlin.routeguide.Point'
   isProtobufMessage: true
 
 ---
@@ -63,8 +62,7 @@ jni:
   typename: jobject
   typeSignature: 'Lio/grpc/examples/routeguide/Rectangle;'
 kotlin:
-  typename: 'Rectangle'
-  package: 'io.grpc.examples.kotlin.routeguide'
+  typename: 'io.grpc.examples.kotlin.routeguide.Rectangle'
   isProtobufMessage: true
 
 ---
@@ -97,8 +95,7 @@ jni:
   typename: jobject
   typeSignature: 'Lio/grpc/examples/routeguide/Feature;'
 kotlin:
-  typename: 'Feature'
-  package: 'io.grpc.examples.kotlin.routeguide'
+  typename: 'io.grpc.examples.kotlin.routeguide.Feature'
   isProtobufMessage: true
 
 ---
@@ -131,8 +128,7 @@ jni:
   typename: jobject
   typeSignature: 'Lio/grpc/examples/routeguide/RouteNote;'
 kotlin:
-  typename: 'RouteNote'
-  package: 'io.grpc.examples.kotlin.routeguide'
+  typename: 'io.grpc.examples.kotlin.routeguide.RouteNote'
   isProtobufMessage: true
 
 ---
@@ -165,8 +161,7 @@ jni:
   typename: jobject
   typeSignature: 'Lio/grpc/examples/routeguide/RouteSummary;'
 kotlin:
-  typename: 'RouteSummary'
-  package: 'io.grpc.examples.kotlin.routeguide'
+  typename: 'io.grpc.examples.kotlin.routeguide.RouteSummary'
   isProtobufMessage: true
 
 ---
@@ -199,8 +194,7 @@ jni:
   typename: jobject
   typeSignature: 'Lio/grpc/examples/routeguide/RouteSummary$Details;'
 kotlin:
-  typename: 'RouteSummary_Details'
-  package: 'io.grpc.examples.kotlin.routeguide'
+  typename: 'io.grpc.examples.kotlin.routeguide.RouteSummary.Details'
   isProtobufMessage: true
 
 ---
@@ -233,7 +227,6 @@ jni:
   typename: jobject
   typeSignature: 'Lio/grpc/examples/routeguide/RouteSummary$Details$MoreDetails;'
 kotlin:
-  typename: 'RouteSummary_Details_MoreDetails'
-  package: 'io.grpc.examples.kotlin.routeguide'
+  typename: 'io.grpc.examples.kotlin.routeguide.RouteSummary.Details.MoreDetails'
   isProtobufMessage: true
 

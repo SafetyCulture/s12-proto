@@ -431,10 +431,8 @@ void APIGenerator::PrintDjinniYAML(
     vars["java_package_slashes"] = DotsToSlashs(options.java_package());
     vars["objc_class_prefix"] = options.objc_class_prefix();
 
-    std::string wire_package = "";
     if (options.HasExtension(wire::wire_package)) {
-      wire_package = options.GetExtension(wire::wire_package);
-      vars["wire_package"] = wire_package;
+      vars["wire_package"] = options.GetExtension(wire::wire_package);
     }
 
     printer->Print("---\n");
@@ -482,11 +480,10 @@ void APIGenerator::PrintDjinniYAML(
     printer->Print(vars, "typeSignature: 'L$java_package_slashes$/$java_message_name$;'\n");
     printer->Outdent();
 
-    if (!wire_package.empty()) {
+    if (vars.find("wire_package") != vars.end()) {
       printer->Print("kotlin:\n");
       printer->Indent();
-      printer->Print(vars, "typename: '$message_name$'\n");
-      printer->Print(vars, "package: '$wire_package$'\n");
+      printer->Print(vars, "typename: '$wire_package$.$java_message_box_name$'\n");
       printer->Print("isProtobufMessage: true\n");
       printer->Outdent();
     }
