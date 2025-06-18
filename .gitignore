@@ -1,5 +1,6 @@
 
 .vscode
+.idea
 
 # cpp
 /protoc-gen-cruxclient
