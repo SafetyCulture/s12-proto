@@ -689,11 +689,11 @@ func (m *ValTestMessage) Validate() error {
 			return fmt.Errorf(`string_with_prefix: value must must be a valid UTF-8-encoded string`)
 		}
 		var _len_ValTestMessage_StringWithPrefix = len(m.StringWithPrefix)
-		if !(_len_ValTestMessage_StringWithPrefix >= 1 && _len_ValTestMessage_StringWithPrefix <= 10) {
-			return fmt.Errorf(`string_with_prefix: value must have a length between 1 and 10`)
+		if !(_len_ValTestMessage_StringWithPrefix >= 1 && _len_ValTestMessage_StringWithPrefix <= 130) {
+			return fmt.Errorf(`string_with_prefix: value must have a length between 1 and 130`)
 		}
 		if !strings.HasPrefix(m.StringWithPrefix, "prefix_") {
-			return fmt.Errorf(`string_with_prefix: value must start with prefix: prefix_`)
+			return fmt.Errorf(`string_with_prefix: value must start with prefix`)
 		}
 		if !_regex_d4db71516b8749dc594e5bf604c6a110.MatchString(m.StringWithPrefix) {
 			return fmt.Errorf(`string_with_prefix: value must only have valid characters`)
