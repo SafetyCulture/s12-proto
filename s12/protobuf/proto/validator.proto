@@ -191,8 +191,7 @@ message StringRules {
 
   // Prefix specifies that this field must have the specified substring at
   // the beginning of the string.
-  // @TODO: implement if we need this
-  // optional string prefix   = X;
+   optional string prefix = 15;
 
   // Suffix specifies that this field must have the specified substring at
   // the end of the string.

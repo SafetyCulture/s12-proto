@@ -644,6 +644,13 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 		}
 	}
 
+	if rules.GetPrefix() != "" {
+		prefix := rules.GetPrefix()
+		g.P("if !", stringsPackage.Ident("HasPrefix"), "(", varName, ", \"", prefix, "\") {")
+		genErrorString(g, varName, string(f.Desc.Name()), "start with prefix: "+prefix)
+		g.P("}")
+	}
+
 	// ##### 4C. validate string against the whitelist/regex
 	regexName := addRegexVar(f.GoIdent.GoName, allowListReId)
 	g.P("if !_regex_", regexName, ".MatchString(", varName, ") {")

@@ -398,6 +398,9 @@ func getValMsg(m ValTestMessage) *ValTestMessage {
 	if m.LongString != "" {
 		newMsg.LongString = replaceEmpty(m.LongString)
 	}
+	if m.StringWithPrefix != "" {
+		newMsg.StringWithPrefix = replaceEmpty(m.StringWithPrefix)
+	}
 	return &newMsg
 }
 
@@ -1076,6 +1079,24 @@ func TestValidationRules(t *testing.T) {
 				RejectUrlTest: input,
 			},
 			shouldError: valid,
+		})
+	}
+
+	// StringPrefix
+	validStringPrefixes := []string{"prefix_123"}
+	for _, input := range validStringPrefixes {
+		tests = append(tests, TestSet{
+			name:        "ValidStringPrefix_" + input,
+			input:       getValMsg(ValTestMessage{StringWithPrefix: input}),
+			shouldError: valid,
+		})
+	}
+	invalidStringPrefixes := []string{"123", "123_prefix"}
+	for _, input := range invalidStringPrefixes {
+		tests = append(tests, TestSet{
+			name:        "InvalidStringPrefix_" + input,
+			input:       getValMsg(ValTestMessage{StringWithPrefix: input}),
+			shouldError: invalid,
 		})
 	}
 
@@ -2381,3 +2402,31 @@ func TestSoftValidation_ValidateUnsafeString(t *testing.T) {
 		})
 	}
 }
+
+//func TestValidatePrefixString(t *testing.T) {
+//	tests := []struct {
+//		name      string
+//		value     string
+//		prefix    string
+//		shouldErr bool
+//	}{
+//		{"ValidPrefix", "abc123", "abc", false},
+//		{"InvalidPrefix", "123abc", "abc", true},
+//		{"ExactMatch", "abc", "abc", false},
+//		{"EmptyPrefix", "abc123", "", false},
+//		{"EmptyValue", "", "abc", true},
+//		{"BothEmpty", "", "", false},
+//	}
+//
+//	for _, tt := range tests {
+//		t.Run(tt.name, func(t *testing.T) {
+//			tt := tt
+//			assert.Equal(t, tt.shouldErr, ValidatePrefixString(tt.value, tt.prefix) != nil, func() string {
+//				if tt.shouldErr {
+//					return fmt.Sprintf("expected error for value '%s' with prefix '%s'", tt.value, tt.prefix)
+//				}
+//				return fmt.Sprintf("expected no error for value '%s' with prefix '%s'", tt.value, tt.prefix)
+//			})
+//		})
+//	}
+//}

@@ -674,6 +674,31 @@ func (m *ValTestMessage) Validate() error {
 			return fmt.Errorf(`long_string: value must only have valid characters`)
 		}
 	}
+	if m.StringWithPrefix != "" {
+		if !norm.NFC.IsNormalString(m.StringWithPrefix) && norm.NFD.IsNormalString(m.StringWithPrefix) {
+			// normalise NFD to NFC string
+			var normErr error
+			m.StringWithPrefix, _, normErr = transform.String(transform.Chain(norm.NFD, norm.NFC), m.StringWithPrefix)
+			if normErr != nil {
+				return fmt.Errorf(`string_with_prefix: value must must be normalisable to NFC`)
+			}
+		}
+		if strings.ContainsRune(m.StringWithPrefix, utf8.RuneError) {
+			return fmt.Errorf(`string_with_prefix: value must must have valid encoding`)
+		} else if !utf8.ValidString(m.StringWithPrefix) {
+			return fmt.Errorf(`string_with_prefix: value must must be a valid UTF-8-encoded string`)
+		}
+		var _len_ValTestMessage_StringWithPrefix = len(m.StringWithPrefix)
+		if !(_len_ValTestMessage_StringWithPrefix >= 1 && _len_ValTestMessage_StringWithPrefix <= 10) {
+			return fmt.Errorf(`string_with_prefix: value must have a length between 1 and 10`)
+		}
+		if !strings.HasPrefix(m.StringWithPrefix, "prefix_") {
+			return fmt.Errorf(`string_with_prefix: value must start with prefix: prefix_`)
+		}
+		if !_regex_d4db71516b8749dc594e5bf604c6a110.MatchString(m.StringWithPrefix) {
+			return fmt.Errorf(`string_with_prefix: value must only have valid characters`)
+		}
+	}
 	return nil
 }
 

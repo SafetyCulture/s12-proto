@@ -162,6 +162,8 @@ message ValTestMessage {
   ];
 
   string long_string = 67 [(validator.unsafe_string) = { len: ":30000", optional: true }];
+
+  string string_with_prefix = 68 [(validator.string) = { len: ":10", prefix: "prefix_", optional: true }];
 }
 
 message LogOnlyValidationMessage {
