@@ -41,7 +41,7 @@ var regexGeneratedFile *protogen.GeneratedFile
 var regexHashLib = make(map[string]struct{})
 
 // Validator plugin version
-var validatorVersion = "v2.7.1"
+var validatorVersion = "v2.7.2"
 
 // Write a preamble in the auto generated files
 func genGeneratedHeader(gen *protogen.Plugin, g *protogen.GeneratedFile, f *protogen.File) {
@@ -642,6 +642,13 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 			// Warn as it likely indicates something that requires follow up
 			fmt.Fprintf(os.Stderr, "WARN: Symbol "+fmt.Sprint(symbol)+" not in stringSymbolMap (not implemented)\n")
 		}
+	}
+
+	if rules.GetPrefix() != "" {
+		prefix := rules.GetPrefix()
+		g.P("if !", stringsPackage.Ident("HasPrefix"), "(", varName, ", \"", prefix, "\") {")
+		genErrorString(g, varName, string(f.Desc.Name()), "start with prefix")
+		g.P("}")
 	}
 
 	// ##### 4C. validate string against the whitelist/regex
