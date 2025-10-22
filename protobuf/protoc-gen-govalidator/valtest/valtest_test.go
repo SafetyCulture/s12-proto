@@ -27,6 +27,7 @@ const (
 	password         string = "1234567!"
 	name             string = "Γιώργος Νταλάρας"
 	idv4             string = "92b6c2f9-abd8-48bc-a2c9-bf70e969751a"
+	idv7             string = "019a098f-e43b-7c4c-af03-63eda488eb0a"
 	uuidNotV4        string = "e07b6ac0-8a05-11e2-9951-ddd1182f65d9"
 	valid            bool   = false
 	invalid          bool   = true
@@ -148,6 +149,7 @@ var valMsg = ValTestMessage{
 	InnerLegacyId:         &InnerMessageWithLegacyId{Id: id},
 	InnerS12Id:            &InnerMessageWithS12Id{Id: s12Id},
 	Uuid:                  id,
+	Uuidv7:                idv7,
 	Email:                 email,
 	OptEmail:              email,
 	Description:           "François Truffaut 久保田 利伸 text",
@@ -200,6 +202,7 @@ var valMsgOpts = ValTestMessage{
 	InnerLegacyId:         &InnerMessageWithLegacyId{Id: legacyId},
 	InnerS12Id:            &InnerMessageWithS12Id{Id: s12Id},
 	Uuid:                  id,
+	Uuidv7:                idv7,
 	Email:                 email,
 	Description:           "François Truffaut 久保田 利伸 text",
 	Password:              password,
@@ -524,6 +527,11 @@ func TestValidationRules(t *testing.T) {
 		{
 			"ValidIDAnyVersionWithUUIDv4",
 			getValMsg(ValTestMessage{Uuid: id}),
+			valid,
+		},
+		{
+			"ValidIDVersion7WithUUIDv7",
+			getValMsg(ValTestMessage{Uuidv7: idv7}),
 			valid,
 		},
 		{

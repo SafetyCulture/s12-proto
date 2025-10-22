@@ -22,6 +22,8 @@ message ValTestMessage {
   InnerMessageWithLegacyId inner_legacy_id = 6;
   // returns an error if the string cannot be parsed as a UUID
   string uuid = 7 [(validator.id) = { version : "any" }];
+  // returns an error if the string cannot be parsed as a UUIDv7
+  string uuidv7 = 8 [(validator.id) = { version: "v7" }];
 
   // email validation
   string email = 11 [(validator.email) = {}];
