@@ -671,7 +671,7 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 
 func genIdValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string) {
 
-	// ID validator with support for legacy ids and UUIDv4
+	// ID validator with support for legacy ids, UUIDv4 & UUIDv7
 	// Might want to move the shared validation logic such as optional to a separate method
 	rules := getIdExtension(f, validator.E_Id)
 	if rules == nil {
@@ -689,6 +689,10 @@ func genIdValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string
 		// Try to validate the value for valid UUIDv4
 		g.P("if !", s12protoPackage.Ident("IsUUIDv4"), "(", varName, ") {")
 		errMsg = "be parsable as UUIDv4"
+	case "v7":
+		// Try to validate the value for valid UUIDv7
+		g.P("if !", s12protoPackage.Ident("IsUUIDv7"), "(", varName, ") {")
+		errMsg = "be parsable as UUIDv7"
 	case "any":
 		// Try to validate the value for valid UUID (any version)
 		g.P("if !", s12protoPackage.Ident("IsUUID"), "(", varName, ") {")
