@@ -190,8 +190,8 @@ func ClassName(msg protoreflect.MessageDescriptor, qualified bool) string {
 		outer = parent.(protoreflect.MessageDescriptor)
 	}
 
-	outerName := string(outer.FullName())                    // e.g. "routeguide.v1.RouteSummary"
-	innerSuffix := string(msg.FullName())[len(outerName):]   // e.g. ".Details"
+	outerName := string(outer.FullName())                  // e.g. "routeguide.v1.RouteSummary"
+	innerSuffix := string(msg.FullName())[len(outerName):] // e.g. ".Details"
 
 	if qualified {
 		return DotsToColons(outerName) + DotsToUnderscores(innerSuffix)
