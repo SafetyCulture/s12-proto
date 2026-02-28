@@ -2,8 +2,10 @@
 .vscode
 .idea
 
-# cpp
+# cruxclient
 /protoc-gen-cruxclient
+protobuf/protoc-gen-cruxclient-go/protoc-gen-cruxclient-go
+
 *.o
 .DS_Store
 protobuf/protoc-gen-govalidator/playground/gen
