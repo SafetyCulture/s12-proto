@@ -62,7 +62,7 @@ void MockServiceGenerator::GenerateHeader(
 
   for (int service_index = 0; service_index < file->service_count(); ++service_index) {
     const ServiceDescriptor *service = file->service(service_index);
-    vars["class_name"] = service->name() + "MockImpl";
+    vars["class_name"] = std::string(service->name()) + "MockImpl";
     vars["service_fullname"] = DotsToColons(service->full_name());
 
     printer.Print(vars, "class $class_name$ final : public ::$service_fullname$::Service {\n");

@@ -15,7 +15,7 @@ endif
 
 CXX = g++
 CPPFLAGS += -I$(SYS_ROOT)include -pthread
-LDFLAGS += -L$(SYS_ROOT)lib -lprotoc -lprotobuf -lpthread -ldl
+LDFLAGS += -L$(SYS_ROOT)lib -lprotoc -lprotobuf -lpthread $(shell pkg-config --libs protobuf 2>/dev/null)
 CXXFLAGS += -std=c++17
 
 protoc-gen-cruxclient: \
