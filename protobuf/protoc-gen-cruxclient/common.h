@@ -2,6 +2,7 @@
 
 #pragma once
 #include <string>
+#include <string_view>
 #include <sstream>
 #include <google/protobuf/descriptor.h>
 
@@ -11,29 +12,29 @@ namespace cruxclient_generator {
 // The following 5 functions were copied from
 // google/protobuf/src/google/protobuf/stubs/strutil.h
 
-inline bool HasPrefixString(const std::string &str, const std::string &prefix) {
+inline bool HasPrefixString(std::string_view str, std::string_view prefix) {
   return str.size() >= prefix.size() &&
          str.compare(0, prefix.size(), prefix) == 0;
 }
 
-inline std::string StripPrefixString(const std::string &str, const std::string &prefix) {
+inline std::string StripPrefixString(std::string_view str, std::string_view prefix) {
   if (HasPrefixString(str, prefix)) {
-    return str.substr(prefix.size());
+    return std::string(str.substr(prefix.size()));
   } else {
-    return str;
+    return std::string(str);
   }
 }
 
-inline bool HasSuffixString(const std::string &str, const std::string &suffix) {
+inline bool HasSuffixString(std::string_view str, std::string_view suffix) {
   return str.size() >= suffix.size() &&
          str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
 }
 
-inline std::string StripSuffixString(const std::string &str, const std::string &suffix) {
+inline std::string StripSuffixString(std::string_view str, std::string_view suffix) {
   if (HasSuffixString(str, suffix)) {
-    return str.substr(0, str.size() - suffix.size());
+    return std::string(str.substr(0, str.size() - suffix.size()));
   } else {
-    return str;
+    return std::string(str);
   }
 }
 
@@ -49,7 +50,7 @@ inline void ReplaceCharacters(std::string *s, const char *remove, char replacewi
 // The following function was copied from
 // google/protobuf/src/google/protobuf/compiler/cpp/cpp_helpers.cc
 
-inline std::string StripProto(const std::string &filename) {
+inline std::string StripProto(std::string_view filename) {
   if (HasSuffixString(filename, ".protodevel")) {
     return StripSuffixString(filename, ".protodevel");
   } else {
@@ -60,7 +61,7 @@ inline std::string StripProto(const std::string &filename) {
 // The following 3 functions were copied from
 // grpc/src/compiler/cpp_generator.cc
 
-inline std::string FilenameIdentifier(const std::string &filename) {
+inline std::string FilenameIdentifier(std::string_view filename) {
   std::string result;
   for (unsigned i = 0; i < filename.size(); i++) {
     char c = filename[i];
@@ -76,8 +77,9 @@ inline std::string FilenameIdentifier(const std::string &filename) {
   return result;
 }
 
-inline std::string StringReplace(std::string str, const std::string &from, const std::string &to,
+inline std::string StringReplace(std::string_view str_view, std::string_view from, std::string_view to,
                             bool replace_all) {
+  std::string str(str_view);
   size_t pos = 0;
 
   do {
@@ -92,26 +94,26 @@ inline std::string StringReplace(std::string str, const std::string &from, const
   return str;
 }
 
-inline std::string StringReplace(std::string str, const std::string &from, const std::string &to) {
+inline std::string StringReplace(std::string_view str, std::string_view from, std::string_view to) {
   return StringReplace(str, from, to, true);
 }
 
 // The following 4 functions were copied from
 // grpc/src/compiler/generator_helpers.h
-inline std::vector<std::string> tokenize(const std::string &input,
-                                    const std::string &delimiters) {
+inline std::vector<std::string> tokenize(std::string_view input,
+                                    std::string_view delimiters) {
   std::vector<std::string> tokens;
   size_t pos, last_pos = 0;
 
   for (;;) {
     bool done = false;
     pos = input.find_first_of(delimiters, last_pos);
-    if (pos == std::string::npos) {
+    if (pos == std::string_view::npos) {
       done = true;
       pos = input.length();
     }
 
-    tokens.push_back(input.substr(last_pos, pos - last_pos));
+    tokens.push_back(std::string(input.substr(last_pos, pos - last_pos)));
     if (done) return tokens;
 
     last_pos = pos + 1;
@@ -121,15 +123,15 @@ inline std::vector<std::string> tokenize(const std::string &input,
 // The following 3 functions were copied from
 // grpc/src/compiler/cpp_generator_helpers.h
 
-inline std::string DotsToColons(const std::string &name) {
+inline std::string DotsToColons(std::string_view name) {
   return StringReplace(name, ".", "::");
 }
 
-inline std::string DotsToUnderscores(const std::string &name) {
+inline std::string DotsToUnderscores(std::string_view name) {
   return StringReplace(name, ".", "_");
 }
 
-inline std::string DotsToSlashs(const std::string &name) {
+inline std::string DotsToSlashs(std::string_view name) {
   return StringReplace(name, ".", "/");
 }
 
@@ -141,8 +143,8 @@ inline std::string UnderscoresToDots(const std::string &name) {
   return StringReplace(name, "_", ".");
 }
 
-inline std::string ToLower(const std::string &input) {
-  std::string output = input;
+inline std::string ToLower(std::string_view input) {
+  std::string output(input);
   std::transform(output.begin(), output.end(), output.begin(),
   [](unsigned char c){ return std::tolower(c); });
   return output;
@@ -165,7 +167,7 @@ inline std::string join(
   return "";
 }
 
-inline std::string ToCamelCase(const std::string& text) {
+inline std::string ToCamelCase(std::string_view text) {
   std::stringstream result;
   bool is_new_word = true;
 
@@ -193,13 +195,13 @@ inline std::string ClassName(const Descriptor *descriptor, bool qualified) {
   const Descriptor *outer = descriptor;
   while (outer->containing_type() != NULL) outer = outer->containing_type();
 
-  const std::string &outer_name = outer->full_name();
-  std::string inner_name = descriptor->full_name().substr(outer_name.size());
+  const std::string outer_name(outer->full_name());
+  std::string inner_name(descriptor->full_name().substr(outer_name.size()));
 
   if (qualified) {
     return DotsToColons(outer_name) + DotsToUnderscores(inner_name);
   } else {
-    return outer->name() + DotsToUnderscores(inner_name);
+    return std::string(outer->name()) + DotsToUnderscores(inner_name);
   }
 }
 

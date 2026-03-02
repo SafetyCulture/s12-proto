@@ -70,7 +70,7 @@ void APIGenerator::PrintHeaderIncludes(
   const FileDescriptor *file) const {
   std::map<string, string> vars;
   vars["filename_base"] = StripProto(file->name());
-  auto package_name = file->package();
+  std::string package_name(file->package());
   ReplaceCharacters(&package_name, ".", '/');
 
   printer->Print("#pragma once\n\n");
@@ -105,7 +105,7 @@ void APIGenerator::PrintHeaderAPIs(
       vars["method_name"] = method->name();
       vars["request"] = ClassName(method->input_type(), true);
       vars["response"] = ClassName(method->output_type(), true);
-      vars["api_name"] = method->name() + "API";
+      vars["api_name"] = std::string(method->name()) + "API";
 
       if (method->client_streaming()) {
         // [RC]: Client Steaming not supported yet
@@ -202,7 +202,7 @@ void APIGenerator::PrintSourceAPIs(
       vars["method_name"] = method->name();
       vars["request"] = ClassName(method->input_type(), true);
       vars["response"] = ClassName(method->output_type(), true);
-      vars["api_name"] = method->name() + "API";
+      vars["api_name"] = std::string(method->name()) + "API";
 
       if (method->client_streaming()) {
         // [RC]: Client Streaming not supported... yet
@@ -276,7 +276,7 @@ void APIGenerator::PrintSourceAPIs(
       vars["method_name"] = method->name();
       vars["request"] = ClassName(method->input_type(), true);
       vars["response"] = ClassName(method->output_type(), true);
-      vars["api_name"] = method->name() + "API";
+      vars["api_name"] = std::string(method->name()) + "API";
 
       printer->Print(vars, "if (method_name == \"$method_name$\") {\n");
       printer->Indent();
