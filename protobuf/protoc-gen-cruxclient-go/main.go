@@ -1,4 +1,4 @@
-// Copyright (c) 2020 SafetyCulture Pty Ltd. All Rights Reserved.
+// Copyright (c) 2026 SafetyCulture Pty Ltd. All Rights Reserved.
 
 // Package main implements protoc-gen-cruxclient-go, a protoc plugin that
 // generates CruxClient C++/ObjC/JNI/YAML files from proto service definitions.

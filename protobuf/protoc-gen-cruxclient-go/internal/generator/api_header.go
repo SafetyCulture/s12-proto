@@ -1,4 +1,4 @@
-// Copyright (c) 2020 SafetyCulture Pty Ltd. All Rights Reserved.
+// Copyright (c) 2026 SafetyCulture Pty Ltd. All Rights Reserved.
 
 // Package generator implements the C++ code generators for the
 // protoc-gen-cruxclient-go plugin.

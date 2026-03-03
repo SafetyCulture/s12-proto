@@ -1,4 +1,4 @@
-// Copyright (c) 2020 SafetyCulture Pty Ltd. All Rights Reserved.
+// Copyright (c) 2026 SafetyCulture Pty Ltd. All Rights Reserved.
 
 // Package common provides string transformation utilities and proto descriptor
 // helpers ported from the C++ protoc-gen-cruxclient plugin's common.h.
