@@ -32,6 +32,7 @@ const (
 	// ensure all checks are performmed in IsValidEmail so we can revert this later if we want to
 	reEmail string = "^((((([a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+(\\.([a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+)*)|((\\x22)((((\\x20|\\x09)*(\\x0d\\x0a))?(\\x20|\\x09)+)?(([\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f]|\\x21|[\\x23-\\x5b]|[\\x5d-\\x7e]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(\\([\\x01-\\x09\\x0b\\x0c\\x0d-\\x7f]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}]))))*(((\\x20|\\x09)*(\\x0d\\x0a))?(\\x20|\\x09)+)?(\\x22)))){1,14}@((([a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(([a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])([a-zA-Z]|\\d|-|\\.|_|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*([a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))\\.)+(([a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(([a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])([a-zA-Z]|\\d|-|_|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*([a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))$"
 	reUUID4 string = "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+	reUUID7 string = "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
 	reURL   string = `^[@\:\/\?#\.\-\_\%\;\=\~\&\+a-zA-Z0-9]+$` // Does not validate format, only characters
 	// breakURLRegex is a pre-compiled regular expression to match a period followed by anything other than a space,
 	// newline, or digit.
@@ -54,6 +55,7 @@ var (
 	RegexPua                    = regexp.MustCompile(rePua)
 	RegexEmail                  = regexp.MustCompile(reEmail)
 	RegexUUID4                  = regexp.MustCompile(reUUID4)
+	RegexUUID7                  = regexp.MustCompile(reUUID7)
 	rxURL                       = regexp.MustCompile(reURL)
 	BreakURLMatcher             = regexp.MustCompile(breakURLRegex)
 	RejectURLMatcher            = regexp.MustCompile(rejectURLRegex)
@@ -67,7 +69,11 @@ func IsUUID(str string) bool {
 // IsUUIDv4 checks if the string is a UUIDv4
 func IsUUIDv4(str string) bool {
 	return RegexUUID4.MatchString(str)
+}
 
+// IsUUIDv7 checks if the string is a UUIDv7
+func IsUUIDv7(str string) bool {
+	return RegexUUID7.MatchString(str)
 }
 
 // IsLegacyID A legacyId does not contain the document prefix; the prefix is accounted for in the service implementation code
