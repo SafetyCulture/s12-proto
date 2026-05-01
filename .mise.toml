@@ -24,6 +24,10 @@ run = "go test ./..."
 description = "Run Go linter"
 run = "golangci-lint run"
 
+[tasks."fmt:proto"]
+description = "Format proto files with buf"
+run = "buf format -w"
+
 [tasks."lint:proto"]
 description = "Lint proto files with buf"
 run = "buf lint"
