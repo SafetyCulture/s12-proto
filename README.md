@@ -7,17 +7,12 @@
 
 ## Pre-requisites
 
-* [mise](https://mise.jdx.dev/getting-started.html) (manages Go, buf, and golangci-lint)
-* [Protocol Buffer Compiler](https://grpc.io/docs/protoc-installation/)
+* [mise](https://mise.jdx.dev/getting-started.html) (manages Go, buf, golangci-lint, and protoc-gen-go)
+* [Protocol Buffer Compiler](https://grpc.io/docs/protoc-installation/) (`brew install protobuf`)
 
 Bootstrap tooling:
 ```sh
 mise install
-```
-
-Install `protoc-gen-go`:
-```sh
-go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 ```
 
 ## Common tasks
