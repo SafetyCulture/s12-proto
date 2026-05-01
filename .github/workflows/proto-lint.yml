@@ -1,0 +1,20 @@
+name: Proto Lint
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  buf:
+    name: Buf Lint & Breaking
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: bufbuild/buf-action@v1
+        with:
+          lint: true
+          breaking: true
+          breaking_against: '.git#branch=master,subdir=s12'

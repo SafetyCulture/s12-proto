@@ -1,6 +1,6 @@
 module github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-s12perm/example
 
-go 1.18
+go 1.24
 
 require (
 	github.com/SafetyCulture/s12-proto v1.23.2

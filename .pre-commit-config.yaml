@@ -9,8 +9,25 @@
 
 repos:
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.2.1
+    rev: v2.3.0
     hooks:
       - id: codespell
         files: \.proto$
         args: ['-w']
+
+  - repo: https://github.com/dnephin/pre-commit-golang
+    rev: v0.5.1
+    hooks:
+      - id: go-fmt
+      - id: go-imports
+
+  - repo: https://github.com/bufbuild/buf
+    rev: v1.50.0
+    hooks:
+      - id: buf-lint
+        args: ['--config', 'buf.yaml']
+
+  - repo: https://github.com/golangci/golangci-lint
+    rev: v1.64.8
+    hooks:
+      - id: golangci-lint
