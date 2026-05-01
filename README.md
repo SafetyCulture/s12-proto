@@ -7,19 +7,27 @@
 
 ## Pre-requisites
 
-* [Go](https://golang.org/doc/install) 1.24+
+* [mise](https://mise.jdx.dev/getting-started.html) — manages Go, buf, and golangci-lint
 * [Protocol Buffer Compiler](https://grpc.io/docs/protoc-installation/)
-* [buf](https://buf.build/docs/installation) (for proto linting and formatting)
+
+Bootstrap tooling:
+```sh
+mise install
+```
 
 Install `protoc-gen-go`:
 ```sh
 go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 ```
 
-## Generating Go code from proto definitions
+## Common tasks
 
 ```sh
-make generate
+mise run generate          # Generate Go code from proto definitions
+mise run test              # Run tests (root module)
+mise run test:cruxclient-go  # Run tests for protoc-gen-cruxclient-go
+mise run lint              # Run Go linter
+mise run lint:proto        # Lint proto files with buf
 ```
 
 To generate and run validator tests:

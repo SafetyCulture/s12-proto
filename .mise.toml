@@ -1,0 +1,25 @@
+[tools]
+go = "1.24"
+buf = "1.50.0"
+golangci-lint = "1.64.8"
+
+[tasks.generate]
+description = "Generate Go code from proto definitions"
+run = "make generate"
+
+[tasks.test]
+description = "Run tests (root module)"
+run = "go test ./..."
+
+["tasks.test:cruxclient-go"]
+description = "Run tests for protoc-gen-cruxclient-go"
+dir = "{{config_root}}/protobuf/protoc-gen-cruxclient-go"
+run = "go test ./..."
+
+[tasks.lint]
+description = "Run Go linter"
+run = "golangci-lint run"
+
+["tasks.lint:proto"]
+description = "Lint proto files with buf"
+run = "buf lint"

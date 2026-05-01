@@ -1,8 +1,0 @@
-version: v2
-# Reference configuration for proto code generation.
-# The Makefile remains the source of truth for local generation.
-# This file documents the plugin invocations for tooling integration.
-plugins:
-  - remote: buf.build/protocolbuffers/go
-    out: .
-    opt: paths=source_relative
