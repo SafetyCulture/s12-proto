@@ -22,12 +22,12 @@ repos:
       - id: go-imports
 
   - repo: https://github.com/bufbuild/buf
-    rev: v1.50.0
+    rev: v1.68.4
     hooks:
       - id: buf-lint
         args: ['--config', 'buf.yaml']
 
   - repo: https://github.com/golangci/golangci-lint
-    rev: v1.64.8
+    rev: v2.11.4
     hooks:
       - id: golangci-lint

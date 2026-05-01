@@ -12,9 +12,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - uses: bufbuild/buf-action@v1
         with:
-          lint: true
-          breaking: true
-          breaking_against: '.git#branch=master,subdir=s12'
+          fetch-depth: 0
+
+      - uses: jdx/mise-action@v2
+
+      - name: Lint
+        run: mise run lint:proto
+
+      - name: Breaking change detection
+        if: github.event_name == 'pull_request'
+        run: buf breaking --against ".git#branch=${GITHUB_BASE_REF}"

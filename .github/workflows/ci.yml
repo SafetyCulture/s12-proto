@@ -12,55 +12,41 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/setup-go@v5
-        with:
-          go-version: '1.24'
-          cache: true
+      - uses: jdx/mise-action@v2
 
       - name: Build
         run: go build ./...
 
       - name: Test
-        run: go test ./...
+        run: mise run test
 
       - name: Vet
         run: go vet ./...
 
   lint:
-    name: Lint (root module)
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: jdx/mise-action@v2
 
-      - uses: actions/setup-go@v5
-        with:
-          go-version: '1.24'
-          cache: true
-
-      - uses: golangci/golangci-lint-action@v6
-        with:
-          version: latest
+      - name: Lint
+        run: mise run lint
 
   cruxclient-go:
     name: Build & Test (protoc-gen-cruxclient-go)
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: protobuf/protoc-gen-cruxclient-go
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/setup-go@v5
-        with:
-          go-version-file: protobuf/protoc-gen-cruxclient-go/go.mod
-          cache: true
+      - uses: jdx/mise-action@v2
 
       - name: Build
+        working-directory: protobuf/protoc-gen-cruxclient-go
         run: go build ./...
 
       - name: Test
-        run: go test ./...
+        run: mise run test:cruxclient-go
 
       - name: Vet
+        working-directory: protobuf/protoc-gen-cruxclient-go
         run: go vet ./...

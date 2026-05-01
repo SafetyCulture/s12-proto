@@ -1,7 +1,7 @@
 [tools]
-go = "1.24"
-buf = "1.50.0"
-golangci-lint = "1.64.8"
+go = "1.26"
+buf = "1.68.4"
+golangci-lint = "2.11.4"
 
 [tasks.generate]
 description = "Generate Go code from proto definitions"
