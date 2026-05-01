@@ -10,8 +10,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/proto"
 
-	"github.com/SafetyCulture/s12-proto/s12/protobuf/proto"
+	s12proto "github.com/SafetyCulture/s12-proto/s12/protobuf/proto"
 )
 
 const (
@@ -276,8 +277,8 @@ func replaceEmpty(s string) string {
 	return s
 }
 
-func getValMsg(m ValTestMessage) *ValTestMessage {
-	newMsg := valMsg
+func getValMsg(m *ValTestMessage) *ValTestMessage {
+	newMsg := proto.Clone(&valMsg).(*ValTestMessage)
 	if m.Id != "" {
 		newMsg.Id = replaceEmpty(m.Id)
 	}
@@ -401,7 +402,7 @@ func getValMsg(m ValTestMessage) *ValTestMessage {
 	if m.StringWithPrefix != "" {
 		newMsg.StringWithPrefix = replaceEmpty(m.StringWithPrefix)
 	}
-	return &newMsg
+	return newMsg
 }
 
 func TestValidationRules(t *testing.T) {
@@ -416,7 +417,7 @@ func TestValidationRules(t *testing.T) {
 
 	type TestSet struct {
 		name        string
-		input       proto.Validator
+		input       s12proto.Validator
 		shouldError bool
 	}
 
@@ -433,294 +434,294 @@ func TestValidationRules(t *testing.T) {
 		},
 		{
 			"InvalidId",
-			getValMsg(ValTestMessage{Id: "abc"}),
+			getValMsg(&ValTestMessage{Id: "abc"}),
 			invalid,
 		},
 		{
 			"InvalidIdWithUUIDNotV4",
-			getValMsg(ValTestMessage{Id: uuidNotV4}),
+			getValMsg(&ValTestMessage{Id: uuidNotV4}),
 			invalid,
 		},
 		{
 			"InvalidLegacyId",
-			getValMsg(ValTestMessage{LegacyId: legacyLongIdFail}),
+			getValMsg(&ValTestMessage{LegacyId: legacyLongIdFail}),
 			invalid,
 		},
 		{
 			"ValidLegacyIdLong1",
-			getValMsg(ValTestMessage{LegacyId: legacyLongId1}),
+			getValMsg(&ValTestMessage{LegacyId: legacyLongId1}),
 			valid,
 		},
 		{
 			"ValidLegacyIdLong2",
-			getValMsg(ValTestMessage{LegacyId: legacyLongId2}),
+			getValMsg(&ValTestMessage{LegacyId: legacyLongId2}),
 			valid,
 		},
 		{
 			"ValidLegacyIdLong3",
-			getValMsg(ValTestMessage{LegacyId: legacyLongId3}),
+			getValMsg(&ValTestMessage{LegacyId: legacyLongId3}),
 			valid,
 		},
 		{
 			"ValidLegacyIdLong4",
-			getValMsg(ValTestMessage{LegacyId: legacyLongId4}),
+			getValMsg(&ValTestMessage{LegacyId: legacyLongId4}),
 			valid,
 		},
 		{
 			"InvalidIds",
-			getValMsg(ValTestMessage{Ids: []string{id, "audit_invalid", id}}),
+			getValMsg(&ValTestMessage{Ids: []string{id, "audit_invalid", id}}),
 			invalid,
 		},
 		{
 			"ValidS12ID",
-			getValMsg(ValTestMessage{S12Id: s12Id}),
+			getValMsg(&ValTestMessage{S12Id: s12Id}),
 			valid,
 		},
 		{
 			"InvalidS12ID",
-			getValMsg(ValTestMessage{S12Id: "fake_id"}),
+			getValMsg(&ValTestMessage{S12Id: "fake_id"}),
 			invalid,
 		},
 		{
 			"InvalidUUIDwithS12Id",
-			getValMsg(ValTestMessage{Id: s12Id}),
+			getValMsg(&ValTestMessage{Id: s12Id}),
 			invalid,
 		},
 		{
 			"InvalidUUIDwithLegacyId",
-			getValMsg(ValTestMessage{Id: legacyId}),
+			getValMsg(&ValTestMessage{Id: legacyId}),
 			invalid,
 		},
 		{
 			"InvalidLegacyIdwithS12Id",
-			getValMsg(ValTestMessage{LegacyId: s12Id}),
+			getValMsg(&ValTestMessage{LegacyId: s12Id}),
 			invalid,
 		},
 		{
 			"InvalidS12IdWithLegacyId",
-			getValMsg(ValTestMessage{S12Id: legacyId}),
+			getValMsg(&ValTestMessage{S12Id: legacyId}),
 			invalid,
 		},
 		{
 			"ValidIdAllOptsUUID",
-			getValMsg(ValTestMessage{AllId: id}),
+			getValMsg(&ValTestMessage{AllId: id}),
 			valid,
 		},
 		{
 			"ValidIdAllOptsLegacyId",
-			getValMsg(ValTestMessage{AllId: legacyId}),
+			getValMsg(&ValTestMessage{AllId: legacyId}),
 			valid,
 		},
 		{
 			"ValidIdAllOptsS12Id",
-			getValMsg(ValTestMessage{AllId: s12Id}),
+			getValMsg(&ValTestMessage{AllId: s12Id}),
 			valid,
 		},
 		{
 			"ValidS12IDUppercase",
-			getValMsg(ValTestMessage{S12Id: "audit_C6C011ED4ADE460DA04BDA730834B667"}),
+			getValMsg(&ValTestMessage{S12Id: "audit_C6C011ED4ADE460DA04BDA730834B667"}),
 			valid,
 		},
 		{
 			"ValidIDAnyVersionWithUUIDv4",
-			getValMsg(ValTestMessage{Uuid: id}),
+			getValMsg(&ValTestMessage{Uuid: id}),
 			valid,
 		},
 		{
 			"ValidIDAnyVersionWithUUIDNotV4",
-			getValMsg(ValTestMessage{Uuid: uuidNotV4}),
+			getValMsg(&ValTestMessage{Uuid: uuidNotV4}),
 			valid,
 		},
 		{
 			"InvalidIDAnyVersionWithInvalidId",
-			getValMsg(ValTestMessage{Uuid: "invalid"}),
+			getValMsg(&ValTestMessage{Uuid: "invalid"}),
 			invalid,
 		},
 		{
 			"ValidIdAllOptsLongPrefixedLegacyId50",
-			getValMsg(ValTestMessage{AllId: "audit_1CC51EFA600C4F6285B9652A32D714D69500000013D6801111"}),
+			getValMsg(&ValTestMessage{AllId: "audit_1CC51EFA600C4F6285B9652A32D714D69500000013D6801111"}),
 			valid,
 		},
 		{
 			"ValidIdAllOptsLongPrefixedLegacyId51",
-			getValMsg(ValTestMessage{AllId: "audit_0CEE3E70B3584D40B1E7B4A485C19D8A23500000154D3322222"}),
+			getValMsg(&ValTestMessage{AllId: "audit_0CEE3E70B3584D40B1E7B4A485C19D8A23500000154D3322222"}),
 			valid,
 		},
 		{
 			"ValidIdAllOptsLongPrefixedLegacyId52",
-			getValMsg(ValTestMessage{AllId: "audit_072F8B1B16594188A8B906ACED430CA889670000153EA8333333"}),
+			getValMsg(&ValTestMessage{AllId: "audit_072F8B1B16594188A8B906ACED430CA889670000153EA8333333"}),
 			valid,
 		},
 		{
 			"ValidIdAllOptsLongPrefixedLegacyId53",
-			getValMsg(ValTestMessage{AllId: "template_5033F701076E47FCA698F84E05557A6D2024300002267A4444444"}),
+			getValMsg(&ValTestMessage{AllId: "template_5033F701076E47FCA698F84E05557A6D2024300002267A4444444"}),
 			valid,
 		},
 		{
 			"InValidIdAllOptsLongPrefixedLegacyId54",
-			getValMsg(ValTestMessage{AllId: "template_5033F701076E47FCA698F84E05557A6D2024300002267A44444445"}),
+			getValMsg(&ValTestMessage{AllId: "template_5033F701076E47FCA698F84E05557A6D2024300002267A44444445"}),
 			invalid,
 		},
 		{
 			"InValidIdAllOptsLongPrefixedLegacyId44",
-			getValMsg(ValTestMessage{AllId: "template_5033F7A698F84E05557A6D2024300002267A44444445"}),
+			getValMsg(&ValTestMessage{AllId: "template_5033F7A698F84E05557A6D2024300002267A44444445"}),
 			invalid,
 		},
 		{
 			"ValidEmail",
-			getValMsg(ValTestMessage{Email: email}),
+			getValMsg(&ValTestMessage{Email: email}),
 			valid,
 		}, {
 			"ValidDescriptionLen1",
-			getValMsg(ValTestMessage{Description: genString(1)}),
+			getValMsg(&ValTestMessage{Description: genString(1)}),
 			valid,
 		}, {
 			"ValidDescriptionLen2",
-			getValMsg(ValTestMessage{Description: genString(2)}),
+			getValMsg(&ValTestMessage{Description: genString(2)}),
 			valid,
 		}, {
 			"ValidDescriptionLen50",
-			getValMsg(ValTestMessage{Description: genString(50)}),
+			getValMsg(&ValTestMessage{Description: genString(50)}),
 			valid,
 		}, {
 			"ValidDescriptionLen100",
-			getValMsg(ValTestMessage{Description: genString(100)}),
+			getValMsg(&ValTestMessage{Description: genString(100)}),
 			valid,
 		}, {
 			"ValidDescriptionLen750",
-			getValMsg(ValTestMessage{Description: genString(750)}),
+			getValMsg(&ValTestMessage{Description: genString(750)}),
 			valid,
 		}, {
 			"InvalidDescriptionLen751",
-			getValMsg(ValTestMessage{Description: genString(751)}),
+			getValMsg(&ValTestMessage{Description: genString(751)}),
 			invalid,
 		}, {
 			"InvalidDescriptionLen0",
-			getValMsg(ValTestMessage{Description: emptyString}),
+			getValMsg(&ValTestMessage{Description: emptyString}),
 			invalid,
 		}, {
 			"InvalidDescriptionLen10k",
-			getValMsg(ValTestMessage{Description: genString(10000)}),
+			getValMsg(&ValTestMessage{Description: genString(10000)}),
 			invalid,
 		}, {
 			"InvalidEncoding",
-			getValMsg(ValTestMessage{Description: "X\xe9X invalid X\xa3X encoding"}),
+			getValMsg(&ValTestMessage{Description: "X\xe9X invalid X\xa3X encoding"}),
 			invalid,
 		}, {
 			"InvalidPUA",
-			getValMsg(ValTestMessage{NotSanitisePua: "X\uf0a7X InvalidPUA"}),
+			getValMsg(&ValTestMessage{NotSanitisePua: "X\uf0a7X InvalidPUA"}),
 			invalid,
 		}, {
 			"ValidSanitisedPUA",
-			getValMsg(ValTestMessage{SanitisePua: "X\uf0a7X ValidSanitisedPUA"}),
+			getValMsg(&ValTestMessage{SanitisePua: "X\uf0a7X ValidSanitisedPUA"}),
 			valid,
 		}, {
 			"ValidSanitisedLength",
-			getValMsg(ValTestMessage{SanitiseLength: "A\uf0a7B"}), // sanitised to length 2 (AB)
+			getValMsg(&ValTestMessage{SanitiseLength: "A\uf0a7B"}), // sanitised to length 2 (AB)
 			valid,
 		}, {
 			"InvalidSanitisedLength",
-			getValMsg(ValTestMessage{SanitiseLength: "A\uf0a7"}), // sanitised to length 1 (A)
+			getValMsg(&ValTestMessage{SanitiseLength: "A\uf0a7"}), // sanitised to length 1 (A)
 			invalid,
 		}, {
 			"InvalidBidiRtL",
-			getValMsg(ValTestMessage{ScPermissive: "InvalidBidi RtL\u200f"}),
+			getValMsg(&ValTestMessage{ScPermissive: "InvalidBidi RtL\u200f"}),
 			invalid,
 		}, {
 			"InvalidBidiLtR",
-			getValMsg(ValTestMessage{ScPermissive: "\u200eInvalidBidi LtR"}),
+			getValMsg(&ValTestMessage{ScPermissive: "\u200eInvalidBidi LtR"}),
 			invalid,
 		}, {
 			"ValidPasswordLong",
-			getValMsg(ValTestMessage{Password: "XCzUDDdpwvFR@MoGzsVP@hvjmNqjPG2bNb9G6uz7"}), // not a real password
+			getValMsg(&ValTestMessage{Password: "XCzUDDdpwvFR@MoGzsVP@hvjmNqjPG2bNb9G6uz7"}), // not a real password
 			valid,
 		}, {
 			"ValidPasswordShort",
-			getValMsg(ValTestMessage{Password: "12345678"}), // not a real password
+			getValMsg(&ValTestMessage{Password: "12345678"}), // not a real password
 			valid,
 		}, {
 			"ValidPasswordUnsafeChars",
-			getValMsg(ValTestMessage{Password: "<$pass>'|\"../etc/password"}), // not a real password
+			getValMsg(&ValTestMessage{Password: "<$pass>'|\"../etc/password"}), // not a real password
 			valid,
 		}, {
 			"InvalidPasswordLength",
-			getValMsg(ValTestMessage{Password: "1234567"}), // not a real password
+			getValMsg(&ValTestMessage{Password: "1234567"}), // not a real password
 			invalid,
 		}, {
 			"ValidFixedLenString",
-			getValMsg(ValTestMessage{FixedString: "1234"}),
+			getValMsg(&ValTestMessage{FixedString: "1234"}),
 			valid,
 		}, {
 			"InvalidFixedLenStringMB",
-			getValMsg(ValTestMessage{FixedString: "123é"}), // é takes up 2 bytes, making this len 5 instead of 4
+			getValMsg(&ValTestMessage{FixedString: "123é"}), // é takes up 2 bytes, making this len 5 instead of 4
 			invalid,
 		}, {
 			"InvalidFixedLenStringTooShort",
-			getValMsg(ValTestMessage{FixedString: "123"}),
+			getValMsg(&ValTestMessage{FixedString: "123"}),
 			invalid,
 		}, {
 			"InvalidFixedLenStringTooLong",
-			getValMsg(ValTestMessage{FixedString: "12345"}),
+			getValMsg(&ValTestMessage{FixedString: "12345"}),
 			invalid,
 		}, {
 			"ValidRuneLenStringSB",
-			getValMsg(ValTestMessage{RuneString: "123é"}), // len 4 in runes, 5 in bytes
+			getValMsg(&ValTestMessage{RuneString: "123é"}), // len 4 in runes, 5 in bytes
 			valid,
 		}, {
 			"ValidRuneLenStringNFD",
-			getValMsg(ValTestMessage{RuneString: "123e\u0301"}), // this NFD string (e + ´) will be normalised to NFC string before len check so still 4 bytes
+			getValMsg(&ValTestMessage{RuneString: "123e\u0301"}), // this NFD string (e + ´) will be normalised to NFC string before len check so still 4 bytes
 			valid,
 		}, {
 			"ValidRuneLenStringMB",
-			getValMsg(ValTestMessage{RuneString: "AAA🌏"}), // will result in 7 bytes and 4 runes
+			getValMsg(&ValTestMessage{RuneString: "AAA🌏"}), // will result in 7 bytes and 4 runes
 			valid,
 		}, {
 			"ValidMinMaxLenStringL3",
-			getValMsg(ValTestMessage{Title: "123"}), // len between 3 and 50
+			getValMsg(&ValTestMessage{Title: "123"}), // len between 3 and 50
 			valid,
 		}, {
 			"ValidMinMaxLenStringL4",
-			getValMsg(ValTestMessage{Title: "1234"}), // len between 3 and 50
+			getValMsg(&ValTestMessage{Title: "1234"}), // len between 3 and 50
 			valid,
 		}, {
 			"ValidMinMaxLenStringL49",
-			getValMsg(ValTestMessage{Title: genString(49)}), // len between 3 and 50
+			getValMsg(&ValTestMessage{Title: genString(49)}), // len between 3 and 50
 			valid,
 		}, {
 			"ValidMinMaxLenStringL50",
-			getValMsg(ValTestMessage{Title: genString(50)}), // len between 3 and 50
+			getValMsg(&ValTestMessage{Title: genString(50)}), // len between 3 and 50
 			valid,
 		}, {
 			"InvalidMinMaxLenStringL51",
-			getValMsg(ValTestMessage{Title: genString(51)}), // len between 3 and 50
+			getValMsg(&ValTestMessage{Title: genString(51)}), // len between 3 and 50
 			invalid,
 		}, {
 			"InvalidMinMaxLenStringL2",
-			getValMsg(ValTestMessage{Title: "12"}), // len between 3 and 50
+			getValMsg(&ValTestMessage{Title: "12"}), // len between 3 and 50
 			invalid,
 		}, {
 			"InvalidMinMaxLenStringL0",
-			getValMsg(ValTestMessage{Title: emptyString}), // len between 3 and 50
+			getValMsg(&ValTestMessage{Title: emptyString}), // len between 3 and 50
 			invalid,
 		}, {
 			"ValidReplaceUnsafe",
-			getValMsg(ValTestMessage{ReplaceString: "<script>"}),
+			getValMsg(&ValTestMessage{ReplaceString: "<script>"}),
 			valid,
 		}, {
 			"ValidTrimStringCustomTest",
-			getValMsg(ValTestMessage{TrimString: " \t 1 2 3 \n\t"}), // expected result is 1 2 3
+			getValMsg(&ValTestMessage{TrimString: " \t 1 2 3 \n\t"}), // expected result is 1 2 3
 			valid,
 		}, {
 			"ValidNilOptionalString",
-			getValMsg(ValTestMessage{OptionalString: nil}),
+			getValMsg(&ValTestMessage{OptionalString: nil}),
 			valid,
 		}, {
 			"InvalidEmptyOptionalString",
-			getValMsg(ValTestMessage{OptionalString: &emptyStr}),
+			getValMsg(&ValTestMessage{OptionalString: &emptyStr}),
 			invalid,
 		}, {
 			"ValidNonEmptyOptionalString",
-			getValMsg(ValTestMessage{OptionalString: &optionalStr}),
+			getValMsg(&ValTestMessage{OptionalString: &optionalStr}),
 			valid,
 		}, {
 			// Custom test for deeply nested messages; these should still be validated, expecting an error at level 3
@@ -845,33 +846,33 @@ func TestValidationRules(t *testing.T) {
 			valid,
 		}, {
 			"ValidUrlCustomSchemeFtp",
-			getValMsg(ValTestMessage{UrlAllOpts: "ftp://example.com/abc"}),
+			getValMsg(&ValTestMessage{UrlAllOpts: "ftp://example.com/abc"}),
 			valid,
 		}, {
 			"ValidUrlCustomSchemeFtps",
-			getValMsg(ValTestMessage{UrlAllOpts: "ftps://example.com/abc#fragment"}),
+			getValMsg(&ValTestMessage{UrlAllOpts: "ftps://example.com/abc#fragment"}),
 			valid,
 		}, {
 			"InvalidUrlCustomSchemeHttps",
-			getValMsg(ValTestMessage{UrlAllOpts: "https://example.com/abc"}),
+			getValMsg(&ValTestMessage{UrlAllOpts: "https://example.com/abc"}),
 			invalid,
 		}, {
 			"InvalidTimezone",
-			getValMsg(ValTestMessage{Timezone: "Australia/BonnieDoon"}),
+			getValMsg(&ValTestMessage{Timezone: "Australia/BonnieDoon"}),
 			invalid,
 		}, {
 			"InvalidTimezoneOptional",
-			getValMsg(ValTestMessage{TimezoneOptional: "Australia/BonnieDoon"}),
+			getValMsg(&ValTestMessage{TimezoneOptional: "Australia/BonnieDoon"}),
 			invalid,
 		},
 	}
 
 	// Custom test for repeated contact
-	contactsMsgValid1 := valMsg
+	contactsMsgValid1 := proto.Clone(&valMsg).(*ValTestMessage)
 	contactsMsgValid1.ContactsWithLengthConstraint = []*ValTestMessage_Contact{
 		{Phone: "1 message", Email: "test1@example.com"},
 	}
-	contactsMsgValid10 := valMsg
+	contactsMsgValid10 := proto.Clone(&valMsg).(*ValTestMessage)
 	contactsMsgValid10.ContactsWithLengthConstraint = []*ValTestMessage_Contact{
 		{Phone: "10 messages", Email: "test1@example.com"},
 		{Phone: "", Email: "test2@example.com"},
@@ -884,9 +885,9 @@ func TestValidationRules(t *testing.T) {
 		{Phone: "", Email: "test9@example.com"},
 		{Phone: "", Email: "test10@example.com"},
 	}
-	contactsMsgInvalid0 := valMsg
+	contactsMsgInvalid0 := proto.Clone(&valMsg).(*ValTestMessage)
 	contactsMsgInvalid0.ContactsWithLengthConstraint = []*ValTestMessage_Contact{}
-	contactsMsgInvalid11 := valMsg
+	contactsMsgInvalid11 := proto.Clone(&valMsg).(*ValTestMessage)
 	contactsMsgInvalid11.ContactsWithLengthConstraint = []*ValTestMessage_Contact{
 		{Phone: "11 messages", Email: "test1@example.com"},
 		{Phone: "", Email: "test2@example.com"},
@@ -900,44 +901,44 @@ func TestValidationRules(t *testing.T) {
 		{Phone: "", Email: "test10@example.com"},
 		{Phone: "", Email: "test11@example.com"},
 	}
-	contactsMsgInvalidEmail := valMsg
+	contactsMsgInvalidEmail := proto.Clone(&valMsg).(*ValTestMessage)
 	contactsMsgInvalidEmail.ContactsWithLengthConstraint = []*ValTestMessage_Contact{
 		{Phone: "", Email: "test1@invalid"},
 	}
-	contactsMsgNoConstraintsValid0 := valMsg
+	contactsMsgNoConstraintsValid0 := proto.Clone(&valMsg).(*ValTestMessage)
 	contactsMsgNoConstraintsValid0.ContactsWithoutLengthConstraint = []*ValTestMessage_Contact{}
-	contactsMsgNoConstraintsValid2 := valMsg
+	contactsMsgNoConstraintsValid2 := proto.Clone(&valMsg).(*ValTestMessage)
 	contactsMsgNoConstraintsValid2.ContactsWithoutLengthConstraint = []*ValTestMessage_Contact{
 		{Phone: "2 messages", Email: "test1@example.com"},
 		{Phone: "", Email: "test2@example.com"},
 	}
 	tests = append(tests, TestSet{
 		"ContactWithLengthConstraintValid1",
-		&contactsMsgValid1,
+		contactsMsgValid1,
 		valid,
 	}, TestSet{
 		"ContactWithLengthConstraintValid10",
-		&contactsMsgValid10,
+		contactsMsgValid10,
 		valid,
 	}, TestSet{
 		"ContactWithLengthConstraintInvalid0",
-		&contactsMsgInvalid0,
+		contactsMsgInvalid0,
 		invalid,
 	}, TestSet{
 		"ContactWithLengthConstraintInvalid11",
-		&contactsMsgInvalid11,
+		contactsMsgInvalid11,
 		invalid,
 	}, TestSet{
 		"ContactWithLengthConstraintInvalidEmail",
-		&contactsMsgInvalidEmail,
+		contactsMsgInvalidEmail,
 		invalid,
 	}, TestSet{
 		"ContactWithoutLengthConstraintValid0",
-		&contactsMsgNoConstraintsValid0,
+		contactsMsgNoConstraintsValid0,
 		valid,
 	}, TestSet{
 		"ContactWithoutLengthConstraintValid2",
-		&contactsMsgNoConstraintsValid0,
+		contactsMsgNoConstraintsValid0,
 		valid,
 	})
 
@@ -945,14 +946,14 @@ func TestValidationRules(t *testing.T) {
 	for _, invalidEmail := range invalidEmails {
 		tests = append(tests, TestSet{
 			"InvalidEmail_" + invalidEmail,
-			getValMsg(ValTestMessage{Email: invalidEmail}),
+			getValMsg(&ValTestMessage{Email: invalidEmail}),
 			invalid,
 		})
 	}
 	for _, validEmail := range validEmails {
 		tests = append(tests, TestSet{
 			"ValidEmail_" + validEmail,
-			getValMsg(ValTestMessage{Email: validEmail}),
+			getValMsg(&ValTestMessage{Email: validEmail}),
 			valid,
 		})
 	}
@@ -961,7 +962,7 @@ func TestValidationRules(t *testing.T) {
 	for _, input := range readFiles(invalidSafeStrings) {
 		tests = append(tests, TestSet{
 			"InvalidSafeString_" + input,
-			getValMsg(ValTestMessage{Description: input}),
+			getValMsg(&ValTestMessage{Description: input}),
 			invalid,
 		})
 	}
@@ -970,7 +971,7 @@ func TestValidationRules(t *testing.T) {
 	for _, input := range validReplaceUnsafeStrings {
 		tests = append(tests, TestSet{
 			"ValidReplaceUnsafeStrings_" + input,
-			getValMsg(ValTestMessage{ReplaceString: input}),
+			getValMsg(&ValTestMessage{ReplaceString: input}),
 			valid,
 		})
 	}
@@ -978,7 +979,7 @@ func TestValidationRules(t *testing.T) {
 	for _, input := range validReplaceUnsafeStrings {
 		tests = append(tests, TestSet{
 			"InvalidNotReplaceUnsafeStrings_" + input,
-			getValMsg(ValTestMessage{NotReplaceString: input}),
+			getValMsg(&ValTestMessage{NotReplaceString: input}),
 			invalid,
 		})
 	}
@@ -986,7 +987,7 @@ func TestValidationRules(t *testing.T) {
 	for _, input := range readFiles(validSafeStrings) {
 		tests = append(tests, TestSet{
 			"ValidSafeString_" + input,
-			getValMsg(ValTestMessage{Description: input}),
+			getValMsg(&ValTestMessage{Description: input}),
 			valid,
 		})
 	}
@@ -996,7 +997,7 @@ func TestValidationRules(t *testing.T) {
 	for _, input := range readFiles(validNames) {
 		tests = append(tests, TestSet{
 			"ValidName_" + input,
-			getValMsg(ValTestMessage{Name: input}),
+			getValMsg(&ValTestMessage{Name: input}),
 			valid,
 		})
 	}
@@ -1004,7 +1005,7 @@ func TestValidationRules(t *testing.T) {
 	for _, input := range readFiles(testTitles) {
 		tests = append(tests, TestSet{
 			"ValidTitle_" + input,
-			getValMsg(ValTestMessage{ScTitle: input}),
+			getValMsg(&ValTestMessage{ScTitle: input}),
 			valid,
 		})
 	}
@@ -1012,7 +1013,7 @@ func TestValidationRules(t *testing.T) {
 	for _, input := range readFiles(testPermissive) {
 		tests = append(tests, TestSet{
 			"ValidTitlePermissive_" + input,
-			getValMsg(ValTestMessage{ScPermissive: input}),
+			getValMsg(&ValTestMessage{ScPermissive: input}),
 			valid,
 		})
 	}
@@ -1021,19 +1022,19 @@ func TestValidationRules(t *testing.T) {
 	for _, invalidURL := range invalidURLs {
 		tests = append(tests, TestSet{
 			"InvalidURL_" + invalidURL,
-			getValMsg(ValTestMessage{Url: invalidURL}),
+			getValMsg(&ValTestMessage{Url: invalidURL}),
 			invalid,
 		})
 	}
 	for _, validURL := range validURLs {
 		tests = append(tests, TestSet{
 			"ValidURL_" + validURL,
-			getValMsg(ValTestMessage{Url: validURL}),
+			getValMsg(&ValTestMessage{Url: validURL}),
 			valid,
 		})
 	}
 
-	emptyTimezoneMsg := getValMsg(ValTestMessage{})
+	emptyTimezoneMsg := getValMsg(&ValTestMessage{})
 	emptyTimezoneMsg.Timezone = ""
 	// Empty Timezone
 	tests = append(tests, TestSet{
@@ -1043,7 +1044,7 @@ func TestValidationRules(t *testing.T) {
 	})
 	tests = append(tests, TestSet{
 		"InvalidLongString",
-		getValMsg(ValTestMessage{LongString: strings.Repeat("y", 30002)}),
+		getValMsg(&ValTestMessage{LongString: strings.Repeat("y", 30002)}),
 		invalid,
 	})
 	fmt.Println("###### LEN = ", len(strings.Repeat("y", 30002)))
@@ -1087,7 +1088,7 @@ func TestValidationRules(t *testing.T) {
 	for _, input := range validStringPrefixes {
 		tests = append(tests, TestSet{
 			name:        "ValidStringPrefix_" + input,
-			input:       getValMsg(ValTestMessage{StringWithPrefix: input}),
+			input:       getValMsg(&ValTestMessage{StringWithPrefix: input}),
 			shouldError: valid,
 		})
 	}
@@ -1095,7 +1096,7 @@ func TestValidationRules(t *testing.T) {
 	for _, input := range invalidStringPrefixes {
 		tests = append(tests, TestSet{
 			name:        "InvalidStringPrefix_" + input,
-			input:       getValMsg(ValTestMessage{StringWithPrefix: input}),
+			input:       getValMsg(&ValTestMessage{StringWithPrefix: input}),
 			shouldError: invalid,
 		})
 	}
