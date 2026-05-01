@@ -2,6 +2,7 @@
 go = "1.26"
 buf = "1.68.4"
 golangci-lint = "2.11.4"
+"aqua:protocolbuffers/protobuf" = "29.3"
 
 [tasks.generate]
 description = "Generate Go code from proto definitions"
