@@ -34,4 +34,4 @@ run = "buf lint"
 
 [tasks."breaking:proto"]
 description = "Check for breaking proto changes against base branch"
-run = 'buf breaking s12 --against ".git#branch=${GITHUB_BASE_REF:-master},subdir=s12"'
+run = 'buf breaking s12 --against ".git#branch=origin/${GITHUB_BASE_REF},subdir=s12"'

@@ -19,3 +19,4 @@ jobs:
 
       - run: mise run lint:proto
       - run: mise run breaking:proto
+        if: github.event_name == 'pull_request'
