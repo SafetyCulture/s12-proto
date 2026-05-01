@@ -11,11 +11,6 @@ run = "make generate"
 description = "Run tests (root module)"
 run = "go test ./..."
 
-["tasks.test:cruxclient-go"]
-description = "Run tests for protoc-gen-cruxclient-go"
-dir = "{{config_root}}/protobuf/protoc-gen-cruxclient-go"
-run = "go test ./..."
-
 [tasks.lint]
 description = "Run Go linter"
 run = "golangci-lint run"
