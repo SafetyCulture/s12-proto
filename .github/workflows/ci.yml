@@ -9,7 +9,7 @@ on:
 jobs:
   build-and-test:
     name: Build & Test (root module)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: jdx/mise-action@v2
@@ -25,7 +25,7 @@ jobs:
 
   lint:
     name: Lint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: jdx/mise-action@v2
@@ -35,7 +35,7 @@ jobs:
 
   cruxclient-go:
     name: Build & Test (protoc-gen-cruxclient-go)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: jdx/mise-action@v2
