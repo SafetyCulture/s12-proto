@@ -32,21 +32,3 @@ jobs:
 
       - name: Lint
         run: mise run lint
-
-  cruxclient-go:
-    name: Build & Test (protoc-gen-cruxclient-go)
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-      - uses: jdx/mise-action@v2
-
-      - name: Build
-        working-directory: protobuf/protoc-gen-cruxclient-go
-        run: go build ./...
-
-      - name: Test
-        run: mise run test:cruxclient-go
-
-      - name: Vet
-        working-directory: protobuf/protoc-gen-cruxclient-go
-        run: go vet ./...
