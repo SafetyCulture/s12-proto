@@ -8,20 +8,15 @@ on:
 
 jobs:
   build-and-test:
-    name: Build & Test (root module)
+    name: Build & Test
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: jdx/mise-action@v2
 
-      - name: Build
-        run: go build ./...
-
-      - name: Test
-        run: mise run test
-
-      - name: Vet
-        run: go vet ./...
+      - run: mise run build
+      - run: mise run vet
+      - run: mise run test
 
   lint:
     name: Lint
@@ -30,5 +25,4 @@ jobs:
       - uses: actions/checkout@v4
       - uses: jdx/mise-action@v2
 
-      - name: Lint
-        run: mise run lint
+      - run: mise run lint

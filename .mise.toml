@@ -4,6 +4,14 @@ buf = "1.68.4"
 golangci-lint = "2.11.4"
 "go:google.golang.org/protobuf/cmd/protoc-gen-go" = "latest"
 
+[tasks.build]
+description = "Build all packages"
+run = "go build ./..."
+
+[tasks.vet]
+description = "Run go vet"
+run = "go vet ./..."
+
 [tasks.generate]
 description = "Generate Go code from proto definitions"
 run = "make generate"
