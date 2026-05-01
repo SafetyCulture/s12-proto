@@ -17,9 +17,5 @@ jobs:
 
       - uses: jdx/mise-action@v2
 
-      - name: Lint
-        run: mise run lint:proto
-
-      - name: Breaking change detection
-        if: github.event_name == 'pull_request'
-        run: buf breaking --against ".git#branch=${GITHUB_BASE_REF}"
+      - run: mise run lint:proto
+      - run: mise run breaking:proto
