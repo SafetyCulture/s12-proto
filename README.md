@@ -2,55 +2,59 @@
 
 **WARNING:** Public Repo
 
-## Pre-requisites:
+[![CI](https://github.com/SafetyCulture/s12-proto/actions/workflows/ci.yml/badge.svg)](https://github.com/SafetyCulture/s12-proto/actions/workflows/ci.yml)
+[![Proto Lint](https://github.com/SafetyCulture/s12-proto/actions/workflows/proto-lint.yml/badge.svg)](https://github.com/SafetyCulture/s12-proto/actions/workflows/proto-lint.yml)
 
-* [Go](https://golang.org/doc/install)
-* [Protocol Buffer Compiler](https://grpc.io/docs/protoc-installation/)
+## Pre-requisites
 
-### Generating Go code from protobuf
+* [mise](https://mise.jdx.dev/getting-started.html) (manages Go, buf, golangci-lint, and protoc-gen-go)
+* [Protocol Buffer Compiler](https://grpc.io/docs/protoc-installation/) (`brew install protobuf`)
 
-Make sure you have `protoc-gen-go` installed:
-https://pkg.go.dev/google.golang.org/protobuf#section-readme
-```
-$ cd s12-proto
-$ go install google.golang.org/protobuf/cmd/protoc-gen-go
-```
-
-Run the generate command:
-
-```
-$ make generate
+Bootstrap tooling:
+```sh
+mise install
 ```
 
-To generate and run tests:
+## Common tasks
+
+```sh
+mise run generate    # Generate Go code from proto definitions
+mise run test        # Run tests (root module)
+mise run lint        # Run Go linter
+mise run lint:proto  # Lint proto files with buf
 ```
+
+To generate and run validator tests:
+```sh
 make generate && make govalidator && make govalidator-valtest
 ```
 
-#### Making sure the code was generated as expected
+## Plugins
 
-Let's use `protoc-gen-s12perm` package as an example which will generate an
-example Go code from a protobuf file.
+See [docs/plugins.md](docs/plugins.md) for the full plugin reference, including install instructions and usage examples for each plugin.
 
-```
-$ make s12perm
-```
+| Plugin | Description |
+|--------|-------------|
+| `protoc-gen-govalidator` | Field-level validation for Go |
+| `protoc-gen-s12perm` | gRPC permission interceptors |
+| `protoc-gen-logger` | Structured logging for gRPC services |
+| `protoc-gen-gogrpcmock` | gRPC mock server implementations |
+| `protoc-gen-cruxclient` | C++ client + Djinni bindings (C++ toolchain) |
+| `protoc-gen-cruxclient-go` | C++ client + Djinni bindings (Go, no C++ toolchain needed) |
 
-This command should generate an example file written in Go. Now we have to run
-the tests to make sure the generated file works as expected.
+## Proto linting with buf
 
-In this case, the new file should be located at
-`protobuf/protoc-gen-s12perm/example/example.perm.pb.go`.
-
-## Generating crux client c++ code from protobuf
-
-* Install [Go](https://golang.org/doc/install)
-* Install Protocol Buffer Compiler via Homebrew `brew install protobuf`
-* Install gRPC view Homebrew `brew install gRPC`
-
-```
-$ make cruxclient
+```sh
+buf lint
+buf breaking --against '.git#branch=master'
 ```
 
-This command will first compile the crux code generator as a protoc plugin and install it to the system bin directory.
-Then it will be used to generate custom crux code in c++.
+## Running tests
+
+```sh
+# Root module (all plugins except cruxclient-go)
+go test ./...
+
+# protoc-gen-cruxclient-go
+cd protobuf/protoc-gen-cruxclient-go && go test ./...
+```

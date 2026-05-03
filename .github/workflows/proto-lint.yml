@@ -1,0 +1,22 @@
+name: Proto Lint
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  buf:
+    name: Buf Lint & Breaking
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: jdx/mise-action@v2
+
+      - run: mise run lint:proto
+      - run: mise run breaking:proto
+        if: github.event_name == 'pull_request'

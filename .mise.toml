@@ -1,0 +1,37 @@
+[tools]
+go = "1.26"
+buf = "1.68.4"
+golangci-lint = "2.11.4"
+"go:google.golang.org/protobuf/cmd/protoc-gen-go" = "latest"
+
+[tasks.build]
+description = "Build all packages"
+run = "go build ./..."
+
+[tasks.vet]
+description = "Run go vet"
+run = "go vet ./..."
+
+[tasks.generate]
+description = "Generate Go code from proto definitions"
+run = "make generate"
+
+[tasks.test]
+description = "Run tests (root module)"
+run = "go test ./..."
+
+[tasks.lint]
+description = "Run Go linter"
+run = "golangci-lint run"
+
+[tasks."fmt:proto"]
+description = "Format proto files with buf"
+run = "buf format -w"
+
+[tasks."lint:proto"]
+description = "Lint proto files with buf"
+run = "buf lint"
+
+[tasks."breaking:proto"]
+description = "Check for breaking proto changes against base branch"
+run = 'buf breaking s12 --against ".git#branch=origin/${GITHUB_BASE_REF},subdir=s12"'

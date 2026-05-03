@@ -640,7 +640,7 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 			}
 			// Ignore this as it would not weaken the validation.
 			// Warn as it likely indicates something that requires follow up
-			fmt.Fprintf(os.Stderr, "WARN: Symbol "+fmt.Sprint(symbol)+" not in stringSymbolMap (not implemented)\n")
+			fmt.Fprintf(os.Stderr, "WARN: Symbol %v not in stringSymbolMap (not implemented)\n", symbol)
 		}
 	}
 

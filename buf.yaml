@@ -1,0 +1,21 @@
+version: v2
+modules:
+  - path: s12
+lint:
+  use:
+    - STANDARD
+  ignore_only:
+    # Fixing these would be breaking changes for existing consumers
+    PACKAGE_DIRECTORY_MATCH:
+      - s12/flags/permissions/permissions.proto
+      - s12/protobuf/proto/validator.proto
+    PACKAGE_VERSION_SUFFIX:
+      - s12/flags/permissions/permissions.proto
+      - s12/protobuf/proto/validator.proto
+    ENUM_VALUE_PREFIX:
+      - s12/protobuf/proto/validator.proto
+    ENUM_FIRST_VALUE_ZERO:
+      - s12/protobuf/proto/validator.proto
+breaking:
+  use:
+    - FILE
