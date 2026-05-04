@@ -1,0 +1,6 @@
+first.last@domain.com.au
+email@gmail.com
+example@safetyculture.io
+example1234@non-existing-domain123837.com
+example+alias@EXAMPLE.COM
+mULtiCase@exAMplE.cOm
