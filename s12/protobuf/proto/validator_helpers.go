@@ -32,6 +32,10 @@ const (
 	// ensure all checks are performmed in IsValidEmail so we can revert this later if we want to
 	reEmail string = "^((((([a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+(\\.([a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+)*)|((\\x22)((((\\x20|\\x09)*(\\x0d\\x0a))?(\\x20|\\x09)+)?(([\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f]|\\x21|[\\x23-\\x5b]|[\\x5d-\\x7e]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(\\([\\x01-\\x09\\x0b\\x0c\\x0d-\\x7f]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}]))))*(((\\x20|\\x09)*(\\x0d\\x0a))?(\\x20|\\x09)+)?(\\x22)))){1,14}@((([a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(([a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])([a-zA-Z]|\\d|-|\\.|_|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*([a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))\\.)+(([a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(([a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])([a-zA-Z]|\\d|-|_|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*([a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))$"
 	reUUID4 string = "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+	// nonEmailUsername matches a lowercased non-email username: starts and ends with [a-z0-9],
+	// interior may contain dot, underscore or hyphen. Length and consecutive-dot checks are done
+	// separately in IsValidNonEmail.
+	nonEmailUsername string = "^[a-z0-9][a-z0-9._-]*[a-z0-9]$"
 	reURL   string = `^[@\:\/\?#\.\-\_\%\;\=\~\&\+a-zA-Z0-9]+$` // Does not validate format, only characters
 	// breakURLRegex is a pre-compiled regular expression to match a period followed by anything other than a space,
 	// newline, or digit.
@@ -54,6 +58,7 @@ var (
 	RegexPua                    = regexp.MustCompile(rePua)
 	RegexEmail                  = regexp.MustCompile(reEmail)
 	RegexUUID4                  = regexp.MustCompile(reUUID4)
+	rxNonEmailUsername          = regexp.MustCompile(nonEmailUsername)
 	rxURL                       = regexp.MustCompile(reURL)
 	BreakURLMatcher             = regexp.MustCompile(breakURLRegex)
 	RejectURLMatcher            = regexp.MustCompile(rejectURLRegex)
@@ -102,6 +107,32 @@ func IsValidEmail(str string, checkDomain bool) bool {
 		return false
 	}
 	return RegexEmail.MatchString(str)
+}
+
+// IsValidNonEmail reports whether username is a valid non-email username.
+//
+// CONTRACT: input must already be lowercased and trimmed by the caller.
+//
+// Rules:
+//   - Pure ASCII only (no byte > 0x7F)
+//   - Length: 2-64 characters
+//   - Starts and ends with [a-z0-9]
+//   - Interior: [a-z0-9], dot, underscore, or hyphen
+//   - No consecutive dots (..)
+func IsValidNonEmail(username string) bool {
+	n := len(username)
+	if n < 2 || n > 64 {
+		return false
+	}
+	for i := 0; i < n; i++ {
+		if username[i] > 0x7F {
+			return false
+		}
+	}
+	if strings.Contains(username, "..") {
+		return false
+	}
+	return rxNonEmailUsername.MatchString(username)
 }
 
 // FirstCharactersFromString will return only the `max` symbols from the input

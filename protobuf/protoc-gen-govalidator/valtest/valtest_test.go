@@ -190,6 +190,9 @@ var valMsg = ValTestMessage{
 	// NotSupported: ,
 	Timezone:   "Australia/Sydney",
 	LongString: strings.Repeat("x", 30000),
+	// username (non-optional) accepts email-or-non-email; username_email_only (non-optional) requires an email
+	Username:          "validuser",
+	UsernameEmailOnly: email,
 }
 
 // omit optional fields here
@@ -236,6 +239,9 @@ var valMsgOpts = ValTestMessage{
 	Url: "https://example.com/test",
 	// NotSupported: ,
 	Timezone: "Australia/Sydney",
+	// username (non-optional) accepts email-or-non-email; username_email_only (non-optional) requires an email
+	Username:          "validuser",
+	UsernameEmailOnly: email,
 }
 
 func readFiles(list []string) []string {
@@ -401,6 +407,30 @@ func getValMsg(m *ValTestMessage) *ValTestMessage {
 	}
 	if m.StringWithPrefix != "" {
 		newMsg.StringWithPrefix = replaceEmpty(m.StringWithPrefix)
+	}
+	if m.Username != "" {
+		newMsg.Username = replaceEmpty(m.Username)
+	}
+	if m.UsernameOptional != "" {
+		newMsg.UsernameOptional = replaceEmpty(m.UsernameOptional)
+	}
+	if m.UsernameEmailOnly != "" {
+		newMsg.UsernameEmailOnly = replaceEmpty(m.UsernameEmailOnly)
+	}
+	if m.UsernameLogOnly != "" {
+		newMsg.UsernameLogOnly = replaceEmpty(m.UsernameLogOnly)
+	}
+	if m.UsernameOptionalEmailOnly != "" {
+		newMsg.UsernameOptionalEmailOnly = replaceEmpty(m.UsernameOptionalEmailOnly)
+	}
+	if m.UsernameOptionalLogOnly != "" {
+		newMsg.UsernameOptionalLogOnly = replaceEmpty(m.UsernameOptionalLogOnly)
+	}
+	if m.UsernameEmailOnlyLogOnly != "" {
+		newMsg.UsernameEmailOnlyLogOnly = replaceEmpty(m.UsernameEmailOnlyLogOnly)
+	}
+	if m.UsernameAllFlags != "" {
+		newMsg.UsernameAllFlags = replaceEmpty(m.UsernameAllFlags)
 	}
 	return newMsg
 }
@@ -1100,6 +1130,141 @@ func TestValidationRules(t *testing.T) {
 			shouldError: invalid,
 		})
 	}
+
+	// Username (compound email-or-non-email validator), default flags
+	validUsernames := []string{"user@example.com", "ab", "user.name-1", "a_b", "00abc99"}
+	for _, input := range validUsernames {
+		tests = append(tests, TestSet{
+			name:        "ValidUsername_" + input,
+			input:       getValMsg(&ValTestMessage{Username: input}),
+			shouldError: valid,
+		})
+	}
+	// 64 chars is the max allowed length (boundary)
+	tests = append(tests, TestSet{
+		name:        "ValidUsername_maxLen64",
+		input:       getValMsg(&ValTestMessage{Username: strings.Repeat("a", 64)}),
+		shouldError: valid,
+	})
+	// "UPPER" (non-lowercase), "a" (too short), "a..b" (consecutive dots),
+	// ".ab"/"ab-" (bad start/end), "über" (non-ASCII), emptyString (empty, non-optional),
+	// 65-char string (exceeds max length)
+	invalidUsernames := []string{"UPPER", "a", "a..b", ".ab", "ab-", "über", emptyString, strings.Repeat("a", 65)}
+	for _, input := range invalidUsernames {
+		tests = append(tests, TestSet{
+			name:        "InvalidUsername_" + input,
+			input:       getValMsg(&ValTestMessage{Username: input}),
+			shouldError: invalid,
+		})
+	}
+
+	// username_optional: empty is skipped (valid); a present value is still validated
+	tests = append(tests,
+		TestSet{
+			name:        "ValidUsernameOptional_empty",
+			input:       getValMsg(&ValTestMessage{UsernameOptional: emptyString}),
+			shouldError: valid,
+		},
+		TestSet{
+			name:        "ValidUsernameOptional_value",
+			input:       getValMsg(&ValTestMessage{UsernameOptional: "validuser"}),
+			shouldError: valid,
+		},
+		TestSet{
+			name:        "InvalidUsernameOptional_UPPER",
+			input:       getValMsg(&ValTestMessage{UsernameOptional: "UPPER"}),
+			shouldError: invalid,
+		},
+	)
+
+	// username_email_only: allow_non_email=false, so only emails pass; non-optional, so empty fails
+	tests = append(tests,
+		TestSet{
+			name:        "ValidUsernameEmailOnly_email",
+			input:       getValMsg(&ValTestMessage{UsernameEmailOnly: "user@example.com"}),
+			shouldError: valid,
+		},
+		TestSet{
+			name:        "InvalidUsernameEmailOnly_nonEmail",
+			input:       getValMsg(&ValTestMessage{UsernameEmailOnly: "validusername"}),
+			shouldError: invalid,
+		},
+		TestSet{
+			name:        "InvalidUsernameEmailOnly_empty",
+			input:       getValMsg(&ValTestMessage{UsernameEmailOnly: emptyString}),
+			shouldError: invalid,
+		},
+	)
+
+	// username_log_only: log_only=true, so even an invalid value returns no error
+	tests = append(tests, TestSet{
+		name:        "ValidUsernameLogOnly_invalidLogged",
+		input:       getValMsg(&ValTestMessage{UsernameLogOnly: "INVALID!"}),
+		shouldError: valid,
+	})
+
+	// --- Multi-flag combinations (remaining states to cover all 8) ---
+
+	// optional + email_only: empty skipped; present must be an email (non-email fails)
+	tests = append(tests,
+		TestSet{
+			name:        "ValidUsernameOptionalEmailOnly_empty",
+			input:       getValMsg(&ValTestMessage{UsernameOptionalEmailOnly: emptyString}),
+			shouldError: valid,
+		},
+		TestSet{
+			name:        "ValidUsernameOptionalEmailOnly_email",
+			input:       getValMsg(&ValTestMessage{UsernameOptionalEmailOnly: "user@example.com"}),
+			shouldError: valid,
+		},
+		TestSet{
+			name:        "InvalidUsernameOptionalEmailOnly_nonEmail",
+			input:       getValMsg(&ValTestMessage{UsernameOptionalEmailOnly: "validusername"}),
+			shouldError: invalid,
+		},
+	)
+
+	// optional + log_only: empty skipped; present-but-invalid is logged, never errors
+	tests = append(tests,
+		TestSet{
+			name:        "ValidUsernameOptionalLogOnly_empty",
+			input:       getValMsg(&ValTestMessage{UsernameOptionalLogOnly: emptyString}),
+			shouldError: valid,
+		},
+		TestSet{
+			name:        "ValidUsernameOptionalLogOnly_invalidLogged",
+			input:       getValMsg(&ValTestMessage{UsernameOptionalLogOnly: "INVALID!"}),
+			shouldError: valid,
+		},
+	)
+
+	// email_only + log_only: non-optional but log_only suppresses errors, so nothing errors
+	tests = append(tests,
+		TestSet{
+			name:        "ValidUsernameEmailOnlyLogOnly_email",
+			input:       getValMsg(&ValTestMessage{UsernameEmailOnlyLogOnly: "user@example.com"}),
+			shouldError: valid,
+		},
+		TestSet{
+			name:        "ValidUsernameEmailOnlyLogOnly_nonEmailLogged",
+			input:       getValMsg(&ValTestMessage{UsernameEmailOnlyLogOnly: "validusername"}),
+			shouldError: valid,
+		},
+	)
+
+	// all flags (optional + email_only + log_only): empty skipped; present-but-invalid logged, never errors
+	tests = append(tests,
+		TestSet{
+			name:        "ValidUsernameAllFlags_empty",
+			input:       getValMsg(&ValTestMessage{UsernameAllFlags: emptyString}),
+			shouldError: valid,
+		},
+		TestSet{
+			name:        "ValidUsernameAllFlags_invalidLogged",
+			input:       getValMsg(&ValTestMessage{UsernameAllFlags: "INVALID!"}),
+			shouldError: valid,
+		},
+	)
 
 	for _, test := range tests {
 		test := test

@@ -57,6 +57,8 @@ extend google.protobuf.FieldOptions {
   optional NumberRules number = 65221;
   // Validates simple strings
   optional SimpleStringRules simple_string = 65222;
+  // Validates field as a valid email OR a valid non-email username (compound OR)
+  optional UsernameRules username = 65223;
 }
 
 // SymbolCategory defines which special characters (Unicode symbols and the like) are allowed
@@ -108,6 +110,22 @@ message SimpleStringRules {
 
   // Max Length
   optional int32 max_len = 4;
+}
+
+// UsernameRules validates a string as a valid email or non-email username.
+// A value passes if it is a valid RFC 5322 email, or (when allow_non_email is
+// true) a valid non-email username per IsValidNonEmail.
+message UsernameRules {
+  // Set this as optional field (not required). When true, empty values are skipped.
+  // default = false
+  optional bool optional = 1 [default = false];
+
+  // When true (default), also accept valid non-email usernames in addition to emails.
+  // When false, only valid emails pass.
+  optional bool allow_non_email = 2 [default = true];
+
+  // Only apply soft validation. Validation errors for this validator are logged, not returned.
+  optional bool log_only = 3 [default = false];
 }
 
 // StringRules describe the constraints applied to `string` values (for both string and unsafe_string)
