@@ -36,7 +36,7 @@ const (
 	// interior may contain dot, underscore or hyphen. Length and consecutive-dot checks are done
 	// separately in IsValidNonEmail.
 	nonEmailUsername string = "^[a-z0-9][a-z0-9._-]*[a-z0-9]$"
-	reURL   string = `^[@\:\/\?#\.\-\_\%\;\=\~\&\+a-zA-Z0-9]+$` // Does not validate format, only characters
+	reURL            string = `^[@\:\/\?#\.\-\_\%\;\=\~\&\+a-zA-Z0-9]+$` // Does not validate format, only characters
 	// breakURLRegex is a pre-compiled regular expression to match a period followed by anything other than a space,
 	// newline, or digit.
 	breakURLRegex string = `\b\.([^\s\n\d])`
