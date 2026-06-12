@@ -1131,8 +1131,28 @@ func TestValidationRules(t *testing.T) {
 		})
 	}
 
-	// Username (compound email-or-non-email validator), default flags
-	validUsernames := []string{"user@example.com", "ab", "user.name-1", "a_b", "00abc99"}
+	// Username (compound email-or-non-email validator), default flags.
+	// Char set: Latin-script letters (incl. precomposed accents) + ASCII digits;
+	// interior may also be . _ -; lowercase only; NFC; 2-64 runes; no consecutive dots.
+	validUsernames := []string{
+		"user@example.com", // email path
+		"ab",               // min length (2)
+		"user.name-1",      // interior dot + hyphen
+		"a_b",              // interior underscore
+		"00abc99",          // digits
+		"über",             // German umlaut
+		"café",             // accent at end
+		"josé",             // accent at end
+		"résumé",           // multiple accents
+		"müller",           // accent in middle
+		"señor",            // ñ
+		"françois",         // ç
+		"naïve",            // ï
+		"åse",              // accent at start
+		"søren",            // ø
+		"œuvre",            // œ ligature (Latin)
+		"škoda",            // š (Latin Extended)
+	}
 	for _, input := range validUsernames {
 		tests = append(tests, TestSet{
 			name:        "ValidUsername_" + input,
@@ -1140,16 +1160,34 @@ func TestValidationRules(t *testing.T) {
 			shouldError: valid,
 		})
 	}
-	// 64 chars is the max allowed length (boundary)
-	tests = append(tests, TestSet{
-		name:        "ValidUsername_maxLen64",
-		input:       getValMsg(&ValTestMessage{Username: strings.Repeat("a", 64)}),
-		shouldError: valid,
-	})
-	// "UPPER" (non-lowercase), "a" (too short), "a..b" (consecutive dots),
-	// ".ab"/"ab-" (bad start/end), "über" (non-ASCII), emptyString (empty, non-optional),
-	// 65-char string (exceeds max length)
-	invalidUsernames := []string{"UPPER", "a", "a..b", ".ab", "ab-", "über", emptyString, strings.Repeat("a", 65)}
+	// Max-length boundary: 64 code points allowed. The accented case also proves length
+	// is counted in runes, not bytes (64 × "é" = 64 runes but 128 bytes).
+	tests = append(tests,
+		TestSet{
+			name:        "ValidUsername_maxLen64Ascii",
+			input:       getValMsg(&ValTestMessage{Username: strings.Repeat("a", 64)}),
+			shouldError: valid,
+		},
+		TestSet{
+			name:        "ValidUsername_maxLen64Accented",
+			input:       getValMsg(&ValTestMessage{Username: strings.Repeat("é", 64)}),
+			shouldError: valid,
+		},
+	)
+
+	// Straightforward invalid cases (descriptive auto-name from the input).
+	invalidUsernames := []string{
+		"UPPER",     // uppercase (lowercase-only)
+		"a",         // too short (1 rune)
+		"a..b",      // consecutive dots
+		".ab",       // bad start (dot)
+		"ab-",       // bad end (hyphen)
+		"-ab",       // bad start (hyphen)
+		"ab.",       // bad end (dot)
+		"a b",       // space
+		"a!b",       // disallowed symbol
+		emptyString, // empty (non-optional)
+	}
 	for _, input := range invalidUsernames {
 		tests = append(tests, TestSet{
 			name:        "InvalidUsername_" + input,
@@ -1157,6 +1195,64 @@ func TestValidationRules(t *testing.T) {
 			shouldError: invalid,
 		})
 	}
+	// Invalid cases needing explicit names (non-printable / security-relevant / encoding).
+	tests = append(tests,
+		TestSet{ // exceeds 64 ASCII chars
+			name:        "InvalidUsername_tooLongAscii",
+			input:       getValMsg(&ValTestMessage{Username: strings.Repeat("a", 65)}),
+			shouldError: invalid,
+		},
+		TestSet{ // exceeds 64 runes (accented) — guards rune-vs-byte counting
+			name:        "InvalidUsername_tooLongAccented",
+			input:       getValMsg(&ValTestMessage{Username: strings.Repeat("é", 65)}),
+			shouldError: invalid,
+		},
+		TestSet{ // single accented rune is still too short
+			name:        "InvalidUsername_singleAccentedTooShort",
+			input:       getValMsg(&ValTestMessage{Username: "é"}),
+			shouldError: invalid,
+		},
+		TestSet{ // accented uppercase rejected by the lowercase guard
+			name:        "InvalidUsername_uppercaseAccented",
+			input:       getValMsg(&ValTestMessage{Username: "Café"}),
+			shouldError: invalid,
+		},
+		TestSet{ // Cyrillic — non-Latin script
+			name:        "InvalidUsername_cyrillic",
+			input:       getValMsg(&ValTestMessage{Username: "превед"}),
+			shouldError: invalid,
+		},
+		TestSet{ // Greek — non-Latin script
+			name:        "InvalidUsername_greek",
+			input:       getValMsg(&ValTestMessage{Username: "αβγδ"}),
+			shouldError: invalid,
+		},
+		TestSet{ // CJK — non-Latin script
+			name:        "InvalidUsername_cjk",
+			input:       getValMsg(&ValTestMessage{Username: "日本語"}),
+			shouldError: invalid,
+		},
+		TestSet{ // homograph: Cyrillic 'а' (U+0430) mixed with Latin letters
+			name:        "InvalidUsername_mixedScriptHomograph",
+			input:       getValMsg(&ValTestMessage{Username: "pаypal"}),
+			shouldError: invalid,
+		},
+		TestSet{ // decomposed accent (e + U+0301): only precomposed (NFC) is accepted
+			name:        "InvalidUsername_decomposedAccent",
+			input:       getValMsg(&ValTestMessage{Username: "café"}),
+			shouldError: invalid,
+		},
+		TestSet{ // Arabic-Indic digits — only ASCII digits allowed (not \p{N})
+			name:        "InvalidUsername_nonAsciiDigits",
+			input:       getValMsg(&ValTestMessage{Username: "١٢٣"}),
+			shouldError: invalid,
+		},
+		TestSet{ // emoji
+			name:        "InvalidUsername_emoji",
+			input:       getValMsg(&ValTestMessage{Username: "a\U0001F600b"}),
+			shouldError: invalid,
+		},
+	)
 
 	// username_optional: empty is skipped (valid); a present value is still validated
 	tests = append(tests,
