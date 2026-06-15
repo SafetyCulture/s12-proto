@@ -190,6 +190,9 @@ var valMsg = ValTestMessage{
 	// NotSupported: ,
 	Timezone:   "Australia/Sydney",
 	LongString: strings.Repeat("x", 30000),
+	// username (non-optional) accepts email-or-non-email; username_email_only (non-optional) requires an email
+	Username:          "validuser",
+	UsernameEmailOnly: email,
 }
 
 // omit optional fields here
@@ -236,6 +239,9 @@ var valMsgOpts = ValTestMessage{
 	Url: "https://example.com/test",
 	// NotSupported: ,
 	Timezone: "Australia/Sydney",
+	// username (non-optional) accepts email-or-non-email; username_email_only (non-optional) requires an email
+	Username:          "validuser",
+	UsernameEmailOnly: email,
 }
 
 func readFiles(list []string) []string {
@@ -401,6 +407,30 @@ func getValMsg(m *ValTestMessage) *ValTestMessage {
 	}
 	if m.StringWithPrefix != "" {
 		newMsg.StringWithPrefix = replaceEmpty(m.StringWithPrefix)
+	}
+	if m.Username != "" {
+		newMsg.Username = replaceEmpty(m.Username)
+	}
+	if m.UsernameOptional != "" {
+		newMsg.UsernameOptional = replaceEmpty(m.UsernameOptional)
+	}
+	if m.UsernameEmailOnly != "" {
+		newMsg.UsernameEmailOnly = replaceEmpty(m.UsernameEmailOnly)
+	}
+	if m.UsernameLogOnly != "" {
+		newMsg.UsernameLogOnly = replaceEmpty(m.UsernameLogOnly)
+	}
+	if m.UsernameOptionalEmailOnly != "" {
+		newMsg.UsernameOptionalEmailOnly = replaceEmpty(m.UsernameOptionalEmailOnly)
+	}
+	if m.UsernameOptionalLogOnly != "" {
+		newMsg.UsernameOptionalLogOnly = replaceEmpty(m.UsernameOptionalLogOnly)
+	}
+	if m.UsernameEmailOnlyLogOnly != "" {
+		newMsg.UsernameEmailOnlyLogOnly = replaceEmpty(m.UsernameEmailOnlyLogOnly)
+	}
+	if m.UsernameAllFlags != "" {
+		newMsg.UsernameAllFlags = replaceEmpty(m.UsernameAllFlags)
 	}
 	return newMsg
 }
@@ -1100,6 +1130,237 @@ func TestValidationRules(t *testing.T) {
 			shouldError: invalid,
 		})
 	}
+
+	// Username (compound email-or-non-email validator), default flags.
+	// Char set: Latin-script letters (incl. precomposed accents) + ASCII digits;
+	// interior may also be . _ -; lowercase only; NFC; 2-64 runes; no consecutive dots.
+	validUsernames := []string{
+		"user@example.com", // email path
+		"ab",               // min length (2)
+		"user.name-1",      // interior dot + hyphen
+		"a_b",              // interior underscore
+		"00abc99",          // digits
+		"über",             // German umlaut
+		"café",             // accent at end
+		"josé",             // accent at end
+		"résumé",           // multiple accents
+		"müller",           // accent in middle
+		"señor",            // ñ
+		"françois",         // ç
+		"naïve",            // ï
+		"åse",              // accent at start
+		"søren",            // ø
+		"œuvre",            // œ ligature (Latin)
+		"škoda",            // š (Latin Extended)
+	}
+	for _, input := range validUsernames {
+		tests = append(tests, TestSet{
+			name:        "ValidUsername_" + input,
+			input:       getValMsg(&ValTestMessage{Username: input}),
+			shouldError: valid,
+		})
+	}
+	// Max-length boundary: 64 code points allowed. The accented case also proves length
+	// is counted in runes, not bytes (64 × "é" = 64 runes but 128 bytes).
+	tests = append(tests,
+		TestSet{
+			name:        "ValidUsername_maxLen64Ascii",
+			input:       getValMsg(&ValTestMessage{Username: strings.Repeat("a", 64)}),
+			shouldError: valid,
+		},
+		TestSet{
+			name:        "ValidUsername_maxLen64Accented",
+			input:       getValMsg(&ValTestMessage{Username: strings.Repeat("é", 64)}),
+			shouldError: valid,
+		},
+	)
+
+	// Straightforward invalid cases (descriptive auto-name from the input).
+	invalidUsernames := []string{
+		"UPPER",     // uppercase (lowercase-only)
+		"a",         // too short (1 rune)
+		"a..b",      // consecutive dots
+		".ab",       // bad start (dot)
+		"ab-",       // bad end (hyphen)
+		"-ab",       // bad start (hyphen)
+		"ab.",       // bad end (dot)
+		"a b",       // space
+		"a!b",       // disallowed symbol
+		emptyString, // empty (non-optional)
+	}
+	for _, input := range invalidUsernames {
+		tests = append(tests, TestSet{
+			name:        "InvalidUsername_" + input,
+			input:       getValMsg(&ValTestMessage{Username: input}),
+			shouldError: invalid,
+		})
+	}
+	// Invalid cases needing explicit names (non-printable / security-relevant / encoding).
+	tests = append(tests,
+		TestSet{ // exceeds 64 ASCII chars
+			name:        "InvalidUsername_tooLongAscii",
+			input:       getValMsg(&ValTestMessage{Username: strings.Repeat("a", 65)}),
+			shouldError: invalid,
+		},
+		TestSet{ // exceeds 64 runes (accented) — guards rune-vs-byte counting
+			name:        "InvalidUsername_tooLongAccented",
+			input:       getValMsg(&ValTestMessage{Username: strings.Repeat("é", 65)}),
+			shouldError: invalid,
+		},
+		TestSet{ // single accented rune is still too short
+			name:        "InvalidUsername_singleAccentedTooShort",
+			input:       getValMsg(&ValTestMessage{Username: "é"}),
+			shouldError: invalid,
+		},
+		TestSet{ // accented uppercase rejected by the lowercase guard
+			name:        "InvalidUsername_uppercaseAccented",
+			input:       getValMsg(&ValTestMessage{Username: "Café"}),
+			shouldError: invalid,
+		},
+		TestSet{ // Cyrillic — non-Latin script
+			name:        "InvalidUsername_cyrillic",
+			input:       getValMsg(&ValTestMessage{Username: "превед"}),
+			shouldError: invalid,
+		},
+		TestSet{ // Greek — non-Latin script
+			name:        "InvalidUsername_greek",
+			input:       getValMsg(&ValTestMessage{Username: "αβγδ"}),
+			shouldError: invalid,
+		},
+		TestSet{ // CJK — non-Latin script
+			name:        "InvalidUsername_cjk",
+			input:       getValMsg(&ValTestMessage{Username: "日本語"}),
+			shouldError: invalid,
+		},
+		TestSet{ // homograph: Cyrillic 'а' (U+0430) mixed with Latin letters
+			name:        "InvalidUsername_mixedScriptHomograph",
+			input:       getValMsg(&ValTestMessage{Username: "pаypal"}),
+			shouldError: invalid,
+		},
+		TestSet{ // decomposed accent (e + U+0301): only precomposed (NFC) is accepted
+			name:        "InvalidUsername_decomposedAccent",
+			input:       getValMsg(&ValTestMessage{Username: "café"}),
+			shouldError: invalid,
+		},
+		TestSet{ // Arabic-Indic digits — only ASCII digits allowed (not \p{N})
+			name:        "InvalidUsername_nonAsciiDigits",
+			input:       getValMsg(&ValTestMessage{Username: "١٢٣"}),
+			shouldError: invalid,
+		},
+		TestSet{ // emoji
+			name:        "InvalidUsername_emoji",
+			input:       getValMsg(&ValTestMessage{Username: "a\U0001F600b"}),
+			shouldError: invalid,
+		},
+	)
+
+	// username_optional: empty is skipped (valid); a present value is still validated
+	tests = append(tests,
+		TestSet{
+			name:        "ValidUsernameOptional_empty",
+			input:       getValMsg(&ValTestMessage{UsernameOptional: emptyString}),
+			shouldError: valid,
+		},
+		TestSet{
+			name:        "ValidUsernameOptional_value",
+			input:       getValMsg(&ValTestMessage{UsernameOptional: "validuser"}),
+			shouldError: valid,
+		},
+		TestSet{
+			name:        "InvalidUsernameOptional_UPPER",
+			input:       getValMsg(&ValTestMessage{UsernameOptional: "UPPER"}),
+			shouldError: invalid,
+		},
+	)
+
+	// username_email_only: allow_non_email=false, so only emails pass; non-optional, so empty fails
+	tests = append(tests,
+		TestSet{
+			name:        "ValidUsernameEmailOnly_email",
+			input:       getValMsg(&ValTestMessage{UsernameEmailOnly: "user@example.com"}),
+			shouldError: valid,
+		},
+		TestSet{
+			name:        "InvalidUsernameEmailOnly_nonEmail",
+			input:       getValMsg(&ValTestMessage{UsernameEmailOnly: "validusername"}),
+			shouldError: invalid,
+		},
+		TestSet{
+			name:        "InvalidUsernameEmailOnly_empty",
+			input:       getValMsg(&ValTestMessage{UsernameEmailOnly: emptyString}),
+			shouldError: invalid,
+		},
+	)
+
+	// username_log_only: log_only=true, so even an invalid value returns no error
+	tests = append(tests, TestSet{
+		name:        "ValidUsernameLogOnly_invalidLogged",
+		input:       getValMsg(&ValTestMessage{UsernameLogOnly: "INVALID!"}),
+		shouldError: valid,
+	})
+
+	// --- Multi-flag combinations (remaining states to cover all 8) ---
+
+	// optional + email_only: empty skipped; present must be an email (non-email fails)
+	tests = append(tests,
+		TestSet{
+			name:        "ValidUsernameOptionalEmailOnly_empty",
+			input:       getValMsg(&ValTestMessage{UsernameOptionalEmailOnly: emptyString}),
+			shouldError: valid,
+		},
+		TestSet{
+			name:        "ValidUsernameOptionalEmailOnly_email",
+			input:       getValMsg(&ValTestMessage{UsernameOptionalEmailOnly: "user@example.com"}),
+			shouldError: valid,
+		},
+		TestSet{
+			name:        "InvalidUsernameOptionalEmailOnly_nonEmail",
+			input:       getValMsg(&ValTestMessage{UsernameOptionalEmailOnly: "validusername"}),
+			shouldError: invalid,
+		},
+	)
+
+	// optional + log_only: empty skipped; present-but-invalid is logged, never errors
+	tests = append(tests,
+		TestSet{
+			name:        "ValidUsernameOptionalLogOnly_empty",
+			input:       getValMsg(&ValTestMessage{UsernameOptionalLogOnly: emptyString}),
+			shouldError: valid,
+		},
+		TestSet{
+			name:        "ValidUsernameOptionalLogOnly_invalidLogged",
+			input:       getValMsg(&ValTestMessage{UsernameOptionalLogOnly: "INVALID!"}),
+			shouldError: valid,
+		},
+	)
+
+	// email_only + log_only: non-optional but log_only suppresses errors, so nothing errors
+	tests = append(tests,
+		TestSet{
+			name:        "ValidUsernameEmailOnlyLogOnly_email",
+			input:       getValMsg(&ValTestMessage{UsernameEmailOnlyLogOnly: "user@example.com"}),
+			shouldError: valid,
+		},
+		TestSet{
+			name:        "ValidUsernameEmailOnlyLogOnly_nonEmailLogged",
+			input:       getValMsg(&ValTestMessage{UsernameEmailOnlyLogOnly: "validusername"}),
+			shouldError: valid,
+		},
+	)
+
+	// all flags (optional + email_only + log_only): empty skipped; present-but-invalid logged, never errors
+	tests = append(tests,
+		TestSet{
+			name:        "ValidUsernameAllFlags_empty",
+			input:       getValMsg(&ValTestMessage{UsernameAllFlags: emptyString}),
+			shouldError: valid,
+		},
+		TestSet{
+			name:        "ValidUsernameAllFlags_invalidLogged",
+			input:       getValMsg(&ValTestMessage{UsernameAllFlags: "INVALID!"}),
+			shouldError: valid,
+		},
+	)
 
 	for _, test := range tests {
 		test := test

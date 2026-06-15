@@ -164,6 +164,17 @@ message ValTestMessage {
   string long_string = 67 [(validator.unsafe_string) = { len: ":30000", optional: true }];
 
   string string_with_prefix = 68 [(validator.string) = { prefix: "prefix_", optional: true }];
+
+  // Single-flag combos for username validator (email-or-non-email compound validator)
+  string username            = 69 [(validator.username) = {}];
+  string username_optional   = 70 [(validator.username) = { optional: true }];
+  string username_email_only = 71 [(validator.username) = { allow_non_email: false }];
+  string username_log_only   = 72 [(validator.username) = { log_only: true }];
+  // Multi-flag combos (remaining states to cover all 8)
+  string username_optional_email_only  = 73 [(validator.username) = { optional: true, allow_non_email: false }];
+  string username_optional_log_only    = 74 [(validator.username) = { optional: true, log_only: true }];
+  string username_email_only_log_only  = 75 [(validator.username) = { allow_non_email: false, log_only: true }];
+  string username_all_flags            = 76 [(validator.username) = { optional: true, allow_non_email: false, log_only: true }];
 }
 
 message LogOnlyValidationMessage {

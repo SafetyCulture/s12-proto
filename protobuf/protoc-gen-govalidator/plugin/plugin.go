@@ -226,6 +226,7 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 			genStringValidator(g, f, varName)
 			genIdValidator(g, f, varName)
 			genEmailValidator(g, f, varName)
+			genUsernameValidator(g, f, varName)
 			genURLValidator(g, f, varName)
 			genTimezoneValidator(g, f, varName)
 			genSimpleStringValidator(g, f, varName)
@@ -992,6 +993,7 @@ var validNonRepeatedExts = []protoreflect.ExtensionType{
 	validator.E_Timezone,
 	validator.E_Number,
 	validator.E_SimpleString,
+	validator.E_Username,
 }
 
 var validRepeatedExts = []protoreflect.ExtensionType{
@@ -1072,6 +1074,53 @@ func getEmailExtension(f *protogen.Field, xt protoreflect.ExtensionType) *valida
 		}
 	}
 	return nil
+}
+
+func getUsernameExtension(f *protogen.Field, xt protoreflect.ExtensionType) *validator.UsernameRules {
+	if opts := f.Desc.Options(); opts != nil {
+		ext := proto.GetExtension(opts, xt)
+		if v, ok := ext.(*validator.UsernameRules); ok {
+			return v
+		}
+	}
+	return nil
+}
+
+// genUsernameValidator emits validation for the (validator.username) annotation:
+// the value must be a valid email, or (when allow_non_email is set) a valid
+// non-email username. Like the email validator, the value is not reflected in
+// the error since it may be PII.
+func genUsernameValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string) {
+
+	rules := getUsernameExtension(f, validator.E_Username)
+	if rules == nil {
+		return
+	}
+
+	if rules.GetOptional() {
+		g.P("if ", varName, " != \"\" {")
+	}
+
+	g.P("if !", s12protoPackage.Ident("IsValidEmail"), "(", varName, ", false) {")
+	g.P("isValidUsername := false")
+	if rules.GetAllowNonEmail() {
+		g.P("if ", s12protoPackage.Ident("IsValidNonEmail"), "(", varName, ") {")
+		g.P("isValidUsername = true")
+		g.P("}")
+	}
+	g.P("if !isValidUsername {")
+	errMsg := "be a valid email address or username"
+	if rules.GetLogOnly() {
+		printErrorString(g, varName, string(f.Desc.Name()), errMsg, 50)
+	} else {
+		genErrorString(g, varName, string(f.Desc.Name()), errMsg)
+	}
+	g.P("}")
+	g.P("}")
+
+	if rules.GetOptional() {
+		g.P("}")
+	}
 }
 
 func getURLExtension(f *protogen.Field, xt protoreflect.ExtensionType) *validator.URLRules {
