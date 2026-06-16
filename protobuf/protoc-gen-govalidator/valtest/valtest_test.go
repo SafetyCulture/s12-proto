@@ -654,6 +654,10 @@ func TestValidationRules(t *testing.T) {
 			getValMsg(&ValTestMessage{SanitiseLength: "A\uf0a7"}), // sanitised to length 1 (A)
 			invalid,
 		}, {
+			"ValidZeroWidthSpaceStripped",
+			getValMsg(&ValTestMessage{ScPermissive: "Valid\u200bStripped"}),
+			valid,
+		}, {
 			"InvalidBidiRtL",
 			getValMsg(&ValTestMessage{ScPermissive: "InvalidBidi RtL\u200f"}),
 			invalid,
