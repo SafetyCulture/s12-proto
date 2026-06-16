@@ -152,6 +152,7 @@ var stringSymbolReplacerMap = map[string]string{
 	`\u205F`: `\u0020`, // MEDIUM MATHEMATICAL SPACE
 	`\u3000`: `\u0020`, // IDEOGRAPHIC SPACE
 	// Other, format (Control)
+	`\u200B`: ``, // ZERO WIDTH SPACE to <nil> (strip)
 	`\u200C`: ``, // ZERO WIDTH NON-JOINER to <nil> (strip)
 	`\u200D`: ``, // ZERO WIDTH JOINER to <nil> (strip)
 	// TODO: `\u200E`: ``, // LEFT-TO-RIGHT MARK - we do not actively support LTR or RTR atm, likely resulting in UI issues
