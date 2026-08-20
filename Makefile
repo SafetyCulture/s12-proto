@@ -40,8 +40,16 @@ install-s12perm: generate
 install-cruxclient: protoc-gen-cruxclient
 	install protoc-gen-cruxclient $(SYS_ROOT)/bin/protoc-gen-cruxclient
 
+.PHONY: install-csharpvalidator
+install-csharpvalidator:
+	go install ./protobuf/protoc-gen-csharpvalidator
+
 .PHONY: install
-install: install-govalidator install-logger
+install: install-govalidator install-logger install-csharpvalidator
+
+.PHONY: csharpvalidator-runtime-test
+csharpvalidator-runtime-test:
+	dotnet build protobuf/protoc-gen-csharpvalidator/runtime/Runtime.csproj
 
 .PHONY: govalidator
 govalidator: install-govalidator
