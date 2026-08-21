@@ -1,0 +1,209 @@
+# Inputs the Go and C# validators are both run over.
+# One per line. A line opening with b64: carries a base64 payload, which is how
+# a value with leading or trailing space, a line break, or a lone surrogate is written.
+# A line opening with # is a comment.
+
+# from valid_safe_strings.txt
+string1
+this is a valid string? Really
+
+# from invalid_safe_strings.txt
+<xss> (HTMLi)
+b64:4Z6W4Z+S4Z6a4Z+H4oCL4Z6W4Z674Z6R4Z+S4Z6L4Z6D4Z+E4Z6f4Z624Z6F4Z624Z6a4oCM4Z+S4Z6Z4oCL4Z6H4Z694Z6T4oCL4Z6O4Z624Z6PIChLaG1lciBzY3JpcHQp
+সুকুমার রায় (Bengali script)
+माधुरी दीक्षित (Devanagari script)
+ธงไชย แม็คอินไตย์ (Thai script)
+མགོན་པོ་རྡོ་རྗེ། (Tibetran script)
+சிவாஜி கனேசன் (Tibetran script)
+Audit - M&R Process (中文版）(Han script)
+><img src=x onerror=alert(1)> (HTMLi)
+#"><img src=x onerror=prompt(1 (HTMLi)
+
+# from valid_names.txt
+Արամ Խաչատրյան
+Nicole Kidman
+Johann Strauß
+Vaqif Səmədoğlu
+Вагиф Сәмәдоғлу
+Heydər Əliyev
+Һејдәр Әлијев
+René Magritte
+Céline Dion
+ᓱᓴᓐ ᐊᒡᓗᒃᑲᖅ
+ᏍᏏᏉᏯ
+章子怡
+王菲
+Antonín Dvořák
+Søren Hauch-Fausbøll
+Søren Kierkegård
+عبدالحليم حافظ
+أم كلثوم
+ብርሃነ ዘርኣይ
+ኃይሌ ገብረሥላሴ
+Mika Häkkinen
+Gérard Depardieu
+Jean Réno
+Camille Saint-Saëns
+Mylène Demongeot
+François Truffaut
+ედუარდ შევარდნაძე
+Jürgen Klinsmann
+Walter Schultheiß
+Γιώργος Νταλάρας
+András Sütő
+Björk Guðmundsdóttir
+محسن مخملباف
+Sinéad O’Connor
+יהורם גאון
+Fabrizio De André
+久保田 利伸
+林原 めぐみ
+宮崎 駿
+森鷗外
+テクス テクサン
+이설희
+안성기
+심은하
+솅조ᇰ (세종대왕)
+Trevor Żahra
+Tor Åge Bringsværd
+Herbjørn Sørebø
+نصرت فتح علی خان
+Nicómedes Santa Cruz
+Lech Wałęsa
+Amália Rodrigues
+Olga Tañón
+Pūblius Cornēlius Scīpiō Africānus
+Михаил Горбачёв
+Борис Гребенщиков
+שלום עליכם
+Áillohaš
+(aka Nils Aslak Valkeapää)
+Ľudovít Štúr
+Frane Milčinski - Ježek
+Björn Borg
+Ἀρχιμήδης
+صدر الدين عيني
+Садриддин Айнӣ
+舒淇
+李安
+Ніна Матвієнко
+Brad Pitt
+Солижон Шарипов
+Alisher ibn G'iyosiddin Navoiy
+Trịnh Công Sơn
+Đorđe Balašević
+Ђорђе Балашевић
+
+# identifiers
+16fd2706-8baf-433b-82eb-8c7fada847da
+d9428888-122b-11e1-b85c-61cd3cbb3210
+16FD2706-8BAF-433B-82EB-8C7FADA847DA
+16fd27068baf433b82eb8c7fada847da
+5f9d88b8e4b0a1a2b3c4d5e6
+user_0123456789abcdef0123456789abcdef
+role_0123456789abcdef0123456789abcdef
+12345-0123456789abcdef0123456789abcdef
+not-a-uuid
+16fd2706-8baf-433b-82eb-8c7fada847d
+16fd2706-8baf-533b-82eb-8c7fada847da
+
+# emails and usernames
+user@example.com
+User.Name+tag@example.co.uk
+用户@example.com
+user@
+@example.com
+user example@test.com
+a@b.c
+plainusername
+user..name
+ab
+a
+
+# urls
+https://example.com
+https://example.com/path?q=1
+http://example.com
+https://example.com/p#frag
+https://example.com#frag
+https:/example.com
+https://.example.com
+ftp://example.com
+example.com
+https://ex.co
+//example.com
+
+# partial urls and url-like text
+go to example.com today
+a.b
+.https://example.com
+see www.example.com
+trailing.
+..
+x.y.z
+
+# unicode and normalisation
+mañana
+mañana
+é
+é
+straße
+�
+café 🌏
+😀
+😀 emoji
+b64:4oCLemVybyB3aWR0aA==
+ㅤhangul filler
+b64:7oCAcHJpdmF0ZSB1c2U=
+b64:Ye6AgWI=
+
+# symbols and punctuation
+price $5
+100%
+a&b
+a|b
+a<b>c
+a\b
+back`tick
+quote"mark
+apos'trophe
+semi;colon
+tilde~
+bullet •
+em—dash
+en–dash
+full，width
+‘smart’
+
+# whitespace and control
+b64:ICBwYWRkZWQgIA==
+b64:dGFiCWhlcmU=
+b64:bGluZQpicmVhaw==
+b64:Y3JsZg0KaGVyZQ==
+b64:wqBuYnNw
+b64:44CAaWRlb2dyYXBoaWM=
+b64:
+
+# timezones
+Australia/Sydney
+UTC
+America/New_York
+Local
+Not/AZone
+
+# lengths
+aa
+aaa
+aaaa
+aaaaa
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+
+# malformed encoding
+b64:7aCA
+b64:oyBsYXRpbjE=
+
