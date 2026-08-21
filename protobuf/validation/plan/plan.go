@@ -75,7 +75,10 @@ type Step interface{ isStep() }
 // LegacyString covers the field options that predate (validator.string):
 // (validator.regex), (validator.uuid) and (validator.legacy_id).
 type LegacyString struct {
-	Optional   bool
+	Optional bool
+
+	// Regex is the hand-written (validator.regex) pattern, empty when unset.
+	Regex      string
 	MatchRegex bool
 	UUID       bool
 	LegacyID   bool
