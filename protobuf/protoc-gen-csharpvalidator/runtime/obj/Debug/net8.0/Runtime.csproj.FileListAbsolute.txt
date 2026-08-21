@@ -1,0 +1,12 @@
+/Users/dmitryrotay/git/s12-proto/protobuf/protoc-gen-csharpvalidator/runtime/bin/Debug/net8.0/Runtime.deps.json
+/Users/dmitryrotay/git/s12-proto/protobuf/protoc-gen-csharpvalidator/runtime/bin/Debug/net8.0/Runtime.dll
+/Users/dmitryrotay/git/s12-proto/protobuf/protoc-gen-csharpvalidator/runtime/bin/Debug/net8.0/Runtime.pdb
+/Users/dmitryrotay/git/s12-proto/protobuf/protoc-gen-csharpvalidator/runtime/obj/Debug/net8.0/Runtime.GeneratedMSBuildEditorConfig.editorconfig
+/Users/dmitryrotay/git/s12-proto/protobuf/protoc-gen-csharpvalidator/runtime/obj/Debug/net8.0/Runtime.AssemblyInfoInputs.cache
+/Users/dmitryrotay/git/s12-proto/protobuf/protoc-gen-csharpvalidator/runtime/obj/Debug/net8.0/Runtime.AssemblyInfo.cs
+/Users/dmitryrotay/git/s12-proto/protobuf/protoc-gen-csharpvalidator/runtime/obj/Debug/net8.0/Runtime.csproj.CoreCompileInputs.cache
+/Users/dmitryrotay/git/s12-proto/protobuf/protoc-gen-csharpvalidator/runtime/obj/Debug/net8.0/Runtime.sourcelink.json
+/Users/dmitryrotay/git/s12-proto/protobuf/protoc-gen-csharpvalidator/runtime/obj/Debug/net8.0/Runtime.dll
+/Users/dmitryrotay/git/s12-proto/protobuf/protoc-gen-csharpvalidator/runtime/obj/Debug/net8.0/refint/Runtime.dll
+/Users/dmitryrotay/git/s12-proto/protobuf/protoc-gen-csharpvalidator/runtime/obj/Debug/net8.0/Runtime.pdb
+/Users/dmitryrotay/git/s12-proto/protobuf/protoc-gen-csharpvalidator/runtime/obj/Debug/net8.0/ref/Runtime.dll

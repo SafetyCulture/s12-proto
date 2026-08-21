@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "aZntyCh+mn4=",
+  "success": true,
+  "projectFilePath": "/Users/dmitryrotay/git/s12-proto/protobuf/protoc-gen-csharpvalidator/runtime/Runtime.csproj",
+  "expectedPackageFiles": [
+    "/Users/dmitryrotay/.nuget/packages/microsoft.net.illink.tasks/8.0.30/microsoft.net.illink.tasks.8.0.30.nupkg.sha512",
+    "/Users/dmitryrotay/.nuget/packages/microsoft.net.illink.tasks/10.0.11/microsoft.net.illink.tasks.10.0.11.nupkg.sha512",
+    "/Users/dmitryrotay/.nuget/packages/microsoft.netcore.app.ref/8.0.30/microsoft.netcore.app.ref.8.0.30.nupkg.sha512",
+    "/Users/dmitryrotay/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.30/microsoft.aspnetcore.app.ref.8.0.30.nupkg.sha512"
+  ],
+  "logs": []
+}

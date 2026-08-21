@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "qtNofVylabI=",
+  "success": true,
+  "projectFilePath": "/Users/dmitryrotay/git/s12-proto/protobuf/protoc-gen-csharpvalidator/conformance/Conformance.csproj",
+  "expectedPackageFiles": [
+    "/Users/dmitryrotay/.nuget/packages/google.protobuf/3.33.1/google.protobuf.3.33.1.nupkg.sha512",
+    "/Users/dmitryrotay/.nuget/packages/grpc.tools/2.72.0/grpc.tools.2.72.0.nupkg.sha512"
+  ],
+  "logs": []
+}
