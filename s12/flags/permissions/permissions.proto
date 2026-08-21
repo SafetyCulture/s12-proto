@@ -6,6 +6,15 @@ import "google/protobuf/descriptor.proto";
 
 option go_package = "github.com/SafetyCulture/s12-proto/s12/flags/permissions";
 
+// A single permission requirement. Exactly one of any_of or all_of must be set;
+// both, or neither, is rejected at generation time.
+message PermissionRequirement {
+  // The caller needs at least ONE of these permissions.
+  repeated string any_of = 1;
+  // The caller needs EVERY one of these permissions.
+  repeated string all_of = 2;
+}
+
 extend google.protobuf.MethodOptions {
   // A list for required permissions for the given method.
   // For example:
@@ -20,4 +29,22 @@ extend google.protobuf.MethodOptions {
   //       option (s12.flags.permissions.required_scope) = "admin"
   //     }
   optional string required_scope = 20101;
+  // The permissions a caller needs, as one or more requirements combined with
+  // AND. Each option line declares one requirement, and the operator named
+  // inside it (any_of or all_of) applies only within that requirement - so the
+  // AND/OR distinction is stated on the line rather than inferred from it.
+  //
+  // Repeated message options do not coalesce: two option lines produce two
+  // separate requirements in the method descriptor. That is what lets one
+  // method combine operators, and it means adding a line narrows the gate.
+  //
+  // For example, admin:training AND (write:training OR write:course):
+  //     rpc UpdateCourse(Request) returns (Response) {
+  //       option (s12.flags.permissions.required_permissions) = {all_of: ["admin:training"]};
+  //       option (s12.flags.permissions.required_permissions) = {any_of: ["write:training", "write:course"]};
+  //     }
+  //
+  // required_flags is terser for a method that needs a single permission and is
+  // unaffected by this option; where a method sets both, both must be satisfied.
+  repeated PermissionRequirement required_permissions = 20102;
 }

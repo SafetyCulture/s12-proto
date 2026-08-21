@@ -112,3 +112,133 @@ func ExampleWithScopesPermissionsStreamInterceptor() grpc.StreamServerIntercepto
 		return handler(srv, stream)
 	}
 }
+
+// ExampleWithAnyOfPermissionsPermissionsUnaryInterceptor is a gRPC unary server interceptor that validates the S12 JWT claims
+// for defined permissions for a service method. Returns PermissionDenied status on permission error.
+func ExampleWithAnyOfPermissionsPermissionsUnaryInterceptor() grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		c, _ := ctx.Value(jwtclaims.ContextKeyS12JWTClaims).(jwtclaims.S12JWTClaims)
+		_ = c
+		scopes, _ := ctx.Value(credentials.ContextKeyCredentialsScope).(credentials.Scope)
+		_ = scopes
+		if info.FullMethod == "/example.ExampleWithAnyOfPermissions/Unary" {
+			if !scopes.IsAdmin() && !(c.HasPermission(jwtclaims.Permission("write:users")) || c.HasPermission(jwtclaims.Permission("write:folders"))) {
+				log.Println("s12perm: claims does not satisfy the required permissions")
+				return ctx, status.Errorf(codes.PermissionDenied, "Permission Denied")
+			}
+		}
+		return handler(ctx, req)
+	}
+}
+
+// ExampleWithAnyOfPermissionsPermissionsStreamInterceptor is a gRPC stream server interceptor that validates the S12 JWT claims
+// for defined permissions for a service method. Returns PermissionDenied status on permission error.
+func ExampleWithAnyOfPermissionsPermissionsStreamInterceptor() grpc.StreamServerInterceptor {
+	return func(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+		c, _ := stream.Context().Value(jwtclaims.ContextKeyS12JWTClaims).(jwtclaims.S12JWTClaims)
+		_ = c
+		scopes, _ := stream.Context().Value(credentials.ContextKeyCredentialsScope).(credentials.Scope)
+		_ = scopes
+		if info.FullMethod == "/example.ExampleWithAnyOfPermissions/ServerStream" {
+			if !scopes.IsAdmin() && !(c.HasPermission(jwtclaims.Permission("write:users")) || c.HasPermission(jwtclaims.Permission("write:folders"))) {
+				log.Println("s12perm: claims does not satisfy the required permissions")
+				return status.Errorf(codes.PermissionDenied, "Permission Denied")
+			}
+		}
+		return handler(srv, stream)
+	}
+}
+
+// ExampleWithMixedPermissionsPermissionsUnaryInterceptor is a gRPC unary server interceptor that validates the S12 JWT claims
+// for defined permissions for a service method. Returns PermissionDenied status on permission error.
+func ExampleWithMixedPermissionsPermissionsUnaryInterceptor() grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		c, _ := ctx.Value(jwtclaims.ContextKeyS12JWTClaims).(jwtclaims.S12JWTClaims)
+		_ = c
+		scopes, _ := ctx.Value(credentials.ContextKeyCredentialsScope).(credentials.Scope)
+		_ = scopes
+		if info.FullMethod == "/example.ExampleWithMixedPermissions/Unary" {
+			if !scopes.IsAdmin() && !(c.HasPermission(jwtclaims.Permission("read:users"), jwtclaims.Permission("read:sensors")) && (c.HasPermission(jwtclaims.Permission("write:folders")) || c.HasPermission(jwtclaims.Permission("write:assets")))) {
+				log.Println("s12perm: claims does not satisfy the required permissions")
+				return ctx, status.Errorf(codes.PermissionDenied, "Permission Denied")
+			}
+		}
+		return handler(ctx, req)
+	}
+}
+
+// ExampleWithMixedPermissionsPermissionsStreamInterceptor is a gRPC stream server interceptor that validates the S12 JWT claims
+// for defined permissions for a service method. Returns PermissionDenied status on permission error.
+func ExampleWithMixedPermissionsPermissionsStreamInterceptor() grpc.StreamServerInterceptor {
+	return func(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+		c, _ := stream.Context().Value(jwtclaims.ContextKeyS12JWTClaims).(jwtclaims.S12JWTClaims)
+		_ = c
+		scopes, _ := stream.Context().Value(credentials.ContextKeyCredentialsScope).(credentials.Scope)
+		_ = scopes
+		return handler(srv, stream)
+	}
+}
+
+// ExampleWithTwoAnyOfPermissionsPermissionsUnaryInterceptor is a gRPC unary server interceptor that validates the S12 JWT claims
+// for defined permissions for a service method. Returns PermissionDenied status on permission error.
+func ExampleWithTwoAnyOfPermissionsPermissionsUnaryInterceptor() grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		c, _ := ctx.Value(jwtclaims.ContextKeyS12JWTClaims).(jwtclaims.S12JWTClaims)
+		_ = c
+		scopes, _ := ctx.Value(credentials.ContextKeyCredentialsScope).(credentials.Scope)
+		_ = scopes
+		if info.FullMethod == "/example.ExampleWithTwoAnyOfPermissions/Unary" {
+			if !scopes.IsAdmin() && !((c.HasPermission(jwtclaims.Permission("write:users")) || c.HasPermission(jwtclaims.Permission("write:folders"))) && (c.HasPermission(jwtclaims.Permission("write:sensors")) || c.HasPermission(jwtclaims.Permission("write:assets")))) {
+				log.Println("s12perm: claims does not satisfy the required permissions")
+				return ctx, status.Errorf(codes.PermissionDenied, "Permission Denied")
+			}
+		}
+		return handler(ctx, req)
+	}
+}
+
+// ExampleWithTwoAnyOfPermissionsPermissionsStreamInterceptor is a gRPC stream server interceptor that validates the S12 JWT claims
+// for defined permissions for a service method. Returns PermissionDenied status on permission error.
+func ExampleWithTwoAnyOfPermissionsPermissionsStreamInterceptor() grpc.StreamServerInterceptor {
+	return func(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+		c, _ := stream.Context().Value(jwtclaims.ContextKeyS12JWTClaims).(jwtclaims.S12JWTClaims)
+		_ = c
+		scopes, _ := stream.Context().Value(credentials.ContextKeyCredentialsScope).(credentials.Scope)
+		_ = scopes
+		return handler(srv, stream)
+	}
+}
+
+// ExampleWithFlagsAndPermissionsPermissionsUnaryInterceptor is a gRPC unary server interceptor that validates the S12 JWT claims
+// for defined permissions for a service method. Returns PermissionDenied status on permission error.
+func ExampleWithFlagsAndPermissionsPermissionsUnaryInterceptor() grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		c, _ := ctx.Value(jwtclaims.ContextKeyS12JWTClaims).(jwtclaims.S12JWTClaims)
+		_ = c
+		scopes, _ := ctx.Value(credentials.ContextKeyCredentialsScope).(credentials.Scope)
+		_ = scopes
+		if info.FullMethod == "/example.ExampleWithFlagsAndPermissions/Unary" {
+			if !scopes.IsAdmin() && !c.HasPermission(jwtclaims.Permission("read:users")) {
+				log.Println("s12perm: claims does not contain the required permissions")
+				return ctx, status.Errorf(codes.PermissionDenied, "Permission Denied")
+			}
+			if !scopes.IsAdmin() && !(c.HasPermission(jwtclaims.Permission("write:folders")) || c.HasPermission(jwtclaims.Permission("write:assets"))) {
+				log.Println("s12perm: claims does not satisfy the required permissions")
+				return ctx, status.Errorf(codes.PermissionDenied, "Permission Denied")
+			}
+		}
+		return handler(ctx, req)
+	}
+}
+
+// ExampleWithFlagsAndPermissionsPermissionsStreamInterceptor is a gRPC stream server interceptor that validates the S12 JWT claims
+// for defined permissions for a service method. Returns PermissionDenied status on permission error.
+func ExampleWithFlagsAndPermissionsPermissionsStreamInterceptor() grpc.StreamServerInterceptor {
+	return func(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+		c, _ := stream.Context().Value(jwtclaims.ContextKeyS12JWTClaims).(jwtclaims.S12JWTClaims)
+		_ = c
+		scopes, _ := stream.Context().Value(credentials.ContextKeyCredentialsScope).(credentials.Scope)
+		_ = scopes
+		return handler(srv, stream)
+	}
+}

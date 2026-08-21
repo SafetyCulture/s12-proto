@@ -35,6 +35,11 @@ func GenerateFile(p *protogen.Plugin, file *protogen.File) *protogen.GeneratedFi
 		return nil
 	}
 
+	if err := validateRequiredPermissions(file); err != nil {
+		p.Error(err)
+		return nil
+	}
+
 	filename := file.GeneratedFilenamePrefix + ".perm.pb.go"
 	g := p.NewGeneratedFile(filename, file.GoImportPath)
 
@@ -74,8 +79,9 @@ func genUnaryInterceptor(g *protogen.GeneratedFile, srv *protogen.Service) {
 			continue
 		}
 		flags := getStringSliceExtension(md, permissions.E_RequiredFlags)
+		reqs := getPermissionRequirements(md)
 		scopeFlag := getStringExtension(md, permissions.E_RequiredScope)
-		if len(flags) == 0 && scopeFlag == "" {
+		if len(flags) == 0 && len(reqs) == 0 && scopeFlag == "" {
 			continue
 		}
 
@@ -88,6 +94,13 @@ func genUnaryInterceptor(g *protogen.GeneratedFile, srv *protogen.Service) {
 			}
 			g.P("if !scopes.IsAdmin() && !c.HasPermission(", strings.Join(perms, ", "), ") {")
 			g.P(logPackage.Ident("Println"), "(\"s12perm: claims does not contain the required permissions\")")
+			g.P("return ctx, ", grpcstatusPackage.Ident("Errorf"), "(", grpccodesPackage.Ident("PermissionDenied"), ", ", "\"Permission Denied\"", ")")
+			g.P("}")
+		}
+
+		if len(reqs) > 0 {
+			g.P("if !scopes.IsAdmin() && !(", permissionRequirementsExpr(g, reqs), ") {")
+			g.P(logPackage.Ident("Println"), "(\"s12perm: claims does not satisfy the required permissions\")")
 			g.P("return ctx, ", grpcstatusPackage.Ident("Errorf"), "(", grpccodesPackage.Ident("PermissionDenied"), ", ", "\"Permission Denied\"", ")")
 			g.P("}")
 		}
@@ -125,8 +138,9 @@ func genStreamInterceptor(g *protogen.GeneratedFile, srv *protogen.Service) {
 			continue
 		}
 		flags := getStringSliceExtension(md, permissions.E_RequiredFlags)
+		reqs := getPermissionRequirements(md)
 		scopeFlag := getStringExtension(md, permissions.E_RequiredScope)
-		if len(flags) == 0 && scopeFlag == "" {
+		if len(flags) == 0 && len(reqs) == 0 && scopeFlag == "" {
 			continue
 		}
 
@@ -139,6 +153,13 @@ func genStreamInterceptor(g *protogen.GeneratedFile, srv *protogen.Service) {
 			}
 			g.P("if !scopes.IsAdmin() && !c.HasPermission(", strings.Join(perms, ", "), ") {")
 			g.P(logPackage.Ident("Println"), "(\"s12perm: claims does not contain the required permissions\")")
+			g.P("return ", grpcstatusPackage.Ident("Errorf"), "(", grpccodesPackage.Ident("PermissionDenied"), ", ", "\"Permission Denied\"", ")")
+			g.P("}")
+		}
+
+		if len(reqs) > 0 {
+			g.P("if !scopes.IsAdmin() && !(", permissionRequirementsExpr(g, reqs), ") {")
+			g.P(logPackage.Ident("Println"), "(\"s12perm: claims does not satisfy the required permissions\")")
 			g.P("return ", grpcstatusPackage.Ident("Errorf"), "(", grpccodesPackage.Ident("PermissionDenied"), ", ", "\"Permission Denied\"", ")")
 			g.P("}")
 		}
@@ -156,6 +177,67 @@ func genStreamInterceptor(g *protogen.GeneratedFile, srv *protogen.Service) {
 	g.P("}")
 	g.P("}")
 	g.P()
+}
+
+// permissionRequirementsExpr builds a Go boolean expression that is true when the claims
+// satisfy every requirement. HasPermission is variadic over a conjunction, so an all_of
+// requirement is one call while an any_of requirement needs a call per permission.
+func permissionRequirementsExpr(g *protogen.GeneratedFile, reqs []*permissions.PermissionRequirement) string {
+	terms := make([]string, 0, len(reqs))
+	for _, req := range reqs {
+		if allOf := req.GetAllOf(); len(allOf) > 0 {
+			terms = append(terms, fmt.Sprintf("c.HasPermission(%s)", strings.Join(permissionArgs(g, allOf), ", ")))
+			continue
+		}
+		checks := make([]string, 0, len(req.GetAnyOf()))
+		for _, arg := range permissionArgs(g, req.GetAnyOf()) {
+			checks = append(checks, fmt.Sprintf("c.HasPermission(%s)", arg))
+		}
+		if len(checks) > 1 {
+			terms = append(terms, "("+strings.Join(checks, " || ")+")")
+			continue
+		}
+		terms = append(terms, checks...)
+	}
+	return strings.Join(terms, " && ")
+}
+
+func permissionArgs(g *protogen.GeneratedFile, perms []string) []string {
+	args := make([]string, 0, len(perms))
+	for _, perm := range perms {
+		args = append(args, fmt.Sprintf("%s(%q)", g.QualifiedGoIdent(jwtclaimsPackage.Ident("Permission")), perm))
+	}
+	return args
+}
+
+// validateRequiredPermissions rejects a requirement naming both operators or neither,
+// so that every requirement has one unambiguous reading.
+func validateRequiredPermissions(file *protogen.File) error {
+	for _, srv := range file.Services {
+		for _, md := range srv.Methods {
+			for _, req := range getPermissionRequirements(md) {
+				switch {
+				case len(req.GetAnyOf()) > 0 && len(req.GetAllOf()) > 0:
+					return fmt.Errorf("%s.%s: a required_permissions entry sets both any_of and all_of; declare one entry per operator",
+						srv.Desc.FullName(), md.Desc.Name())
+				case len(req.GetAnyOf()) == 0 && len(req.GetAllOf()) == 0:
+					return fmt.Errorf("%s.%s: a required_permissions entry sets neither any_of nor all_of",
+						srv.Desc.FullName(), md.Desc.Name())
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func getPermissionRequirements(md *protogen.Method) []*permissions.PermissionRequirement {
+	if opts := md.Desc.Options(); opts != nil {
+		ext := proto.GetExtension(opts, permissions.E_RequiredPermissions)
+		if v, ok := ext.([]*permissions.PermissionRequirement); ok {
+			return v
+		}
+	}
+	return nil
 }
 
 func getStringSliceExtension(md *protogen.Method, xt protoreflect.ExtensionType) []string {

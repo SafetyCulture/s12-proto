@@ -45,6 +45,28 @@ protoc \
   path/to/*.proto
 ```
 
+**Method options** (from `s12/flags/permissions/permissions.proto`):
+
+| Option | Semantic |
+| --- | --- |
+| `required_flags` | The caller must hold **every** listed permission. |
+| `required_permissions` | One requirement per option line, all of which must be satisfied. Each requirement sets exactly one of `any_of` (hold at least one) or `all_of` (hold every one). |
+| `required_scope` | The credentials scope must contain this value. |
+
+```proto
+// admin:training AND (write:training OR write:course)
+rpc UpdateCourse(Request) returns (Response) {
+  option (s12.flags.permissions.required_permissions) = {all_of: ["admin:training"]};
+  option (s12.flags.permissions.required_permissions) = {any_of: ["write:training", "write:course"]};
+}
+```
+
+Repeated message options do not coalesce, so each line is a separate requirement and adding
+one narrows the gate. A requirement setting both operators, or neither, fails generation.
+`required_flags` and `required_permissions` may both be set on a method, in which case both
+apply. Permission checks (but not the scope check) are short-circuited for an admin-scoped
+call.
+
 ---
 
 ## protoc-gen-logger

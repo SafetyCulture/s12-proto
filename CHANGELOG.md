@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `required_permissions` method option and `protoc-gen-s12perm` support for it: a repeated `PermissionRequirement`, each setting `any_of` or `all_of`, combined with AND - so a method can express `a AND (b OR c)`, which `required_flags` cannot (PEOPLE-41294)
 - GitHub Actions workflows: CI, proto lint, and release
 - `buf.yaml` and `buf.gen.yaml` for buf toolchain integration
 - `.golangci.yml` linter configuration

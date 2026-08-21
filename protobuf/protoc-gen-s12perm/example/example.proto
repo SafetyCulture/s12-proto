@@ -31,6 +31,37 @@ service ExampleWithScopes {
     }
 }
 
+service ExampleWithAnyOfPermissions {
+    rpc Unary(Request) returns (Response) {
+        option (s12.flags.permissions.required_permissions) = {any_of: ["write:users", "write:folders"]};
+    }
+
+    rpc ServerStream(Request) returns (stream Response) {
+        option (s12.flags.permissions.required_permissions) = {any_of: ["write:users", "write:folders"]};
+    }
+}
+
+service ExampleWithMixedPermissions {
+    rpc Unary(Request) returns (Response) {
+        option (s12.flags.permissions.required_permissions) = {all_of: ["read:users", "read:sensors"]};
+        option (s12.flags.permissions.required_permissions) = {any_of: ["write:folders", "write:assets"]};
+    }
+}
+
+service ExampleWithTwoAnyOfPermissions {
+    rpc Unary(Request) returns (Response) {
+        option (s12.flags.permissions.required_permissions) = {any_of: ["write:users", "write:folders"]};
+        option (s12.flags.permissions.required_permissions) = {any_of: ["write:sensors", "write:assets"]};
+    }
+}
+
+service ExampleWithFlagsAndPermissions {
+    rpc Unary(Request) returns (Response) {
+        option (s12.flags.permissions.required_flags) = "read:users";
+        option (s12.flags.permissions.required_permissions) = {any_of: ["write:folders", "write:assets"]};
+    }
+}
+
 message Request {}
 
 message Response {}
