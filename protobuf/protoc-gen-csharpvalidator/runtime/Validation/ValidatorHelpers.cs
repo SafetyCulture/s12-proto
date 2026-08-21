@@ -80,6 +80,30 @@ public static class ValidatorHelpers
         return ValidatorPatterns.NonEmailUsername.IsMatch(value);
     }
 
+    /// <summary>
+    /// Reports whether every code unit takes part in a well-formed code point, which is what it
+    /// means for the value to be encodable as UTF-8. A surrogate standing on its own is not.
+    /// </summary>
+    public static bool IsWellFormedUtf16(string value)
+    {
+        for (var i = 0; i < value.Length; i++)
+        {
+            if (!char.IsSurrogate(value[i]))
+            {
+                continue;
+            }
+
+            if (!char.IsHighSurrogate(value[i]) || i + 1 >= value.Length || !char.IsLowSurrogate(value[i + 1]))
+            {
+                return false;
+            }
+
+            i++;
+        }
+
+        return true;
+    }
+
     /// <summary>Reports whether a complete URL appears anywhere in the value.</summary>
     public static bool ContainsUrl(string value) => ValidatorPatterns.RejectUrl.IsMatch(value);
 

@@ -6,17 +6,29 @@ import (
 	"flag"
 
 	"google.golang.org/protobuf/compiler/protogen"
-	"google.golang.org/protobuf/types/pluginpb"
 
 	"github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-csharpvalidator/plugin"
 )
 
+// includeFlag collects the --csharpvalidator_out=include=<glob> options. Nothing
+// is generated until at least one is given, so adding the plugin to a build is
+// not on its own a change to that build's output.
+type includeFlag []string
+
+func (f *includeFlag) String() string { return "" }
+
+func (f *includeFlag) Set(value string) error {
+	*f = append(*f, value)
+	return nil
+}
+
 func main() {
 	var flags flag.FlagSet
-	opts := &protogen.Options{ParamFunc: flags.Set}
+	var include includeFlag
+	flags.Var(&include, "include", "path glob selecting the proto files to generate validators for; repeatable, and /** matches a subtree")
 
+	opts := &protogen.Options{ParamFunc: flags.Set}
 	opts.Run(func(p *protogen.Plugin) error {
-		p.SupportedFeatures = uint64(pluginpb.CodeGeneratorResponse_FEATURE_PROTO3_OPTIONAL)
-		return plugin.Generate(p)
+		return plugin.Generate(p, plugin.Options{Include: include})
 	})
 }

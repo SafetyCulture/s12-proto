@@ -154,6 +154,7 @@ func buildField(f *protogen.Field) *Field {
 func buildLegacyString(f *protogen.Field) *LegacyString {
 	s := &LegacyString{
 		Optional:   getBoolExtension(f, validator.E_Optional),
+		Regex:      getRegexValue(f),
 		MatchRegex: getRegexValue(f) != "",
 		UUID:       getBoolExtension(f, validator.E_Uuid),
 		LegacyID:   getBoolExtension(f, validator.E_LegacyId),
