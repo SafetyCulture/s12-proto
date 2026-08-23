@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Runs the generated C# validators over the committed conformance vectors and reports any
+       result the Go validators do not agree with. Exits non-zero on the first disagreement. -->
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>S12.Protobuf.Validation.Conformance</RootNamespace>
+    <TargetFramework>net10.0</TargetFramework>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Protobuf" Version="3.33.1" />
+    <PackageReference Include="Grpc.Tools" Version="2.72.0" PrivateAssets="All" />
+  </ItemGroup>
+
+  <!-- The message classes come from protoc itself, so they are generated at build time rather than
+       committed. The validators beside them are this repository's output and are committed. -->
+  <ItemGroup>
+    <Protobuf Include="../../../s12/protobuf/proto/validator.proto" ProtoRoot="../../../" GrpcServices="None" />
+    <Protobuf Include="../../../protobuf/protoc-gen-govalidator/valtest/valtest.proto" ProtoRoot="../../../" GrpcServices="None" />
+    <Protobuf Include="../../../protobuf/protoc-gen-govalidator/valtest/geo.proto" ProtoRoot="../../../" GrpcServices="None" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../runtime/Runtime.csproj" />
+  </ItemGroup>
+
+  <!-- Lets the runner find the vectors whatever directory it is started from. -->
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>ConformanceData</_Parameter1>
+      <_Parameter2>$(MSBuildThisFileDirectory)../../validation/conformance/testdata</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+</Project>

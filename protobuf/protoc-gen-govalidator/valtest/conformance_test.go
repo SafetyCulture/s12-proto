@@ -33,6 +33,7 @@ var updateVectors = flag.Bool("update", false, "rewrite the conformance vectors 
 // stands afterwards.
 func TestConformanceFields(t *testing.T) {
 	inputs := conformanceInputs(t)
+	base := conformanceBase(t)
 
 	type record struct {
 		Field string `json:"field"`
@@ -53,7 +54,7 @@ func TestConformanceFields(t *testing.T) {
 		for _, in := range inputs {
 			// Start from a message that passes, so the only field that can fail is the
 			// one under test.
-			msg := proto.Clone(&valMsg).(*ValTestMessage)
+			msg := proto.Clone(base).(*ValTestMessage)
 			r := msg.ProtoReflect()
 			if fd.IsList() {
 				list := r.Mutable(fd).List()
@@ -85,6 +86,167 @@ func TestConformanceFields(t *testing.T) {
 	}
 
 	compareVectors(t, "fields.jsonl", records)
+}
+
+// TestConformanceNestedFields records the same for a string field one level down,
+// where the failure is re-rooted under the field holding the message.
+//
+// The re-rooted text is its own shape rather than the leaf text with a prefix, so
+// a port can agree on every leaf and still render the nesting differently.
+func TestConformanceNestedFields(t *testing.T) {
+	inputs := conformanceInputs(t)
+	base := conformanceBase(t)
+
+	type record struct {
+		Field string `json:"field"`
+		In    string `json:"in"`
+		OK    bool   `json:"ok"`
+		Err   string `json:"err,omitempty"`
+	}
+
+	var records []record
+	fields := base.ProtoReflect().Descriptor().Fields()
+	for i := range fields.Len() {
+		fd := fields.Get(i)
+		if fd.Kind() != protoreflect.MessageKind || fd.IsList() || fd.IsMap() {
+			continue
+		}
+		// Only messages the base already carries. Creating one here would leave its
+		// own required fields empty, and those would fail ahead of the field under test.
+		if !base.ProtoReflect().Has(fd) {
+			continue
+		}
+
+		nested := fd.Message().Fields()
+		for j := range nested.Len() {
+			sfd := nested.Get(j)
+			if sfd.Kind() != protoreflect.StringKind {
+				continue
+			}
+
+			for _, in := range inputs {
+				msg := proto.Clone(base).(*ValTestMessage)
+				inner := msg.ProtoReflect().Mutable(fd).Message()
+				if sfd.IsList() {
+					list := inner.Mutable(sfd).List()
+					list.Truncate(0)
+					list.Append(protoreflect.ValueOfString(in))
+				} else {
+					inner.Set(sfd, protoreflect.ValueOfString(in))
+				}
+
+				rec := record{Field: fmt.Sprintf("%s.%s", fd.Name(), sfd.Name()), In: encode(in)}
+				if err := msg.Validate(); err != nil {
+					rec.Err = err.Error()
+				} else {
+					rec.OK = true
+				}
+				records = append(records, rec)
+			}
+		}
+	}
+
+	if len(records) == 0 {
+		t.Fatal("no nested string field to record")
+	}
+	compareVectors(t, "nested.jsonl", records)
+}
+
+// TestConformanceDeepNesting records a failure at each depth of a three-level
+// message chain.
+//
+// Re-rooting accumulates: the path grows a segment per level while the innermost
+// text stays as it was. A port can get one level right and still repeat the prefix
+// or lose a segment further down, so every depth is recorded.
+func TestConformanceDeepNesting(t *testing.T) {
+	inputs := conformanceInputs(t)
+	base := conformanceDeepBase(t)
+
+	type record struct {
+		Field string `json:"field"`
+		In    string `json:"in"`
+		OK    bool   `json:"ok"`
+		Err   string `json:"err,omitempty"`
+	}
+
+	var records []record
+	for _, path := range stringPaths(base.ProtoReflect(), nil) {
+		for _, in := range inputs {
+			msg := proto.Clone(base).(*MyReqMessage)
+			holder := msg.ProtoReflect()
+			for _, step := range path[:len(path)-1] {
+				holder = holder.Mutable(fieldByName(holder, step)).Message()
+			}
+			holder.Set(fieldByName(holder, path[len(path)-1]), protoreflect.ValueOfString(in))
+
+			rec := record{Field: strings.Join(path, "."), In: encode(in)}
+			if err := msg.Validate(); err != nil {
+				rec.Err = err.Error()
+			} else {
+				rec.OK = true
+			}
+			records = append(records, rec)
+		}
+	}
+
+	if len(records) == 0 {
+		t.Fatal("no string field to record")
+	}
+	compareVectors(t, "deep.jsonl", records)
+}
+
+// stringPaths lists every string field reachable from m, descending into the
+// message fields it already carries.
+func stringPaths(m protoreflect.Message, prefix []string) [][]string {
+	var paths [][]string
+
+	fields := m.Descriptor().Fields()
+	for i := range fields.Len() {
+		fd := fields.Get(i)
+		here := append(append([]string{}, prefix...), string(fd.Name()))
+
+		switch {
+		case fd.IsList() || fd.IsMap():
+		case fd.Kind() == protoreflect.StringKind:
+			paths = append(paths, here)
+		case fd.Kind() == protoreflect.MessageKind && m.Has(fd):
+			paths = append(paths, stringPaths(m.Get(fd).Message(), here)...)
+		}
+	}
+
+	return paths
+}
+
+func fieldByName(m protoreflect.Message, name string) protoreflect.FieldDescriptor {
+	return m.Descriptor().Fields().ByName(protoreflect.Name(name))
+}
+
+// conformanceDeepBase returns the chain every record starts from, and writes it to
+// the vector directory so a port begins from the same bytes.
+func conformanceDeepBase(t *testing.T) *MyReqMessage {
+	t.Helper()
+
+	base := &MyReqMessage{
+		UserId: "ab",
+		OrgNested: &NestedLevel1Message{
+			OrgId3: "abc",
+			OrgNested: &NestedLevel2Message{
+				OrgId4:    "abcd",
+				OrgNested: &NestedLevel3Message{OrgId5: "abcde"},
+			},
+		},
+	}
+	if err := base.Validate(); err != nil {
+		t.Fatalf("the base chain does not pass validation: %v", err)
+	}
+
+	encoded, err := proto.MarshalOptions{Deterministic: true}.Marshal(base)
+	if err != nil {
+		t.Fatalf("marshalling the base chain: %v", err)
+	}
+
+	writeBase(t, "deep_base.b64", encoded)
+	return base
 }
 
 // TestConformanceHelpers records what each validation helper returns for each
@@ -194,6 +356,51 @@ func TestConformanceTables(t *testing.T) {
 	}
 
 	compareVectors(t, "tables.jsonl", records)
+}
+
+// conformanceBase returns the message every field record starts from, and writes
+// it to the vector directory so a port begins from the same bytes rather than a
+// second transcription of the fixture.
+//
+// invalid_encoding_string is carried as text here. The fixture holds bytes that
+// are not valid UTF-8 in that field, which no wire format will accept, and the
+// field opts out of encoding validation so any value passes it. Every record
+// overwrites the field under test, so the substitution reaches no result.
+func conformanceBase(t *testing.T) *ValTestMessage {
+	t.Helper()
+
+	base := proto.Clone(&valMsg).(*ValTestMessage)
+	base.InvalidEncodingString = "Accept invalid"
+
+	encoded, err := proto.MarshalOptions{Deterministic: true}.Marshal(base)
+	if err != nil {
+		t.Fatalf("marshalling the base message: %v", err)
+	}
+
+	writeBase(t, "base.b64", encoded)
+	return base
+}
+
+// writeBase records the bytes a port starts its records from, or checks them.
+func writeBase(t *testing.T, name string, encoded []byte) {
+	t.Helper()
+
+	path := filepath.Join(conformanceDir, name)
+	want := encode(string(encoded))
+	if *updateVectors {
+		if err := os.WriteFile(path, []byte(want+"\n"), 0o644); err != nil {
+			t.Fatalf("writing %s: %v", path, err)
+		}
+		return
+	}
+
+	got, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("reading %s: %v (run `go test ./... -update` to create it)", path, err)
+	}
+	if strings.TrimSpace(string(got)) != want {
+		t.Errorf("the base message no longer matches %s; run `go test ./... -update` and review the diff", path)
+	}
 }
 
 // conformanceInputs reads the shared corpus. A b64: line carries a value that

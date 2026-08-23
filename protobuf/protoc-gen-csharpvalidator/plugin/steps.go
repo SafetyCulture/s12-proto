@@ -230,6 +230,10 @@ func emitString(e *emitter, f *plan.Field, s *plan.String, value, holder string)
 	return nil
 }
 
+// The three encoding messages below repeat "must". The Go validators produce them
+// that way, callers already match on the text, and a port that reads differently
+// from the implementation it is checked against is not a port. Correcting them is
+// a change to every service at once, tracked separately.
 func emitStringOp(e *emitter, f *plan.Field, op plan.Op, value, holder string) error {
 	switch o := op.(type) {
 	case *plan.OpNormalizeNFC:
@@ -238,15 +242,15 @@ func emitStringOp(e *emitter, f *plan.Field, op plan.Op, value, holder string) e
 		e.p(value, " = ", normalised, ";")
 		e.shut()
 		e.open("else")
-		fail(e, f, o.LogOnly, value, "value must be normalisable to NFC")
+		fail(e, f, o.LogOnly, value, "value must must be normalisable to NFC")
 		e.shut()
 
 	case *plan.OpCheckEncoding:
 		e.open("if (StringMutators.ContainsReplacementCharacter(", value, "))")
-		fail(e, f, o.LogOnly, value, "value must have valid encoding")
+		fail(e, f, o.LogOnly, value, "value must must have valid encoding")
 		e.shut()
 		e.open("else if (!ValidatorHelpers.IsWellFormedUtf16(", value, "))")
-		fail(e, f, o.LogOnly, value, "value must be a valid UTF-8-encoded string")
+		fail(e, f, o.LogOnly, value, "value must must be a valid UTF-8-encoded string")
 		e.shut()
 
 	case *plan.OpRejectURL:
@@ -438,7 +442,7 @@ func emitTimezone(e *emitter, f *plan.Field, s *plan.Timezone, value string) {
 		e.open(`if (`, value, ` != "")`)
 	} else {
 		e.open(`if (`, value, ` == "")`)
-		e.p("return ValidationError.Create(", quote(f.Name), ", ", quote("is required"), ");")
+		e.p("return ValidationError.Required(", quote(f.Name), ");")
 		e.shut()
 	}
 
@@ -545,7 +549,7 @@ func numericLiteral(f *plan.Field, bound string) string {
 func emitMessageField(e *emitter, f *plan.Field, s *plan.MessageField, value string) {
 	if s.Required {
 		e.open("if (", value, " == null)")
-		e.p("return ValidationError.Create(", quote(f.Name), ", ", quote("is required"), ");")
+		e.p("return ValidationError.Required(", quote(f.Name), ");")
 		e.shut()
 	}
 
