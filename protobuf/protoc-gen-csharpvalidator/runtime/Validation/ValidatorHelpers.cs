@@ -107,9 +107,12 @@ public static class ValidatorHelpers
     /// <summary>Reports whether a complete URL appears anywhere in the value.</summary>
     public static bool ContainsUrl(string value) => ValidatorPatterns.RejectUrl.IsMatch(value);
 
-    /// <summary>Reports whether the value names a zone in the IANA time zone database.</summary>
+    /// <summary>
+    /// Reports whether the value names a zone in the IANA time zone database. The empty string and
+    /// "Local" name a zone too, as UTC and the host's own zone.
+    /// </summary>
     public static bool IsValidTimeZone(string value) =>
-        value.Length != 0 && TimeZoneInfo.TryFindSystemTimeZoneById(value, out _);
+        value is "" or "UTC" or "Local" || TimeZoneInfo.TryFindSystemTimeZoneById(value, out _);
 
     /// <summary>
     /// Reports whether the value is an absolute URL on one of <paramref name="schemes"/>, and names the
@@ -133,31 +136,32 @@ public static class ValidatorHelpers
             return false;
         }
 
-        if (!Uri.TryCreate(value, UriKind.Absolute, out var uri) || HasHashInAuthority(value))
+        if (!IsRequestUri(value))
         {
             failure = "Invalid URL format";
             return false;
         }
 
-        // Uri rewrites a single-slash authority such as https:/host into a host, leaving nothing for the
-        // host check below to reject.
-        if (!value.Contains("://", StringComparison.Ordinal) ||
-            uri.Host.Length <= MinHostLength || uri.Host.StartsWith('.'))
+        // An absolute URL with no authority, such as https:/host, carries the host in its path and so
+        // has none. A host of at most three characters cannot be a real one, e.g. a.nl is the shortest.
+        var host = Authority(value);
+        if (host.Length <= MinHostLength || host.StartsWith('.'))
         {
             failure = "Invalid host format";
             return false;
         }
 
-        if (uri.Scheme.Length == 0)
+        var scheme = Scheme(value);
+        if (scheme.Length == 0)
         {
             failure = "Missing scheme";
             return false;
         }
 
         var schemeAllowed = false;
-        foreach (var scheme in schemes)
+        foreach (var allowed in schemes)
         {
-            if (string.Equals(uri.Scheme, scheme, StringComparison.Ordinal))
+            if (string.Equals(scheme, allowed, StringComparison.Ordinal))
             {
                 schemeAllowed = true;
                 break;
@@ -180,21 +184,73 @@ public static class ValidatorHelpers
     }
 
     /// <summary>
-    /// Reports whether a hash sits in the authority, where it terminates the host and leaves the value
-    /// unparsable. A hash after the authority opens a fragment and parses.
+    /// Reports whether the value has the shape of a URL received in a request: an absolute path, or a
+    /// scheme followed by everything else, carrying no space, no control character, no malformed
+    /// percent escape and no hash in the host.
     /// </summary>
-    private static bool HasHashInAuthority(string value)
+    private static bool IsRequestUri(string value)
     {
-        var separator = value.IndexOf("://", StringComparison.Ordinal);
-        if (separator < 0)
+        for (var i = 0; i < value.Length; i++)
+        {
+            if (value[i] <= ' ' || value[i] == '\u007F')
+            {
+                return false;
+            }
+
+            if (value[i] == '%' &&
+                (i + 2 >= value.Length || !char.IsAsciiHexDigit(value[i + 1]) || !char.IsAsciiHexDigit(value[i + 2])))
+            {
+                return false;
+            }
+        }
+
+        // A hash in the authority is a hash in the host name, which no host may carry.
+        if (Authority(value).Contains('#'))
         {
             return false;
         }
 
-        var start = separator + 3;
-        var rest = value.AsSpan(start);
+        return value.StartsWith('/') || Scheme(value).Length != 0;
+    }
+
+    /// <summary>The scheme of an absolute URL, or the empty string when it declares none.</summary>
+    private static string Scheme(string value)
+    {
+        var colon = value.IndexOf(':');
+        if (colon <= 0 || !char.IsAsciiLetter(value[0]))
+        {
+            return "";
+        }
+
+        for (var i = 1; i < colon; i++)
+        {
+            if (!char.IsAsciiLetterOrDigit(value[i]) && value[i] is not ('+' or '-' or '.'))
+            {
+                return "";
+            }
+        }
+
+        return value[..colon];
+    }
+
+    /// <summary>
+    /// The host and port of an absolute URL, or the empty string when it declares no authority.
+    /// Any userinfo ahead of the host is left out.
+    /// </summary>
+    private static string Authority(string value)
+    {
+        var separator = value.IndexOf("://", StringComparison.Ordinal);
+        if (separator < 0)
+        {
+            return "";
+        }
+
+        var rest = value.AsSpan(separator + 3);
         var end = rest.IndexOfAny('/', '?');
-        return (end < 0 ? rest : rest[..end]).Contains('#');
+        var authority = end < 0 ? rest : rest[..end];
+
+        var userinfo = authority.LastIndexOf('@');
+        return (userinfo < 0 ? authority : authority[(userinfo + 1)..]).ToString();
     }
 
     /// <summary>Base64 of at most <paramref name="maxLength"/> leading characters of the value.</summary>

@@ -4,17 +4,12 @@ import (
 	"flag"
 	"os"
 	"path/filepath"
-	"sort"
 	"strings"
 	"testing"
 
 	"google.golang.org/protobuf/compiler/protogen"
-	"google.golang.org/protobuf/proto"
-	"google.golang.org/protobuf/reflect/protodesc"
-	"google.golang.org/protobuf/reflect/protoreflect"
-	"google.golang.org/protobuf/reflect/protoregistry"
-	"google.golang.org/protobuf/types/pluginpb"
 
+	"github.com/SafetyCulture/s12-proto/protobuf/internal/goldentest"
 	"github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-govalidator/plugin"
 
 	// Registers the descriptors the golden files are generated from.
@@ -41,9 +36,9 @@ const valtestDir = "../valtest"
 func TestGolden(t *testing.T) {
 	plugin.Reset()
 
-	sources := goldenSources(t)
+	sources := goldentest.Sources(t, valtestDir)
 
-	gen, err := protogen.Options{}.New(request(t, sources))
+	gen, err := protogen.Options{}.New(goldentest.Request(t, sources, "paths=source_relative"))
 	if err != nil {
 		t.Fatalf("building the generator: %v", err)
 	}
@@ -86,27 +81,6 @@ func TestGolden(t *testing.T) {
 	}
 
 	pruneStale(t, produced)
-}
-
-// goldenSources lists the proto files under valtestDir, so adding one there
-// extends the golden coverage without touching this test.
-func goldenSources(t *testing.T) []string {
-	t.Helper()
-
-	paths, err := filepath.Glob(filepath.Join(valtestDir, "*.proto"))
-	if err != nil {
-		t.Fatalf("listing %s: %v", valtestDir, err)
-	}
-	if len(paths) == 0 {
-		t.Fatalf("no proto files under %s", valtestDir)
-	}
-
-	sources := make([]string, 0, len(paths))
-	for _, path := range paths {
-		sources = append(sources, filepath.Base(path))
-	}
-	sort.Strings(sources)
-	return sources
 }
 
 // TestGoldenMatchesCheckedIn compares each golden against the file protoc wrote
@@ -179,49 +153,51 @@ func pruneStale(t *testing.T, produced map[string]bool) {
 	}
 }
 
-// request assembles a generator request for sources out of the descriptors their
-// generated Go packages registered, so the golden files track the .proto files
-// without a checked-in descriptor set to keep in step.
-func request(t *testing.T, sources []string) *pluginpb.CodeGeneratorRequest {
-	t.Helper()
-
-	req := &pluginpb.CodeGeneratorRequest{
-		FileToGenerate: sources,
-		Parameter:      proto.String("paths=source_relative"),
+// TestCommittedOutputMatchesGolden checks the generated Go committed under
+// valtestDir against the goldens.
+//
+// The goldens are produced from descriptors rather than by running protoc, so
+// they carry no compiler version and cannot be the committed files themselves.
+// That leaves room for the committed files to be left behind by a change to the
+// emitter, which this closes: everything but the version block must agree.
+func TestCommittedOutputMatchesGolden(t *testing.T) {
+	goldens, err := filepath.Glob(filepath.Join("testdata", "*.golden"))
+	if err != nil {
+		t.Fatalf("listing testdata: %v", err)
+	}
+	if len(goldens) == 0 {
+		t.Fatal("no golden files to compare against")
 	}
 
-	seen := map[string]bool{}
-	var collect func(fd protoreflect.FileDescriptor)
-	collect = func(fd protoreflect.FileDescriptor) {
-		if seen[fd.Path()] {
-			return
-		}
-		seen[fd.Path()] = true
+	for _, golden := range goldens {
+		name := strings.TrimSuffix(filepath.Base(golden), ".golden")
+		committed := filepath.Join(valtestDir, name)
 
-		imports := fd.Imports()
-		for i := 0; i < imports.Len(); i++ {
-			collect(imports.Get(i).FileDescriptor)
-		}
-		req.ProtoFile = append(req.ProtoFile, protodesc.ToFileDescriptorProto(fd))
-	}
-
-	for _, source := range sources {
-		fd, err := protoregistry.GlobalFiles.FindFileByPath(source)
+		want, err := os.ReadFile(golden)
 		if err != nil {
-			t.Fatalf("%s has no registered descriptor (%v); run `make govalidator-valtest` so its generated Go exists", source, err)
+			t.Fatalf("reading %s: %v", golden, err)
 		}
-		collect(fd)
-	}
+		got, err := os.ReadFile(committed)
+		if err != nil {
+			t.Fatalf("reading %s: %v", committed, err)
+		}
 
-	// Guard against a dependency that never made it into the request, which
-	// protogen would otherwise report as a confusing missing-import error.
-	for _, fd := range req.ProtoFile {
-		for _, dep := range fd.GetDependency() {
-			if !seen[dep] {
-				t.Fatalf("%s depends on %s, which is not in the request", fd.GetName(), dep)
-			}
+		if withoutVersions(string(got)) != withoutVersions(string(want)) {
+			t.Errorf("%s is behind the emitter; run `make govalidator-valtest`", committed)
 		}
 	}
+}
 
-	return req
+// withoutVersions drops the generated header's version block, which records the
+// protoc that produced the file and so differs between machines.
+func withoutVersions(source string) string {
+	lines := strings.Split(source, "\n")
+	kept := make([]string, 0, len(lines))
+	for _, line := range lines {
+		if strings.HasPrefix(line, "// \tprotoc") {
+			continue
+		}
+		kept = append(kept, line)
+	}
+	return strings.Join(kept, "\n")
 }

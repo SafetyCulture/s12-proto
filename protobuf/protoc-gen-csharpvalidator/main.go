@@ -26,9 +26,10 @@ func main() {
 	var flags flag.FlagSet
 	var include includeFlag
 	flags.Var(&include, "include", "path glob selecting the proto files to generate validators for; repeatable, and /** matches a subtree")
+	runtime := flags.Bool("runtime", true, "write the support library the generated code calls into")
 
 	opts := &protogen.Options{ParamFunc: flags.Set}
 	opts.Run(func(p *protogen.Plugin) error {
-		return plugin.Generate(p, plugin.Options{Include: include})
+		return plugin.Generate(p, plugin.Options{Include: include, SkipRuntime: !*runtime})
 	})
 }

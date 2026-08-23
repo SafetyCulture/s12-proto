@@ -20,6 +20,13 @@ run = "make generate"
 description = "Run tests (root module)"
 run = "go test ./..."
 
+[tasks."test:csharp"]
+description = "Build the C# runtime and check the generated validators against the conformance vectors"
+run = [
+  "dotnet build protobuf/protoc-gen-csharpvalidator/runtime/Runtime.csproj",
+  "dotnet run --project protobuf/protoc-gen-csharpvalidator/conformance",
+]
+
 [tasks.lint]
 description = "Run Go linter"
 run = "golangci-lint run"

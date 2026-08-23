@@ -17,3 +17,17 @@ jobs:
       - run: mise run build
       - run: mise run vet
       - run: mise run test
+
+  csharp:
+    name: C# Conformance
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jdx/mise-action@v2
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      - run: mise run test:csharp
