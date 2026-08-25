@@ -100,21 +100,21 @@ var restrictedSafeStringSymbols = map[validator.SymbolCategory]struct{}{
 // Translates the SymbolCategory to the matching Unicode regex pattern
 var stringSymbolMap = map[validator.SymbolCategory][]string{
 	validator.SymbolCategory_CURRENCY: {
-		`\pSc`, // Currency symbols like $ £ € - https://www.fileformat.info/info/unicode/category/Sc/list.htm
+		`\p{Sc}`, // Currency symbols like $ £ € - https://www.fileformat.info/info/unicode/category/Sc/list.htm
 	},
 	validator.SymbolCategory_PUNCTUATION: {
 		// UNSAFE: contains several unsafe symbols like < | ` !
 		// Can be used with string when replace unsafe option is enabled
-		`\pSm`, // Math symbols like + < | - https://www.fileformat.info/info/unicode/category/Sm/list.htm
-		`\pPo`, // Punctuation, other category symbols like ! # % ? - https://www.fileformat.info/info/unicode/category/Po/list.htm
+		`\p{Sm}`, // Math symbols like + < | - https://www.fileformat.info/info/unicode/category/Sm/list.htm
+		`\p{Po}`, // Punctuation, other category symbols like ! # % ? - https://www.fileformat.info/info/unicode/category/Po/list.htm
 	},
 	validator.SymbolCategory_MODIFIER: {
 		// UNSAFE: Contains some unsafe symbols like \x{0060} GRAVE ACCENT
 		// Can be used with string when replace unsafe option is enabled
-		`\pSk`, // Modifier symbols like ^ ˥ 🏻
+		`\p{Sk}`, // Modifier symbols like ^ ˥ 🏻
 	},
 	validator.SymbolCategory_OTHER: {
-		`\pSo`,     // Symbol Other including symbols like © ♬ 🐳 😗 - https://www.fileformat.info/info/unicode/category/So/list.htm
+		`\p{So}`,   // Symbol Other including symbols like © ♬ 🐳 😗 - https://www.fileformat.info/info/unicode/category/So/list.htm
 		`\x{200D}`, // ZERO WIDTH JOINER which is used to combine some emoticons like 👨‍💻 (👨+💻)
 	},
 	validator.SymbolCategory_MARK: {`\pM`}, // Mark and combining symbols (all sub cats Spacing Combining, Enclosing, Nonspacing)

@@ -167,7 +167,7 @@ func (m *ValTestMessage) Validate() error {
 	if !(_len_ValTestMessage_RuneString == 4) {
 		return fmt.Errorf(`rune_string: value must have length 4`)
 	}
-	if !_regex_471b9980a6f67c9193bc7044ec96c4da.MatchString(m.RuneString) {
+	if !_regex_9b0e005c3d3ca41f13e949f82315d0ea.MatchString(m.RuneString) {
 		return fmt.Errorf(`rune_string: value must only have valid characters`)
 	}
 	if !norm.NFC.IsNormalString(m.ReplaceString) && norm.NFD.IsNormalString(m.ReplaceString) {
@@ -249,7 +249,7 @@ func (m *ValTestMessage) Validate() error {
 	if !(_len_ValTestMessage_SymbolString >= 1 && _len_ValTestMessage_SymbolString <= 130) {
 		return fmt.Errorf(`symbol_string: value must have a length between 1 and 130`)
 	}
-	if !_regex_cfc4f3f27c72b7eff33e9065de4993b8.MatchString(m.SymbolString) {
+	if !_regex_11f4076e31d466e7cf1fc9673d9f03ab.MatchString(m.SymbolString) {
 		return fmt.Errorf(`symbol_string: value must only have valid characters`)
 	}
 	if !norm.NFC.IsNormalString(m.SymbolsString) && norm.NFD.IsNormalString(m.SymbolsString) {
@@ -269,7 +269,7 @@ func (m *ValTestMessage) Validate() error {
 	if !(_len_ValTestMessage_SymbolsString >= 1 && _len_ValTestMessage_SymbolsString <= 130) {
 		return fmt.Errorf(`symbols_string: value must have a length between 1 and 130`)
 	}
-	if !_regex_c5418abde4a1025792e46f9de3e163a8.MatchString(m.SymbolsString) {
+	if !_regex_0f80c58ab03bb6e8caae9c68c51d76db.MatchString(m.SymbolsString) {
 		return fmt.Errorf(`symbols_string: value must only have valid characters`)
 	}
 	if !norm.NFC.IsNormalString(m.NewlineString) && norm.NFD.IsNormalString(m.NewlineString) {
@@ -365,7 +365,7 @@ func (m *ValTestMessage) Validate() error {
 	if !(_len_ValTestMessage_AllString >= 1 && _len_ValTestMessage_AllString <= 130) {
 		return fmt.Errorf(`all_string: value must have a length between 1 and 130`)
 	}
-	if !_regex_d834caddc03154e20f75eb8af178a1ac.MatchString(m.AllString) {
+	if !_regex_b485197b8d1355c20eba7c260bbd05ea.MatchString(m.AllString) {
 		return fmt.Errorf(`all_string: value must only have valid characters`)
 	}
 	if m.Name != "" {
@@ -436,7 +436,7 @@ func (m *ValTestMessage) Validate() error {
 		if !(_len_ValTestMessage_ScPermissive >= 1 && _len_ValTestMessage_ScPermissive <= 1000) {
 			return fmt.Errorf(`sc_permissive: value must have a length between 1 and 1000`)
 		}
-		if !_regex_b15160b6f45559b046acfd0ffd80eb84.MatchString(m.ScPermissive) {
+		if !_regex_4d2b5c7c5e197a16ab37d11fa8afa90d.MatchString(m.ScPermissive) {
 			return fmt.Errorf(`sc_permissive: value must only have valid characters`)
 		}
 	}
@@ -932,7 +932,7 @@ func (m *LogOnlyValidationMessage) Validate() error {
 	if !(_len_LogOnlyValidationMessage_Name >= 1 && _len_LogOnlyValidationMessage_Name <= 5) {
 		return fmt.Errorf(`name: value must have a length between 1 and 5`)
 	}
-	if !_regex_b3f79e2470927c095fff6ea841e2a650.MatchString(m.Name) {
+	if !_regex_ea1d2538ac1789ea8b13ba298756128c.MatchString(m.Name) {
 		return fmt.Errorf(`name: value must only have valid characters`)
 	}
 	if m.Latitude != 0 {
