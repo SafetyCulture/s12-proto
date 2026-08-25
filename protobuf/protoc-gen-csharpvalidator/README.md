@@ -62,11 +62,21 @@ them, and matches what is left.
 ### Unicode general categories
 
 The Go generator emits two-letter category shorthands such as `\pSc` into its character classes.
-RE2 reads `\pXy` as the one-letter class `\pX` followed by a literal `y`, so a field declaring
-one symbol category is checked against every symbol category. The C# side targets the declared
-category. It is therefore stricter than Go for those fields, never more permissive.
+RE2 reads `\pXy` as the one-letter class `\pX` followed by a literal `y`, so a field declaring one
+symbol category is checked against every symbol category, plus a stray letter. The translation
+reproduces that: `\pSc` becomes `\p{S}c`, not `\p{Sc}`. See the section below.
 
 ## Where C# reproduces a defect
+
+A character class built from a declared symbol category admits every category sharing its first
+letter. `symbols: [CURRENCY]` compiles to `\p{S}c`, which accepts every symbol - including `<`, `>`,
+`|` and `` ` `` - rather than the 63 currency symbols the field asked for. `symbols: [PUNCTUATION]`
+reaches every punctuation category the same way. A field with `replace_other` additionally accepts a
+literal `}`, from a token built by appending a brace to an empty replacement.
+
+Both are reproduced. Narrowing them here would reject requests the Go validators accept today, which
+is a change to live traffic and needs its own measurement and rollout rather than arriving with a
+language port.
 
 Three encoding messages repeat the word "must": `value must must be normalisable to NFC`,
 `value must must have valid encoding`, and `value must must be a valid UTF-8-encoded string`. The C#
@@ -78,12 +88,11 @@ in both is a change to every service at once and is tracked on its own.
 
 ## Where C# is deliberately stricter
 
-Two narrowings are known and intended. Neither accepts a value the Go validators reject, so no
+One narrowing is known and intended. It does not accept a value the Go validators reject, so no
 field becomes more permissive by being validated in C#.
 
 | Case | Go | C# |
 | --- | --- | --- |
-| A field declaring one symbol category | admits every symbol category | admits the declared category |
 | Username outside the Latin blocks listed above, such as `ａｂ` or `ɐb` | valid | invalid |
 
 Everything else the conformance vectors reach is matched exactly, including the text of each
