@@ -1080,6 +1080,14 @@ var file_s12_protobuf_proto_validator_proto_extTypes = []protoimpl.ExtensionInfo
 		Tag:           "bytes,65223,opt,name=username",
 		Filename:      "s12/protobuf/proto/validator.proto",
 	},
+	{
+		ExtendedType:  (*descriptorpb.FieldOptions)(nil),
+		ExtensionType: (*bool)(nil),
+		Field:         65224,
+		Name:          "validator.pii",
+		Tag:           "varint,65224,opt,name=pii",
+		Filename:      "s12/protobuf/proto/validator.proto",
+	},
 }
 
 // Extension fields to descriptorpb.FieldOptions.
@@ -1201,6 +1209,15 @@ var (
 	//
 	// optional validator.UsernameRules username = 65223;
 	E_Username = &file_s12_protobuf_proto_validator_proto_extTypes[23]
+	// Marks a field as containing personally identifiable information (PII) —
+	// e.g. email, phone, physical address, legal name. Does not validate or
+	// constrain the field's value; it's metadata for consumers that must not
+	// expose raw PII (e.g. tools whose output reaches an LLM, or automated
+	// integrations without human-in-the-loop review) to redact automatically
+	// via reflection rather than per-type hand-written logic.
+	//
+	// optional bool pii = 65224;
+	E_Pii = &file_s12_protobuf_proto_validator_proto_extTypes[24]
 )
 
 var File_s12_protobuf_proto_validator_proto protoreflect.FileDescriptor
@@ -1416,10 +1433,13 @@ var file_s12_protobuf_proto_validator_proto_rawDesc = []byte{
 	0x69, 0x6f, 0x6e, 0x73, 0x18, 0xc7, 0xfd, 0x03, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x18, 0x2e, 0x76,
 	0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x55, 0x73, 0x65, 0x72, 0x6e, 0x61, 0x6d,
 	0x65, 0x52, 0x75, 0x6c, 0x65, 0x73, 0x52, 0x08, 0x75, 0x73, 0x65, 0x72, 0x6e, 0x61, 0x6d, 0x65,
-	0x42, 0x37, 0x5a, 0x35, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x53,
-	0x61, 0x66, 0x65, 0x74, 0x79, 0x43, 0x75, 0x6c, 0x74, 0x75, 0x72, 0x65, 0x2f, 0x73, 0x31, 0x32,
-	0x2d, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x73, 0x31, 0x32, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f,
-	0x62, 0x75, 0x66, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f,
+	0x3a, 0x31, 0x0a, 0x03, 0x70, 0x69, 0x69, 0x12, 0x1d, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65,
+	0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x46, 0x69, 0x65, 0x6c, 0x64, 0x4f,
+	0x70, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x18, 0xc8, 0xfd, 0x03, 0x20, 0x01, 0x28, 0x08, 0x52, 0x03,
+	0x70, 0x69, 0x69, 0x42, 0x37, 0x5a, 0x35, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f,
+	0x6d, 0x2f, 0x53, 0x61, 0x66, 0x65, 0x74, 0x79, 0x43, 0x75, 0x6c, 0x74, 0x75, 0x72, 0x65, 0x2f,
+	0x73, 0x31, 0x32, 0x2d, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x73, 0x31, 0x32, 0x2f, 0x70, 0x72,
+	0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f,
 }
 
 var (
@@ -1474,19 +1494,20 @@ var file_s12_protobuf_proto_validator_proto_depIdxs = []int32{
 	9,  // 22: validator.number:extendee -> google.protobuf.FieldOptions
 	9,  // 23: validator.simple_string:extendee -> google.protobuf.FieldOptions
 	9,  // 24: validator.username:extendee -> google.protobuf.FieldOptions
-	4,  // 25: validator.email:type_name -> validator.EmailRules
-	3,  // 26: validator.string:type_name -> validator.StringRules
-	3,  // 27: validator.unsafe_string:type_name -> validator.StringRules
-	5,  // 28: validator.id:type_name -> validator.IdRules
-	6,  // 29: validator.url:type_name -> validator.URLRules
-	7,  // 30: validator.timezone:type_name -> validator.TimezoneRules
-	8,  // 31: validator.number:type_name -> validator.NumberRules
-	1,  // 32: validator.simple_string:type_name -> validator.SimpleStringRules
-	2,  // 33: validator.username:type_name -> validator.UsernameRules
-	34, // [34:34] is the sub-list for method output_type
-	34, // [34:34] is the sub-list for method input_type
-	25, // [25:34] is the sub-list for extension type_name
-	1,  // [1:25] is the sub-list for extension extendee
+	9,  // 25: validator.pii:extendee -> google.protobuf.FieldOptions
+	4,  // 26: validator.email:type_name -> validator.EmailRules
+	3,  // 27: validator.string:type_name -> validator.StringRules
+	3,  // 28: validator.unsafe_string:type_name -> validator.StringRules
+	5,  // 29: validator.id:type_name -> validator.IdRules
+	6,  // 30: validator.url:type_name -> validator.URLRules
+	7,  // 31: validator.timezone:type_name -> validator.TimezoneRules
+	8,  // 32: validator.number:type_name -> validator.NumberRules
+	1,  // 33: validator.simple_string:type_name -> validator.SimpleStringRules
+	2,  // 34: validator.username:type_name -> validator.UsernameRules
+	35, // [35:35] is the sub-list for method output_type
+	35, // [35:35] is the sub-list for method input_type
+	26, // [26:35] is the sub-list for extension type_name
+	1,  // [1:26] is the sub-list for extension extendee
 	0,  // [0:1] is the sub-list for field type_name
 }
 
@@ -1600,7 +1621,7 @@ func file_s12_protobuf_proto_validator_proto_init() {
 			RawDescriptor: file_s12_protobuf_proto_validator_proto_rawDesc,
 			NumEnums:      1,
 			NumMessages:   8,
-			NumExtensions: 24,
+			NumExtensions: 25,
 			NumServices:   0,
 		},
 		GoTypes:           file_s12_protobuf_proto_validator_proto_goTypes,
