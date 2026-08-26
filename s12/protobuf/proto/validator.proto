@@ -59,6 +59,13 @@ extend google.protobuf.FieldOptions {
   optional SimpleStringRules simple_string = 65222;
   // Validates field as a valid email OR a valid non-email username (compound OR)
   optional UsernameRules username = 65223;
+  // Marks a field as containing personally identifiable information (PII) —
+  // e.g. email, phone, physical address, legal name. Does not validate or
+  // constrain the field's value; it's metadata for consumers that must not
+  // expose raw PII (e.g. tools whose output reaches an LLM, or automated
+  // integrations without human-in-the-loop review) to redact automatically
+  // via reflection rather than per-type hand-written logic.
+  optional bool pii = 65224;
 }
 
 // SymbolCategory defines which special characters (Unicode symbols and the like) are allowed
