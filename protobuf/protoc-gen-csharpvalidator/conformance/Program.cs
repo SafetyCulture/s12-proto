@@ -34,6 +34,7 @@ internal static class Program
         CheckFields(directory, corpus, report);
         CheckNestedFields(directory, corpus, report);
         CheckDeepNesting(directory, corpus, report);
+        CheckCategoryObservation(directory, report);
 
         return report.Summarise(corpus);
     }
@@ -370,6 +371,56 @@ internal static class Program
 
     private static FieldDescriptor FieldByName(IMessage message, string name) =>
         message.Descriptor.Fields.InDeclarationOrder().First(f => f.Name == name);
+
+    /// <summary>
+    /// Checks the second reading of a widened character class, which reports through
+    /// <see cref="ValidationLog"/> without changing the verdict.
+    /// </summary>
+    /// <remarks>
+    /// symbol_string declares symbols: [CURRENCY]. Go has no counterpart to compare against, so
+    /// this asserts against the declaration rather than against a recorded vector.
+    /// </remarks>
+    private static void CheckCategoryObservation(string directory, Report report)
+    {
+        var cases = new (string Name, string Value, bool WantReport)[]
+        {
+            ("currency", "Accept $ £ ¥ €", false),
+            ("mathSymbol", "Accept <", true),
+            ("pipe", "Accept |", true),
+            ("otherSymbol", "Accept ©", true),
+            ("modifier", "Accept ^", true),
+        };
+
+        var reported = new List<string>();
+        ValidationLog.Handler = (field, requirement, _) =>
+        {
+            if (field == "symbol_string")
+            {
+                reported.Add(requirement);
+            }
+        };
+
+        try
+        {
+            foreach (var (name, value, wantReport) in cases)
+            {
+                var message = BaseMessage(directory);
+                message.SymbolString = value;
+
+                reported.Clear();
+                var error = message.Validate();
+
+                report.Compare("observation", name, "accepted", true, error is null);
+                report.Compare("observation", name, "reported", wantReport, reported.Count == 1);
+            }
+        }
+        finally
+        {
+            ValidationLog.Handler = null;
+        }
+
+        report.Counted("observation", cases.Length);
+    }
 
     /// <summary>The message every field record starts from.</summary>
     private static ValTestMessage BaseMessage(string directory) =>

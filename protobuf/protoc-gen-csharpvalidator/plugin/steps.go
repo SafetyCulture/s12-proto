@@ -315,11 +315,25 @@ func emitStringOp(e *emitter, f *plan.Field, op plan.Op, value, holder string) e
 		fail(e, f, o.LogOnly, value, "value must only have valid characters")
 		e.shut()
 
+		if translated.NarrowPattern != "" {
+			narrowName := e.pattern(translated.NarrowPattern)
+			e.open("else if (!CharacterClass.IsMatch(", holder, ".", narrowName, ", ", value, ", ",
+				astralExpression(translated.NarrowAstralCategories), "))")
+			e.p("ValidationLog.Report(", quote(f.Name), ", ", quote(narrowRequirement), ", ",
+				"ValidatorHelpers.TruncateAndEncode(", stringify(f, value), ", ", logOnlyMaxLength, "));")
+			e.shut()
+		}
+
 	default:
 		return fmt.Errorf("no C# emitter for string operation %T", op)
 	}
 	return nil
 }
+
+// narrowRequirement is reported for a value the class admits only because a
+// two-letter category token widened to its one-letter class. Validation passes;
+// the line records that the value carries characters the field did not declare.
+const narrowRequirement = "value must only have characters in the declared categories"
 
 // astralExpression names the categories whose code points above the Basic
 // Multilingual Plane the pattern is meant to admit.

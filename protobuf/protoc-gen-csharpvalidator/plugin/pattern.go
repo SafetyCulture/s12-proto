@@ -18,6 +18,29 @@ type translatedPattern struct {
 	// point above the Basic Multilingual Plane never matches the category token that
 	// admits it; the runtime removes those before matching instead.
 	AstralCategories []string
+
+	// NarrowPattern reads each two-letter category token as the category it names,
+	// and is empty when the class holds no such token. It admits a subset of
+	// Pattern, and reports rather than decides: a value it turns away has
+	// characters the field's annotation did not ask for.
+	NarrowPattern string
+
+	// NarrowAstralCategories is AstralCategories for NarrowPattern.
+	NarrowAstralCategories []string
+}
+
+// twoLetterCategories are the Unicode general category names written with two
+// letters. A token is only read as one of these when both letters spell a
+// category, so a class member that merely follows a one-letter token stays a
+// literal.
+var twoLetterCategories = map[string]bool{
+	"Lu": true, "Ll": true, "Lt": true, "Lm": true, "Lo": true,
+	"Mn": true, "Mc": true, "Me": true,
+	"Nd": true, "Nl": true, "No": true,
+	"Pc": true, "Pd": true, "Ps": true, "Pe": true, "Pi": true, "Pf": true, "Po": true,
+	"Sm": true, "Sc": true, "Sk": true, "So": true,
+	"Zs": true, "Zl": true, "Zp": true,
+	"Cc": true, "Cf": true, "Cs": true, "Co": true, "Cn": true,
 }
 
 // translatePattern rewrites a generated Go character-class pattern for .NET.
@@ -31,7 +54,9 @@ type translatedPattern struct {
 //   - RE2 reads \pXy as the one-letter class \pX followed by a literal y, so a
 //     declared two-letter category is already the whole one-letter class in Go. That
 //     is reproduced rather than corrected: the generated C# has to accept what the
-//     Go validators accept, and narrowing it here would reject live traffic.
+//     Go validators accept, and narrowing it here would reject live traffic. The
+//     reading the annotation asks for comes back as NarrowPattern, which reports
+//     what it would have turned away without changing the verdict.
 //   - .NET rejects an escape it does not define, such as \_, where RE2 allows any
 //     punctuation to be escaped.
 func translatePattern(goPattern string) (translatedPattern, error) {
@@ -44,9 +69,19 @@ func translatePattern(goPattern string) (translatedPattern, error) {
 		return translatedPattern{}, fmt.Errorf("pattern does not close with ]+$: %s", goPattern)
 	}
 
-	var out strings.Builder
+	var out, narrow strings.Builder
 	seen := map[string]bool{}
-	var categories []string
+	narrowSeen := map[string]bool{}
+	var categories, narrowCategories []string
+	widened := false
+
+	collect := func(category string, into *[]string, seen map[string]bool) {
+		if seen[category] {
+			return
+		}
+		seen[category] = true
+		*into = append(*into, category)
+	}
 
 	for i := 0; i < len(body); {
 		switch {
@@ -67,29 +102,47 @@ func translatePattern(goPattern string) (translatedPattern, error) {
 				return translatedPattern{}, fmt.Errorf("code point U+%X is above the Basic Multilingual Plane and cannot be a character class member", code)
 			}
 			fmt.Fprintf(&out, `\u%04X`, code)
+			fmt.Fprintf(&narrow, `\u%04X`, code)
 			i += end + 1
 
 		case strings.HasPrefix(body[i:], `\p`) && i+2 < len(body) && isCategoryLetter(body[i+2]):
 			// RE2 takes exactly one letter here; anything after it is a literal.
 			category := string(body[i+2])
-			fmt.Fprintf(&out, `\p{%s}`, category)
-			if !seen[category] {
-				seen[category] = true
-				categories = append(categories, category)
+			consumed := 3
+
+			narrowCategory := category
+			if i+3 < len(body) && isCategoryLetter(body[i+3]) && twoLetterCategories[category+string(body[i+3])] {
+				narrowCategory = category + string(body[i+3])
+				consumed = 4
+				widened = true
+				fmt.Fprintf(&out, `\p{%s}`, category)
+				out.WriteString(escapeClassMember(rune(body[i+3])))
+			} else {
+				fmt.Fprintf(&out, `\p{%s}`, category)
 			}
-			i += 3
+			fmt.Fprintf(&narrow, `\p{%s}`, narrowCategory)
+
+			collect(category, &categories, seen)
+			collect(narrowCategory, &narrowCategories, narrowSeen)
+			i += consumed
 
 		default:
 			r, size := decodeRune(body[i:])
 			out.WriteString(escapeClassMember(r))
+			narrow.WriteString(escapeClassMember(r))
 			i += size
 		}
 	}
 
-	return translatedPattern{
+	translated := translatedPattern{
 		Pattern:          `\A[` + out.String() + `]+\z`,
 		AstralCategories: categories,
-	}, nil
+	}
+	if widened {
+		translated.NarrowPattern = `\A[` + narrow.String() + `]+\z`
+		translated.NarrowAstralCategories = narrowCategories
+	}
+	return translated, nil
 }
 
 func isCategoryLetter(b byte) bool {

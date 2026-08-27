@@ -212,6 +212,10 @@ namespace Valtest
             {
                 return ValidationError.Create("rune_string", "value must only have valid characters");
             }
+            else if (!CharacterClass.IsMatch(ValtestValidatorClasses.Classcd31dc1cb28f24ab, RuneString, UnicodeCategories.L | UnicodeCategories.N | UnicodeCategories.So))
+            {
+                ValidationLog.Report("rune_string", "value must only have characters in the declared categories", ValidatorHelpers.TruncateAndEncode(RuneString, 50));
+            }
             if (StringMutators.TryNormalizeToNfc(ReplaceString, out var _nfc20))
             {
                 ReplaceString = _nfc20;
@@ -314,6 +318,10 @@ namespace Valtest
             {
                 return ValidationError.Create("symbol_string", "value must only have valid characters");
             }
+            else if (!CharacterClass.IsMatch(ValtestValidatorClasses.Classaf971ef2dbc5d5ad, SymbolString, UnicodeCategories.L | UnicodeCategories.N | UnicodeCategories.Sc))
+            {
+                ValidationLog.Report("symbol_string", "value must only have characters in the declared categories", ValidatorHelpers.TruncateAndEncode(SymbolString, 50));
+            }
             if (StringMutators.TryNormalizeToNfc(SymbolsString, out var _nfc28))
             {
                 SymbolsString = _nfc28;
@@ -338,6 +346,10 @@ namespace Valtest
             if (!CharacterClass.IsMatch(ValtestValidatorClasses.Classb854df56e032183c, SymbolsString, UnicodeCategories.L | UnicodeCategories.M | UnicodeCategories.N | UnicodeCategories.S))
             {
                 return ValidationError.Create("symbols_string", "value must only have valid characters");
+            }
+            else if (!CharacterClass.IsMatch(ValtestValidatorClasses.Classf7befb9add8afcce, SymbolsString, UnicodeCategories.L | UnicodeCategories.M | UnicodeCategories.N | UnicodeCategories.So))
+            {
+                ValidationLog.Report("symbols_string", "value must only have characters in the declared categories", ValidatorHelpers.TruncateAndEncode(SymbolsString, 50));
             }
             if (StringMutators.TryNormalizeToNfc(NewlineString, out var _nfc30))
             {
@@ -455,6 +467,10 @@ namespace Valtest
             {
                 return ValidationError.Create("all_string", "value must only have valid characters");
             }
+            else if (!CharacterClass.IsMatch(ValtestValidatorClasses.Classde30976ea91546b8, AllString, UnicodeCategories.L | UnicodeCategories.M | UnicodeCategories.N | UnicodeCategories.Po | UnicodeCategories.Sc | UnicodeCategories.Sk | UnicodeCategories.Sm | UnicodeCategories.So))
+            {
+                ValidationLog.Report("all_string", "value must only have characters in the declared categories", ValidatorHelpers.TruncateAndEncode(AllString, 50));
+            }
             if (Name != "")
             {
                 if (StringMutators.TryNormalizeToNfc(Name, out var _nfc40))
@@ -543,6 +559,10 @@ namespace Valtest
                 if (!CharacterClass.IsMatch(ValtestValidatorClasses.Classa288868e5c1e56c0, ScPermissive, UnicodeCategories.L | UnicodeCategories.M | UnicodeCategories.N | UnicodeCategories.P | UnicodeCategories.S))
                 {
                     return ValidationError.Create("sc_permissive", "value must only have valid characters");
+                }
+                else if (!CharacterClass.IsMatch(ValtestValidatorClasses.Classe05c064070025fac, ScPermissive, UnicodeCategories.L | UnicodeCategories.M | UnicodeCategories.N | UnicodeCategories.Po | UnicodeCategories.Sc | UnicodeCategories.Sk | UnicodeCategories.Sm | UnicodeCategories.So))
+                {
+                    ValidationLog.Report("sc_permissive", "value must only have characters in the declared categories", ValidatorHelpers.TruncateAndEncode(ScPermissive, 50));
                 }
             }
             if (NotSanitisePua != "")
@@ -1205,6 +1225,10 @@ namespace Valtest
             if (!CharacterClass.IsMatch(ValtestValidatorClasses.Class378107c94d466995, Name, UnicodeCategories.L | UnicodeCategories.M | UnicodeCategories.N | UnicodeCategories.P | UnicodeCategories.S))
             {
                 return ValidationError.Create("name", "value must only have valid characters");
+            }
+            else if (!CharacterClass.IsMatch(ValtestValidatorClasses.Class74440f7ecadc7208, Name, UnicodeCategories.L | UnicodeCategories.M | UnicodeCategories.N | UnicodeCategories.Po | UnicodeCategories.Sc | UnicodeCategories.Sk | UnicodeCategories.Sm | UnicodeCategories.So))
+            {
+                ValidationLog.Report("name", "value must only have characters in the declared categories", ValidatorHelpers.TruncateAndEncode(Name, 50));
             }
             if (Latitude != 0)
             {
@@ -1986,13 +2010,19 @@ namespace Valtest
 
         internal static readonly Regex Class36943bf8f0f20d3d = new(@"\A[\p{L}\p{N}\p{S}o\u0020\u0028\u0029\u002C\u002E\u003A\u003F\u0040\u005B\u005D\u005F\u00BF\u200D\u2013]+\z", Options);
 
+        internal static readonly Regex Classcd31dc1cb28f24ab = new(@"\A[\p{L}\p{N}\p{So}\u0020\u0028\u0029\u002C\u002E\u003A\u003F\u0040\u005B\u005D\u005F\u00BF\u200D\u2013]+\z", Options);
+
         internal static readonly Regex Classb0d9998644e4afc5 = new(@"\A[\p{L}\p{N}\u0020\u0028\u0029\u002C\u002E\u003A\u003F\u0040\u005B\u005D\u005F\u00BF\u02C2\u02C3\u037E\u2013\u2019\u201D\u2052\u2212\u2215\u2217\u2E40\uFF01\uFF0B\uFF3C\uFFE8]+\z", Options);
 
         internal static readonly Regex Class2f2809e3638980be = new(@"\A[\p{L}\p{N}\u0020\u0028\u0029\u002C\u002E\u003A\u003F\u0040\u005B\u005D\u005F\u007E\u00BF\u2013]+\z", Options);
 
         internal static readonly Regex Classb81e5a62415961a0 = new(@"\A[\p{L}\p{N}\p{S}c\u0020\u0028\u0029\u002C\u002E\u003A\u003F\u0040\u005B\u005D\u005F\u00BF\u2013]+\z", Options);
 
+        internal static readonly Regex Classaf971ef2dbc5d5ad = new(@"\A[\p{L}\p{N}\p{Sc}\u0020\u0028\u0029\u002C\u002E\u003A\u003F\u0040\u005B\u005D\u005F\u00BF\u2013]+\z", Options);
+
         internal static readonly Regex Classb854df56e032183c = new(@"\A[\p{L}\p{M}\p{N}\p{S}o\u0020\u0028\u0029\u002C\u002E\u003A\u003F\u0040\u005B\u005D\u005F\u00BF\u200D\u2013]+\z", Options);
+
+        internal static readonly Regex Classf7befb9add8afcce = new(@"\A[\p{L}\p{M}\p{N}\p{So}\u0020\u0028\u0029\u002C\u002E\u003A\u003F\u0040\u005B\u005D\u005F\u00BF\u200D\u2013]+\z", Options);
 
         internal static readonly Regex Class967d66b5da32f455 = new(@"\A[\p{L}\p{N}\u000A\u0020\u0028\u0029\u002C\u002E\u003A\u003F\u0040\u005B\u005D\u005F\u00BF\u2013]+\z", Options);
 
@@ -2000,15 +2030,21 @@ namespace Valtest
 
         internal static readonly Regex Classae5e5e7fe569f8e8 = new(@"\A[\p{L}\p{M}\p{N}\p{P}o\p{S}c\p{S}k\p{S}m\p{S}o\u0020\u0028\u0029\u002C\u002E\u003A\u003F\u0040\u005B\u005D\u005F\u007E\u00BF\u02C3\u104B\u200D\u2013\u2018\u2019\u201C\u201D\u2022\uFFFD}]+\z", Options);
 
+        internal static readonly Regex Classde30976ea91546b8 = new(@"\A[\p{L}\p{M}\p{N}\p{Po}\p{Sc}\p{Sk}\p{Sm}\p{So}\u0020\u0028\u0029\u002C\u002E\u003A\u003F\u0040\u005B\u005D\u005F\u007E\u00BF\u02C3\u104B\u200D\u2013\u2018\u2019\u201C\u201D\u2022\uFFFD}]+\z", Options);
+
         internal static readonly Regex Class9df32b727a2de410 = new(@"\A[\p{L}\p{N}\u0020\u0028\u0029\u002C\u002E\u003A\u003F\u0040\u005B\u005D\u005F\u00BF\u2013\u2019\u2212]+\z", Options);
 
         internal static readonly Regex Classa288868e5c1e56c0 = new(@"\A[\p{L}\p{M}\p{N}\p{P}o\p{S}c\p{S}k\p{S}m\p{S}o\u0020\u0028\u0029\u002C\u002E\u003A\u003F\u0040\u005B\u005D\u005F\u007E\u00BF\u02C2\u02C3\u037E\u104B\u200D\u2013\u2018\u2019\u201C\u201D\u2022\u2052\u2212\u2215\u2217\u2E40\uFF01\uFF0B\uFF3C\uFFE8}]+\z", Options);
+
+        internal static readonly Regex Classe05c064070025fac = new(@"\A[\p{L}\p{M}\p{N}\p{Po}\p{Sc}\p{Sk}\p{Sm}\p{So}\u0020\u0028\u0029\u002C\u002E\u003A\u003F\u0040\u005B\u005D\u005F\u007E\u00BF\u02C2\u02C3\u037E\u104B\u200D\u2013\u2018\u2019\u201C\u201D\u2022\u2052\u2212\u2215\u2217\u2E40\uFF01\uFF0B\uFF3C\uFFE8}]+\z", Options);
 
         internal static readonly Regex Class5661fb990bb10882 = new(@"\A[\p{L}\p{N}\u0020\u0021\u0022\u0023\u0025\u0026\u0027\u0028\u0029\u002A\u002C\u002D\u002E\u002F\u003A\u003F\u0040\u005B\u005C\u005D\u005F\u00BF\u2013]+\z", Options);
 
         internal static readonly Regex Class235a0979cf68a1e9 = new(@"\A[\p{L}\p{N}\u000A\u0020\u0021\u0022\u0023\u0025\u0026\u0027\u0028\u0029\u002A\u002C\u002D\u002E\u002F\u003A\u003F\u0040\u005B\u005C\u005D\u005F\u00BF\u2013]+\z", Options);
 
         internal static readonly Regex Class378107c94d466995 = new(@"\A[\p{L}\p{M}\p{N}\p{P}o\p{S}c\p{S}k\p{S}m\p{S}o\u0020\u0021\u0022\u0023\u0025\u0026\u0027\u0028\u0029\u002A\u002C\u002D\u002E\u002F\u003A\u003F\u0040\u005B\u005C\u005D\u005F\u007E\u00BF\u104B\u200D\u2013\u2018\u2019\u201C\u201D\u2022]+\z", Options);
+
+        internal static readonly Regex Class74440f7ecadc7208 = new(@"\A[\p{L}\p{M}\p{N}\p{Po}\p{Sc}\p{Sk}\p{Sm}\p{So}\u0020\u0021\u0022\u0023\u0025\u0026\u0027\u0028\u0029\u002A\u002C\u002D\u002E\u002F\u003A\u003F\u0040\u005B\u005C\u005D\u005F\u007E\u00BF\u104B\u200D\u2013\u2018\u2019\u201C\u201D\u2022]+\z", Options);
 
         internal static readonly Regex Class64175c84ea576c31 = new(@"\A(([0-9])+-([0-9a-f]){32})?\z", Options);
     }

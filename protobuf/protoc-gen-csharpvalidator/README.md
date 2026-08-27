@@ -78,6 +78,12 @@ Both are reproduced. Narrowing them here would reject requests the Go validators
 is a change to live traffic and needs its own measurement and rollout rather than arriving with a
 language port.
 
+The category widening is also observed. Alongside the class that decides the verdict, the generator
+emits the class the annotation asks for, and a value admitted only by the wider of the two is passed
+to `ValidationLog.Report` with the requirement `value must only have characters in the declared
+categories`. Validation still succeeds. With no handler attached the report is discarded, so the
+measurement that a narrowing needs can be gathered by setting one.
+
 Three encoding messages repeat the word "must": `value must must be normalisable to NFC`,
 `value must must have valid encoding`, and `value must must be a valid UTF-8-encoded string`. The C#
 emitter writes them the same way.
