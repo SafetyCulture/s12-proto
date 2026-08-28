@@ -966,14 +966,14 @@ func (m *LogOnlyValidationMessage) Validate() error {
 		}
 	}
 	if m.Answer != "" {
-		var length = utf8.RuneCountInString(m.Answer)
-		if length > 40 || length < 0 {
+		var _slen_LogOnlyValidationMessage_Answer = utf8.RuneCountInString(m.Answer)
+		if _slen_LogOnlyValidationMessage_Answer > 40 || _slen_LogOnlyValidationMessage_Answer < 0 {
 			fmt.Printf("[log-only] %s: value must be %s: Base64Encoded input: %s\n", "answer", "have a length between 0 and 40", proto.Base64Encode(proto.FirstCharactersFromString(fmt.Sprintf("%v", m.Answer), 50)))
 		}
 	}
 	if m.Note != "" {
-		var length = utf8.RuneCountInString(m.Note)
-		if length > 40 || length < 5 {
+		var _slen_LogOnlyValidationMessage_Note = utf8.RuneCountInString(m.Note)
+		if _slen_LogOnlyValidationMessage_Note > 40 || _slen_LogOnlyValidationMessage_Note < 5 {
 			return fmt.Errorf(`note: value must have a length between 5 and 40`)
 		}
 	}

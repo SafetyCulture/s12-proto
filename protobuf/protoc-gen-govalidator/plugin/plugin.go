@@ -323,8 +323,18 @@ func genSimpleStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varN
 	}
 
 	if rules.GetMinLen() >= 1 || rules.GetMaxLen() >= 1 {
-		g.P("var length = ", utfPackage.Ident("RuneCountInString"), "(", varName, ")")
-		g.P("if (length > ", rules.GetMaxLen(), " || length < ", rules.GetMinLen(), ") {")
+		// Name the variable after the field, as genLenValidator does. A fixed name collides
+		// as soon as one message has two non-optional length-bounded simple_string fields:
+		// both declarations land in the same Validate() block and the generated code does
+		// not compile.
+		//
+		// The prefix differs from genLenValidator's `_len_` on purpose. A StringKind field
+		// runs through both generators (see the dispatch in genFieldValidator: "both options
+		// can be combined at this time"), so sharing the prefix would reintroduce the same
+		// clash for any field carrying both a `string` and a `simple_string` validator.
+		lenVar := "_slen_" + f.GoIdent.GoName
+		g.P("var "+lenVar+" = ", utfPackage.Ident("RuneCountInString"), "(", varName, ")")
+		g.P("if ("+lenVar+" > ", rules.GetMaxLen(), " || "+lenVar+" < ", rules.GetMinLen(), ") {")
 		errStr := fmt.Sprintf(`have a length between %d and %d`, rules.GetMinLen(), rules.GetMaxLen())
 		if rules.GetLogOnly() {
 			printErrorString(g, varName, string(f.Desc.Name()), errStr, 50)
