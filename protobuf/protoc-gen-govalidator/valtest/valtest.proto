@@ -330,3 +330,15 @@ message NonUrlMessage {
   // Replaces partial URLs with a "safer" version
   string break_partial_url_test = 2 [(validator.unsafe_string) = {break_partial_url: true, optional: true}];
 }
+
+// Two non-optional simple_string fields carrying length bounds in one message.
+// A non-optional simple_string emits its length check at function scope, so
+// before the length variable was named after the field this generated a
+// duplicate declaration and the package did not compile.
+message SimpleStringMessage {
+  string subject_token = 1 [(validator.simple_string) = { min_len: 1, max_len: 8192 }];
+  string audience = 2 [(validator.simple_string) = { min_len: 1, max_len: 253 }];
+  // A third, optional field: its check is wrapped in its own block, which is
+  // why the optional-only coverage never caught the collision.
+  string note = 3 [(validator.simple_string) = { optional: true, min_len: 5, max_len: 40 }];
+}

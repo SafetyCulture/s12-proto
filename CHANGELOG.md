@@ -17,6 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Bumped Go minimum version from 1.18 to 1.24 in root module and `protoc-gen-s12perm/example`
 
+### Fixed
+- `protoc-gen-govalidator` (v2.7.3): a message with more than one non-optional `simple_string` field carrying `min_len`/`max_len` generated a `Validate` func declaring `length` twice, so the package did not compile. The length variable is now named after the field, matching `validator.string`. Generated code only - validation behaviour is unchanged.
+
 ## [v1.38.0] - 2026-03-03
 
 ### Added

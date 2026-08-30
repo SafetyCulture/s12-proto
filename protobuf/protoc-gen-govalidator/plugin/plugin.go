@@ -41,7 +41,7 @@ var regexGeneratedFile *protogen.GeneratedFile
 var regexHashLib = make(map[string]struct{})
 
 // Validator plugin version
-var validatorVersion = "v2.7.2"
+var validatorVersion = "v2.7.3"
 
 // Write a preamble in the auto generated files
 func genGeneratedHeader(gen *protogen.Plugin, g *protogen.GeneratedFile, f *protogen.File) {
@@ -323,8 +323,12 @@ func genSimpleStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varN
 	}
 
 	if rules.GetMinLen() >= 1 || rules.GetMaxLen() >= 1 {
-		g.P("var length = ", utfPackage.Ident("RuneCountInString"), "(", varName, ")")
-		g.P("if (length > ", rules.GetMaxLen(), " || length < ", rules.GetMinLen(), ") {")
+		// Name the variable after the field: a message with two non-optional
+		// simple_string fields would otherwise declare the same identifier twice
+		// in one Validate func and fail to compile. Matches genStringValidator.
+		lenVar := "_len_" + f.GoIdent.GoName
+		g.P("var "+lenVar+" = ", utfPackage.Ident("RuneCountInString"), "(", varName, ")")
+		g.P("if ("+lenVar+" > ", rules.GetMaxLen(), " || "+lenVar+" < ", rules.GetMinLen(), ") {")
 		errStr := fmt.Sprintf(`have a length between %d and %d`, rules.GetMinLen(), rules.GetMaxLen())
 		if rules.GetLogOnly() {
 			printErrorString(g, varName, string(f.Desc.Name()), errStr, 50)

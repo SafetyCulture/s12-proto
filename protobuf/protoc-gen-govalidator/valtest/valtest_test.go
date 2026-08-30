@@ -2668,3 +2668,117 @@ func TestSoftValidation_ValidateUnsafeString(t *testing.T) {
 		})
 	}
 }
+
+func genSimpleStringMessage() *SimpleStringMessage {
+	return &SimpleStringMessage{
+		SubjectToken: "a-token",
+		Audience:     "some.service.internal",
+		Note:         "a note",
+	}
+}
+
+// Covers a message carrying more than one non-optional simple_string with
+// length bounds. Each field's bounds must be enforced independently: an earlier
+// implementation shared a single `length` variable across every field in the
+// message, which did not compile once a second such field existed.
+func TestSimpleStringMessage_Validate(t *testing.T) {
+	tests := []struct {
+		name      string
+		msg       *SimpleStringMessage
+		shouldErr bool
+	}{
+		{
+			name:      "should pass with every field within bounds",
+			msg:       genSimpleStringMessage(),
+			shouldErr: false,
+		},
+		{
+			name: "should fail when subjectToken is empty",
+			msg: func() *SimpleStringMessage {
+				m := genSimpleStringMessage()
+				m.SubjectToken = ""
+				return m
+			}(),
+			shouldErr: true,
+		},
+		{
+			name: "should fail when subjectToken exceeds its own max of 8192",
+			msg: func() *SimpleStringMessage {
+				m := genSimpleStringMessage()
+				m.SubjectToken = strings.Repeat("a", 8193)
+				return m
+			}(),
+			shouldErr: true,
+		},
+		{
+			// 253 is audience's max, well under subjectToken's 8192: proves the
+			// two fields are measured against their own bounds, not a shared one.
+			name: "should fail when audience exceeds its own max of 253",
+			msg: func() *SimpleStringMessage {
+				m := genSimpleStringMessage()
+				m.Audience = strings.Repeat("a", 254)
+				return m
+			}(),
+			shouldErr: true,
+		},
+		{
+			name: "should pass when subjectToken is longer than audience's max",
+			msg: func() *SimpleStringMessage {
+				m := genSimpleStringMessage()
+				m.SubjectToken = strings.Repeat("a", 254)
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "should fail when audience is empty",
+			msg: func() *SimpleStringMessage {
+				m := genSimpleStringMessage()
+				m.Audience = ""
+				return m
+			}(),
+			shouldErr: true,
+		},
+		{
+			name: "should pass when the optional note is empty",
+			msg: func() *SimpleStringMessage {
+				m := genSimpleStringMessage()
+				m.Note = ""
+				return m
+			}(),
+			shouldErr: false,
+		},
+		{
+			name: "should fail when the optional note is set but under its min of 5",
+			msg: func() *SimpleStringMessage {
+				m := genSimpleStringMessage()
+				m.Note = "abc"
+				return m
+			}(),
+			shouldErr: true,
+		},
+		{
+			// Bounds are counted in runes, not bytes: 253 multi-byte runes are
+			// well over 253 bytes and must still pass.
+			name: "should count runes rather than bytes",
+			msg: func() *SimpleStringMessage {
+				m := genSimpleStringMessage()
+				m.Audience = strings.Repeat("ä", 253)
+				return m
+			}(),
+			shouldErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.msg.Validate()
+			if tt.shouldErr == (err == nil) {
+				t.Errorf("%s, supposed to return an error", tt.name)
+			}
+			if !tt.shouldErr && err != nil {
+				t.Errorf("%s, supposed not to return an error, but we received %v", tt.name, err)
+			}
+		})
+	}
+}
