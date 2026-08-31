@@ -175,6 +175,17 @@ message ValTestMessage {
   string username_optional_log_only    = 74 [(validator.username) = { optional: true, log_only: true }];
   string username_email_only_log_only  = 75 [(validator.username) = { allow_non_email: false, log_only: true }];
   string username_all_flags            = 76 [(validator.username) = { optional: true, allow_non_email: false, log_only: true }];
+
+  // Machine-generated validator (machine strings: tokens, cursors, CEL) - size + encoding only, no allow-list, no mutation
+  string machine_generated_encoding_only   = 77 [(validator.machine_generated) = {}];
+  string machine_generated_optional        = 78 [(validator.machine_generated) = { optional: true }];
+  string machine_generated_len_range       = 79 [(validator.machine_generated) = { len: "1:2048", optional: true }];
+  string machine_generated_len_max_only    = 80 [(validator.machine_generated) = { len: ":2048", optional: true }];
+  string machine_generated_len_min_only    = 81 [(validator.machine_generated) = { len: "16:", optional: true }];
+  string machine_generated_len_fixed       = 82 [(validator.machine_generated) = { len: "16", optional: true }];
+  string machine_generated_len_runes       = 83 [(validator.machine_generated) = { len: "1:10", runes: true, optional: true }];
+  string machine_generated_no_encoding     = 84 [(validator.machine_generated) = { validate_encoding: false, optional: true }];
+  string machine_generated_log_only        = 85 [(validator.machine_generated) = { len: "1:8", log_only: true, optional: true }];
 }
 
 message LogOnlyValidationMessage {

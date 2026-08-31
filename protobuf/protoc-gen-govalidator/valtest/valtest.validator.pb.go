@@ -767,6 +767,86 @@ func (m *ValTestMessage) Validate() error {
 			}
 		}
 	}
+	if strings.ContainsRune(m.MachineGeneratedEncodingOnly, utf8.RuneError) {
+		return fmt.Errorf(`machine_generated_encoding_only: value must must have valid encoding`)
+	} else if !utf8.ValidString(m.MachineGeneratedEncodingOnly) {
+		return fmt.Errorf(`machine_generated_encoding_only: value must must be a valid UTF-8-encoded string`)
+	}
+	if m.MachineGeneratedOptional != "" {
+		if strings.ContainsRune(m.MachineGeneratedOptional, utf8.RuneError) {
+			return fmt.Errorf(`machine_generated_optional: value must must have valid encoding`)
+		} else if !utf8.ValidString(m.MachineGeneratedOptional) {
+			return fmt.Errorf(`machine_generated_optional: value must must be a valid UTF-8-encoded string`)
+		}
+	}
+	if m.MachineGeneratedLenRange != "" {
+		var _len_ValTestMessage_MachineGeneratedLenRange = len(m.MachineGeneratedLenRange)
+		if !(_len_ValTestMessage_MachineGeneratedLenRange >= 1 && _len_ValTestMessage_MachineGeneratedLenRange <= 2048) {
+			return fmt.Errorf(`machine_generated_len_range: value must have a length between 1 and 2048`)
+		}
+		if strings.ContainsRune(m.MachineGeneratedLenRange, utf8.RuneError) {
+			return fmt.Errorf(`machine_generated_len_range: value must must have valid encoding`)
+		} else if !utf8.ValidString(m.MachineGeneratedLenRange) {
+			return fmt.Errorf(`machine_generated_len_range: value must must be a valid UTF-8-encoded string`)
+		}
+	}
+	if m.MachineGeneratedLenMaxOnly != "" {
+		var _len_ValTestMessage_MachineGeneratedLenMaxOnly = len(m.MachineGeneratedLenMaxOnly)
+		if !(_len_ValTestMessage_MachineGeneratedLenMaxOnly <= 2048) {
+			return fmt.Errorf(`machine_generated_len_max_only: value must have a length of at most 2048`)
+		}
+		if strings.ContainsRune(m.MachineGeneratedLenMaxOnly, utf8.RuneError) {
+			return fmt.Errorf(`machine_generated_len_max_only: value must must have valid encoding`)
+		} else if !utf8.ValidString(m.MachineGeneratedLenMaxOnly) {
+			return fmt.Errorf(`machine_generated_len_max_only: value must must be a valid UTF-8-encoded string`)
+		}
+	}
+	if m.MachineGeneratedLenMinOnly != "" {
+		var _len_ValTestMessage_MachineGeneratedLenMinOnly = len(m.MachineGeneratedLenMinOnly)
+		if !(_len_ValTestMessage_MachineGeneratedLenMinOnly >= 16) {
+			return fmt.Errorf(`machine_generated_len_min_only: value must have a length of at least 16`)
+		}
+		if strings.ContainsRune(m.MachineGeneratedLenMinOnly, utf8.RuneError) {
+			return fmt.Errorf(`machine_generated_len_min_only: value must must have valid encoding`)
+		} else if !utf8.ValidString(m.MachineGeneratedLenMinOnly) {
+			return fmt.Errorf(`machine_generated_len_min_only: value must must be a valid UTF-8-encoded string`)
+		}
+	}
+	if m.MachineGeneratedLenFixed != "" {
+		var _len_ValTestMessage_MachineGeneratedLenFixed = len(m.MachineGeneratedLenFixed)
+		if !(_len_ValTestMessage_MachineGeneratedLenFixed == 16) {
+			return fmt.Errorf(`machine_generated_len_fixed: value must have length 16`)
+		}
+		if strings.ContainsRune(m.MachineGeneratedLenFixed, utf8.RuneError) {
+			return fmt.Errorf(`machine_generated_len_fixed: value must must have valid encoding`)
+		} else if !utf8.ValidString(m.MachineGeneratedLenFixed) {
+			return fmt.Errorf(`machine_generated_len_fixed: value must must be a valid UTF-8-encoded string`)
+		}
+	}
+	if m.MachineGeneratedLenRunes != "" {
+		var _len_ValTestMessage_MachineGeneratedLenRunes = utf8.RuneCountInString(m.MachineGeneratedLenRunes)
+		if !(_len_ValTestMessage_MachineGeneratedLenRunes >= 1 && _len_ValTestMessage_MachineGeneratedLenRunes <= 10) {
+			return fmt.Errorf(`machine_generated_len_runes: value must have a length between 1 and 10`)
+		}
+		if strings.ContainsRune(m.MachineGeneratedLenRunes, utf8.RuneError) {
+			return fmt.Errorf(`machine_generated_len_runes: value must must have valid encoding`)
+		} else if !utf8.ValidString(m.MachineGeneratedLenRunes) {
+			return fmt.Errorf(`machine_generated_len_runes: value must must be a valid UTF-8-encoded string`)
+		}
+	}
+	if m.MachineGeneratedNoEncoding != "" {
+	}
+	if m.MachineGeneratedLogOnly != "" {
+		var _len_ValTestMessage_MachineGeneratedLogOnly = len(m.MachineGeneratedLogOnly)
+		if !(_len_ValTestMessage_MachineGeneratedLogOnly >= 1 && _len_ValTestMessage_MachineGeneratedLogOnly <= 8) {
+			fmt.Printf("[log-only] %s: value must be %s: Base64Encoded input: %s\n", "machine_generated_log_only", "have a length between 1 and 8", proto.Base64Encode(proto.FirstCharactersFromString(fmt.Sprintf("%v", m.MachineGeneratedLogOnly), 50)))
+		}
+		if strings.ContainsRune(m.MachineGeneratedLogOnly, utf8.RuneError) {
+			fmt.Printf("[log-only] %s: value must be %s: Base64Encoded input: %s\n", "machine_generated_log_only", "must have valid encoding", proto.Base64Encode(proto.FirstCharactersFromString(fmt.Sprintf("%v", m.MachineGeneratedLogOnly), 50)))
+		} else if !utf8.ValidString(m.MachineGeneratedLogOnly) {
+			fmt.Printf("[log-only] %s: value must be %s: Base64Encoded input: %s\n", "machine_generated_log_only", "must be a valid UTF-8-encoded string", proto.Base64Encode(proto.FirstCharactersFromString(fmt.Sprintf("%v", m.MachineGeneratedLogOnly), 50)))
+		}
+	}
 	return nil
 }
 

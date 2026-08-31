@@ -230,6 +230,7 @@ func genValidateFunc(g *protogen.GeneratedFile, msg *protogen.Message) {
 			genURLValidator(g, f, varName)
 			genTimezoneValidator(g, f, varName)
 			genSimpleStringValidator(g, f, varName)
+			genMachineGeneratedValidator(g, f, varName)
 		case protoreflect.BytesKind:
 			// IdValidator not supported for bytes at this point
 			genBytesValidator(g, f, varName)
@@ -1004,6 +1005,7 @@ var validNonRepeatedExts = []protoreflect.ExtensionType{
 	validator.E_Number,
 	validator.E_SimpleString,
 	validator.E_Username,
+	validator.E_MachineGenerated,
 }
 
 var validRepeatedExts = []protoreflect.ExtensionType{
@@ -1127,6 +1129,131 @@ func genUsernameValidator(g *protogen.GeneratedFile, f *protogen.Field, varName 
 	}
 	g.P("}")
 	g.P("}")
+
+	if rules.GetOptional() {
+		g.P("}")
+	}
+}
+
+func getMachineGeneratedExtension(f *protogen.Field, xt protoreflect.ExtensionType) *validator.MachineGeneratedRules {
+	if opts := f.Desc.Options(); opts != nil {
+		ext := proto.GetExtension(opts, xt)
+		if v, ok := ext.(*validator.MachineGeneratedRules); ok {
+			return v
+		}
+	}
+	return nil
+}
+
+// genMachineGeneratedValidator emits validation for the (validator.machine_generated) annotation:
+// machine/opaque strings (auth/share tokens, base64 page tokens and cursors,
+// CEL/filter expressions) are validated by size and encoding ONLY. Unlike the
+// string validator it applies no display-text allow-list and performs no
+// mutation (no NFC normalisation, no trim, no replace), so values containing
+// + / = < > | are accepted unchanged.
+func genMachineGeneratedValidator(g *protogen.GeneratedFile, f *protogen.Field, varName string) {
+	rules := getMachineGeneratedExtension(f, validator.E_MachineGenerated)
+	if rules == nil {
+		return
+	}
+
+	if rules.GetOptional() {
+		g.P("if ", varName, " != \"\" {")
+	}
+
+	// ### Size bound (DoS protection). Bytes by default, runes when enabled.
+	// Only applied when len is set; machine_generated imposes no default display bounds.
+	if fLen := rules.GetLen(); fLen != "" {
+		// Parse "min:max", fixed "N", or open-ended ":max" / "min:" notation.
+		hasMin, hasMax := false, false
+		minLen, maxLen := 0, 0
+		fLenChunks := strings.SplitN(fLen, ":", 3)
+		switch len(fLenChunks) {
+		case 1:
+			// Fixed length, e.g. len: "16" - min and max are equal.
+			n, err := strconv.Atoi(fLenChunks[0])
+			if err != nil || n < 0 {
+				panic("unparsable machine_generated validator len in field " + f.GoIdent.GoName + ": expected a non-negative integer, found " + fLen)
+			}
+			hasMin, hasMax = true, true
+			minLen, maxLen = n, n
+		case 2:
+			if fLenChunks[0] != "" {
+				n, err := strconv.Atoi(fLenChunks[0])
+				if err != nil || n < 0 {
+					panic("unparsable machine_generated validator len (min) in field " + f.GoIdent.GoName + ": found " + fLen)
+				}
+				hasMin, minLen = true, n
+			}
+			if fLenChunks[1] != "" {
+				n, err := strconv.Atoi(fLenChunks[1])
+				if err != nil || n < 0 {
+					panic("unparsable machine_generated validator len (max) in field " + f.GoIdent.GoName + ": found " + fLen)
+				}
+				hasMax, maxLen = true, n
+			}
+			if hasMin && hasMax && maxLen < minLen {
+				panic("invalid machine_generated validator len in field " + f.GoIdent.GoName + ": expected min<=max, found " + fLen)
+			}
+		default:
+			panic("unparsable machine_generated validator len in field " + f.GoIdent.GoName + ": expected \"min:max\" or \"N\", found " + fLen)
+		}
+
+		if hasMin || hasMax {
+			// Determine length method: bytes (default) or runes (Unicode codepoints).
+			lenVar := "_len_" + f.GoIdent.GoName
+			if rules.GetRunes() {
+				g.P("var "+lenVar+" = ", utfPackage.Ident("RuneCountInString"), "(", varName, ")")
+			} else {
+				g.P("var "+lenVar+" = len(", varName, ")")
+			}
+
+			var cond, errStr string
+			switch {
+			case hasMin && hasMax && minLen == maxLen:
+				cond = fmt.Sprintf("!(%s == %d)", lenVar, minLen)
+				errStr = fmt.Sprintf("have length %d", minLen)
+			case hasMin && hasMax:
+				cond = fmt.Sprintf("!(%s >= %d && %s <= %d)", lenVar, minLen, lenVar, maxLen)
+				errStr = fmt.Sprintf("have a length between %d and %d", minLen, maxLen)
+			case hasMin:
+				cond = fmt.Sprintf("!(%s >= %d)", lenVar, minLen)
+				errStr = fmt.Sprintf("have a length of at least %d", minLen)
+			default: // hasMax
+				cond = fmt.Sprintf("!(%s <= %d)", lenVar, maxLen)
+				errStr = fmt.Sprintf("have a length of at most %d", maxLen)
+			}
+			g.P("if ", cond, " {")
+			if rules.GetLogOnly() {
+				printErrorString(g, varName, string(f.Desc.Name()), errStr, 50)
+			} else {
+				genErrorString(g, varName, string(f.Desc.Name()), errStr)
+			}
+			g.P("}")
+		}
+	}
+
+	// ### Encoding: reject invalid UTF-8 (default true). No allow-list, no mutation.
+	// Mirrors the string validator's encoding check without any normalisation.
+	if rules.GetValidateEncoding() {
+		// U+FFFD (RuneError) indicates the input was likely mis-decoded.
+		g.P("if ", stringsPackage.Ident("ContainsRune"), "(", varName, ", ", utfPackage.Ident("RuneError"), ") {")
+		errStr := `must have valid encoding`
+		if rules.GetLogOnly() {
+			printErrorString(g, varName, string(f.Desc.Name()), errStr, 50)
+		} else {
+			genErrorString(g, varName, string(f.Desc.Name()), errStr)
+		}
+		// utf8.ValidString reports whether the string is entirely valid UTF-8.
+		g.P("} else if !", utfPackage.Ident("ValidString"), "(", varName, ") {")
+		errStr = `must be a valid UTF-8-encoded string`
+		if rules.GetLogOnly() {
+			printErrorString(g, varName, string(f.Desc.Name()), errStr, 50)
+		} else {
+			genErrorString(g, varName, string(f.Desc.Name()), errStr)
+		}
+		g.P("}")
+	}
 
 	if rules.GetOptional() {
 		g.P("}")
