@@ -330,3 +330,18 @@ message NonUrlMessage {
   // Replaces partial URLs with a "safer" version
   string break_partial_url_test = 2 [(validator.unsafe_string) = {break_partial_url: true, optional: true}];
 }
+
+// Guards the per-field naming of length variables. Every field below puts a
+// length check in the same Validate() block, so a fixed or shared name fails
+// to compile.
+message SimpleStringMessage {
+  string subject_token = 1 [(validator.simple_string) = { min_len: 1, max_len: 8192 }];
+  string audience = 2 [(validator.simple_string) = { min_len: 1, max_len: 253 }];
+  // Optional, so this check sits in its own block.
+  string note = 3 [(validator.simple_string) = { optional: true, min_len: 5, max_len: 40 }];
+  // Runs through both string generators, which must not share a prefix.
+  string both = 4 [
+    (validator.string) = { len: "1:100" },
+    (validator.simple_string) = { min_len: 1, max_len: 100 }
+  ];
+}
