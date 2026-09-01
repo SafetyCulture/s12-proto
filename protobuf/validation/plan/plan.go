@@ -130,8 +130,12 @@ type OpTrim struct{}
 // OpReplaceUnsafe swaps every character in the unsafe table for its alternative.
 type OpReplaceUnsafe struct{}
 
-// OpReplaceLiteral swaps one character for another.
-type OpReplaceLiteral struct{ From, To rune }
+// OpReplaceLiteral swaps one character for a replacement, which may be any
+// number of characters including none.
+type OpReplaceLiteral struct {
+	From rune
+	To   string
+}
 
 // OpStripCR removes carriage returns, leaving line feeds in place.
 type OpStripCR struct{}

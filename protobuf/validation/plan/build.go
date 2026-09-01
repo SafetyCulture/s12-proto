@@ -17,10 +17,17 @@ import (
 	validator "github.com/SafetyCulture/s12-proto/s12/protobuf/proto"
 )
 
+// Reset clears the state a generation run accumulates. A run that does not call
+// it first inherits the pattern pool the previous run left behind.
+func Reset() {
+	regexLib = make(map[string]map[string]bool)
+}
+
 // BuildFile reads the validator options on file and returns the plan for it.
 //
-// The allow-list pattern pool is shared across every call, so files must be
-// built in the order they are emitted.
+// The allow-list pattern pool is shared across every call in a run, so files
+// must be built in the order they are emitted, and Reset separates one run from
+// the next.
 func BuildFile(file *protogen.File) *File {
 	prepareStringGenerics()
 
@@ -40,7 +47,7 @@ func prepareStringGenerics() {
 	prepareStringReplacerRegex(stringUnsafeReplacerMap, "replacer_unsafe_allowed")
 	prepareStringReplacerRegex(stringSymbolReplacerMap, "replacer_symbol_allowed")
 
-	stringReDefaultUnsafe = append(stringReDefaultSafe, stringReDefaultUnsafe...)
+	stringReDefaultUnsafe = append(append([]string{}, stringReDefaultSafe...), stringReDefaultUnsafeExtra...)
 }
 
 func buildMessage(msg *protogen.Message) *Message {
@@ -267,7 +274,7 @@ func buildString(f *protogen.Field) *String {
 					continue
 				}
 				// need to replace this one, replace case by case instead of using the replacer
-				s.Ops = append(s.Ops, &OpReplaceLiteral{From: runeValue, To: mustParseRune(replacedUnicodeValue)})
+				s.Ops = append(s.Ops, &OpReplaceLiteral{From: runeValue, To: replacedUnicodeValue})
 
 				// and add it to the regex
 				prepareRegex(allowListReId, `\x{`+strings.Replace(replacedUnicodeValue, `\u`, ``, 1)+`}`)
@@ -597,15 +604,6 @@ func buildEnum(f *protogen.Field) *EnumField {
 // unicodeKey renders a rune the way the replacer and deny tables are keyed.
 func unicodeKey(r rune) string {
 	return strings.Replace(fmt.Sprintf("%U", r), "U+", "", 1)
-}
-
-// mustParseRune reads a `\uXXXX` table entry back into the character it names.
-func mustParseRune(escaped string) rune {
-	v, err := strconv.ParseUint(strings.TrimPrefix(escaped, `\u`), 16, 32)
-	if err != nil {
-		panic("unparsable replacement character " + escaped + ": " + err.Error())
-	}
-	return rune(v)
 }
 
 var validNonRepeatedExts = []protoreflect.ExtensionType{

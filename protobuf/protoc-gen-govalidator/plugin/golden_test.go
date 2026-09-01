@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 	"testing"
 
 	"google.golang.org/protobuf/compiler/protogen"
@@ -22,6 +23,10 @@ import (
 
 var update = flag.Bool("update", false, "rewrite the golden files from the current output")
 
+// updateCommand is named in every failure message. The -update flag is defined
+// by this package, so a command that spans the whole module does not reach it.
+const updateCommand = "go test ./protobuf/protoc-gen-govalidator/plugin/ -update"
+
 // valtestDir holds the proto files the golden output covers. Between them they
 // exercise every validator option the plugin supports, and a file added there is
 // picked up without editing this test.
@@ -30,10 +35,12 @@ const valtestDir = "../valtest"
 // TestGolden pins the generated text for the whole validator option surface.
 //
 // The plan and the emitter are separate, so a change to either can move the
-// output without failing a behavioural test. Regenerate with `go test -update`
+// output without failing a behavioural test. Regenerate with -update
 // and read the diff: anything in it is a change to code that ships to every
 // service.
 func TestGolden(t *testing.T) {
+	plugin.Reset()
+
 	sources := goldenSources(t)
 
 	gen, err := protogen.Options{}.New(request(t, sources))
@@ -67,10 +74,10 @@ func TestGolden(t *testing.T) {
 
 		want, err := os.ReadFile(golden)
 		if err != nil {
-			t.Fatalf("reading %s: %v (run `go test ./... -update` to create it)", golden, err)
+			t.Fatalf("reading %s: %v (run `%s` to create it)", golden, err, updateCommand)
 		}
 		if got := f.GetContent(); got != string(want) {
-			t.Errorf("%s does not match %s; run `go test ./... -update` and review the diff", name, golden)
+			t.Errorf("%s does not match %s; run `%s` and review the diff", name, golden, updateCommand)
 		}
 	}
 
@@ -102,6 +109,51 @@ func goldenSources(t *testing.T) []string {
 	return sources
 }
 
+// TestGoldenMatchesCheckedIn compares each golden against the file protoc wrote
+// into ../valtest for the same source.
+//
+// TestGolden reads its descriptors from the registry, which the compiled valtest
+// package populates, so a .proto edited without `make govalidator-valtest` leaves
+// the goldens describing the previous version of it and passing. Holding the two
+// copies equal turns that into a failure as soon as either is regenerated, and
+// stops the copies drifting apart in the meantime.
+func TestGoldenMatchesCheckedIn(t *testing.T) {
+	goldens, err := filepath.Glob(filepath.Join("testdata", "*.golden"))
+	if err != nil {
+		t.Fatalf("listing testdata: %v", err)
+	}
+	if len(goldens) == 0 {
+		t.Fatalf("no golden files in testdata")
+	}
+
+	for _, golden := range goldens {
+		name := strings.TrimSuffix(filepath.Base(golden), ".golden")
+		t.Run(name, func(t *testing.T) {
+			if body(t, golden) != body(t, filepath.Join(valtestDir, name)) {
+				t.Errorf("%s and %s disagree; run `make govalidator-valtest` then `%s`",
+					golden, filepath.Join(valtestDir, name), updateCommand)
+			}
+		})
+	}
+}
+
+// body returns the file from its package clause onward. The generated header
+// above it carries the protoc and plugin versions of whichever run wrote the
+// file, which the two copies have no reason to share.
+func body(t *testing.T, path string) string {
+	t.Helper()
+
+	text, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("reading %s: %v", path, err)
+	}
+	i := strings.Index(string(text), "\npackage ")
+	if i < 0 {
+		t.Fatalf("%s has no package clause", path)
+	}
+	return string(text)[i+1:]
+}
+
 // pruneStale reports golden files that nothing generates any more, and removes
 // them when the goldens are being rewritten.
 func pruneStale(t *testing.T, produced map[string]bool) {
@@ -117,7 +169,7 @@ func pruneStale(t *testing.T, produced map[string]bool) {
 			continue
 		}
 		if !*update {
-			t.Errorf("%s is left over from a source that no longer generates it; run `go test ./... -update`", path)
+			t.Errorf("%s is left over from a source that no longer generates it; run `%s`", path, updateCommand)
 			continue
 		}
 		if err := os.Remove(path); err != nil {

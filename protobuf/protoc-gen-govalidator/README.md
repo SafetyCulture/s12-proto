@@ -55,9 +55,15 @@ needs editing to cover sources from somewhere else. What the test asks of you:
 | You did this | What happens |
 | --- | --- |
 | Changed the plan or the emitter | The test fails. Rerun with `-update` and read the diff. |
-| Added a field or option to an existing valtest proto | Covered on the next `-update`. |
+| Added a field or option to an existing valtest proto | Covered once `make govalidator-valtest` has regenerated its Go, then `-update`. |
 | Added a new proto under `valtest` | Covered once `make govalidator-valtest` has generated its Go, which the failure message asks for. |
 | Removed a proto | The test names the leftover golden file and `-update` deletes it. |
+
+The goldens are generated from the descriptors the compiled `valtest` package
+registers, not from the `.proto` text, so an option added to a proto is invisible
+here until `make govalidator-valtest` runs. `TestGoldenMatchesCheckedIn` holds each
+golden equal to the file protoc wrote into `valtest`, which turns that staleness
+into a failure as soon as either copy is regenerated.
 &nbsp;
 
 ## Playground

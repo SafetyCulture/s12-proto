@@ -35,6 +35,15 @@ const (
 var regexGeneratedFile *protogen.GeneratedFile
 var regexHashLib = make(map[string]struct{})
 
+// Reset clears the state a generation run accumulates. A run that does not call
+// it first reuses the regex variable names the previous run declared, and emits
+// a reference to them in place of the declarations.
+func Reset() {
+	regexGeneratedFile = nil
+	regexHashLib = make(map[string]struct{})
+	plan.Reset()
+}
+
 // Validator plugin version
 var validatorVersion = "v2.7.2"
 
@@ -353,7 +362,7 @@ func genStringOp(g *protogen.GeneratedFile, f *plan.Field, op plan.Op, varName s
 		g.P(varName, " = ", stringsPackage.Ident("TrimSpace"), "(", varName, ")")
 
 	case *plan.OpReplaceLiteral:
-		g.P(varName, " = ", stringsPackage.Ident("ReplaceAll"), "(", varName, `, "\u`, goEscape(o.From), `", "\u`, goEscape(o.To), `")`)
+		g.P(varName, " = ", stringsPackage.Ident("ReplaceAll"), "(", varName, `, "\u`, goEscape(o.From), `", "`, o.To, `")`)
 
 	case *plan.OpReplaceUnsafe:
 		g.P(varName, " = ", s12protoPackage.Ident("UnsafeCharReplacer"), ".Replace(", varName, ")")
