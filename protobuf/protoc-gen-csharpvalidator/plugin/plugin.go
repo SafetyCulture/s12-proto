@@ -35,6 +35,8 @@ type Options struct {
 func Generate(p *protogen.Plugin, opts Options) error {
 	p.SupportedFeatures = uint64(pluginpb.CodeGeneratorResponse_FEATURE_PROTO3_OPTIONAL)
 
+	plan.Reset()
+
 	if !opts.SkipRuntime {
 		if err := emitRuntime(p); err != nil {
 			return err
@@ -45,6 +47,14 @@ func Generate(p *protogen.Plugin, opts Options) error {
 		if !file.Generate {
 			continue
 		}
+
+		// Every file the run generates is built, including one that is not written.
+		// The allow-list pattern pool accumulates across a run, so a field's pattern
+		// depends on which files were built before it: building only the included
+		// subset would give a field a different allow list here from the one the Go
+		// validators give it.
+		built := plan.BuildFile(file)
+
 		included, err := includes(opts.Include, file.Desc.Path())
 		if err != nil {
 			return err
@@ -52,7 +62,7 @@ func Generate(p *protogen.Plugin, opts Options) error {
 		if !included {
 			continue
 		}
-		if err := generateFile(p, file); err != nil {
+		if err := generateFile(p, file, built); err != nil {
 			return fmt.Errorf("%s: %w", file.Desc.Path(), err)
 		}
 	}
@@ -150,9 +160,7 @@ func (e *emitter) pattern(pattern string) string {
 	return name
 }
 
-func generateFile(p *protogen.Plugin, file *protogen.File) error {
-	built := plan.BuildFile(file)
-
+func generateFile(p *protogen.Plugin, file *protogen.File, built *plan.File) error {
 	if !hasMessages(built.Messages) {
 		return nil
 	}
