@@ -1,4 +1,4 @@
-package plugin
+package plan
 
 import (
 	"fmt"
@@ -42,7 +42,7 @@ var stringReDefaultSafe = []string{
 // Default allowed regex tokens for validator.unsafe_string
 // Can be further extended by adding symbol categories in the validation field option
 // Notice that by default < and > are not included as they are not often used
-var stringReDefaultUnsafe = []string{
+var stringReDefaultUnsafeExtra = []string{
 	// Anything from stringReDefaultSafe, plus:
 	`\x{0021}`, // !  Exclamation Mark  Other Punctuation (Po)
 	`\x{0022}`, // "  Quotation Mark    Other Punctuation (Po)
@@ -64,10 +64,16 @@ var stringReLineBreaks = []string{
 // Library that holds all regex patterns in format map[regex_id]map[pattern_token]
 var regexLib = make(map[string]map[string]bool)
 
+// stringReDefaultUnsafe is stringReDefaultSafe followed by
+// stringReDefaultUnsafeExtra, rebuilt by prepareStringGenerics.
+var stringReDefaultUnsafe []string
+
 // replace_unsafe option
 // The following alternative characters are all in the COMMON script but might not be available in all fonts
 // None of these characters are allowed in safe_string unless replace_unsafe option is enabled
 // Use string literals otherwise the visual unicode symbol will be used in the replacer string which can fail for certain chars
+// Each value must be a single `\uXXXX` escape: the allow-list token for a
+// replacement is derived from it by stripping the `\u` prefix.
 var stringUnsafeReplacerMap = map[string]string{
 	`\u0021`: `\uFF01`, //  ! : ！  EXCLAMATION MARK to FULLWIDTH EXCLAMATION MARK
 	`\u0022`: `\u201D`, //  " : ”   QUOTATION MARK to RIGHT DOUBLE QUOTATION MARK (alternative: “ \u0093)

@@ -28,6 +28,44 @@ make govalidator-valtest-test
 ```
 &nbsp;
 
+## Layout
+
+Reading the field options and writing Go are separate:
+
+| Package | Holds |
+| --- | --- |
+| [`protobuf/validation/plan`](../validation/plan) | The rule tables, and the code that turns a proto file's validator options into an ordered list of checks and rewrites per field. |
+| `plugin` | The Go emitter. It renders that list and reads no field options of its own. |
+
+The plan fixes what runs and in what order; the emitter fixes how it reads in Go.
+
+## Golden output
+
+A change to the plan or the emitter moves the generated text, so `plugin/testdata`
+pins the output for the whole option surface. Accept a move deliberately:
+
+```bash
+# review the diff before committing it - this code ships to every service
+go test ./protobuf/protoc-gen-govalidator/plugin/ -update
+```
+
+Coverage comes from every `.proto` under `valtest`, so `golden_test.go` itself only
+needs editing to cover sources from somewhere else. What the test asks of you:
+
+| You did this | What happens |
+| --- | --- |
+| Changed the plan or the emitter | The test fails. Rerun with `-update` and read the diff. |
+| Added a field or option to an existing valtest proto | Covered once `make govalidator-valtest` has regenerated its Go, then `-update`. |
+| Added a new proto under `valtest` | Covered once `make govalidator-valtest` has generated its Go, which the failure message asks for. |
+| Removed a proto | The test names the leftover golden file and `-update` deletes it. |
+
+The goldens are generated from the descriptors the compiled `valtest` package
+registers, not from the `.proto` text, so an option added to a proto is invisible
+here until `make govalidator-valtest` runs. `TestGoldenMatchesCheckedIn` holds each
+golden equal to the file protoc wrote into `valtest`, which turns that staleness
+into a failure as soon as either copy is regenerated.
+&nbsp;
+
 ## Playground
 
 The validator plugin is invoked by the protobuf compiler tool directly to generate the respective validator code.

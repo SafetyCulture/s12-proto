@@ -17,6 +17,7 @@ func main() {
 	}
 
 	opts.Run(func(p *protogen.Plugin) error {
+		plugin.Reset()
 		for _, f := range p.Files {
 			if f.Generate {
 				plugin.GenerateFile(p, f)
