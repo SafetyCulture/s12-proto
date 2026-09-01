@@ -10,4 +10,8 @@ protobuf/protoc-gen-cruxclient-go/protoc-gen-cruxclient-go
 .DS_Store
 protobuf/protoc-gen-govalidator/playground/gen
 
+# csharpvalidator
+protobuf/protoc-gen-csharpvalidator/**/bin
+protobuf/protoc-gen-csharpvalidator/**/obj
+
 .claude/settings.local.json
