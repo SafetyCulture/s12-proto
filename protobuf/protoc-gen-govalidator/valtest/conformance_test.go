@@ -366,11 +366,22 @@ func TestConformanceTables(t *testing.T) {
 // are not valid UTF-8 in that field, which no wire format will accept, and the
 // field opts out of encoding validation so any value passes it. Every record
 // overwrites the field under test, so the substitution reaches no result.
+// pristineBase is the base message as it stands before any test runs. Validate
+// rewrites the message it is given, so a test that validates valMsg leaves it
+// sanitised for whatever runs next, and a second run in the same process would
+// record a different starting point.
+var pristineBase *ValTestMessage
+
+func TestMain(m *testing.M) {
+	pristineBase = proto.Clone(&valMsg).(*ValTestMessage)
+	pristineBase.InvalidEncodingString = "Accept invalid"
+	os.Exit(m.Run())
+}
+
 func conformanceBase(t *testing.T) *ValTestMessage {
 	t.Helper()
 
-	base := proto.Clone(&valMsg).(*ValTestMessage)
-	base.InvalidEncodingString = "Accept invalid"
+	base := proto.Clone(pristineBase).(*ValTestMessage)
 
 	encoded, err := proto.MarshalOptions{Deterministic: true}.Marshal(base)
 	if err != nil {
