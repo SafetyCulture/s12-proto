@@ -1975,6 +1975,63 @@ namespace Valtest
         }
     }
 
+    public sealed partial class SimpleStringMessage : IValidatableMessage
+    {
+        /// <summary>Applies the rules declared in valtest.proto.</summary>
+        public ValidationError? Validate()
+        {
+            var _length144 = ValidatorHelpers.RuneCount(SubjectToken);
+            if (_length144 > 8192 || _length144 < 1)
+            {
+                return ValidationError.Create("subject_token", "value must have a length between 1 and 8192");
+            }
+            var _length145 = ValidatorHelpers.RuneCount(Audience);
+            if (_length145 > 253 || _length145 < 1)
+            {
+                return ValidationError.Create("audience", "value must have a length between 1 and 253");
+            }
+            if (Note != "")
+            {
+                var _length146 = ValidatorHelpers.RuneCount(Note);
+                if (_length146 > 40 || _length146 < 5)
+                {
+                    return ValidationError.Create("note", "value must have a length between 5 and 40");
+                }
+            }
+            if (StringMutators.TryNormalizeToNfc(Both, out var _nfc147))
+            {
+                Both = _nfc147;
+            }
+            else
+            {
+                return ValidationError.Create("both", "value must must be normalisable to NFC");
+            }
+            if (StringMutators.ContainsReplacementCharacter(Both))
+            {
+                return ValidationError.Create("both", "value must must have valid encoding");
+            }
+            else if (!ValidatorHelpers.IsWellFormedUtf16(Both))
+            {
+                return ValidationError.Create("both", "value must must be a valid UTF-8-encoded string");
+            }
+            var _len148 = ValidatorHelpers.Utf8Length(Both);
+            if (!(_len148 >= 1 && _len148 <= 100))
+            {
+                return ValidationError.Create("both", "value must have a length between 1 and 100");
+            }
+            if (!CharacterClass.IsMatch(ValtestValidatorClasses.Classd2871caed6de7a97, Both, UnicodeCategories.L | UnicodeCategories.N))
+            {
+                return ValidationError.Create("both", "value must only have valid characters");
+            }
+            var _length149 = ValidatorHelpers.RuneCount(Both);
+            if (_length149 > 100 || _length149 < 1)
+            {
+                return ValidationError.Create("both", "value must have a length between 1 and 100");
+            }
+            return null;
+        }
+    }
+
     /// <summary>The character classes the validators in this file check against.</summary>
     internal static class ValtestValidatorClasses
     {
