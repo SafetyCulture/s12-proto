@@ -966,14 +966,14 @@ func (m *LogOnlyValidationMessage) Validate() error {
 		}
 	}
 	if m.Answer != "" {
-		var length = utf8.RuneCountInString(m.Answer)
-		if length > 40 || length < 0 {
+		var _slen_LogOnlyValidationMessage_Answer = utf8.RuneCountInString(m.Answer)
+		if _slen_LogOnlyValidationMessage_Answer > 40 || _slen_LogOnlyValidationMessage_Answer < 0 {
 			fmt.Printf("[log-only] %s: value must be %s: Base64Encoded input: %s\n", "answer", "have a length between 0 and 40", proto.Base64Encode(proto.FirstCharactersFromString(fmt.Sprintf("%v", m.Answer), 50)))
 		}
 	}
 	if m.Note != "" {
-		var length = utf8.RuneCountInString(m.Note)
-		if length > 40 || length < 5 {
+		var _slen_LogOnlyValidationMessage_Note = utf8.RuneCountInString(m.Note)
+		if _slen_LogOnlyValidationMessage_Note > 40 || _slen_LogOnlyValidationMessage_Note < 5 {
 			return fmt.Errorf(`note: value must have a length between 5 and 40`)
 		}
 	}
@@ -1464,6 +1464,48 @@ func (m *NonUrlMessage) Validate() error {
 		if !_regex_1bb1e0a2437db38577f49b4f31ccfca2.MatchString(m.BreakPartialUrlTest) {
 			return fmt.Errorf(`break_partial_url_test: value must only have valid characters`)
 		}
+	}
+	return nil
+}
+
+func (m *SimpleStringMessage) Validate() error {
+	var _slen_SimpleStringMessage_SubjectToken = utf8.RuneCountInString(m.SubjectToken)
+	if _slen_SimpleStringMessage_SubjectToken > 8192 || _slen_SimpleStringMessage_SubjectToken < 1 {
+		return fmt.Errorf(`subject_token: value must have a length between 1 and 8192`)
+	}
+	var _slen_SimpleStringMessage_Audience = utf8.RuneCountInString(m.Audience)
+	if _slen_SimpleStringMessage_Audience > 253 || _slen_SimpleStringMessage_Audience < 1 {
+		return fmt.Errorf(`audience: value must have a length between 1 and 253`)
+	}
+	if m.Note != "" {
+		var _slen_SimpleStringMessage_Note = utf8.RuneCountInString(m.Note)
+		if _slen_SimpleStringMessage_Note > 40 || _slen_SimpleStringMessage_Note < 5 {
+			return fmt.Errorf(`note: value must have a length between 5 and 40`)
+		}
+	}
+	if !norm.NFC.IsNormalString(m.Both) && norm.NFD.IsNormalString(m.Both) {
+		// normalise NFD to NFC string
+		var normErr error
+		m.Both, _, normErr = transform.String(transform.Chain(norm.NFD, norm.NFC), m.Both)
+		if normErr != nil {
+			return fmt.Errorf(`both: value must must be normalisable to NFC`)
+		}
+	}
+	if strings.ContainsRune(m.Both, utf8.RuneError) {
+		return fmt.Errorf(`both: value must must have valid encoding`)
+	} else if !utf8.ValidString(m.Both) {
+		return fmt.Errorf(`both: value must must be a valid UTF-8-encoded string`)
+	}
+	var _len_SimpleStringMessage_Both = len(m.Both)
+	if !(_len_SimpleStringMessage_Both >= 1 && _len_SimpleStringMessage_Both <= 100) {
+		return fmt.Errorf(`both: value must have a length between 1 and 100`)
+	}
+	if !_regex_d4db71516b8749dc594e5bf604c6a110.MatchString(m.Both) {
+		return fmt.Errorf(`both: value must only have valid characters`)
+	}
+	var _slen_SimpleStringMessage_Both = utf8.RuneCountInString(m.Both)
+	if _slen_SimpleStringMessage_Both > 100 || _slen_SimpleStringMessage_Both < 1 {
+		return fmt.Errorf(`both: value must have a length between 1 and 100`)
 	}
 	return nil
 }
