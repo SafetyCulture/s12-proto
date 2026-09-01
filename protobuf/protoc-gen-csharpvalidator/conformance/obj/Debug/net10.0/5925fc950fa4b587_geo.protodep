@@ -1,3 +1,0 @@
-obj/Debug/net10.0/protobuf/protoc-gen-govalidator/valtest/Geo.cs: /Users/dmitryrotay/.nuget/packages/grpc.tools/2.72.0/build/native/include/google/protobuf/descriptor.proto\
- ../../../s12/protobuf/proto/validator.proto\
- ../../../protobuf/protoc-gen-govalidator/valtest/geo.proto
