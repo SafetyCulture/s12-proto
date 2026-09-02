@@ -66,6 +66,8 @@ extend google.protobuf.FieldOptions {
   // integrations without human-in-the-loop review) to redact automatically
   // via reflection rather than per-type hand-written logic.
   optional bool pii = 65224;
+  // Validates machine/opaque strings (tokens, cursors, CEL/filter expressions) by size and encoding only
+  optional MachineGeneratedRules machine_generated = 65225;
 }
 
 // SymbolCategory defines which special characters (Unicode symbols and the like) are allowed
@@ -133,6 +135,37 @@ message UsernameRules {
 
   // Only apply soft validation. Validation errors for this validator are logged, not returned.
   optional bool log_only = 3 [default = false];
+}
+
+// MachineGeneratedRules validates machine/opaque strings — auth/share tokens, base64 page
+// tokens and cursors, CEL/filter expressions — by size and encoding ONLY.
+//
+// Unlike StringRules (safe_string) it applies NO display-text character
+// allow-list and performs NO mutation (no NFC normalisation, no trim, no
+// replace). This is deliberate: characters such as + / = < > | are legitimate
+// in machine values and must not be rejected or rewritten. Use `string` for
+// human-readable display text; use `machine_generated` for values a machine
+// produces and consumes.
+message MachineGeneratedRules {
+  // Set this as optional field (not required). When true, empty values are skipped.
+  // default = false
+  optional bool optional = 1 [default = false];
+
+  // Length (range), eg "5:100"; a single value for fixed length, eg "16";
+  // or open-ended, eg ":2048" (max only) or "16:" (min only).
+  // Measured in bytes by default, or in runes (Unicode codepoints) when runes = true.
+  // When unset, no length bound is applied.
+  optional string len = 2;
+
+  // Validate the length in rune length (number of Unicode codepoints) instead of bytes.
+  optional bool runes = 3 [default = false];
+
+  // Check for invalid encoding.
+  // default = true (rejects the input if invalid UTF-8 encoding is detected)
+  optional bool validate_encoding = 4 [default = true];
+
+  // Only apply soft validation. Validation errors for this validator are logged, not returned.
+  optional bool log_only = 5 [default = false];
 }
 
 // StringRules describe the constraints applied to `string` values (for both string and unsafe_string)
