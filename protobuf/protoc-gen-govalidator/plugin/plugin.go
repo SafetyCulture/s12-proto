@@ -584,12 +584,22 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 
 	// Determine which length check method to use: bytes or runes
 	// Byte length check is default [using len()], unless rune length option is enabled
+	//
+	// The length is measured on a copy with the AI content mark removed, so the
+	// mark costs a field nothing. Without this, a value already at the field
+	// maximum fails the moment it is marked, which is between 3 and 72 units over
+	// depending on the cap and on whether the field counts runes or bytes. The
+	// rule is there to bound the content, and the carriers are not content. They
+	// are capped at 8 copies, so the most a value can carry is 24 runes or 72
+	// bytes. A value that is nothing but the mark measures zero and still fails a
+	// minimum.
 	lenVar := "_len_" + f.GoIdent.GoName
+	lenSrc := s12protoPackage.Ident("AIMarkStripper")
 	if rules.GetRunes() {
 		// Use utf8.RuneCountInString method, requires import of utf8 package
-		g.P("var "+lenVar+" = ", utfPackage.Ident("RuneCountInString"), "(", varName, ")")
+		g.P("var "+lenVar+" = ", utfPackage.Ident("RuneCountInString"), "(", lenSrc, ".Replace(", varName, "))")
 	} else {
-		g.P("var "+lenVar+" = len(", varName, ")")
+		g.P("var "+lenVar+" = len(", lenSrc, ".Replace(", varName, "))")
 	}
 
 	// Write the len check logic to the validator

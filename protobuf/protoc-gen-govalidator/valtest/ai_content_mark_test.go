@@ -1,6 +1,7 @@
 package valtest
 
 import (
+	"strings"
 	"testing"
 
 	"google.golang.org/protobuf/proto"
@@ -88,6 +89,60 @@ func TestAIContentMark_IsNotMutated(t *testing.T) {
 	}
 	if got := m.GetScPermissive(); got != marked {
 		t.Errorf("the mark did not survive validation\n got %q\nwant %q", got, marked)
+	}
+}
+
+// TestAIContentMark_CostsNoLength covers the second blocker the allow list alone
+// does not fix.
+//
+// A value already at a field maximum fails the moment it is marked. The mark is
+// up to 8 copies of 3 codepoints, so between 3 and 72 units over depending on
+// the cap and on whether the field counts runes or bytes. The length is
+// therefore measured on a copy with the mark removed.
+func TestAIContentMark_CostsNoLength(t *testing.T) {
+	tests := []struct {
+		name        string
+		mutate      func(m *ValTestMessage)
+		shouldError bool
+	}{
+		// description is len ":750" counted in bytes. 750 bytes of content plus
+		// the mark is 759 bytes on the wire.
+		{"MaxLengthBytes_marked", func(m *ValTestMessage) {
+			m.Description = strings.Repeat("a", 750) + mark
+		}, valid},
+		{"OverMaxLength_stillRejected", func(m *ValTestMessage) {
+			m.Description = strings.Repeat("a", 751) + mark
+		}, invalid},
+
+		// fixed_string is len "4". A fixed length is the strictest case, because
+		// any carrier at all breaks an equality check.
+		{"FixedLength_marked", func(m *ValTestMessage) { m.FixedString = "abcd" + mark }, valid},
+		{"FixedLengthShort_stillRejected", func(m *ValTestMessage) { m.FixedString = "abc" + mark }, invalid},
+
+		// rune_string is len "4" with runes: true.
+		{"FixedRunes_marked", func(m *ValTestMessage) { m.RuneString = "abcd" + mark }, valid},
+
+		// title is len "3:50".
+		{"MinLength_marked", func(m *ValTestMessage) { m.Title = "abc" + mark }, valid},
+		{"UnderMinLength_stillRejected", func(m *ValTestMessage) { m.Title = "ab" + mark }, invalid},
+
+		// A value that is nothing but the mark measures zero and fails the
+		// minimum, which is what should happen. An invisible mark is not content.
+		{"MarkOnly_rejected", func(m *ValTestMessage) { m.Description = mark }, invalid},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			m := proto.Clone(&valMsg).(*ValTestMessage)
+			tt.mutate(m)
+			err := m.Validate()
+			if tt.shouldError && err == nil {
+				t.Errorf("%s: expected an error, got nil", tt.name)
+			}
+			if !tt.shouldError && err != nil {
+				t.Errorf("%s: expected no error, got %v", tt.name, err)
+			}
+		})
 	}
 }
 
