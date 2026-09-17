@@ -177,4 +177,39 @@ func TestAIContentMark_DoesNotHideAURL(t *testing.T) {
 			t.Errorf("the partial URL was not broken\n got %q\nwant %q", got, want)
 		}
 	})
+
+	// Only the run in front of the dot goes. Everything else about the value is
+	// left alone, so the field keeps its mark and stays compliant.
+	t.Run("BreakPartialUrl_keepsEveryOtherCopy", func(t *testing.T) {
+		m := &NonUrlMessage{
+			BreakPartialUrlTest: "A blocked fire exit" + mark +
+				" was found at example" + mark + ".com on level" + mark + " two",
+		}
+		if err := m.Validate(); err != nil {
+			t.Fatalf("expected no error, got %v", err)
+		}
+		want := "A blocked fire exit" + mark +
+			" was found at example. com on level" + mark + " two"
+		if got := m.GetBreakPartialUrlTest(); got != want {
+			t.Errorf("the surviving marks are wrong\n got %q\nwant %q", got, want)
+		}
+		if !strings.Contains(m.GetBreakPartialUrlTest(), mark) {
+			t.Error("the field lost its mark entirely")
+		}
+	})
+
+	// A mark straight after the dot never hid anything, because the boundary is
+	// in front of the dot. It is captured as the character to push along.
+	t.Run("BreakPartialUrl_markAfterTheDotIsKept", func(t *testing.T) {
+		m := &NonUrlMessage{BreakPartialUrlTest: "Check out example." + mark + "com for info"}
+		if err := m.Validate(); err != nil {
+			t.Fatalf("expected no error, got %v", err)
+		}
+		if !strings.Contains(m.GetBreakPartialUrlTest(), mark) {
+			t.Error("a mark after the dot should have survived")
+		}
+		if !strings.Contains(m.GetBreakPartialUrlTest(), ". ") {
+			t.Error("the partial URL was not broken")
+		}
+	})
 }

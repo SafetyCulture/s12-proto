@@ -444,13 +444,15 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 	// #### 3A-1. 'Break' partial URLs by introducing a space after each dot between characters.
 	// Note this will PERMANENTLY mutate the message field data. Further iterations will ignore these '. ' patterns,
 	// we only care about patterns like 'a.b'
-	// The AI content mark carriers are removed first. They are invisible and
-	// allowed by default, so a mark between the host and the dot hides the dot
-	// from the pattern and the partial URL survives. A field that breaks partial
-	// URLs therefore does not keep the mark, which is a deliberate trade. The
-	// alternative leaves a spam control that one invisible character defeats.
+	// An AI content mark carrier sitting in front of the dot is removed first.
+	// The carriers are invisible and allowed by default, and BreakURLMatcher
+	// needs a word character before the dot to find a boundary, so a mark there
+	// hides the partial URL and the spam control does nothing. Only that run is
+	// removed, so every other copy of the mark in the value survives and the
+	// field stays marked. See AIMarkBeforeDotMatcher.
 	if rules.GetBreakPartialUrl() {
-		g.P(varName, " = ", s12protoPackage.Ident("AIMarkStripper"), ".Replace(", varName, ")")
+		g.P(varName, " = ", s12protoPackage.Ident("AIMarkBeforeDotMatcher"),
+			".ReplaceAllString(", varName, ", \"$1\")")
 		g.P(varName, " = ", s12protoPackage.Ident("BreakURLMatcher"), ".ReplaceAllString(", varName, ", \". $1\")")
 	}
 

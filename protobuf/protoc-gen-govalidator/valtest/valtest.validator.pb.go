@@ -1536,7 +1536,7 @@ func (m *NonUrlMessage) Validate() error {
 		} else if !utf8.ValidString(m.BreakPartialUrlTest) {
 			return fmt.Errorf(`break_partial_url_test: value must must be a valid UTF-8-encoded string`)
 		}
-		m.BreakPartialUrlTest = proto.AIMarkStripper.Replace(m.BreakPartialUrlTest)
+		m.BreakPartialUrlTest = proto.AIMarkBeforeDotMatcher.ReplaceAllString(m.BreakPartialUrlTest, "$1")
 		m.BreakPartialUrlTest = proto.BreakURLMatcher.ReplaceAllString(m.BreakPartialUrlTest, ". $1")
 		var _len_NonUrlMessage_BreakPartialUrlTest = len(proto.AIMarkStripper.Replace(m.BreakPartialUrlTest))
 		if !(_len_NonUrlMessage_BreakPartialUrlTest >= 1 && _len_NonUrlMessage_BreakPartialUrlTest <= 130) {
