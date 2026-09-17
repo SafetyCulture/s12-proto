@@ -63,6 +63,15 @@ var (
 	rxURL                       = regexp.MustCompile(reURL)
 	BreakURLMatcher             = regexp.MustCompile(breakURLRegex)
 	RejectURLMatcher            = regexp.MustCompile(rejectURLRegex)
+	// AIMarkStripper removes the two carriers of the AI content mark, U+2062
+	// INVISIBLE TIMES and U+2064 INVISIBLE PLUS.
+	//
+	// Both are allowed in string and unsafe_string so that AI generated text can
+	// carry its mark, and both are invisible, so a literal match for a URL fails
+	// on "https://evil\u2062.com" while a reader sees "https://evil.com". The URL
+	// controls run against a stripped copy for that reason. Use this wherever a
+	// check reads the characters of a value rather than its meaning.
+	AIMarkStripper = strings.NewReplacer("\u2062", "", "\u2064", "")
 )
 
 // IsUUID checks if the string is a UUID (version 3, 4 or 5).

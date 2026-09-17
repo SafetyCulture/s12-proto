@@ -430,8 +430,12 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 	}
 
 	// If the text contains a full URL anywhere in it, reject it. This should help us control spam.
+	// The match runs on a copy with the AI content mark carriers removed. They are
+	// invisible and allowed by default, so "https://evil\u2062.com" reads as a URL
+	// and does not match the literal pattern. The field value is not changed.
 	if rules.GetRejectUrl() {
-		g.P("if ", s12protoPackage.Ident("RejectURLMatcher"), ".MatchString(", varName, ") {")
+		g.P("if ", s12protoPackage.Ident("RejectURLMatcher"), ".MatchString(",
+			s12protoPackage.Ident("AIMarkStripper"), ".Replace(", varName, ")) {")
 		genErrorStringWithParams(g, varName, string(f.Desc.Name()), "not contain a URL")
 		g.P("}")
 	}
@@ -440,7 +444,13 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 	// #### 3A-1. 'Break' partial URLs by introducing a space after each dot between characters.
 	// Note this will PERMANENTLY mutate the message field data. Further iterations will ignore these '. ' patterns,
 	// we only care about patterns like 'a.b'
+	// The AI content mark carriers are removed first. They are invisible and
+	// allowed by default, so a mark between the host and the dot hides the dot
+	// from the pattern and the partial URL survives. A field that breaks partial
+	// URLs therefore does not keep the mark, which is a deliberate trade. The
+	// alternative leaves a spam control that one invisible character defeats.
 	if rules.GetBreakPartialUrl() {
+		g.P(varName, " = ", s12protoPackage.Ident("AIMarkStripper"), ".Replace(", varName, ")")
 		g.P(varName, " = ", s12protoPackage.Ident("BreakURLMatcher"), ".ReplaceAllString(", varName, ", \". $1\")")
 	}
 
