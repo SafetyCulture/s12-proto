@@ -37,10 +37,18 @@ var stringReDefaultSafe = []string{
 	`\x{005F}`, // _  Low Line               Unicode Category: Connector Punctuation (Pc)
 	`\x{00BF}`, // ¿  Inverted Question Mark Unicode Category: Other Punctuation (Po)
 	`\x{2013}`, // –  En Dash                Unicode Category: Dash Punctuation (Pd)
-	// The two carriers of the Mitti AI content mark, which every AI generated
-	// string must hold under EU AI Act Article 50(2). Both are Format (Cf) and
-	// both are Default_Ignorable_Code_Point, so they add no glyph and no width in
-	// any script, and both survive all four Unicode normalisation forms.
+	// The two carriers Mitti has chosen for its AI content mark.
+	//
+	// EU AI Act Article 50(2) asks a provider to mark generated output in a
+	// machine readable format and make it detectable as artificially generated.
+	// It names no technique, so these codepoints are our choice and not something
+	// the Regulation requires. The duty also has limits, and does not reach output
+	// from an assistive function for standard editing or from a system that does
+	// not substantially alter what the deployer gave it.
+	//
+	// Both are Format (Cf) and both are Default_Ignorable_Code_Point, so they add
+	// no glyph and no width in any script, and both survive all four Unicode
+	// normalisation forms.
 	//
 	// Named one by one rather than by category. Category Cf also holds the bidi
 	// overrides and the tag block, which are the characters used for spoofing and
