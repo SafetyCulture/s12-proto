@@ -2,6 +2,7 @@
 go = "1.26"
 buf = "1.68.4"
 golangci-lint = "2.11.4"
+protoc = "36.1"
 "go:google.golang.org/protobuf/cmd/protoc-gen-go" = "latest"
 
 [tasks.build]
@@ -19,6 +20,34 @@ run = "make generate"
 [tasks.test]
 description = "Run tests (root module)"
 run = "go test ./..."
+
+[tasks."verify:generated"]
+description = "Fail if the checked-in govalidator fixtures do not match a fresh generation"
+# The valtest and example tests call Validate() on generated code that is
+# committed, so a change to a template in plugin.go passes CI while the tests run
+# against the old output. This regenerates and fails on a difference, which is
+# the only thing that ties a template change to the tests that cover it.
+#
+# protoc is pinned in [tools] because the version is written into the generated
+# header, so an unpinned one reports a difference that is not a real one.
+run = """
+set -eu
+bin="$(mktemp -d)"
+go build -o "$bin/protoc-gen-govalidator" ./protobuf/protoc-gen-govalidator
+for d in valtest example; do
+  protoc \
+    -I"./protobuf/protoc-gen-govalidator/$d" -I. \
+    --plugin=protoc-gen-govalidator="$bin/protoc-gen-govalidator" \
+    --govalidator_out=paths=source_relative:"protobuf/protoc-gen-govalidator/$d" \
+    "protobuf/protoc-gen-govalidator/$d"/*.proto
+done
+if ! git diff --exit-code -- ':(glob)protobuf/protoc-gen-govalidator/*/*.validator*.pb.go'; then
+  echo ""
+  echo "The generated validators are out of date. Run 'mise run verify:generated'"
+  echo "and commit the result."
+  exit 1
+fi
+"""
 
 [tasks.lint]
 description = "Run Go linter"
