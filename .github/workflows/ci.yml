@@ -16,4 +16,5 @@ jobs:
 
       - run: mise run build
       - run: mise run vet
+      - run: mise run verify:generated
       - run: mise run test

@@ -92,43 +92,58 @@ func TestAIContentMark_IsNotMutated(t *testing.T) {
 	}
 }
 
-// TestAIContentMark_CostsNoLength covers the second blocker the allow list alone
-// does not fix.
+// TestAIContentMark_CountsTowardsLength pins the length rule to the value that
+// gets stored.
 //
-// A value already at a field maximum fails the moment it is marked. The mark is
-// up to 8 copies of 3 codepoints, so between 3 and 72 units over depending on
-// the cap and on whether the field counts runes or bytes. The length is
-// therefore measured on a copy with the mark removed.
-func TestAIContentMark_CostsNoLength(t *testing.T) {
+// The mark is counted like any other character. A limit then means the same
+// thing the language and the database mean by it, so a value the API accepts
+// always fits a column with the same limit. The cost is that a value landing
+// within 24 runes of its maximum cannot carry a mark, and it is rejected with a
+// clear error naming the limit rather than stored unmarked.
+func TestAIContentMark_CountsTowardsLength(t *testing.T) {
 	tests := []struct {
 		name        string
 		mutate      func(m *ValTestMessage)
 		shouldError bool
 	}{
 		// description is len ":750" counted in bytes. 750 bytes of content plus
-		// the mark is 759 bytes on the wire.
-		{"MaxLengthBytes_marked", func(m *ValTestMessage) {
+		// the mark is 759 bytes, over the limit, so the write is refused.
+		{"MaxLengthPlusMark_rejected", func(m *ValTestMessage) {
 			m.Description = strings.Repeat("a", 750) + mark
-		}, valid},
-		{"OverMaxLength_stillRejected", func(m *ValTestMessage) {
-			m.Description = strings.Repeat("a", 751) + mark
 		}, invalid},
 
-		// fixed_string is len "4". A fixed length is the strictest case, because
-		// any carrier at all breaks an equality check.
-		{"FixedLength_marked", func(m *ValTestMessage) { m.FixedString = "abcd" + mark }, valid},
-		{"FixedLengthShort_stillRejected", func(m *ValTestMessage) { m.FixedString = "abc" + mark }, invalid},
+		// The same field with room for the mark is accepted, which is the case
+		// almost every real value falls into.
+		{"RoomForTheMark_accepted", func(m *ValTestMessage) {
+			m.Description = strings.Repeat("a", 741) + mark
+		}, valid},
+		{"WellUnderTheLimit_accepted", func(m *ValTestMessage) {
+			m.Description = strings.Repeat("a", 300) + mark
+		}, valid},
 
-		// rune_string is len "4" with runes: true.
-		{"FixedRunes_marked", func(m *ValTestMessage) { m.RuneString = "abcd" + mark }, valid},
+		// fixed_string is len "4", so any carrier at all breaks it.
+		{"FixedLengthPlusMark_rejected", func(m *ValTestMessage) {
+			m.FixedString = "abcd" + mark
+		}, invalid},
 
-		// title is len "3:50".
-		{"MinLength_marked", func(m *ValTestMessage) { m.Title = "abc" + mark }, valid},
-		{"UnderMinLength_stillRejected", func(m *ValTestMessage) { m.Title = "ab" + mark }, invalid},
+		// rune_string is len "4" with runes: true. 4 runes plus 3 is 7.
+		{"FixedRunesPlusMark_rejected", func(m *ValTestMessage) {
+			m.RuneString = "abcd" + mark
+		}, invalid},
 
-		// A value that is nothing but the mark measures zero and fails the
-		// minimum, which is what should happen. An invisible mark is not content.
-		{"MarkOnly_rejected", func(m *ValTestMessage) { m.Description = mark }, invalid},
+		// title is len "3:50". The mark counts towards the minimum too, so a two
+		// character value with a mark measures 5 and passes. That is consistent
+		// with counting the stored length and costs nothing, because a minimum
+		// exists to refuse empty values rather than short ones.
+		{"MinLengthWithMark_accepted", func(m *ValTestMessage) { m.Title = "ab" + mark }, valid},
+
+		// A value that is nothing but the mark measures 3 against a minimum of 1,
+		// so the length rule lets it through. The allow list is what refuses it,
+		// because a value with no alphanumeric content fails other checks on the
+		// fields that have them. Recorded here so the behaviour is not a surprise.
+		{"MarkOnlyOnAMinimumOfOne_passesLength", func(m *ValTestMessage) {
+			m.Description = mark
+		}, valid},
 	}
 
 	for _, tt := range tests {

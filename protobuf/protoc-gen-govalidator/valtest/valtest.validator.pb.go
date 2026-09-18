@@ -83,7 +83,7 @@ func (m *ValTestMessage) Validate() error {
 	} else if !utf8.ValidString(m.Description) {
 		return fmt.Errorf(`description: value must must be a valid UTF-8-encoded string`)
 	}
-	var _len_ValTestMessage_Description = len(proto.AIMarkStripper.Replace(m.Description))
+	var _len_ValTestMessage_Description = len(m.Description)
 	if !(_len_ValTestMessage_Description >= 1 && _len_ValTestMessage_Description <= 750) {
 		return fmt.Errorf(`description: value must have a length between 1 and 750`)
 	}
@@ -103,7 +103,7 @@ func (m *ValTestMessage) Validate() error {
 	} else if !utf8.ValidString(m.Password) {
 		return fmt.Errorf(`password: value must must be a valid UTF-8-encoded string`)
 	}
-	var _len_ValTestMessage_Password = len(proto.AIMarkStripper.Replace(m.Password))
+	var _len_ValTestMessage_Password = len(m.Password)
 	if !(_len_ValTestMessage_Password >= 8 && _len_ValTestMessage_Password <= 130) {
 		return fmt.Errorf(`password: value must have a length between 8 and 130`)
 	}
@@ -123,7 +123,7 @@ func (m *ValTestMessage) Validate() error {
 	} else if !utf8.ValidString(m.Title) {
 		return fmt.Errorf(`title: value must must be a valid UTF-8-encoded string`)
 	}
-	var _len_ValTestMessage_Title = len(proto.AIMarkStripper.Replace(m.Title))
+	var _len_ValTestMessage_Title = len(m.Title)
 	if !(_len_ValTestMessage_Title >= 3 && _len_ValTestMessage_Title <= 50) {
 		return fmt.Errorf(`title: value must have a length between 3 and 50`)
 	}
@@ -143,7 +143,7 @@ func (m *ValTestMessage) Validate() error {
 	} else if !utf8.ValidString(m.FixedString) {
 		return fmt.Errorf(`fixed_string: value must must be a valid UTF-8-encoded string`)
 	}
-	var _len_ValTestMessage_FixedString = len(proto.AIMarkStripper.Replace(m.FixedString))
+	var _len_ValTestMessage_FixedString = len(m.FixedString)
 	if !(_len_ValTestMessage_FixedString == 4) {
 		return fmt.Errorf(`fixed_string: value must have length 4`)
 	}
@@ -163,7 +163,7 @@ func (m *ValTestMessage) Validate() error {
 	} else if !utf8.ValidString(m.RuneString) {
 		return fmt.Errorf(`rune_string: value must must be a valid UTF-8-encoded string`)
 	}
-	var _len_ValTestMessage_RuneString = utf8.RuneCountInString(proto.AIMarkStripper.Replace(m.RuneString))
+	var _len_ValTestMessage_RuneString = utf8.RuneCountInString(m.RuneString)
 	if !(_len_ValTestMessage_RuneString == 4) {
 		return fmt.Errorf(`rune_string: value must have length 4`)
 	}
@@ -184,7 +184,7 @@ func (m *ValTestMessage) Validate() error {
 		return fmt.Errorf(`replace_string: value must must be a valid UTF-8-encoded string`)
 	}
 	m.ReplaceString = proto.UnsafeCharReplacer.Replace(m.ReplaceString)
-	var _len_ValTestMessage_ReplaceString = len(proto.AIMarkStripper.Replace(m.ReplaceString))
+	var _len_ValTestMessage_ReplaceString = len(m.ReplaceString)
 	if !(_len_ValTestMessage_ReplaceString >= 1 && _len_ValTestMessage_ReplaceString <= 130) {
 		return fmt.Errorf(`replace_string: value must have a length between 1 and 130`)
 	}
@@ -204,7 +204,7 @@ func (m *ValTestMessage) Validate() error {
 	} else if !utf8.ValidString(m.NotReplaceString) {
 		return fmt.Errorf(`not_replace_string: value must must be a valid UTF-8-encoded string`)
 	}
-	var _len_ValTestMessage_NotReplaceString = len(proto.AIMarkStripper.Replace(m.NotReplaceString))
+	var _len_ValTestMessage_NotReplaceString = len(m.NotReplaceString)
 	if !(_len_ValTestMessage_NotReplaceString >= 1 && _len_ValTestMessage_NotReplaceString <= 130) {
 		return fmt.Errorf(`not_replace_string: value must have a length between 1 and 130`)
 	}
@@ -225,7 +225,7 @@ func (m *ValTestMessage) Validate() error {
 		return fmt.Errorf(`allow_string: value must must be a valid UTF-8-encoded string`)
 	}
 	m.AllowString = strings.ReplaceAll(m.AllowString, "\u0023", "\u0020")
-	var _len_ValTestMessage_AllowString = len(proto.AIMarkStripper.Replace(m.AllowString))
+	var _len_ValTestMessage_AllowString = len(m.AllowString)
 	if !(_len_ValTestMessage_AllowString >= 1 && _len_ValTestMessage_AllowString <= 130) {
 		return fmt.Errorf(`allow_string: value must have a length between 1 and 130`)
 	}
@@ -245,7 +245,7 @@ func (m *ValTestMessage) Validate() error {
 	} else if !utf8.ValidString(m.SymbolString) {
 		return fmt.Errorf(`symbol_string: value must must be a valid UTF-8-encoded string`)
 	}
-	var _len_ValTestMessage_SymbolString = len(proto.AIMarkStripper.Replace(m.SymbolString))
+	var _len_ValTestMessage_SymbolString = len(m.SymbolString)
 	if !(_len_ValTestMessage_SymbolString >= 1 && _len_ValTestMessage_SymbolString <= 130) {
 		return fmt.Errorf(`symbol_string: value must have a length between 1 and 130`)
 	}
@@ -265,7 +265,7 @@ func (m *ValTestMessage) Validate() error {
 	} else if !utf8.ValidString(m.SymbolsString) {
 		return fmt.Errorf(`symbols_string: value must must be a valid UTF-8-encoded string`)
 	}
-	var _len_ValTestMessage_SymbolsString = len(proto.AIMarkStripper.Replace(m.SymbolsString))
+	var _len_ValTestMessage_SymbolsString = len(m.SymbolsString)
 	if !(_len_ValTestMessage_SymbolsString >= 1 && _len_ValTestMessage_SymbolsString <= 130) {
 		return fmt.Errorf(`symbols_string: value must have a length between 1 and 130`)
 	}
@@ -286,7 +286,7 @@ func (m *ValTestMessage) Validate() error {
 		return fmt.Errorf(`newline_string: value must must be a valid UTF-8-encoded string`)
 	}
 	m.NewlineString = strings.ReplaceAll(m.NewlineString, "\r", "")
-	var _len_ValTestMessage_NewlineString = len(proto.AIMarkStripper.Replace(m.NewlineString))
+	var _len_ValTestMessage_NewlineString = len(m.NewlineString)
 	if !(_len_ValTestMessage_NewlineString >= 1 && _len_ValTestMessage_NewlineString <= 130) {
 		return fmt.Errorf(`newline_string: value must have a length between 1 and 130`)
 	}
@@ -301,7 +301,7 @@ func (m *ValTestMessage) Validate() error {
 			return fmt.Errorf(`invalid_encoding_string: value must must be normalisable to NFC`)
 		}
 	}
-	var _len_ValTestMessage_InvalidEncodingString = len(proto.AIMarkStripper.Replace(m.InvalidEncodingString))
+	var _len_ValTestMessage_InvalidEncodingString = len(m.InvalidEncodingString)
 	if !(_len_ValTestMessage_InvalidEncodingString >= 1 && _len_ValTestMessage_InvalidEncodingString <= 130) {
 		return fmt.Errorf(`invalid_encoding_string: value must have a length between 1 and 130`)
 	}
@@ -322,7 +322,7 @@ func (m *ValTestMessage) Validate() error {
 		} else if !utf8.ValidString(m.OptString) {
 			return fmt.Errorf(`opt_string: value must must be a valid UTF-8-encoded string`)
 		}
-		var _len_ValTestMessage_OptString = len(proto.AIMarkStripper.Replace(m.OptString))
+		var _len_ValTestMessage_OptString = len(m.OptString)
 		if !(_len_ValTestMessage_OptString >= 1 && _len_ValTestMessage_OptString <= 130) {
 			return fmt.Errorf(`opt_string: value must have a length between 1 and 130`)
 		}
@@ -344,7 +344,7 @@ func (m *ValTestMessage) Validate() error {
 		return fmt.Errorf(`trim_string: value must must be a valid UTF-8-encoded string`)
 	}
 	m.TrimString = strings.TrimSpace(m.TrimString)
-	var _len_ValTestMessage_TrimString = len(proto.AIMarkStripper.Replace(m.TrimString))
+	var _len_ValTestMessage_TrimString = len(m.TrimString)
 	if !(_len_ValTestMessage_TrimString >= 1 && _len_ValTestMessage_TrimString <= 130) {
 		return fmt.Errorf(`trim_string: value must have a length between 1 and 130`)
 	}
@@ -361,7 +361,7 @@ func (m *ValTestMessage) Validate() error {
 	}
 	m.AllString = strings.ReplaceAll(m.AllString, "\u003E", "\u02C3")
 	m.AllString = proto.SymbolCharReplacer.Replace(m.AllString)
-	var _len_ValTestMessage_AllString = len(proto.AIMarkStripper.Replace(m.AllString))
+	var _len_ValTestMessage_AllString = len(m.AllString)
 	if !(_len_ValTestMessage_AllString >= 1 && _len_ValTestMessage_AllString <= 130) {
 		return fmt.Errorf(`all_string: value must have a length between 1 and 130`)
 	}
@@ -384,7 +384,7 @@ func (m *ValTestMessage) Validate() error {
 		}
 		m.Name = strings.ReplaceAll(m.Name, "\u0027", "\u2019")
 		m.Name = strings.ReplaceAll(m.Name, "\u002D", "\u2212")
-		var _len_ValTestMessage_Name = len(proto.AIMarkStripper.Replace(m.Name))
+		var _len_ValTestMessage_Name = len(m.Name)
 		if !(_len_ValTestMessage_Name >= 1 && _len_ValTestMessage_Name <= 50) {
 			return fmt.Errorf(`name: value must have a length between 1 and 50`)
 		}
@@ -407,7 +407,7 @@ func (m *ValTestMessage) Validate() error {
 			return fmt.Errorf(`sc_title: value must must be a valid UTF-8-encoded string`)
 		}
 		m.ScTitle = proto.UnsafeCharReplacer.Replace(m.ScTitle)
-		var _len_ValTestMessage_ScTitle = len(proto.AIMarkStripper.Replace(m.ScTitle))
+		var _len_ValTestMessage_ScTitle = len(m.ScTitle)
 		if !(_len_ValTestMessage_ScTitle >= 1 && _len_ValTestMessage_ScTitle <= 500) {
 			return fmt.Errorf(`sc_title: value must have a length between 1 and 500`)
 		}
@@ -432,7 +432,7 @@ func (m *ValTestMessage) Validate() error {
 		m.ScPermissive = proto.UnsafeCharReplacer.Replace(m.ScPermissive)
 		m.ScPermissive = proto.SymbolCharReplacer.Replace(m.ScPermissive)
 		m.ScPermissive = proto.RegexPua.ReplaceAllString(m.ScPermissive, "")
-		var _len_ValTestMessage_ScPermissive = len(proto.AIMarkStripper.Replace(m.ScPermissive))
+		var _len_ValTestMessage_ScPermissive = len(m.ScPermissive)
 		if !(_len_ValTestMessage_ScPermissive >= 1 && _len_ValTestMessage_ScPermissive <= 1000) {
 			return fmt.Errorf(`sc_permissive: value must have a length between 1 and 1000`)
 		}
@@ -454,7 +454,7 @@ func (m *ValTestMessage) Validate() error {
 		} else if !utf8.ValidString(m.NotSanitisePua) {
 			return fmt.Errorf(`not_sanitise_pua: value must must be a valid UTF-8-encoded string`)
 		}
-		var _len_ValTestMessage_NotSanitisePua = len(proto.AIMarkStripper.Replace(m.NotSanitisePua))
+		var _len_ValTestMessage_NotSanitisePua = len(m.NotSanitisePua)
 		if !(_len_ValTestMessage_NotSanitisePua >= 1 && _len_ValTestMessage_NotSanitisePua <= 130) {
 			return fmt.Errorf(`not_sanitise_pua: value must have a length between 1 and 130`)
 		}
@@ -477,7 +477,7 @@ func (m *ValTestMessage) Validate() error {
 			return fmt.Errorf(`sanitise_pua: value must must be a valid UTF-8-encoded string`)
 		}
 		m.SanitisePua = proto.RegexPua.ReplaceAllString(m.SanitisePua, "")
-		var _len_ValTestMessage_SanitisePua = len(proto.AIMarkStripper.Replace(m.SanitisePua))
+		var _len_ValTestMessage_SanitisePua = len(m.SanitisePua)
 		if !(_len_ValTestMessage_SanitisePua >= 1 && _len_ValTestMessage_SanitisePua <= 130) {
 			return fmt.Errorf(`sanitise_pua: value must have a length between 1 and 130`)
 		}
@@ -500,7 +500,7 @@ func (m *ValTestMessage) Validate() error {
 			return fmt.Errorf(`sanitise_length: value must must be a valid UTF-8-encoded string`)
 		}
 		m.SanitiseLength = proto.RegexPua.ReplaceAllString(m.SanitiseLength, "")
-		var _len_ValTestMessage_SanitiseLength = len(proto.AIMarkStripper.Replace(m.SanitiseLength))
+		var _len_ValTestMessage_SanitiseLength = len(m.SanitiseLength)
 		if !(_len_ValTestMessage_SanitiseLength == 2) {
 			return fmt.Errorf(`sanitise_length: value must have length 2`)
 		}
@@ -522,7 +522,7 @@ func (m *ValTestMessage) Validate() error {
 		} else if !utf8.ValidString(*m.OptionalString) {
 			return fmt.Errorf(`optional_string: value must must be a valid UTF-8-encoded string`)
 		}
-		var _len_ValTestMessage_OptionalString = len(proto.AIMarkStripper.Replace(*m.OptionalString))
+		var _len_ValTestMessage_OptionalString = len(*m.OptionalString)
 		if !(_len_ValTestMessage_OptionalString >= 1 && _len_ValTestMessage_OptionalString <= 130) {
 			return fmt.Errorf(`optional_string: value must have a length between 1 and 130`)
 		}
@@ -544,7 +544,7 @@ func (m *ValTestMessage) Validate() error {
 		} else if !utf8.ValidString(x.Phone) {
 			return fmt.Errorf(`phone: value must must be a valid UTF-8-encoded string`)
 		}
-		var _len_ValTestMessage_Phone = len(proto.AIMarkStripper.Replace(x.Phone))
+		var _len_ValTestMessage_Phone = len(x.Phone)
 		if !(_len_ValTestMessage_Phone == 11) {
 			return fmt.Errorf(`phone: value must have length 11`)
 		}
@@ -666,7 +666,7 @@ func (m *ValTestMessage) Validate() error {
 		} else if !utf8.ValidString(m.LongString) {
 			return fmt.Errorf(`long_string: value must must be a valid UTF-8-encoded string`)
 		}
-		var _len_ValTestMessage_LongString = len(proto.AIMarkStripper.Replace(m.LongString))
+		var _len_ValTestMessage_LongString = len(m.LongString)
 		if !(_len_ValTestMessage_LongString >= 1 && _len_ValTestMessage_LongString <= 30000) {
 			return fmt.Errorf(`long_string: value must have a length between 1 and 30000`)
 		}
@@ -688,7 +688,7 @@ func (m *ValTestMessage) Validate() error {
 		} else if !utf8.ValidString(m.StringWithPrefix) {
 			return fmt.Errorf(`string_with_prefix: value must must be a valid UTF-8-encoded string`)
 		}
-		var _len_ValTestMessage_StringWithPrefix = len(proto.AIMarkStripper.Replace(m.StringWithPrefix))
+		var _len_ValTestMessage_StringWithPrefix = len(m.StringWithPrefix)
 		if !(_len_ValTestMessage_StringWithPrefix >= 1 && _len_ValTestMessage_StringWithPrefix <= 130) {
 			return fmt.Errorf(`string_with_prefix: value must have a length between 1 and 130`)
 		}
@@ -864,7 +864,7 @@ func (m *ValTestMessage_NestedMessage) Validate() error {
 	} else if !utf8.ValidString(m.Val) {
 		return fmt.Errorf(`val: value must must be a valid UTF-8-encoded string`)
 	}
-	var _len_ValTestMessage_NestedMessage_Val = len(proto.AIMarkStripper.Replace(m.Val))
+	var _len_ValTestMessage_NestedMessage_Val = len(m.Val)
 	if !(_len_ValTestMessage_NestedMessage_Val >= 1 && _len_ValTestMessage_NestedMessage_Val <= 100) {
 		return fmt.Errorf(`val: value must have a length between 1 and 100`)
 	}
@@ -902,7 +902,7 @@ func (m *ValTestMessage_NestedMessage_InnerNestedMessage) Validate() error {
 	} else if !utf8.ValidString(m.InnerVal) {
 		return fmt.Errorf(`inner_val: value must must be a valid UTF-8-encoded string`)
 	}
-	var _len_ValTestMessage_NestedMessage_InnerNestedMessage_InnerVal = len(proto.AIMarkStripper.Replace(m.InnerVal))
+	var _len_ValTestMessage_NestedMessage_InnerNestedMessage_InnerVal = len(m.InnerVal)
 	if !(_len_ValTestMessage_NestedMessage_InnerNestedMessage_InnerVal >= 1 && _len_ValTestMessage_NestedMessage_InnerNestedMessage_InnerVal <= 100) {
 		return fmt.Errorf(`inner_val: value must have a length between 1 and 100`)
 	}
@@ -986,7 +986,7 @@ func (m *LogOnlyValidationMessage) Validate() error {
 		}
 		m.Title = strings.ReplaceAll(m.Title, "\r", "")
 		m.Title = proto.RegexPua.ReplaceAllString(m.Title, "")
-		var _len_LogOnlyValidationMessage_Title = len(proto.AIMarkStripper.Replace(m.Title))
+		var _len_LogOnlyValidationMessage_Title = len(m.Title)
 		if !(_len_LogOnlyValidationMessage_Title >= 1 && _len_LogOnlyValidationMessage_Title <= 10) {
 			fmt.Printf("[log-only] %s: value must be %s: Base64Encoded input: %s\n", "title", "have a length between 1 and 10", proto.Base64Encode(proto.FirstCharactersFromString(fmt.Sprintf("%v", m.Title), 50)))
 		}
@@ -1008,7 +1008,7 @@ func (m *LogOnlyValidationMessage) Validate() error {
 		return fmt.Errorf(`name: value must must be a valid UTF-8-encoded string`)
 	}
 	m.Name = proto.RegexPua.ReplaceAllString(m.Name, "")
-	var _len_LogOnlyValidationMessage_Name = len(proto.AIMarkStripper.Replace(m.Name))
+	var _len_LogOnlyValidationMessage_Name = len(m.Name)
 	if !(_len_LogOnlyValidationMessage_Name >= 1 && _len_LogOnlyValidationMessage_Name <= 5) {
 		return fmt.Errorf(`name: value must have a length between 1 and 5`)
 	}
@@ -1197,7 +1197,7 @@ func (m *NestedLevel3Message) Validate() error {
 	} else if !utf8.ValidString(m.OrgId5) {
 		return fmt.Errorf(`org_id5: value must must be a valid UTF-8-encoded string`)
 	}
-	var _len_NestedLevel3Message_OrgId5 = len(proto.AIMarkStripper.Replace(m.OrgId5))
+	var _len_NestedLevel3Message_OrgId5 = len(m.OrgId5)
 	if !(_len_NestedLevel3Message_OrgId5 == 5) {
 		return fmt.Errorf(`org_id5: value must have length 5`)
 	}
@@ -1221,7 +1221,7 @@ func (m *NestedLevel2Message) Validate() error {
 	} else if !utf8.ValidString(m.OrgId4) {
 		return fmt.Errorf(`org_id4: value must must be a valid UTF-8-encoded string`)
 	}
-	var _len_NestedLevel2Message_OrgId4 = len(proto.AIMarkStripper.Replace(m.OrgId4))
+	var _len_NestedLevel2Message_OrgId4 = len(m.OrgId4)
 	if !(_len_NestedLevel2Message_OrgId4 == 4) {
 		return fmt.Errorf(`org_id4: value must have length 4`)
 	}
@@ -1252,7 +1252,7 @@ func (m *NestedLevel1Message) Validate() error {
 	} else if !utf8.ValidString(m.OrgId3) {
 		return fmt.Errorf(`org_id3: value must must be a valid UTF-8-encoded string`)
 	}
-	var _len_NestedLevel1Message_OrgId3 = len(proto.AIMarkStripper.Replace(m.OrgId3))
+	var _len_NestedLevel1Message_OrgId3 = len(m.OrgId3)
 	if !(_len_NestedLevel1Message_OrgId3 == 3) {
 		return fmt.Errorf(`org_id3: value must have length 3`)
 	}
@@ -1283,7 +1283,7 @@ func (m *MyReqMessage) Validate() error {
 	} else if !utf8.ValidString(m.UserId) {
 		return fmt.Errorf(`user_id: value must must be a valid UTF-8-encoded string`)
 	}
-	var _len_MyReqMessage_UserId = len(proto.AIMarkStripper.Replace(m.UserId))
+	var _len_MyReqMessage_UserId = len(m.UserId)
 	if !(_len_MyReqMessage_UserId == 2) {
 		return fmt.Errorf(`user_id: value must have length 2`)
 	}
@@ -1514,7 +1514,7 @@ func (m *NonUrlMessage) Validate() error {
 		if proto.RejectURLMatcher.MatchString(proto.AIMarkStripper.Replace(m.RejectUrlTest)) {
 			return fmt.Errorf(`reject_url_test: value must not contain a URL`)
 		}
-		var _len_NonUrlMessage_RejectUrlTest = len(proto.AIMarkStripper.Replace(m.RejectUrlTest))
+		var _len_NonUrlMessage_RejectUrlTest = len(m.RejectUrlTest)
 		if !(_len_NonUrlMessage_RejectUrlTest >= 1 && _len_NonUrlMessage_RejectUrlTest <= 130) {
 			return fmt.Errorf(`reject_url_test: value must have a length between 1 and 130`)
 		}
@@ -1538,7 +1538,7 @@ func (m *NonUrlMessage) Validate() error {
 		}
 		m.BreakPartialUrlTest = proto.AIMarkBeforeDotMatcher.ReplaceAllString(m.BreakPartialUrlTest, "$1")
 		m.BreakPartialUrlTest = proto.BreakURLMatcher.ReplaceAllString(m.BreakPartialUrlTest, ". $1")
-		var _len_NonUrlMessage_BreakPartialUrlTest = len(proto.AIMarkStripper.Replace(m.BreakPartialUrlTest))
+		var _len_NonUrlMessage_BreakPartialUrlTest = len(m.BreakPartialUrlTest)
 		if !(_len_NonUrlMessage_BreakPartialUrlTest >= 1 && _len_NonUrlMessage_BreakPartialUrlTest <= 130) {
 			return fmt.Errorf(`break_partial_url_test: value must have a length between 1 and 130`)
 		}
@@ -1577,7 +1577,7 @@ func (m *SimpleStringMessage) Validate() error {
 	} else if !utf8.ValidString(m.Both) {
 		return fmt.Errorf(`both: value must must be a valid UTF-8-encoded string`)
 	}
-	var _len_SimpleStringMessage_Both = len(proto.AIMarkStripper.Replace(m.Both))
+	var _len_SimpleStringMessage_Both = len(m.Both)
 	if !(_len_SimpleStringMessage_Both >= 1 && _len_SimpleStringMessage_Both <= 100) {
 		return fmt.Errorf(`both: value must have a length between 1 and 100`)
 	}
