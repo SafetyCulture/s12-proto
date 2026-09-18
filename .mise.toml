@@ -41,10 +41,17 @@ for d in valtest example; do
     --govalidator_out=paths=source_relative:"protobuf/protoc-gen-govalidator/$d" \
     "protobuf/protoc-gen-govalidator/$d"/*.proto
 done
-if ! git diff --exit-code -- ':(glob)protobuf/protoc-gen-govalidator/*/*.validator*.pb.go'; then
+pathspec=':(glob)protobuf/protoc-gen-govalidator/*/*.validator*.pb.go'
+# git status rather than git diff, so a generated file that is new and has never
+# been added counts as well. A new .proto produces a new .validator.pb.go, and
+# diff only looks at files git already tracks, so that one would have passed.
+dirty="$(git status --porcelain --untracked-files=all -- "$pathspec")"
+if [ -n "$dirty" ]; then
+  echo "$dirty"
+  git --no-pager diff -- "$pathspec" || true
   echo ""
-  echo "The generated validators are out of date. Run 'mise run verify:generated'"
-  echo "and commit the result."
+  echo "The generated validators are out of date or not committed. Run"
+  echo "'mise run verify:generated' and commit the result."
   exit 1
 fi
 """
