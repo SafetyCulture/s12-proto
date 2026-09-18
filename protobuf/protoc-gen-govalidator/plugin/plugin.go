@@ -587,21 +587,25 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 	// Determine which length check method to use: bytes or runes
 	// Byte length check is default [using len()], unless rune length option is enabled
 	//
-	// The length is measured on a copy with the AI content mark removed, so the
-	// mark costs a field nothing. Without this, a value already at the field
-	// maximum fails the moment it is marked, which is between 3 and 72 units over
-	// depending on the cap and on whether the field counts runes or bytes. The
-	// rule is there to bound the content, and the carriers are not content. They
-	// are capped at 8 copies, so the most a value can carry is 24 runes or 72
-	// bytes. A value that is nothing but the mark measures zero and still fails a
-	// minimum.
+	// The AI content mark is counted like any other character, on purpose. The
+	// limit then means the length of the value that gets stored, which is what
+	// every other length function in the system reports, from len() in Go to
+	// char_length in Postgres, and what a database column measures. One number
+	// means one thing.
+	//
+	// The cost is that a value landing within 24 runes of its maximum cannot be
+	// written with a mark, because the mark adds up to 8 copies of 3 codepoints.
+	// The write fails with a clear error naming the limit, at the point the
+	// content was generated. That is the failure we want. Skipping the mark here
+	// instead would let a value through that a column with the same limit then
+	// rejects, turning a 400 into a 500, and it would require every such column
+	// to carry headroom that nothing in the schema explains.
 	lenVar := "_len_" + f.GoIdent.GoName
-	lenSrc := s12protoPackage.Ident("AIMarkStripper")
 	if rules.GetRunes() {
 		// Use utf8.RuneCountInString method, requires import of utf8 package
-		g.P("var "+lenVar+" = ", utfPackage.Ident("RuneCountInString"), "(", lenSrc, ".Replace(", varName, "))")
+		g.P("var "+lenVar+" = ", utfPackage.Ident("RuneCountInString"), "(", varName, ")")
 	} else {
-		g.P("var "+lenVar+" = len(", lenSrc, ".Replace(", varName, "))")
+		g.P("var "+lenVar+" = len(", varName, ")")
 	}
 
 	// Write the len check logic to the validator

@@ -180,7 +180,7 @@ func (m *ExampleMessage) Validate() error {
 		} else if !utf8.ValidString(*m.StringOptional) {
 			return fmt.Errorf(`string_optional: value must must be a valid UTF-8-encoded string`)
 		}
-		var _len_ExampleMessage_StringOptional = len(proto.AIMarkStripper.Replace(*m.StringOptional))
+		var _len_ExampleMessage_StringOptional = len(*m.StringOptional)
 		if !(_len_ExampleMessage_StringOptional >= 1 && _len_ExampleMessage_StringOptional <= 130) {
 			return fmt.Errorf(`string_optional: value must have a length between 1 and 130`)
 		}
