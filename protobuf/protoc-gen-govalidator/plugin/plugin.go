@@ -430,8 +430,12 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 	}
 
 	// If the text contains a full URL anywhere in it, reject it. This should help us control spam.
+	// The match runs on a copy with the AI content mark carriers removed. They are
+	// invisible and allowed by default, so "https://evil\u2062.com" reads as a URL
+	// and does not match the literal pattern. The field value is not changed.
 	if rules.GetRejectUrl() {
-		g.P("if ", s12protoPackage.Ident("RejectURLMatcher"), ".MatchString(", varName, ") {")
+		g.P("if ", s12protoPackage.Ident("RejectURLMatcher"), ".MatchString(",
+			s12protoPackage.Ident("AIMarkStripper"), ".Replace(", varName, ")) {")
 		genErrorStringWithParams(g, varName, string(f.Desc.Name()), "not contain a URL")
 		g.P("}")
 	}
@@ -440,7 +444,15 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 	// #### 3A-1. 'Break' partial URLs by introducing a space after each dot between characters.
 	// Note this will PERMANENTLY mutate the message field data. Further iterations will ignore these '. ' patterns,
 	// we only care about patterns like 'a.b'
+	// An AI content mark carrier sitting in front of the dot is removed first.
+	// The carriers are invisible and allowed by default, and BreakURLMatcher
+	// needs a word character before the dot to find a boundary, so a mark there
+	// hides the partial URL and the spam control does nothing. Only that run is
+	// removed, so every other copy of the mark in the value survives and the
+	// field stays marked. See AIMarkBeforeDotMatcher.
 	if rules.GetBreakPartialUrl() {
+		g.P(varName, " = ", s12protoPackage.Ident("AIMarkBeforeDotMatcher"),
+			".ReplaceAllString(", varName, ", \"$1\")")
 		g.P(varName, " = ", s12protoPackage.Ident("BreakURLMatcher"), ".ReplaceAllString(", varName, ", \". $1\")")
 	}
 
@@ -574,12 +586,22 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 
 	// Determine which length check method to use: bytes or runes
 	// Byte length check is default [using len()], unless rune length option is enabled
+	//
+	// The length is measured on a copy with the AI content mark removed, so the
+	// mark costs a field nothing. Without this, a value already at the field
+	// maximum fails the moment it is marked, which is between 3 and 72 units over
+	// depending on the cap and on whether the field counts runes or bytes. The
+	// rule is there to bound the content, and the carriers are not content. They
+	// are capped at 8 copies, so the most a value can carry is 24 runes or 72
+	// bytes. A value that is nothing but the mark measures zero and still fails a
+	// minimum.
 	lenVar := "_len_" + f.GoIdent.GoName
+	lenSrc := s12protoPackage.Ident("AIMarkStripper")
 	if rules.GetRunes() {
 		// Use utf8.RuneCountInString method, requires import of utf8 package
-		g.P("var "+lenVar+" = ", utfPackage.Ident("RuneCountInString"), "(", varName, ")")
+		g.P("var "+lenVar+" = ", utfPackage.Ident("RuneCountInString"), "(", lenSrc, ".Replace(", varName, "))")
 	} else {
-		g.P("var "+lenVar+" = len(", varName, ")")
+		g.P("var "+lenVar+" = len(", lenSrc, ".Replace(", varName, "))")
 	}
 
 	// Write the len check logic to the validator

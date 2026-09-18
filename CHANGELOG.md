@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `protoc-gen-govalidator`: U+2062 INVISIBLE TIMES and U+2064 INVISIBLE PLUS are allowed by default in `validator.string` and `validator.unsafe_string`. These two carry the AI content mark Mitti applies to generated text so it is detectable as artificially generated, which is what EU AI Act Article 50(2) asks a provider to make possible. The Regulation names no technique, so the codepoints are Mitti's choice. The allow list has no token for Unicode category Cf and no symbol category maps to it, so before this no field option could admit them and a marked write failed with "value must only have valid characters". Only these two codepoints are added, not the category (AI-1355).
+- `protoc-gen-govalidator`: `len` on `validator.string` and `validator.unsafe_string` is measured on the value with the AI content mark removed, so the mark costs a field nothing. Without this a value already at a field maximum failed the moment it was marked, between 3 and 72 units over depending on the cap and on whether the field counts runes or bytes (AI-1355).
+- `AIMarkStripper` in `s12/protobuf/proto`, a replacer that removes the two mark carriers. `reject_url` now matches against a stripped copy, because an invisible character inside a host name defeats a literal URL match (AI-1355).
+- `AIMarkBeforeDotMatcher` in `s12/protobuf/proto`. `break_partial_url` removes only a run of mark carriers sitting in front of a dot, which is the one placement that hides a partial URL from `BreakURLMatcher`. Every other copy in the value survives, so a field that breaks partial URLs stays marked. The Mitti codec inserts only at a word start and never produces that placement, so this removes nothing the codec wrote (AI-1355).
 - GitHub Actions workflows: CI, proto lint, and release
 - `buf.yaml` and `buf.gen.yaml` for buf toolchain integration
 - `.golangci.yml` linter configuration

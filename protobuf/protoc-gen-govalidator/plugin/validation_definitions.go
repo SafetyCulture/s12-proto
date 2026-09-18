@@ -37,6 +37,28 @@ var stringReDefaultSafe = []string{
 	`\x{005F}`, // _  Low Line               Unicode Category: Connector Punctuation (Pc)
 	`\x{00BF}`, // ¿  Inverted Question Mark Unicode Category: Other Punctuation (Po)
 	`\x{2013}`, // –  En Dash                Unicode Category: Dash Punctuation (Pd)
+	// The two carriers Mitti has chosen for its AI content mark.
+	//
+	// EU AI Act Article 50(2) asks a provider to mark generated output in a
+	// machine readable format and make it detectable as artificially generated.
+	// It names no technique, so these codepoints are our choice and not something
+	// the Regulation requires. The duty also has limits, and does not reach output
+	// from an assistive function for standard editing or from a system that does
+	// not substantially alter what the deployer gave it.
+	//
+	// Both are Format (Cf) and both are Default_Ignorable_Code_Point, so they add
+	// no glyph and no width in any script, and both survive all four Unicode
+	// normalisation forms.
+	//
+	// Named one by one rather than by category. Category Cf also holds the bidi
+	// overrides and the tag block, which are the characters used for spoofing and
+	// for prompt injection, and none of those become allowed by this.
+	//
+	// The URL controls are hardened against these two separately, because an
+	// invisible character inside a host name defeats a literal URL match. See
+	// AIMarkStripper and its use in the reject_url and break_partial_url paths.
+	`\x{2062}`, // ⁢  Invisible Times        Unicode Category: Format (Cf)
+	`\x{2064}`, // ⁤  Invisible Plus         Unicode Category: Format (Cf)
 }
 
 // Default allowed regex tokens for validator.unsafe_string
