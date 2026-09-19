@@ -70,6 +70,23 @@ extend google.protobuf.FieldOptions {
   optional MachineGeneratedRules machine_generated = 65225;
 }
 
+extend google.protobuf.MessageOptions {
+  // Marks a message as reviewed and safe to expose in full to a consumer
+  // that must never see raw PII (e.g. a tool whose output reaches an LLM's
+  // context). Unmarked messages are the fail-closed default: a consumer
+  // like piiredact.RedactStrict masks every field on them, tagged or not,
+  // until someone reviews the type and opts it in here. A field on a
+  // pii_safe message that is itself tagged [(validator.pii) = true] is
+  // still redacted — this option asserts the review is complete, not that
+  // the message holds zero PII outright.
+  //
+  // This is independent of (validator.pii): that tag drives Redact/
+  // RedactStrict's per-field masking regardless of this option; this
+  // option only changes RedactStrict's behavior for fields that carry no
+  // per-field tag at all.
+  optional bool pii_safe = 65226;
+}
+
 // SymbolCategory defines which special characters (Unicode symbols and the like) are allowed
 // See validation_definitions.go for full details
 enum SymbolCategory {
