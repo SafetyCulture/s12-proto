@@ -70,6 +70,13 @@ extend google.protobuf.FieldOptions {
   optional MachineGeneratedRules machine_generated = 65225;
 }
 
+extend google.protobuf.MessageOptions {
+  // Marks a message as reviewed and safe to expose to a consumer that must
+  // never see raw PII. Individually [(validator.pii) = true] fields are
+  // still redacted regardless of this option.
+  optional bool pii_safe = 65226;
+}
+
 // SymbolCategory defines which special characters (Unicode symbols and the like) are allowed
 // See validation_definitions.go for full details
 enum SymbolCategory {
