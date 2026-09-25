@@ -188,6 +188,7 @@ message StringRules {
 
   // Length (range), eg "5:100" must be 1 minimum (0:50 is invalid, if 0 accepted, should set optional)
   // Can be set to a single value for fixed length strings, eg "16"
+  // Omitting the max, eg "1:", enforces the min only, with no upper bound
   // default = 1:130
   optional string len = 3;
 

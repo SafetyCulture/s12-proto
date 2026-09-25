@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Extended pre-commit hooks: gofmt, goimports, buf lint, golangci-lint
 
 ### Changed
+- `protoc-gen-govalidator`: a `validator.string` or `validator.unsafe_string` `len` with the max omitted, eg `"1:"`, now enforces the min only, with no upper bound. It previously fell back to the default max of 130. The absolute maxes (1,000 for `string`, 30,000 for `unsafe_string`) don't apply to it either, so a field such as an AIP-160 `filter` can accept any length up to the message size limit. A field that relied on the old fallback should set `"x:130"` explicitly. `":"` with neither bound now fails generation. Plugin version v2.8.0 (PEOPLE-38472).
 - Bumped Go minimum version from 1.18 to 1.24 in root module and `protoc-gen-s12perm/example`
 
 ### Fixed

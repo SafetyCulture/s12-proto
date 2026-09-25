@@ -32,7 +32,7 @@ message ValTestMessage {
 
   // validate the max length of a string
   string description = 21 [(validator.string) = { len: ":750" }];
-  // validate the min length (max length defaults to current default string len (130))
+  // validate the min length only; an omitted max enforces no upper bound
   string password = 22 [(validator.unsafe_string) = { len: "8:", allow: "~$^+`{}=|;<>" }];
   // validate min and max length
   string title = 23 [(validator.string) = { len: "3:50" }];
@@ -186,6 +186,10 @@ message ValTestMessage {
   string machine_generated_len_runes       = 83 [(validator.machine_generated) = { len: "1:10", runes: true, optional: true }];
   string machine_generated_no_encoding     = 84 [(validator.machine_generated) = { validate_encoding: false, optional: true }];
   string machine_generated_log_only        = 85 [(validator.machine_generated) = { len: "1:8", log_only: true, optional: true }];
+
+  // min length only, past the absolute max for each string type
+  string unbounded_unsafe_string = 86 [(validator.unsafe_string) = { len: "1:", optional: true }];
+  string unbounded_string        = 87 [(validator.string) = { len: "3:", optional: true }];
 }
 
 message LogOnlyValidationMessage {

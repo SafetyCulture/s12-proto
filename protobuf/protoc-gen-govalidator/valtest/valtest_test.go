@@ -432,6 +432,12 @@ func getValMsg(m *ValTestMessage) *ValTestMessage {
 	if m.UsernameAllFlags != "" {
 		newMsg.UsernameAllFlags = replaceEmpty(m.UsernameAllFlags)
 	}
+	if m.UnboundedUnsafeString != "" {
+		newMsg.UnboundedUnsafeString = replaceEmpty(m.UnboundedUnsafeString)
+	}
+	if m.UnboundedString != "" {
+		newMsg.UnboundedString = replaceEmpty(m.UnboundedString)
+	}
 	return newMsg
 }
 
@@ -681,6 +687,10 @@ func TestValidationRules(t *testing.T) {
 			"InvalidPasswordLength",
 			getValMsg(&ValTestMessage{Password: "1234567"}), // not a real password
 			invalid,
+		}, {
+			"ValidPasswordPastDefaultMax",
+			getValMsg(&ValTestMessage{Password: strings.Repeat("p", 131)}),
+			valid,
 		}, {
 			"ValidFixedLenString",
 			getValMsg(&ValTestMessage{FixedString: "1234"}),
@@ -1082,6 +1092,23 @@ func TestValidationRules(t *testing.T) {
 		invalid,
 	})
 	fmt.Println("###### LEN = ", len(strings.Repeat("y", 30002)))
+	tests = append(tests, TestSet{
+		"ValidUnboundedUnsafeStringPastUnsafeMax",
+		getValMsg(&ValTestMessage{UnboundedUnsafeString: strings.Repeat("y", 40000)}),
+		valid,
+	}, TestSet{
+		"ValidUnboundedUnsafeStringMin",
+		getValMsg(&ValTestMessage{UnboundedUnsafeString: "y"}),
+		valid,
+	}, TestSet{
+		"ValidUnboundedStringPastSafeMax",
+		getValMsg(&ValTestMessage{UnboundedString: strings.Repeat("y", 5000)}),
+		valid,
+	}, TestSet{
+		"InvalidUnboundedStringBelowMin",
+		getValMsg(&ValTestMessage{UnboundedString: "yy"}),
+		invalid,
+	})
 
 	// RejectUrl
 	rejectUrlTestUrlsToReject := map[string]string{

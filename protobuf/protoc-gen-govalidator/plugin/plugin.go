@@ -41,7 +41,7 @@ var regexGeneratedFile *protogen.GeneratedFile
 var regexHashLib = make(map[string]struct{})
 
 // Validator plugin version
-var validatorVersion = "v2.7.2"
+var validatorVersion = "v2.8.0"
 
 // Write a preamble in the auto generated files
 func genGeneratedHeader(gen *protogen.Plugin, g *protogen.GeneratedFile, f *protogen.File) {
@@ -529,6 +529,9 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 	// This ensures that we no longer accept any length string (safe by default)
 	minLen := stringLenMinDefault
 	maxLen := stringLenMaxDefault
+	// An omitted max ("x:") enforces no upper bound, so neither the default max
+	// nor the absolute max for the string type applies to it.
+	maxUnbounded := false
 
 	// Check if friendly format length defined ("x:y"), overrides the above
 	if fLen := rules.GetLen(); fLen != "" {
@@ -537,16 +540,26 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 		fMinLen, fMaxLen := -1, -1 // set -1 as default to distinguish between 0 and unset
 		switch len(fLenChunks) {
 		case 2:
-			// min:max notation deffiend, e.g. len: "2:20"
+			// min:max notation defined, e.g. len: "2:20", or min only, e.g. len: "1:"
+			if fLenChunks[0] == "" && fLenChunks[1] == "" {
+				panic("unparsable string validator value for len in field " + f.GoIdent.GoName + ": expected x:y, x: or :y, found " + fLen)
+			}
 			// Try casting from string to int
 			fMinLen, _ = strconv.Atoi(fLenChunks[0])
-			fMaxLen, _ = strconv.Atoi(fLenChunks[1])
 			if fMinLen == 0 {
 				// Use default min length (not unlimited) for missing min value, e.g. :X
 				fMinLen = int(minLen)
 			}
+			if fLenChunks[1] == "" {
+				maxUnbounded = true
+				if fMinLen < 0 {
+					panic("unparsable string validator value for len in field " + f.GoIdent.GoName + ": expected 0<x, found " + fLen)
+				}
+				break
+			}
+			fMaxLen, _ = strconv.Atoi(fLenChunks[1])
 			if fMaxLen == 0 {
-				// Use default min length (not unlimited) for missing max value, e.g. X:
+				// Use default max length for an explicit zero max value, e.g. X:0
 				fMaxLen = int(maxLen)
 			}
 			if fMaxLen <= fMinLen || fMinLen < 0 || fMaxLen < 0 {
@@ -579,7 +592,7 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 		validMin = stringLenMinUnsafe
 		validMax = stringLenMaxUnsafe
 	}
-	if minLen < validMin || maxLen > validMax {
+	if minLen < validMin || (!maxUnbounded && maxLen > validMax) {
 		// Could just warn and ignore this instead of breaking initially until we are confident that we have appropriate safe guard values
 		panic("invalid string validator value for len in field " + f.GoIdent.GoName + ": expected " + fmt.Sprint(validMin) + "<=x<=" + fmt.Sprint(validMax) + ", found " + fmt.Sprint(minLen) + "-" + fmt.Sprint(maxLen))
 	}
@@ -610,7 +623,10 @@ func genStringValidator(g *protogen.GeneratedFile, f *protogen.Field, varName st
 
 	// Write the len check logic to the validator
 	errStr := ""
-	if minLen == maxLen {
+	if maxUnbounded {
+		g.P("if !("+lenVar+" >= ", minLen, ") {")
+		errStr = fmt.Sprintf(`have a length of at least %d`, minLen)
+	} else if minLen == maxLen {
 		// Could use the same if statement as for min+max checks but this is a bit cleaner
 		g.P("if !("+lenVar+" == ", minLen, ") {")
 		errStr = fmt.Sprintf(`have length %d`, minLen)
