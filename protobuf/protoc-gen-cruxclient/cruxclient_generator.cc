@@ -28,6 +28,10 @@ class Generator : public CodeGenerator {
   Generator() {}
   ~Generator() override {}
 
+  uint64_t GetSupportedFeatures() const override {
+    return FEATURE_PROTO3_OPTIONAL;
+  }
+
   bool Generate(
     const FileDescriptor *file,
     const string &parameter,
