@@ -64,7 +64,7 @@ func GenerateDjinniYAML(rw protoplugin.ResponseWriter, fileDesc protoreflect.Fil
 		var swift *swiftYAML
 		if options.SwiftEnabled() {
 			swift = &swiftYAML{
-				module:        options.SwiftModule,
+				module:        common.SwiftProtobufModule(fileDesc, options.SwiftModule),
 				prefix:        common.SwiftProtobufPrefix(fileDesc),
 				typeName:      common.SwiftProtobufTypeName(msg),
 				translator:    swiftxxTranslatorName(cppTypeName),

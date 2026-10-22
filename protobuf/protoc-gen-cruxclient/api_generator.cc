@@ -483,7 +483,7 @@ void APIGenerator::PrintDjinniYAML(
     printer->Outdent();
 
     if (!swift_module.empty()) {
-      vars["swift_module"] = swift_module;
+      vars["swift_module"] = SwiftProtobufModule(file, swift_module);
       vars["swift_prefix"] = SwiftProtobufPrefix(file);
       vars["swift_type_name"] = SwiftProtobufTypeName(message);
       vars["swiftxx_translator"] = SwiftxxTranslatorName(vars["cpp_type_name"]);

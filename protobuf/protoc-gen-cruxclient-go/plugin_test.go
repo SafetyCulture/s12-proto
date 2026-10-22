@@ -312,10 +312,10 @@ func swiftTypeNames(yaml string) []string {
 // (protoc-swift:1.3.2) for the same protos: reserved nested names, no package, swift_prefix.
 func TestSwiftTypeNames(t *testing.T) {
 	sources := map[string]string{}
-	for _, name := range []string{"names", "loose", "prefixed"} {
+	for _, name := range []string{"names", "loose", "prefixed", "wellknown"} {
 		sources["swiftnames/"+name+".proto"] = string(mustReadFile(t, "testdata/swiftnames/"+name+".proto"))
 	}
-	output := runPluginWithParameter(t, sources, []string{"swiftnames/names.proto", "swiftnames/loose.proto", "swiftnames/prefixed.proto"}, "swift_module")
+	output := runPluginWithParameter(t, sources, []string{"swiftnames/names.proto", "swiftnames/loose.proto", "swiftnames/prefixed.proto", "swiftnames/wellknown.proto"}, "swift_module")
 
 	require.Equal(t, []string{
 		"S12_NameTest_V1_Outer",
@@ -335,10 +335,16 @@ func TestSwiftTypeNames(t *testing.T) {
 		"S12_NameTest_V1_Data",
 	}, swiftTypeNames(output["swiftnames/names.djinni.yaml"]))
 
-	for _, name := range []string{"names", "loose", "prefixed"} {
+	for _, name := range []string{"names", "loose", "prefixed", "wellknown"} {
 		golden := mustReadFile(t, "testdata/swiftnames/"+name+".djinni.yaml")
 		require.Equal(t, string(golden), output["swiftnames/"+name+".djinni.yaml"])
 	}
+
+	// The types of package google.protobuf are in the SwiftProtobuf runtime.
+	require.Equal(t, []string{"Google_Protobuf_Timestamp"}, swiftTypeNames(output["swiftnames/wellknown.djinni.yaml"]))
+	require.Contains(t, output["swiftnames/wellknown.djinni.yaml"], "  module: 'SwiftProtobuf'\n")
+	require.NotContains(t, output["swiftnames/wellknown.djinni.yaml"], "S12Protos")
+	require.Contains(t, output["swiftnames/names.djinni.yaml"], "  module: 'S12Protos'\n")
 
 	require.Equal(t, []string{"Loose", "Loose.Inner"}, swiftTypeNames(output["swiftnames/loose.djinni.yaml"]))
 	require.Contains(t, output["swiftnames/loose.djinni.yaml"], "  prefix: ''\n")
@@ -355,7 +361,7 @@ func TestCppSwiftGoldenMatchesGo(t *testing.T) {
 		cppGolden := mustReadFile(t, "../protoc-gen-cruxclient/generated-swift/routeguide/v1/"+name)
 		require.Equal(t, string(goGolden), string(cppGolden), "%s differs between the C++ and the Go golden files", name)
 	}
-	for _, name := range []string{"names", "loose", "prefixed"} {
+	for _, name := range []string{"names", "loose", "prefixed", "wellknown"} {
 		goGolden := mustReadFile(t, "testdata/swiftnames/"+name+".djinni.yaml")
 		cppGolden := mustReadFile(t, "../protoc-gen-cruxclient/generated-swift/swiftnames/"+name+".djinni.yaml")
 		require.Equal(t, string(goGolden), string(cppGolden), "%s differs between the C++ and the Go golden files", name)

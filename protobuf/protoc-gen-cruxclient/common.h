@@ -241,6 +241,12 @@ inline std::string SwiftProtobufPrefix(const google::protobuf::FileDescriptor *f
   return prefix + "_";
 }
 
+// Swift module of the SwiftProtobuf types of a file. The types of package google.protobuf
+// are in the SwiftProtobuf runtime, not in the module of the other protos.
+inline std::string SwiftProtobufModule(const google::protobuf::FileDescriptor *file, const std::string &module) {
+  return file->package() == "google.protobuf" ? "SwiftProtobuf" : module;
+}
+
 // Names that SwiftProtobuf does not use for a type (reservedTypeNames in the NamingUtils of protoc-gen-swift).
 inline bool IsSwiftReservedTypeName(const std::string &name) {
   static const std::set<std::string> reserved = {

@@ -246,6 +246,15 @@ func SwiftProtobufPrefix(fileDesc protoreflect.FileDescriptor) string {
 	return swiftPackagePrefix(string(fileDesc.Package()))
 }
 
+// SwiftProtobufModule returns the Swift module of the SwiftProtobuf types of a file.
+// The types of package google.protobuf are in the SwiftProtobuf runtime, not in the module of the other protos.
+func SwiftProtobufModule(fileDesc protoreflect.FileDescriptor, module string) string {
+	if fileDesc.Package() == "google.protobuf" {
+		return "SwiftProtobuf"
+	}
+	return module
+}
+
 func swiftPackagePrefix(pkg string) string {
 	if pkg == "" {
 		return ""
