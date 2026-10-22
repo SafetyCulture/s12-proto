@@ -139,7 +139,10 @@ cruxclient-swift: install-cruxclient
 	protoc \
 	-I./protobuf/protoc-gen-cruxclient-go/testdata \
 	--cruxclient_out=swift_module:protobuf/protoc-gen-cruxclient/generated-swift \
-	protobuf/protoc-gen-cruxclient-go/testdata/swiftnames/*.proto \
+	protobuf/protoc-gen-cruxclient-go/testdata/swiftnames/*.proto
+	protoc \
+	-I./protobuf/protoc-gen-cruxclient-go/testdata \
+	--cruxclient_out=swift_module:protobuf/protoc-gen-cruxclient/generated-swift \
 	protobuf/protoc-gen-cruxclient-go/testdata/google/protobuf/timestamp.proto
 
 .PHONY: install-gogrpcmock
