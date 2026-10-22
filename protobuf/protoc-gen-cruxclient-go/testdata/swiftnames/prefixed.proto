@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package s12.sp.v1;
+
+option swift_prefix = "SP";
+
+message WithSwiftPrefix {
+  message Data {}
+}

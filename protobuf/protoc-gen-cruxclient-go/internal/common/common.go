@@ -234,3 +234,95 @@ func getMessagesFromMessage(msg protoreflect.MessageDescriptor) []protoreflect.M
 	}
 	return result
 }
+
+// SwiftProtobufPrefix returns the type prefix of the SwiftProtobuf types of a file.
+// The swift_prefix file option wins, even when it is empty. Without it, each part of
+// the proto package is in upper camel case, and "_" joins and ends the parts.
+// Example: "s12.legacy_ratelimits.v1" gives "S12_LegacyRatelimits_V1_". An empty package gives "".
+func SwiftProtobufPrefix(fileDesc protoreflect.FileDescriptor) string {
+	if opts, ok := fileDesc.Options().(*descriptorpb.FileOptions); ok && opts != nil && opts.SwiftPrefix != nil {
+		return opts.GetSwiftPrefix()
+	}
+	return swiftPackagePrefix(string(fileDesc.Package()))
+}
+
+func swiftPackagePrefix(pkg string) string {
+	if pkg == "" {
+		return ""
+	}
+	var b strings.Builder
+	makeUpper := true
+	for i := 0; i < len(pkg); i++ {
+		c := pkg[i]
+		switch {
+		case c == '_':
+			makeUpper = true
+		case c == '.':
+			makeUpper = true
+			b.WriteByte('_')
+		default:
+			if b.Len() == 0 && c >= '0' && c <= '9' {
+				b.WriteByte('_')
+			}
+			if makeUpper && c >= 'a' && c <= 'z' {
+				c -= 'a' - 'A'
+			}
+			makeUpper = false
+			b.WriteByte(c)
+		}
+	}
+	return b.String() + "_"
+}
+
+// SwiftProtobufTypeName returns the SwiftProtobuf type name of a message.
+// A nested message is a nested Swift type, so its name has a "." separator.
+// Example: "S12_Assets_V1_Outer.Inner".
+func SwiftProtobufTypeName(msg protoreflect.MessageDescriptor) string {
+	if parent, ok := msg.Parent().(protoreflect.MessageDescriptor); ok {
+		return SwiftProtobufTypeName(parent) + "." + sanitizeSwiftMessageName(string(msg.Name()))
+	}
+	return sanitizeSwiftMessageName(SwiftProtobufPrefix(msg.ParentFile()) + string(msg.Name()))
+}
+
+// swiftReservedTypeNames are the names that SwiftProtobuf does not use for a type
+// (reservedTypeNames in the NamingUtils of protoc-gen-swift).
+var swiftReservedTypeNames = map[string]struct{}{}
+
+func init() {
+	for _, name := range []string{
+		"SwiftProtobuf", "Extensions", "protoMessageName", "decodeMessage", "traverse",
+		"isInitialized", "unknownFields", "debugDescription", "description", "dynamicType",
+		"hashValue", "Type", "Protocol", "Swift", "Equatable", "Hashable", "Sendable",
+		// Keywords used in declarations
+		"associatedtype", "class", "deinit", "enum", "extension", "fileprivate", "func",
+		"import", "init", "inout", "internal", "let", "open", "operator", "private",
+		"protocol", "public", "static", "struct", "subscript", "typealias", "var",
+		// Keywords used in statements
+		"break", "case", "continue", "default", "defer", "do", "else", "fallthrough", "for",
+		"guard", "if", "in", "repeat", "return", "switch", "where", "while",
+		// Keywords used in expressions and types
+		"as", "Any", "catch", "false", "is", "nil", "rethrows", "super", "self", "Self",
+		"throw", "throws", "true", "try",
+		// Common types and special variables
+		"Bool", "Data", "Double", "Float", "Int", "Int32", "Int64", "String", "UInt",
+		"UInt32", "UInt64", "__COLUMN__", "__FILE__", "__FUNCTION__", "__LINE__",
+	} {
+		swiftReservedTypeNames[name] = struct{}{}
+	}
+}
+
+// sanitizeSwiftMessageName adds the "Message" suffix to a reserved name, as SwiftProtobuf does.
+// A name that already ends in "Message" gets the suffix again if its root is reserved.
+func sanitizeSwiftMessageName(name string) string {
+	const disambiguator = "Message"
+	if _, reserved := swiftReservedTypeNames[name]; reserved {
+		return name + disambiguator
+	}
+	if name != "" && strings.Trim(name, "_") == "" {
+		return name + disambiguator
+	}
+	if root, found := strings.CutSuffix(name, disambiguator); found {
+		return sanitizeSwiftMessageName(root) + disambiguator
+	}
+	return name
+}

@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"os"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -26,6 +27,12 @@ import (
 // protoSources maps logical proto import paths to their source content.
 // filesToGenerate is the subset of protoSources that should produce output.
 func runPlugin(t *testing.T, protoSources map[string]string, filesToGenerate []string) map[string]string {
+	t.Helper()
+	return runPluginWithParameter(t, protoSources, filesToGenerate, "")
+}
+
+// runPluginWithParameter is runPlugin with a protoc plugin parameter string.
+func runPluginWithParameter(t *testing.T, protoSources map[string]string, filesToGenerate []string, parameter string) map[string]string {
 	t.Helper()
 	ctx := context.Background()
 
@@ -60,6 +67,7 @@ func runPlugin(t *testing.T, protoSources map[string]string, filesToGenerate []s
 	req := &pluginpb.CodeGeneratorRequest{
 		FileToGenerate: filesToGenerate,
 		ProtoFile:      protoFiles,
+		Parameter:      proto.String(parameter),
 	}
 	reqBytes, err := proto.Marshal(req)
 	require.NoError(t, err, "proto.Marshal(CodeGeneratorRequest) failed")
@@ -238,6 +246,120 @@ func TestMessageDjinniJNIGolden(t *testing.T) {
 	goldenJNI := mustReadFile(t, "testdata/routeguide/message.djinni.jni.h")
 	require.Equal(t, string(goldenJNI), output["routeguide/v1/message.djinni.jni.h"],
 		"JNI mismatch — diff output against testdata/routeguide/message.djinni.jni.h")
+}
+
+// messageProtoSources returns the sources that the message.proto golden tests compile.
+func messageProtoSources(t *testing.T) map[string]string {
+	t.Helper()
+	return map[string]string{
+		"routeguide/v1/message.proto": string(mustReadFile(t, "testdata/routeguide/message.proto")),
+		"wire_options.proto":          string(mustReadFile(t, "testdata/routeguide/wire_options.proto")),
+	}
+}
+
+// TestSwiftOptionOffKeepsOutput checks that a request without the Swift option
+// produces no Swift output and the same djinni files as the request with an unrelated option.
+func TestSwiftOptionOffKeepsOutput(t *testing.T) {
+	files := []string{"routeguide/v1/message.proto"}
+	plain := runPlugin(t, messageProtoSources(t), files)
+	other := runPluginWithParameter(t, messageProtoSources(t), files, "unrelated=1")
+
+	require.Equal(t, plain, other)
+	require.NotContains(t, plain, "routeguide/v1/message.djinni.swiftxx.h")
+	require.NotContains(t, plain["routeguide/v1/message.djinni.yaml"], "swift")
+}
+
+// TestMessageDjinniSwiftGolden is a golden file test for the swift: and swiftxx:
+// yaml blocks and the .djinni.swiftxx.h output, with the module name option.
+func TestMessageDjinniSwiftGolden(t *testing.T) {
+	output := runPluginWithParameter(t, messageProtoSources(t),
+		[]string{"routeguide/v1/message.proto"}, "swift_module=RouteGuideProtos")
+
+	for _, name := range []string{"message.djinni.yaml", "message.djinni.swiftxx.h"} {
+		require.Contains(t, output, "routeguide/v1/"+name,
+			"plugin output missing %s; got keys: %v", name, mapKeys(output))
+		golden := mustReadFile(t, "testdata/routeguide/swift/"+name)
+		require.Equal(t, string(golden), output["routeguide/v1/"+name],
+			"mismatch — diff output against testdata/routeguide/swift/%s", name)
+	}
+
+	// The djinni files of the other languages do not change.
+	plain := runPlugin(t, messageProtoSources(t), []string{"routeguide/v1/message.proto"})
+	for _, name := range []string{"message.djinni.objc.h", "message.djinni.jni.h"} {
+		require.Equal(t, plain["routeguide/v1/"+name], output["routeguide/v1/"+name])
+	}
+}
+
+// TestSwiftOptionDefaultModule checks that a bare swift_module option selects S12Protos.
+func TestSwiftOptionDefaultModule(t *testing.T) {
+	output := runPluginWithParameter(t, messageProtoSources(t),
+		[]string{"routeguide/v1/message.proto"}, "swift_module")
+
+	require.Contains(t, output["routeguide/v1/message.djinni.yaml"], "  module: 'S12Protos'\n")
+	require.Contains(t, output, "routeguide/v1/message.djinni.swiftxx.h")
+}
+
+// swiftTypeNames returns the swift: typename values of a yaml output, in file order.
+func swiftTypeNames(yaml string) []string {
+	var names []string
+	for _, match := range regexp.MustCompile(`(?m)^swift:\n  typename: '([^']+)'`).FindAllStringSubmatch(yaml, -1) {
+		names = append(names, match[1])
+	}
+	return names
+}
+
+// TestSwiftTypeNames checks the type names against the output of protoc-gen-swift 1.26.0
+// (protoc-swift:1.3.2) for the same protos: reserved nested names, no package, swift_prefix.
+func TestSwiftTypeNames(t *testing.T) {
+	sources := map[string]string{}
+	for _, name := range []string{"names", "loose", "prefixed"} {
+		sources["swiftnames/"+name+".proto"] = string(mustReadFile(t, "testdata/swiftnames/"+name+".proto"))
+	}
+	output := runPluginWithParameter(t, sources, []string{"swiftnames/names.proto", "swiftnames/loose.proto", "swiftnames/prefixed.proto"}, "swift_module")
+
+	require.Equal(t, []string{
+		"S12_NameTest_V1_Outer",
+		"S12_NameTest_V1_Outer.DataMessage",
+		"S12_NameTest_V1_Outer.IntMessage",
+		"S12_NameTest_V1_Outer.StringMessage",
+		"S12_NameTest_V1_Outer.TypeMessage",
+		"S12_NameTest_V1_Outer.ProtocolMessage",
+		"S12_NameTest_V1_Outer.AnyMessage",
+		"S12_NameTest_V1_Outer.SelfMessage",
+		"S12_NameTest_V1_Outer.Message",
+		"S12_NameTest_V1_Outer.DataMessageMessage",
+		"S12_NameTest_V1_Outer.Error",
+		"S12_NameTest_V1_Outer.Date",
+		"S12_NameTest_V1_Outer.Foo",
+		"S12_NameTest_V1_Outer.Foo.TypeMessage",
+		"S12_NameTest_V1_Data",
+	}, swiftTypeNames(output["swiftnames/names.djinni.yaml"]))
+
+	for _, name := range []string{"names", "loose", "prefixed"} {
+		golden := mustReadFile(t, "testdata/swiftnames/"+name+".djinni.yaml")
+		require.Equal(t, string(golden), output["swiftnames/"+name+".djinni.yaml"])
+	}
+
+	require.Equal(t, []string{"Loose", "Loose.Inner"}, swiftTypeNames(output["swiftnames/loose.djinni.yaml"]))
+	require.Contains(t, output["swiftnames/loose.djinni.yaml"], "  prefix: ''\n")
+
+	require.Equal(t, []string{"SPWithSwiftPrefix", "SPWithSwiftPrefix.DataMessage"}, swiftTypeNames(output["swiftnames/prefixed.djinni.yaml"]))
+	require.Contains(t, output["swiftnames/prefixed.djinni.yaml"], "  prefix: 'SP'\n")
+}
+
+// TestCppSwiftGoldenMatchesGo checks that the golden files of the C++ plugin and of
+// the Go plugin are the same bytes.
+func TestCppSwiftGoldenMatchesGo(t *testing.T) {
+	for _, name := range []string{"message.djinni.yaml", "message.djinni.swiftxx.h"} {
+		goGolden := mustReadFile(t, "testdata/routeguide/swift/"+name)
+		cppGolden := mustReadFile(t, "../protoc-gen-cruxclient/generated-swift/routeguide/v1/"+name)
+		require.Equal(t, string(goGolden), string(cppGolden), "%s differs between the C++ and the Go golden files", name)
+	}
+	for _, name := range []string{"names", "loose", "prefixed"} {
+		goGolden := mustReadFile(t, "testdata/swiftnames/"+name+".djinni.yaml")
+		cppGolden := mustReadFile(t, "../protoc-gen-cruxclient/generated-swift/swiftnames/"+name+".djinni.yaml")
+		require.Equal(t, string(goGolden), string(cppGolden), "%s differs between the C++ and the Go golden files", name)
+	}
 }
 
 // collectTransitiveDeps recursively walks a FileDescriptor's transitive import

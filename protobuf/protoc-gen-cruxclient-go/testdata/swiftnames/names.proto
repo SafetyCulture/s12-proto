@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package s12.name_test.v1;
+
+// Nested message names that SwiftProtobuf renames with a "Message" suffix, and names that it keeps.
+message Outer {
+  message Data {}
+  message Int {}
+  message String {}
+  message Type {}
+  message Protocol {}
+  message Any {}
+  message Self {}
+  message Message {}
+  message DataMessage {}
+  message Error {}
+  message Date {}
+  message Foo {
+    message Type {}
+  }
+}
+
+message Data {}

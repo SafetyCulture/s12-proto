@@ -32,17 +32,18 @@ func handle(
 	if err != nil {
 		return err
 	}
+	opts := generator.ParseOptions(request.Parameter())
 	for _, fileDesc := range fileDescriptors {
 		if fileDesc.Services().Len() == 0 {
 			// PLUG-05: No services — generate djinni support files only
-			generateDjinniSupport(responseWriter, fileDesc)
+			generateDjinniSupport(responseWriter, fileDesc, opts)
 			continue
 		}
 		// PLUG-04: Has services — generate all 6 file types
 		generateAPIHeader(responseWriter, fileDesc)
 		generateAPISource(responseWriter, fileDesc)
 		generateMock(responseWriter, fileDesc)
-		generateDjinniSupport(responseWriter, fileDesc)
+		generateDjinniSupport(responseWriter, fileDesc, opts)
 	}
 	return nil
 }
@@ -66,19 +67,22 @@ func generateMock(rw protoplugin.ResponseWriter, fileDesc protoreflect.FileDescr
 }
 
 // generateDjinniSupport generates the three djinni support files:
-// .djinni.yaml, .djinni.objc.h, .djinni.jni.h.
-// Mirrors api_generator.cc GenerateDjinniSupport (line 672): guards on
+// .djinni.yaml, .djinni.objc.h, .djinni.jni.h. The Swift option adds .djinni.swiftxx.h.
+// Mirrors api_generator.cc GenerateDjinniSupport: guards on
 // top-level message count using fileDesc.Messages().Len() to match the C++
 // file->message_type_count() check (which counts only top-level messages,
 // NOT nested/recursive messages).
-func generateDjinniSupport(rw protoplugin.ResponseWriter, fileDesc protoreflect.FileDescriptor) {
+func generateDjinniSupport(rw protoplugin.ResponseWriter, fileDesc protoreflect.FileDescriptor, opts generator.Options) {
 	// Match C++ behavior: no djinni files if no top-level messages
 	if fileDesc.Messages().Len() == 0 {
 		return
 	}
-	generator.GenerateDjinniYAML(rw, fileDesc)
+	generator.GenerateDjinniYAML(rw, fileDesc, opts)
 	generator.GenerateDjinniObjC(rw, fileDesc)
 	generator.GenerateDjinniJNI(rw, fileDesc)
+	if opts.SwiftEnabled() {
+		generator.GenerateDjinniSwiftxx(rw, fileDesc)
+	}
 }
 
 // nonClientStreamingMethods returns methods that are not client-streaming.

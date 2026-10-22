@@ -282,3 +282,64 @@ func TestJoin(t *testing.T) {
 		}
 	}
 }
+
+func TestSwiftPackagePrefix(t *testing.T) {
+	tests := []struct {
+		pkg      string
+		expected string
+	}{
+		{"s12.assets.v1", "S12_Assets_V1_"},
+		{"s12.legacy_ratelimits.v1", "S12_LegacyRatelimits_V1_"},
+		{"s12.integrations.app.v1beta", "S12_Integrations_App_V1beta_"},
+		{"routeguide.v1", "Routeguide_V1_"},
+		{"_1x.v1", "_1x_V1_"},
+		{"", ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.pkg, func(t *testing.T) {
+			got := swiftPackagePrefix(tt.pkg)
+			if got != tt.expected {
+				t.Errorf("swiftPackagePrefix(%q) = %q, want %q", tt.pkg, got, tt.expected)
+			}
+		})
+	}
+}
+
+// The expected names are the output of protoc-gen-swift 1.26.0 (protoc-swift:1.3.2) for nested messages with these names.
+func TestSanitizeSwiftMessageName(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"Foo", "Foo"},
+		{"Data", "DataMessage"},
+		{"Int", "IntMessage"},
+		{"String", "StringMessage"},
+		{"Type", "TypeMessage"},
+		{"Protocol", "ProtocolMessage"},
+		{"Any", "AnyMessage"},
+		{"Self", "SelfMessage"},
+		{"Bool", "BoolMessage"},
+		{"Double", "DoubleMessage"},
+		{"Float", "FloatMessage"},
+		{"Hashable", "HashableMessage"},
+		{"Equatable", "EquatableMessage"},
+		{"Sendable", "SendableMessage"},
+		{"Extensions", "ExtensionsMessage"},
+		{"SwiftProtobuf", "SwiftProtobufMessage"},
+		{"Message", "Message"},
+		{"DataMessage", "DataMessageMessage"},
+		{"FooMessage", "FooMessage"},
+		{"Error", "Error"},
+		{"Date", "Date"},
+		{"Description", "Description"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			got := sanitizeSwiftMessageName(tt.input)
+			if got != tt.expected {
+				t.Errorf("sanitizeSwiftMessageName(%q) = %q, want %q", tt.input, got, tt.expected)
+			}
+		})
+	}
+}
