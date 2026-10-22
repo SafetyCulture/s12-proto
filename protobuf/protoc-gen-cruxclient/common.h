@@ -3,6 +3,7 @@
 #pragma once
 #include <string>
 #include <string_view>
+#include <set>
 #include <sstream>
 #include <google/protobuf/descriptor.h>
 
@@ -187,6 +188,107 @@ inline std::string ToCamelCase(std::string_view text) {
   }
 
   return result.str();
+}
+
+// Swift module of the SwiftProtobuf types that a bare swift_module option selects.
+inline constexpr const char *kDefaultSwiftModule = "S12Protos";
+
+// Reads the swift_module option from a comma-separated protoc parameter string.
+// Returns an empty string if the Swift output is off. A bare swift_module
+// selects kDefaultSwiftModule. Other keys are ignored.
+inline std::string ParseSwiftModule(std::string_view parameter) {
+  auto trim = [](std::string_view text) {
+    while (!text.empty() && std::isspace(static_cast<unsigned char>(text.front()))) text.remove_prefix(1);
+    while (!text.empty() && std::isspace(static_cast<unsigned char>(text.back()))) text.remove_suffix(1);
+    return text;
+  };
+  std::string module;
+  for (const auto &item : tokenize(parameter, ",")) {
+    const std::string_view entry = trim(item);
+    const size_t equals = entry.find('=');
+    if (trim(entry.substr(0, equals)) != "swift_module") continue;
+    module = equals == std::string_view::npos ? "" : std::string(trim(entry.substr(equals + 1)));
+    if (module.empty()) module = kDefaultSwiftModule;
+  }
+  return module;
+}
+
+// Type prefix of the SwiftProtobuf types of a file. The swift_prefix file option wins,
+// even when it is empty. Without it, each part of the proto package is in upper camel
+// case, and "_" joins and ends the parts. For example "s12.legacy_ratelimits.v1" gives
+// "S12_LegacyRatelimits_V1_". An empty package gives "".
+inline std::string SwiftProtobufPrefix(const google::protobuf::FileDescriptor *file) {
+  if (file->options().has_swift_prefix()) {
+    return std::string(file->options().swift_prefix());
+  }
+  const std::string package(file->package());
+  if (package.empty()) return "";
+  std::string prefix;
+  bool make_upper = true;
+  for (char c : package) {
+    if (c == '_') {
+      make_upper = true;
+    } else if (c == '.') {
+      make_upper = true;
+      prefix += '_';
+    } else {
+      if (prefix.empty() && c >= '0' && c <= '9') prefix += '_';
+      if (make_upper && c >= 'a' && c <= 'z') c = static_cast<char>(c - 'a' + 'A');
+      make_upper = false;
+      prefix += c;
+    }
+  }
+  return prefix + "_";
+}
+
+// Names that SwiftProtobuf does not use for a type (reservedTypeNames in the NamingUtils of protoc-gen-swift).
+inline bool IsSwiftReservedTypeName(const std::string &name) {
+  static const std::set<std::string> reserved = {
+    "SwiftProtobuf", "Extensions", "protoMessageName", "decodeMessage", "traverse",
+    "isInitialized", "unknownFields", "debugDescription", "description", "dynamicType",
+    "hashValue", "Type", "Protocol", "Swift", "Equatable", "Hashable", "Sendable",
+    // Keywords used in declarations
+    "associatedtype", "class", "deinit", "enum", "extension", "fileprivate", "func",
+    "import", "init", "inout", "internal", "let", "open", "operator", "private",
+    "protocol", "public", "static", "struct", "subscript", "typealias", "var",
+    // Keywords used in statements
+    "break", "case", "continue", "default", "defer", "do", "else", "fallthrough", "for",
+    "guard", "if", "in", "repeat", "return", "switch", "where", "while",
+    // Keywords used in expressions and types
+    "as", "Any", "catch", "false", "is", "nil", "rethrows", "super", "self", "Self",
+    "throw", "throws", "true", "try",
+    // Common types and special variables
+    "Bool", "Data", "Double", "Float", "Int", "Int32", "Int64", "String", "UInt",
+    "UInt32", "UInt64", "__COLUMN__", "__FILE__", "__FUNCTION__", "__LINE__",
+  };
+  return reserved.count(name) > 0;
+}
+
+// Adds the "Message" suffix to a reserved name, as SwiftProtobuf does. A name that
+// already ends in "Message" gets the suffix again if its root is reserved.
+inline std::string SanitizeSwiftMessageName(const std::string &name) {
+  const std::string disambiguator = "Message";
+  if (IsSwiftReservedTypeName(name)) return name + disambiguator;
+  if (!name.empty() && name.find_first_not_of('_') == std::string::npos) return name + disambiguator;
+  if (HasSuffixString(name, disambiguator)) {
+    return SanitizeSwiftMessageName(StripSuffixString(name, disambiguator)) + disambiguator;
+  }
+  return name;
+}
+
+// SwiftProtobuf type name of a message. A nested message is a nested Swift type.
+inline std::string SwiftProtobufTypeName(const Descriptor *descriptor) {
+  if (descriptor->containing_type() != nullptr) {
+    return SwiftProtobufTypeName(descriptor->containing_type()) + "." +
+           SanitizeSwiftMessageName(std::string(descriptor->name()));
+  }
+  return SanitizeSwiftMessageName(SwiftProtobufPrefix(descriptor->file()) + std::string(descriptor->name()));
+}
+
+// Translator type of a message in the swiftxx header. It has its own namespace
+// because the ObjC translator of the same message is in djinni::<type>.
+inline std::string SwiftxxTranslatorName(const std::string &cpp_type_name) {
+  return "djinni::swift::" + cpp_type_name + "::Translator";
 }
 
 inline std::string ClassName(const Descriptor *descriptor, bool qualified) {

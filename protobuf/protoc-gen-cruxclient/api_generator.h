@@ -84,12 +84,14 @@ class APIGenerator {
   // Djinni Support
   void GenerateDjinniYAML(
     const google::protobuf::FileDescriptor *file,
-    google::protobuf::compiler::GeneratorContext *context) const;
+    google::protobuf::compiler::GeneratorContext *context,
+    const std::string &swift_module) const;
 
   void PrintDjinniYAML(
     google::protobuf::io::Printer *printer,
     const google::protobuf::FileDescriptor *file,
-    const std::string& main_file_name) const;
+    const std::string& main_file_name,
+    const std::string &swift_module) const;
 
   void GenerateDjinniObjcSupport(
     const google::protobuf::FileDescriptor *file,
@@ -104,6 +106,14 @@ class APIGenerator {
     google::protobuf::compiler::GeneratorContext *context) const;
 
   void PrintDjinniJNISupport(
+    google::protobuf::io::Printer *printer,
+    const google::protobuf::FileDescriptor *file) const;
+
+  void GenerateDjinniSwiftxxSupport(
+    const google::protobuf::FileDescriptor *file,
+    google::protobuf::compiler::GeneratorContext *context) const;
+
+  void PrintDjinniSwiftxxSupport(
     google::protobuf::io::Printer *printer,
     const google::protobuf::FileDescriptor *file) const;
 

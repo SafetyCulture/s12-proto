@@ -129,6 +129,18 @@ cruxclient: install-cruxclient
 	--cruxclient_out=:protobuf/protoc-gen-cruxclient/generated \
 	protobuf/protoc-gen-cruxclient/proto/routeguide/v1/*.proto
 
+.PHONY: cruxclient-swift
+cruxclient-swift: install-cruxclient
+	protoc \
+	-I./protobuf/protoc-gen-cruxclient/proto \
+	-I./protobuf/protoc-gen-cruxclient \
+	--cruxclient_out=swift_module=RouteGuideProtos:protobuf/protoc-gen-cruxclient/generated-swift \
+	protobuf/protoc-gen-cruxclient/proto/routeguide/v1/message.proto
+	protoc \
+	-I./protobuf/protoc-gen-cruxclient-go/testdata \
+	--cruxclient_out=swift_module:protobuf/protoc-gen-cruxclient/generated-swift \
+	protobuf/protoc-gen-cruxclient-go/testdata/swiftnames/*.proto
+
 .PHONY: install-gogrpcmock
 install-gogrpcmock:
 	go install github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-gogrpcmock
