@@ -1,0 +1,28 @@
+syntax = "proto2";
+
+package kitchen.legacy;
+
+option java_multiple_files = true;
+option java_package = "com.safetyculture.kitchen.legacy";
+
+enum Level {
+  LEVEL_LOW = 1;
+  LEVEL_HIGH = 2;
+}
+
+message Legacy {
+  required string id = 1;
+  optional int32 count = 2;
+  optional string label = 3 [default = "none"];
+  optional Level level = 4 [default = LEVEL_HIGH];
+  repeated int32 numbers = 5;
+  repeated int32 packed_numbers = 6 [packed = true];
+  optional bytes blob = 7;
+  optional Legacy parent = 8;
+  required double score = 9 [default = 1.5];
+  oneof pick {
+    string a = 10;
+    int64 b = 11;
+  }
+  extensions 100 to 199;
+}
