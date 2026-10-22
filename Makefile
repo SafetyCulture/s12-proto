@@ -158,6 +158,10 @@ cruxclient-kotlin: install-cruxclient
 	protobuf/protoc-gen-cruxclient-go/testdata/swiftnames/names.proto \
 	protobuf/protoc-gen-cruxclient-go/testdata/swiftnames/loose.proto
 
+.PHONY: install-crux-kotlin
+install-crux-kotlin:
+	cd protobuf/protoc-gen-crux-kotlin && go install .
+
 .PHONY: install-gogrpcmock
 install-gogrpcmock:
 	go install github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-gogrpcmock

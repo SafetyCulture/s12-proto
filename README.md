@@ -41,6 +41,7 @@ See [docs/plugins.md](docs/plugins.md) for the full plugin reference, including 
 | `protoc-gen-gogrpcmock` | gRPC mock server implementations |
 | `protoc-gen-cruxclient` | C++ client + Djinni bindings (C++ toolchain) |
 | `protoc-gen-cruxclient-go` | C++ client + Djinni bindings (Go, no C++ toolchain needed) |
+| `protoc-gen-crux-kotlin` | Pure Kotlin messages with a wire codec |
 
 ## Proto linting with buf
 
@@ -52,9 +53,15 @@ buf breaking --against '.git#branch=master'
 ## Running tests
 
 ```sh
-# Root module (all plugins except cruxclient-go)
+# Root module (all plugins except cruxclient-go and crux-kotlin)
 go test ./...
 
 # protoc-gen-cruxclient-go
 cd protobuf/protoc-gen-cruxclient-go && go test ./...
+
+# protoc-gen-crux-kotlin
+cd protobuf/protoc-gen-crux-kotlin && go test ./...
+
+# Kotlin and Java lite wire compatibility (needs go, protoc, kotlinc and java)
+protobuf/protoc-gen-crux-kotlin/test/wire_compat.sh
 ```

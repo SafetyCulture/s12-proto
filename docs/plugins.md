@@ -109,6 +109,14 @@ protoc \
   path/to/*.proto
 ```
 
+**Option `kotlin_package`**: Turns on the Kotlin output for the pure Kotlin messages of `protoc-gen-crux-kotlin`. A bare `kotlin_package` uses the root package `com.safetyculture.s12kt`. `kotlin_package=<Root>` sets the root package. With the option on, each `.djinni.yaml` record gets `kotlinTranslator`, `kotlinHeader` and `kotlinTypeSignature` keys in its `jni:` block and a `jniTypename` key in its `kotlin:` block, and the plugin writes `.djinni.kotlin.jni.h`. The Kotlin translator moves a message as serialized bytes between C++ and the Kotlin class, with `toByteArray()`, `getSerializedSize()` and `parseFrom(ByteArray)`. With the option off, the output does not change.
+```sh
+protoc \
+  -I. \
+  --cruxclient_out=kotlin_package:. \
+  path/to/*.proto
+```
+
 ---
 
 ## protoc-gen-cruxclient-go
@@ -137,3 +145,52 @@ protoc \
   --cruxclient-go_out=swift_module=S12Protos:. \
   path/to/*.proto
 ```
+
+**Option `kotlin_package`**: Turns on the Kotlin output for the pure Kotlin messages of `protoc-gen-crux-kotlin`. A bare `kotlin_package` uses the root package `com.safetyculture.s12kt`. `kotlin_package=<Root>` sets the root package. With the option on, each `.djinni.yaml` record gets `kotlinTranslator`, `kotlinHeader` and `kotlinTypeSignature` keys in its `jni:` block and a `jniTypename` key in its `kotlin:` block, and the plugin writes `.djinni.kotlin.jni.h`. The Kotlin translator moves a message as serialized bytes between C++ and the Kotlin class, with `toByteArray()`, `getSerializedSize()` and `parseFrom(ByteArray)`. With the option off, the output does not change.
+```sh
+protoc \
+  -I. \
+  --cruxclient-go_out=kotlin_package:. \
+  path/to/*.proto
+```
+
+---
+
+## protoc-gen-crux-kotlin
+
+**Purpose**: Generates pure Kotlin message classes with a wire codec. The classes replace the Java lite classes in Kotlin code. They have no dependency except the Kotlin standard library.
+
+**Generates**: one `.pb.kt` file for each proto file, and one runtime file `<root>/wire/S12Wire.kt` for each run.
+
+**Install**:
+```sh
+make install-crux-kotlin
+```
+
+**Usage**:
+```sh
+protoc \
+  -I. \
+  --crux-kotlin_out=kotlin_package:. \
+  path/to/*.proto
+```
+
+**Option `kotlin_package`**: Sets the root package. The default is `com.safetyculture.s12kt`. The proto package follows the root, with the leading `s12.` removed, as the Java lite package does. The Kotlin classes and the Java lite classes can be in one app, because their packages are different.
+
+**Rules**:
+
+| Proto | Kotlin |
+|-------|--------|
+| message | `data class` with `val` parameters and default values. Use the constructor and `copy()`. |
+| plain scalar | Non-null, with the proto default |
+| `optional` scalar, singular message | Nullable, `null` by default |
+| `repeated` | `List`, empty by default |
+| `map` | `Map`, empty by default |
+| `oneof` | A nullable property of a `sealed class` type, with one subclass for each member |
+| enum | `enum class` with `number`, `fromNumber()` and an `UNRECOGNIZED` entry |
+
+Each message has `toByteArray()`, `getSerializedSize()` and `companion object { @JvmStatic fun parseFrom(bytes: ByteArray) }`. A field that the code does not know is kept in `unknownFields` and written again. The well-known types (`Timestamp`, `Duration`, `FieldMask`, `Any`, `Struct`, wrappers, `Empty`) are generated like other messages, when you give their files to the plugin. They have data and codec only.
+
+The wire format is the same as the format of Java lite. One case is different. A proto3 enum number that the enum does not declare cannot be held by `UNRECOGNIZED`. The codec keeps the number in `unknownFields` and writes it after the known fields. For a map entry, the codec keeps the whole entry there.
+
+**Test**: `go test ./...` in the plugin directory runs the golden test and the nullability tests. `test/wire_compat.sh` generates Kotlin and Java lite classes from the same proto files, encodes random messages and compares the bytes in both directions. Set `APISCHEMA` to an APISchema checkout to include `s12.assets.v1.Asset`.
