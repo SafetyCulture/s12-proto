@@ -94,11 +94,19 @@ protoc \
 
 **Purpose**: Generates C++ client code, mock servers, and Djinni cross-language bindings (ObjC, JNI) from proto service definitions. Targets the CRUX Engine mobile client SDK.
 
-**Generates**: `.crux.api.h`, `.crux.api.cc`, `.mock.h`, `.djinni.yaml`, `.djinni.objc.h`, `.djinni.jni.h`
+**Generates**: `.crux.api.h`, `.crux.api.cc`, `.mock.h`, `.djinni.yaml`, `.djinni.objc.h`, `.djinni.jni.h`, and `.djinni.swiftxx.h` (only with the `swift_module` option)
 
 **Install** (requires C++17 toolchain, protobuf, and gRPC libraries):
 ```sh
 make install-cruxclient
+```
+
+**Option `swift_module`**: Turns on the Swift output. A bare `swift_module` uses the module name `S12Protos`. `swift_module=<Name>` sets the module name. With the option on, each `.djinni.yaml` record gets a `swift:` and a `swiftxx:` block, and the plugin writes `.djinni.swiftxx.h`. With the option off, the output does not change. This plugin is the one in the `ghcr.io/safetyculture/protoc-cpp` image. The Go port writes the same bytes.
+```sh
+protoc \
+  -I. \
+  --cruxclient_out=swift_module=S12Protos:. \
+  path/to/*.proto
 ```
 
 ---
@@ -107,7 +115,7 @@ make install-cruxclient
 
 **Purpose**: Go port of `protoc-gen-cruxclient`. Generates identical output using the `bufbuild/protoplugin` framework — no C++ toolchain required.
 
-**Generates**: `.crux.api.h`, `.crux.api.cc`, `.mock.h`, `.djinni.yaml`, `.djinni.objc.h`, `.djinni.jni.h`
+**Generates**: `.crux.api.h`, `.crux.api.cc`, `.mock.h`, `.djinni.yaml`, `.djinni.objc.h`, `.djinni.jni.h`, and `.djinni.swiftxx.h` (only with the `swift_module` option)
 
 **Install**:
 ```sh
@@ -119,5 +127,13 @@ go install github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-cruxclient-go@
 protoc \
   -I. \
   --cruxclient-go_out=. \
+  path/to/*.proto
+```
+
+**Option `swift_module`**: Turns on the Swift output. A bare `swift_module` uses the module name `S12Protos`. `swift_module=<Name>` sets the module name. With the option on, each `.djinni.yaml` record gets a `swift:` and a `swiftxx:` block, and the plugin writes `.djinni.swiftxx.h` next to `.djinni.objc.h`. With the option off, the output does not change.
+```sh
+protoc \
+  -I. \
+  --cruxclient-go_out=swift_module=S12Protos:. \
   path/to/*.proto
 ```
