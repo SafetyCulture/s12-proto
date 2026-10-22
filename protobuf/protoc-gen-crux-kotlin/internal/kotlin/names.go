@@ -49,14 +49,11 @@ func className(name string) string {
 	return name
 }
 
-// propertyName returns the Kotlin property name of a field: the lower camel case JSON name.
-// A name that clashes gets a trailing underscore.
+// propertyName returns the Kotlin property name of a field: the lower camel case field name.
+// It is not the JSON name, because a json_name option can hold any text. A name that clashes
+// gets a trailing underscore.
 func propertyName(fd protoreflect.FieldDescriptor) string {
-	name := fd.JSONName()
-	if name == "" {
-		name = string(fd.Name())
-	}
-	return safeProperty(lowerFirst(name))
+	return safeProperty(lowerFirst(upperCamel(string(fd.Name()))))
 }
 
 func safeProperty(name string) string {

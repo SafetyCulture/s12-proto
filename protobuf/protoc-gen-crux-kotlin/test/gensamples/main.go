@@ -162,10 +162,8 @@ func javaClassName(md protoreflect.MessageDescriptor) string {
 		if outer == "" {
 			base := strings.TrimSuffix(filepath.Base(md.ParentFile().Path()), ".proto")
 			outer = upperCamel(base)
-			for i := 0; i < md.ParentFile().Messages().Len(); i++ {
-				if string(md.ParentFile().Messages().Get(i).Name()) == outer {
-					outer += "OuterClass"
-				}
+			if declares(md.ParentFile(), outer) {
+				outer += "OuterClass"
 			}
 		}
 		chain = append([]string{outer}, chain...)
@@ -369,4 +367,10 @@ func openEnumValue(r *rand.Rand, fd protoreflect.FieldDescriptor) protoreflect.V
 		sawOpenEnum = true
 	}
 	return protoreflect.ValueOfEnum(protoreflect.EnumNumber(100 + r.Intn(50)))
+}
+
+// declares reports whether a file has a top-level message, enum or service of the given name.
+func declares(fd protoreflect.FileDescriptor, name string) bool {
+	n := protoreflect.Name(name)
+	return fd.Messages().ByName(n) != nil || fd.Enums().ByName(n) != nil || fd.Services().ByName(n) != nil
 }
