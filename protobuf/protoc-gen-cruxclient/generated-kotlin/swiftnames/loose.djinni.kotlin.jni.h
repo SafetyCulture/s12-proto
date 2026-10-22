@@ -20,7 +20,9 @@ struct Translator {
     const auto& data = JniClass<JNIInfo>::get();
     assert(jniEnv->IsInstanceOf(j, data.clazz.get()));
     jbyteArray byteArray = static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes));
+    jniExceptionCheck(jniEnv);
     auto byte_len = jniEnv->CallIntMethod(j, data.method_byteSize);
+    jniExceptionCheck(jniEnv);
     jbyte* byte = jniEnv->GetByteArrayElements(byteArray, NULL);
     CppType cpp_message;
     cpp_message.ParseFromArray(byte, byte_len);
@@ -63,7 +65,9 @@ struct Translator {
     const auto& data = JniClass<JNIInfo>::get();
     assert(jniEnv->IsInstanceOf(j, data.clazz.get()));
     jbyteArray byteArray = static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes));
+    jniExceptionCheck(jniEnv);
     auto byte_len = jniEnv->CallIntMethod(j, data.method_byteSize);
+    jniExceptionCheck(jniEnv);
     jbyte* byte = jniEnv->GetByteArrayElements(byteArray, NULL);
     CppType cpp_message;
     cpp_message.ParseFromArray(byte, byte_len);
