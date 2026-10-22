@@ -299,6 +299,78 @@ func TestSwiftOptionDefaultModule(t *testing.T) {
 	require.Contains(t, output, "routeguide/v1/message.djinni.swiftxx.h")
 }
 
+// TestKotlinOptionOffKeepsOutput checks that a request without the Kotlin option
+// produces no Kotlin output.
+func TestKotlinOptionOffKeepsOutput(t *testing.T) {
+	output := runPlugin(t, messageProtoSources(t), []string{"routeguide/v1/message.proto"})
+
+	require.NotContains(t, output, "routeguide/v1/message.djinni.kotlin.jni.h")
+	for _, key := range []string{"jniTypename", "kotlinTranslator", "kotlinHeader", "kotlinTypeSignature"} {
+		require.NotContains(t, output["routeguide/v1/message.djinni.yaml"], key)
+	}
+}
+
+// TestMessageDjinniKotlinGolden is a golden file test for the Kotlin keys of the
+// yaml output and the .djinni.kotlin.jni.h output.
+func TestMessageDjinniKotlinGolden(t *testing.T) {
+	output := runPluginWithParameter(t, messageProtoSources(t),
+		[]string{"routeguide/v1/message.proto"}, "kotlin_package")
+
+	for _, name := range []string{"message.djinni.yaml", "message.djinni.kotlin.jni.h"} {
+		require.Contains(t, output, "routeguide/v1/"+name,
+			"plugin output missing %s; got keys: %v", name, mapKeys(output))
+		golden := mustReadFile(t, "testdata/routeguide/kotlin/"+name)
+		require.Equal(t, string(golden), output["routeguide/v1/"+name],
+			"mismatch — diff output against testdata/routeguide/kotlin/%s", name)
+	}
+
+	// The djinni files of the other languages do not change.
+	plain := runPlugin(t, messageProtoSources(t), []string{"routeguide/v1/message.proto"})
+	for _, name := range []string{"message.djinni.objc.h", "message.djinni.jni.h"} {
+		require.Equal(t, plain["routeguide/v1/"+name], output["routeguide/v1/"+name])
+	}
+}
+
+// TestKotlinPackageOption checks the package root of the Kotlin class names.
+func TestKotlinPackageOption(t *testing.T) {
+	output := runPluginWithParameter(t, messageProtoSources(t),
+		[]string{"routeguide/v1/message.proto"}, "kotlin_package=com.example.kt")
+
+	yaml := output["routeguide/v1/message.djinni.yaml"]
+	require.Contains(t, yaml, "  jniTypename: 'com.example.kt.routeguide.v1.Point'\n")
+	require.Contains(t, yaml, "  jniTypename: 'com.example.kt.routeguide.v1.RouteSummary.Details.MoreDetails'\n")
+	require.Contains(t, yaml, "  kotlinTypeSignature: 'Lcom/example/kt/routeguide/v1/RouteSummary$Details$MoreDetails;'\n")
+	require.Contains(t, output["routeguide/v1/message.djinni.kotlin.jni.h"],
+		`jniFindClass("com/example/kt/routeguide/v1/RouteSummary$Details")`)
+}
+
+// TestKotlinBlockWithoutWirePackage checks that a file without the wire_package option gets a
+// kotlin: block with only jniTypename.
+func TestKotlinBlockWithoutWirePackage(t *testing.T) {
+	sources := map[string]string{
+		"swiftnames/loose.proto": string(mustReadFile(t, "testdata/swiftnames/loose.proto")),
+	}
+	plain := runPlugin(t, sources, []string{"swiftnames/loose.proto"})
+	require.NotContains(t, plain["swiftnames/loose.djinni.yaml"], "kotlin:")
+
+	output := runPluginWithParameter(t, sources, []string{"swiftnames/loose.proto"}, "kotlin_package")
+	require.Contains(t, output["swiftnames/loose.djinni.yaml"], "kotlin:\n  jniTypename: 'com.safetyculture.s12kt.Loose'\n")
+}
+
+// TestKotlinPackageDropsLeadingS12 checks that the package s12.name_test.v1 maps to the
+// Kotlin package com.safetyculture.s12kt.name_test.v1, and a nested class has a "$" in its signature.
+func TestKotlinPackageDropsLeadingS12(t *testing.T) {
+	sources := map[string]string{
+		"swiftnames/names.proto": string(mustReadFile(t, "testdata/swiftnames/names.proto")),
+	}
+	output := runPluginWithParameter(t, sources, []string{"swiftnames/names.proto"}, "kotlin_package")
+
+	yaml := output["swiftnames/names.djinni.yaml"]
+	require.Contains(t, yaml, "  jniTypename: 'com.safetyculture.s12kt.name_test.v1.Outer'\n")
+	require.Contains(t, yaml, "  jniTypename: 'com.safetyculture.s12kt.name_test.v1.Outer.Foo.Type'\n")
+	require.Contains(t, yaml, "  kotlinTypeSignature: 'Lcom/safetyculture/s12kt/name_test/v1/Outer$Foo$Type;'\n")
+}
+
 // swiftTypeNames returns the swift: typename values of a yaml output, in file order.
 func swiftTypeNames(yaml string) []string {
 	var names []string
@@ -383,6 +455,41 @@ func TestCppSwiftGoldenMatchesGo(t *testing.T) {
 	goGolden := mustReadFile(t, "testdata/google/protobuf/timestamp.djinni.yaml")
 	cppGolden := mustReadFile(t, "../protoc-gen-cruxclient/generated-swift/google/protobuf/timestamp.djinni.yaml")
 	require.Equal(t, string(goGolden), string(cppGolden), "timestamp.djinni.yaml differs between the C++ and the Go golden files")
+}
+
+// TestKotlinSwiftnamesGolden checks the Kotlin output for a package with the leading s12
+// segment, nested classes, and a file without a package.
+func TestKotlinSwiftnamesGolden(t *testing.T) {
+	sources := map[string]string{}
+	for _, name := range []string{"names", "loose"} {
+		sources["swiftnames/"+name+".proto"] = string(mustReadFile(t, "testdata/swiftnames/"+name+".proto"))
+	}
+	output := runPluginWithParameter(t, sources, []string{"swiftnames/names.proto", "swiftnames/loose.proto"}, "kotlin_package")
+
+	for _, name := range []string{"names", "loose"} {
+		for _, suffix := range []string{".djinni.yaml", ".djinni.kotlin.jni.h"} {
+			golden := mustReadFile(t, "testdata/swiftnames/kotlin/"+name+suffix)
+			require.Equal(t, string(golden), output["swiftnames/"+name+suffix],
+				"mismatch — diff output against testdata/swiftnames/kotlin/%s%s", name, suffix)
+		}
+	}
+}
+
+// TestCppKotlinGoldenMatchesGo checks that the golden files of the C++ plugin and of
+// the Go plugin are the same bytes.
+func TestCppKotlinGoldenMatchesGo(t *testing.T) {
+	for _, name := range []string{"message.djinni.yaml", "message.djinni.kotlin.jni.h"} {
+		goGolden := mustReadFile(t, "testdata/routeguide/kotlin/"+name)
+		cppGolden := mustReadFile(t, "../protoc-gen-cruxclient/generated-kotlin/routeguide/v1/"+name)
+		require.Equal(t, string(goGolden), string(cppGolden), "%s differs between the C++ and the Go golden files", name)
+	}
+	for _, name := range []string{"names", "loose"} {
+		for _, suffix := range []string{".djinni.yaml", ".djinni.kotlin.jni.h"} {
+			goGolden := mustReadFile(t, "testdata/swiftnames/kotlin/"+name+suffix)
+			cppGolden := mustReadFile(t, "../protoc-gen-cruxclient/generated-kotlin/swiftnames/"+name+suffix)
+			require.Equal(t, string(goGolden), string(cppGolden), "%s%s differs between the C++ and the Go golden files", name, suffix)
+		}
+	}
 }
 
 // collectTransitiveDeps recursively walks a FileDescriptor's transitive import

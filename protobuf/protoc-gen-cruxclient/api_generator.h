@@ -85,13 +85,15 @@ class APIGenerator {
   void GenerateDjinniYAML(
     const google::protobuf::FileDescriptor *file,
     google::protobuf::compiler::GeneratorContext *context,
-    const std::string &swift_module) const;
+    const std::string &swift_module,
+    const std::string &kotlin_package) const;
 
   void PrintDjinniYAML(
     google::protobuf::io::Printer *printer,
     const google::protobuf::FileDescriptor *file,
     const std::string& main_file_name,
-    const std::string &swift_module) const;
+    const std::string &swift_module,
+    const std::string &kotlin_package) const;
 
   void GenerateDjinniObjcSupport(
     const google::protobuf::FileDescriptor *file,
@@ -108,6 +110,16 @@ class APIGenerator {
   void PrintDjinniJNISupport(
     google::protobuf::io::Printer *printer,
     const google::protobuf::FileDescriptor *file) const;
+
+  void GenerateDjinniKotlinJNISupport(
+    const google::protobuf::FileDescriptor *file,
+    google::protobuf::compiler::GeneratorContext *context,
+    const std::string &kotlin_package) const;
+
+  void PrintDjinniKotlinJNISupport(
+    google::protobuf::io::Printer *printer,
+    const google::protobuf::FileDescriptor *file,
+    const std::string &kotlin_package) const;
 
   void GenerateDjinniSwiftxxSupport(
     const google::protobuf::FileDescriptor *file,

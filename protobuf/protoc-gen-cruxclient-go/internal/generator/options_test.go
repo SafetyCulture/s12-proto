@@ -30,3 +30,28 @@ func TestParseOptions(t *testing.T) {
 		})
 	}
 }
+
+func TestParseKotlinPackage(t *testing.T) {
+	tests := []struct {
+		parameter string
+		pkg       string
+	}{
+		{"", ""},
+		{"swift_module", ""},
+		{"kotlin_package", DefaultKotlinPackage},
+		{"kotlin_package=", DefaultKotlinPackage},
+		{"kotlin_package=com.example.kt", "com.example.kt"},
+		{"swift_module, kotlin_package = com.example.kt ", "com.example.kt"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.parameter, func(t *testing.T) {
+			opts := ParseOptions(tt.parameter)
+			if opts.KotlinPackage != tt.pkg {
+				t.Errorf("ParseOptions(%q).KotlinPackage = %q, want %q", tt.parameter, opts.KotlinPackage, tt.pkg)
+			}
+			if opts.KotlinEnabled() != (tt.pkg != "") {
+				t.Errorf("ParseOptions(%q).KotlinEnabled() = %v", tt.parameter, opts.KotlinEnabled())
+			}
+		})
+	}
+}

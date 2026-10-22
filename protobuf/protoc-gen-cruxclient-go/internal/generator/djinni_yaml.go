@@ -19,6 +19,8 @@ import (
 // message (including nested), skipping map-entry synthetics.
 //
 // When options enable the Swift output, each record also has swift: and swiftxx: blocks.
+// When options enable the Kotlin output, the jni: block has the keys of the Kotlin
+// translator and the kotlin: block has jniTypename.
 func GenerateDjinniYAML(rw protoplugin.ResponseWriter, fileDesc protoreflect.FileDescriptor, options Options) {
 	w := codegen.NewWriter()
 
@@ -72,9 +74,19 @@ func GenerateDjinniYAML(rw protoplugin.ResponseWriter, fileDesc protoreflect.Fil
 			}
 		}
 
+		var kotlin *kotlinYAML
+		if options.KotlinEnabled() {
+			kotlin = &kotlinYAML{
+				typename:      common.KotlinQualifiedName(msg, options.KotlinPackage),
+				typeSignature: "L" + common.KotlinBinaryName(msg, options.KotlinPackage) + ";",
+				translator:    kotlinJNITranslatorName(cppTypeName),
+				translatorHdr: baseName + kotlinJNIHeaderSuffix,
+			}
+		}
+
 		writeDjinniYAMLRecord(w, domainName, fileNameCamel, dir, baseName, mainFileName,
 			messageName, cppTypeName, javaMessageBoxName, javaMessageName,
-			javaPackageSlashes, javaPackage, objcClassPrefix, wirePackage, swift)
+			javaPackageSlashes, javaPackage, objcClassPrefix, wirePackage, swift, kotlin)
 	}
 
 	rw.AddFile(baseName+".djinni.yaml", w.String())
@@ -89,13 +101,21 @@ type swiftYAML struct {
 	translatorHdr string
 }
 
+// kotlinYAML holds the values of the pure Kotlin class in the jni: and kotlin: blocks of one record.
+type kotlinYAML struct {
+	typename      string
+	typeSignature string
+	translator    string
+	translatorHdr string
+}
+
 // writeDjinniYAMLRecord writes a single YAML record for a message.
-// A nil swift leaves out the swift: and swiftxx: blocks.
+// A nil swift leaves out the swift: and swiftxx: blocks. A nil kotlin leaves out the Kotlin keys.
 func writeDjinniYAMLRecord(w *codegen.CodeWriter,
 	domainName, fileNameCamel, dir, baseName, mainFileName,
 	messageName, cppTypeName, javaMessageBoxName, javaMessageName,
 	javaPackageSlashes, javaPackage, objcClassPrefix, wirePackage string,
-	swift *swiftYAML) {
+	swift *swiftYAML, kotlin *kotlinYAML) {
 
 	w.WL("---")
 	w.WL("name: pb_%s_%s_%s", domainName, fileNameCamel, messageName)
@@ -131,6 +151,11 @@ func writeDjinniYAMLRecord(w *codegen.CodeWriter,
 	w.WL("  header: '\"%s.djinni.jni.h\"'", mainFileName)
 	w.WL("  typename: jobject")
 	w.WL("  typeSignature: 'L%s/%s;'", javaPackageSlashes, javaMessageName)
+	if kotlin != nil {
+		w.WL("  kotlinTranslator: '%s'", kotlin.translator)
+		w.WL("  kotlinHeader: '\"%s\"'", kotlin.translatorHdr)
+		w.WL("  kotlinTypeSignature: '%s'", kotlin.typeSignature)
+	}
 
 	if swift != nil {
 		w.WL("swift:")
@@ -145,10 +170,15 @@ func writeDjinniYAMLRecord(w *codegen.CodeWriter,
 		w.WL("  header: '\"%s\"'", swift.translatorHdr)
 	}
 
-	if wirePackage != "" {
+	if wirePackage != "" || kotlin != nil {
 		w.WL("kotlin:")
-		w.WL("  typename: '%s.%s'", wirePackage, javaMessageBoxName)
-		w.WL("  isProtobufMessage: true")
+		if wirePackage != "" {
+			w.WL("  typename: '%s.%s'", wirePackage, javaMessageBoxName)
+			w.WL("  isProtobufMessage: true")
+		}
+		if kotlin != nil {
+			w.WL("  jniTypename: '%s'", kotlin.typename)
+		}
 	}
 	w.WL()
 }

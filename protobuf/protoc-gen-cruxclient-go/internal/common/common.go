@@ -350,3 +350,51 @@ func sanitizeSwiftMessageName(name string) string {
 	}
 	return name
 }
+
+// KotlinClassName returns the name of a Kotlin class for a message name. The
+// name Companion would clash with the companion object of the enclosing class.
+func KotlinClassName(name string) string {
+	if name == "Companion" {
+		return name + "Message"
+	}
+	return name
+}
+
+// KotlinTypeName returns the Kotlin class name of a message inside its package.
+// A nested message is a nested Kotlin class, so its name has a "." separator.
+// Example: "Outer.Inner".
+func KotlinTypeName(msg protoreflect.MessageDescriptor) string {
+	if parent, ok := msg.Parent().(protoreflect.MessageDescriptor); ok {
+		return KotlinTypeName(parent) + "." + KotlinClassName(string(msg.Name()))
+	}
+	return KotlinClassName(string(msg.Name()))
+}
+
+// KotlinPackage returns the Kotlin package of the messages of a file: the root
+// package, then the proto package. The leading "s12" segment of the proto package
+// is not repeated, because the root package already names it, as the Java package
+// "com.safetyculture.s12.assets.v1" does. For example "s12.assets.v1" gives
+// "com.safetyculture.s12kt.assets.v1".
+func KotlinPackage(fileDesc protoreflect.FileDescriptor, root string) string {
+	pkg := string(fileDesc.Package())
+	if pkg == "s12" {
+		return root
+	}
+	pkg = strings.TrimPrefix(pkg, "s12.")
+	if pkg == "" {
+		return root
+	}
+	return root + "." + pkg
+}
+
+// KotlinQualifiedName returns the fully qualified Kotlin class name of a message.
+// Example: "com.safetyculture.s12kt.assets.v1.Outer.Inner".
+func KotlinQualifiedName(msg protoreflect.MessageDescriptor, root string) string {
+	return KotlinPackage(msg.ParentFile(), root) + "." + KotlinTypeName(msg)
+}
+
+// KotlinBinaryName returns the JVM binary name of the Kotlin class of a message.
+// A nested class has a "$" separator. Example: "com/safetyculture/s12kt/assets/v1/Outer$Inner".
+func KotlinBinaryName(msg protoreflect.MessageDescriptor, root string) string {
+	return DotsToSlashs(KotlinPackage(msg.ParentFile(), root)) + "/" + strings.ReplaceAll(KotlinTypeName(msg), ".", "$")
+}

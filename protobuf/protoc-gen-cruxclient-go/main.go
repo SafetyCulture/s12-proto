@@ -67,7 +67,7 @@ func generateMock(rw protoplugin.ResponseWriter, fileDesc protoreflect.FileDescr
 }
 
 // generateDjinniSupport generates the three djinni support files:
-// .djinni.yaml, .djinni.objc.h, .djinni.jni.h. The Swift option adds .djinni.swiftxx.h.
+// .djinni.yaml, .djinni.objc.h, .djinni.jni.h. The Swift option adds .djinni.swiftxx.h. The Kotlin option adds .djinni.kotlin.jni.h.
 // Mirrors api_generator.cc GenerateDjinniSupport: guards on
 // top-level message count using fileDesc.Messages().Len() to match the C++
 // file->message_type_count() check (which counts only top-level messages,
@@ -82,6 +82,9 @@ func generateDjinniSupport(rw protoplugin.ResponseWriter, fileDesc protoreflect.
 	generator.GenerateDjinniJNI(rw, fileDesc)
 	if opts.SwiftEnabled() {
 		generator.GenerateDjinniSwiftxx(rw, fileDesc)
+	}
+	if opts.KotlinEnabled() {
+		generator.GenerateDjinniKotlinJNI(rw, fileDesc, opts)
 	}
 }
 

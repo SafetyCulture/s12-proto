@@ -304,6 +304,71 @@ inline std::string SwiftxxTranslatorName(const std::string &cpp_type_name) {
   return "djinni::swift::" + cpp_type_name + "::Translator";
 }
 
+// Root package of the pure Kotlin messages that a bare kotlin_package option selects.
+inline constexpr const char *kDefaultKotlinPackage = "com.safetyculture.s12kt";
+
+// Reads the kotlin_package option from a comma-separated protoc parameter string.
+// Returns an empty string if the Kotlin output is off. A bare kotlin_package
+// selects kDefaultKotlinPackage. Other keys are ignored.
+inline std::string ParseKotlinPackage(std::string_view parameter) {
+  auto trim = [](std::string_view text) {
+    while (!text.empty() && std::isspace(static_cast<unsigned char>(text.front()))) text.remove_prefix(1);
+    while (!text.empty() && std::isspace(static_cast<unsigned char>(text.back()))) text.remove_suffix(1);
+    return text;
+  };
+  std::string package;
+  for (const auto &item : tokenize(parameter, ",")) {
+    const std::string_view entry = trim(item);
+    const size_t equals = entry.find('=');
+    if (trim(entry.substr(0, equals)) != "kotlin_package") continue;
+    package = equals == std::string_view::npos ? "" : std::string(trim(entry.substr(equals + 1)));
+    if (package.empty()) package = kDefaultKotlinPackage;
+  }
+  return package;
+}
+
+// Kotlin package of the messages of a file: the root package, then the proto package. The
+// leading "s12" segment of the proto package is not repeated, because the root package
+// already names it. For example "s12.assets.v1" gives "com.safetyculture.s12kt.assets.v1".
+inline std::string KotlinPackage(const google::protobuf::FileDescriptor *file, const std::string &root) {
+  std::string package(file->package());
+  if (package == "s12") return root;
+  if (package.compare(0, 4, "s12.") == 0) package = package.substr(4);
+  if (package.empty()) return root;
+  return root + "." + package;
+}
+
+// The name Companion would clash with the companion object of the enclosing Kotlin class.
+inline std::string KotlinClassName(const std::string &name) {
+  return name == "Companion" ? name + "Message" : name;
+}
+
+// Kotlin class name of a message inside its package. A nested message is a nested Kotlin
+// class, so the separator is "." for the source name and "$" for the JVM binary name.
+inline std::string KotlinTypeName(const Descriptor *descriptor, const std::string &separator) {
+  if (descriptor->containing_type() != nullptr) {
+    return KotlinTypeName(descriptor->containing_type(), separator) + separator +
+           KotlinClassName(std::string(descriptor->name()));
+  }
+  return KotlinClassName(std::string(descriptor->name()));
+}
+
+// Fully qualified Kotlin class name of a message, for example "com.safetyculture.s12kt.assets.v1.Outer.Inner".
+inline std::string KotlinQualifiedName(const Descriptor *descriptor, const std::string &root) {
+  return KotlinPackage(descriptor->file(), root) + "." + KotlinTypeName(descriptor, ".");
+}
+
+// JVM binary name of the Kotlin class of a message, for example "com/safetyculture/s12kt/assets/v1/Outer$Inner".
+inline std::string KotlinBinaryName(const Descriptor *descriptor, const std::string &root) {
+  return DotsToSlashs(KotlinPackage(descriptor->file(), root)) + "/" + KotlinTypeName(descriptor, "$");
+}
+
+// JNI translator type of the pure Kotlin class of a message. It has its own namespace
+// because the translator of the Java class of the same message is in djinni::<type>.
+inline std::string KotlinJNITranslatorName(const std::string &cpp_type_name) {
+  return "djinni::kotlin::" + cpp_type_name + "::Translator";
+}
+
 inline std::string ClassName(const Descriptor *descriptor, bool qualified) {
   // Find "outer", the descriptor of the top-level message in which
   // "descriptor" is embedded.
