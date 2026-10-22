@@ -241,10 +241,17 @@ inline std::string SwiftProtobufPrefix(const google::protobuf::FileDescriptor *f
   return prefix + "_";
 }
 
-// Swift module of the SwiftProtobuf types of a file. The types of package google.protobuf
-// are in the SwiftProtobuf runtime, not in the module of the other protos.
+// Swift module of the SwiftProtobuf types of a file. The types of the bundled google.protobuf files
+// (isBundledProto in protoc-gen-swift) are in the SwiftProtobuf runtime, not in the module of the other protos.
 inline std::string SwiftProtobufModule(const google::protobuf::FileDescriptor *file, const std::string &module) {
-  return file->package() == "google.protobuf" ? "SwiftProtobuf" : module;
+  static const std::set<std::string> bundled = {
+    "google/protobuf/any.proto", "google/protobuf/api.proto", "google/protobuf/descriptor.proto",
+    "google/protobuf/duration.proto", "google/protobuf/empty.proto", "google/protobuf/field_mask.proto",
+    "google/protobuf/source_context.proto", "google/protobuf/struct.proto",
+    "google/protobuf/timestamp.proto", "google/protobuf/type.proto", "google/protobuf/wrappers.proto",
+  };
+  const bool is_bundled = file->package() == "google.protobuf" && bundled.count(std::string(file->name())) > 0;
+  return is_bundled ? "SwiftProtobuf" : module;
 }
 
 // Names that SwiftProtobuf does not use for a type (reservedTypeNames in the NamingUtils of protoc-gen-swift).

@@ -30,7 +30,7 @@ jni:
   typeSignature: 'L/Timestamp;'
 swift:
   typename: 'Google_Protobuf_Timestamp'
-  module: 'SwiftProtobuf'
+  module: 'S12Protos'
   prefix: 'Google_Protobuf_'
   generic: false
   translator: 'ProtobufMarshaller<Google_Protobuf_Timestamp>'

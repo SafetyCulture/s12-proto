@@ -246,10 +246,25 @@ func SwiftProtobufPrefix(fileDesc protoreflect.FileDescriptor) string {
 	return swiftPackagePrefix(string(fileDesc.Package()))
 }
 
+// swiftBundledProtos are the files that the SwiftProtobuf runtime has the types of (isBundledProto in protoc-gen-swift).
+var swiftBundledProtos = map[string]struct{}{
+	"google/protobuf/any.proto":            {},
+	"google/protobuf/api.proto":            {},
+	"google/protobuf/descriptor.proto":     {},
+	"google/protobuf/duration.proto":       {},
+	"google/protobuf/empty.proto":          {},
+	"google/protobuf/field_mask.proto":     {},
+	"google/protobuf/source_context.proto": {},
+	"google/protobuf/struct.proto":         {},
+	"google/protobuf/timestamp.proto":      {},
+	"google/protobuf/type.proto":           {},
+	"google/protobuf/wrappers.proto":       {},
+}
+
 // SwiftProtobufModule returns the Swift module of the SwiftProtobuf types of a file.
-// The types of package google.protobuf are in the SwiftProtobuf runtime, not in the module of the other protos.
+// The types of the bundled google.protobuf files are in the SwiftProtobuf runtime, not in the module of the other protos.
 func SwiftProtobufModule(fileDesc protoreflect.FileDescriptor, module string) string {
-	if fileDesc.Package() == "google.protobuf" {
+	if _, bundled := swiftBundledProtos[fileDesc.Path()]; bundled && fileDesc.Package() == "google.protobuf" {
 		return "SwiftProtobuf"
 	}
 	return module

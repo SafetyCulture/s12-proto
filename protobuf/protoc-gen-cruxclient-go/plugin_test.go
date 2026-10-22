@@ -340,10 +340,9 @@ func TestSwiftTypeNames(t *testing.T) {
 		require.Equal(t, string(golden), output["swiftnames/"+name+".djinni.yaml"])
 	}
 
-	// The types of package google.protobuf are in the SwiftProtobuf runtime.
+	// A file outside the bundled google/protobuf files keeps the module of the option, even in package google.protobuf.
 	require.Equal(t, []string{"Google_Protobuf_Timestamp"}, swiftTypeNames(output["swiftnames/wellknown.djinni.yaml"]))
-	require.Contains(t, output["swiftnames/wellknown.djinni.yaml"], "  module: 'SwiftProtobuf'\n")
-	require.NotContains(t, output["swiftnames/wellknown.djinni.yaml"], "S12Protos")
+	require.Contains(t, output["swiftnames/wellknown.djinni.yaml"], "  module: 'S12Protos'\n")
 	require.Contains(t, output["swiftnames/names.djinni.yaml"], "  module: 'S12Protos'\n")
 
 	require.Equal(t, []string{"Loose", "Loose.Inner"}, swiftTypeNames(output["swiftnames/loose.djinni.yaml"]))
@@ -351,6 +350,21 @@ func TestSwiftTypeNames(t *testing.T) {
 
 	require.Equal(t, []string{"SPWithSwiftPrefix", "SPWithSwiftPrefix.DataMessage"}, swiftTypeNames(output["swiftnames/prefixed.djinni.yaml"]))
 	require.Contains(t, output["swiftnames/prefixed.djinni.yaml"], "  prefix: 'SP'\n")
+}
+
+// TestSwiftBundledProtoModule checks that the types of a bundled google/protobuf file use the
+// SwiftProtobuf module, as protoc-gen-swift does.
+func TestSwiftBundledProtoModule(t *testing.T) {
+	sources := map[string]string{
+		"google/protobuf/timestamp.proto": string(mustReadFile(t, "testdata/google/protobuf/timestamp.proto")),
+	}
+	output := runPluginWithParameter(t, sources, []string{"google/protobuf/timestamp.proto"}, "swift_module")
+
+	yaml := output["google/protobuf/timestamp.djinni.yaml"]
+	require.Equal(t, []string{"Google_Protobuf_Timestamp"}, swiftTypeNames(yaml))
+	require.Contains(t, yaml, "  module: 'SwiftProtobuf'\n")
+	require.NotContains(t, yaml, "S12Protos")
+	require.Equal(t, string(mustReadFile(t, "testdata/google/protobuf/timestamp.djinni.yaml")), yaml)
 }
 
 // TestCppSwiftGoldenMatchesGo checks that the golden files of the C++ plugin and of
@@ -366,6 +380,9 @@ func TestCppSwiftGoldenMatchesGo(t *testing.T) {
 		cppGolden := mustReadFile(t, "../protoc-gen-cruxclient/generated-swift/swiftnames/"+name+".djinni.yaml")
 		require.Equal(t, string(goGolden), string(cppGolden), "%s differs between the C++ and the Go golden files", name)
 	}
+	goGolden := mustReadFile(t, "testdata/google/protobuf/timestamp.djinni.yaml")
+	cppGolden := mustReadFile(t, "../protoc-gen-cruxclient/generated-swift/google/protobuf/timestamp.djinni.yaml")
+	require.Equal(t, string(goGolden), string(cppGolden), "timestamp.djinni.yaml differs between the C++ and the Go golden files")
 }
 
 // collectTransitiveDeps recursively walks a FileDescriptor's transitive import
