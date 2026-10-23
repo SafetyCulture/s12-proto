@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"flag"
+	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -39,8 +40,8 @@ func compileOnDisk(t *testing.T, includes []string, files ...string) linker.File
 	return compiled
 }
 
-// runPluginOnDisk runs the plugin handler in-process on the given files and returns the output files.
-func runPluginOnDisk(t *testing.T, includes []string, parameter string, files ...string) map[string]string {
+// pluginResponseOnDisk runs the plugin handler in-process on the given files and returns the response, or the error that the plugin reports.
+func pluginResponseOnDisk(t *testing.T, includes []string, parameter string, files ...string) (*pluginpb.CodeGeneratorResponse, error) {
 	t.Helper()
 	compiled := compileOnDisk(t, includes, files...)
 
@@ -68,10 +69,20 @@ func runPluginOnDisk(t *testing.T, includes []string, parameter string, files ..
 	var stdout bytes.Buffer
 	var stderr strings.Builder
 	env := protoplugin.Env{Args: []string{}, Stdin: bytes.NewReader(reqBytes), Stdout: &stdout, Stderr: &stderr}
-	require.NoError(t, protoplugin.Run(context.Background(), env, protoplugin.HandlerFunc(handle)), stderr.String())
+	if err := protoplugin.Run(context.Background(), env, protoplugin.HandlerFunc(handle)); err != nil {
+		return nil, err
+	}
 
 	resp := &pluginpb.CodeGeneratorResponse{}
-	require.NoError(t, proto.Unmarshal(stdout.Bytes(), resp))
+	require.NoError(t, proto.Unmarshal(stdout.Bytes(), resp), stderr.String())
+	return resp, nil
+}
+
+// runPluginOnDisk runs the plugin handler in-process on the given files and returns the output files.
+func runPluginOnDisk(t *testing.T, includes []string, parameter string, files ...string) map[string]string {
+	t.Helper()
+	resp, err := pluginResponseOnDisk(t, includes, parameter, files...)
+	require.NoError(t, err)
 	require.Empty(t, resp.GetError())
 	out := map[string]string{}
 	for _, f := range resp.GetFile() {
@@ -308,4 +319,32 @@ func TestMessagesOnly(t *testing.T) {
 		require.Equal(t, withOutputs[name], out[name], name)
 	}
 	require.Empty(t, kitchenOutput(t, "messages_only"))
+}
+
+// wideMessage writes a proto file whose only message has count fields of the given type.
+func wideMessage(t *testing.T, fieldType string, count int) string {
+	t.Helper()
+	var b strings.Builder
+	b.WriteString("syntax = \"proto3\";\npackage wide.v1;\nmessage Wide {\n")
+	for i := 1; i <= count; i++ {
+		fmt.Fprintf(&b, "  %s f%d = %d;\n", fieldType, i, i)
+	}
+	b.WriteString("}\n")
+	dir := t.TempDir()
+	require.NoError(t, os.WriteFile(filepath.Join(dir, "wide.proto"), []byte(b.String()), 0o644))
+	return dir
+}
+
+// TestConstructorSlotLimit pins the largest message whose constructor fits in a JVM method.
+func TestConstructorSlotLimit(t *testing.T) {
+	const fits = 244 // 245 parameters, 8 masks and 2 more slots make 255
+	_, err := pluginResponseOnDisk(t, []string{wideMessage(t, "int32", fits)}, "kotlin_messages", "wide.proto")
+	require.NoError(t, err)
+
+	_, err = pluginResponseOnDisk(t, []string{wideMessage(t, "int32", fits+1)}, "kotlin_messages", "wide.proto")
+	require.ErrorContains(t, err, "wide.v1.Wide: the constructor needs 256 parameter slots and the JVM allows 255")
+
+	// A 64-bit value without presence takes two slots.
+	_, err = pluginResponseOnDisk(t, []string{wideMessage(t, "int64", fits-1)}, "kotlin_messages", "wide.proto")
+	require.ErrorContains(t, err, "wide.v1.Wide: the constructor needs")
 }
