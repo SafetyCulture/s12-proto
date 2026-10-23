@@ -261,11 +261,11 @@ func messageProtoSources(t *testing.T) map[string]string {
 }
 
 // TestSwiftOptionOffKeepsOutput checks that a request without the Swift option
-// produces no Swift output and the same djinni files as the request with an unrelated option.
+// produces no Swift output and the same djinni files as a request with paths.
 func TestSwiftOptionOffKeepsOutput(t *testing.T) {
 	files := []string{"routeguide/v1/message.proto"}
 	plain := runPlugin(t, messageProtoSources(t), files)
-	other := runPluginWithParameter(t, messageProtoSources(t), files, "unrelated=1")
+	other := runPluginWithParameter(t, messageProtoSources(t), files, "paths=source_relative")
 
 	require.Equal(t, plain, other)
 	require.NotContains(t, plain, "routeguide/v1/message.djinni.swiftxx.h")

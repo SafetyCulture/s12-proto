@@ -37,7 +37,10 @@ func handle(
 	if err != nil {
 		return err
 	}
-	opts := generator.ParseOptions(request.Parameter())
+	opts, err := generator.ParseOptions(request.Parameter())
+	if err != nil {
+		return err
+	}
 	cruxclientFiles := fileDescriptors
 	if opts.MessagesOnly {
 		cruxclientFiles = nil

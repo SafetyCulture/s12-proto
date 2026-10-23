@@ -2,7 +2,12 @@
 
 package generator
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+
+	"github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-cruxclient-go/internal/kotlin"
+)
 
 // DefaultSwiftModule is the Swift module that holds the SwiftProtobuf types.
 const DefaultSwiftModule = "S12Protos"
@@ -22,18 +27,21 @@ type Options struct {
 	MessagesOnly bool
 }
 
-// ParseOptions reads a comma-separated protoc parameter string. A bare
-// swift_module enables the Swift output with DefaultSwiftModule. A bare
-// kotlin_package enables the Kotlin output with DefaultKotlinPackage. A bare
-// kotlin_messages enables the Kotlin message classes with the kotlin_package
-// value, or DefaultKotlinPackage if kotlin_package is absent. Other keys are ignored.
-func ParseOptions(parameter string) Options {
+// ParseOptions reads a comma-separated protoc parameter string.
+func ParseOptions(parameter string) (Options, error) {
 	var opts Options
 	var kotlinMessages bool
 	for _, item := range strings.Split(parameter, ",") {
-		key, value, _ := strings.Cut(item, "=")
+		key, value, hasValue := strings.Cut(item, "=")
+		key = strings.TrimSpace(key)
 		value = strings.TrimSpace(value)
-		switch strings.TrimSpace(key) {
+		if key == "" {
+			if item == "" {
+				continue
+			}
+			return Options{}, fmt.Errorf("cruxclient-go: unknown option %q", key)
+		}
+		switch key {
 		case "swift_module":
 			opts.SwiftModule = valueOr(value, DefaultSwiftModule)
 		case "kotlin_package":
@@ -42,13 +50,27 @@ func ParseOptions(parameter string) Options {
 			opts.KotlinMessages = value
 			kotlinMessages = true
 		case "messages_only":
+			if hasValue {
+				return Options{}, fmt.Errorf("cruxclient-go: option %q does not accept a value", key)
+			}
 			opts.MessagesOnly = true
+		case "paths":
+		default:
+			return Options{}, fmt.Errorf("cruxclient-go: unknown option %q", key)
+		}
+	}
+	if opts.KotlinPackage != "" {
+		if err := kotlin.ValidateRoot(opts.KotlinPackage); err != nil {
+			return Options{}, err
 		}
 	}
 	if kotlinMessages {
 		opts.KotlinMessages = valueOr(opts.KotlinMessages, valueOr(opts.KotlinPackage, DefaultKotlinPackage))
+		if err := kotlin.ValidateRoot(opts.KotlinMessages); err != nil {
+			return Options{}, err
+		}
 	}
-	return opts
+	return opts, nil
 }
 
 // SwiftEnabled reports whether the Swift output is on.
