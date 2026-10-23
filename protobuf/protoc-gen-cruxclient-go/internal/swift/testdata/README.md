@@ -27,6 +27,7 @@ The golden files are in the repository, because CI has no Swift toolchain: the t
 | mitti-mobile | `49159543207f31dd13e4a20ce3e8196ac34a9fc6` (`tools/lib/s12_prefixes.py`, `crux/deps/s12-prefixes.yaml`, `crux/tools/s12_modules_*.txt`) |
 
 ## Oracle procedure
+
 Build the pinned generator before you change a golden file.
 
 ```sh
@@ -37,6 +38,8 @@ swift build -c release --package-path /tmp/swift-protobuf --product protoc-gen-s
 PROTOC_GEN_SWIFT=/tmp/swift-protobuf/.build/release/protoc-gen-swift \
   APISCHEMA=<APISchema checkout> MITTI_MOBILE=<mitti-mobile checkout> ./regen.sh
 ```
+
+The revision command must print `55d7a1cc5666b85c13464aea1c4b4a90feccb4c8`.
 
 Check out APISchema and mitti-mobile at the commits in the table. After `regen.sh`, `git status --short .` must print nothing: the committed goldens are upstream output. Then `go test -count=1 ./internal/swift` must report 0 differ: the plugin output is upstream output.
 
