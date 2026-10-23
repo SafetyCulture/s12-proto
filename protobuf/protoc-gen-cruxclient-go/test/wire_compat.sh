@@ -11,7 +11,8 @@
 #   SAMPLES          Samples for each message. Default: 12.
 #   PROTOC_INCLUDE   The directory that holds google/protobuf/*.proto. Default: next to protoc.
 #   JAVALITE_JAR     The protobuf-javalite jar. Default: downloaded for the version of protoc.
-#   WORK             Scratch directory. Default: a new temporary directory, removed on exit.
+#   WORK             Scratch directory. A directory that you give is kept. Default: a new temporary directory, removed on exit.
+#   KEEP_WORK        Set it to keep the default temporary directory too.
 set -euo pipefail
 
 HERE=$(cd "$(dirname "$0")" && pwd)
@@ -19,9 +20,11 @@ PLUGIN_DIR=$(dirname "$HERE")
 REPO=$(cd "$PLUGIN_DIR/../.." && pwd)
 CRUXCLIENT=$REPO/protobuf/protoc-gen-cruxclient
 
-WORK=${WORK:-$(mktemp -d)}
+if [ -z "${WORK:-}" ]; then
+  WORK=$(mktemp -d)
+  [ -n "${KEEP_WORK:-}" ] || trap 'rm -rf "$WORK"' EXIT
+fi
 mkdir -p "$WORK"
-[ -n "${KEEP_WORK:-}" ] || trap 'rm -rf "$WORK"' EXIT
 
 PROTOC_INCLUDE=${PROTOC_INCLUDE:-$(dirname "$(dirname "$(command -v protoc)")")/include}
 [ -f "$PROTOC_INCLUDE/google/protobuf/descriptor.proto" ] || { echo "PROTOC_INCLUDE has no google/protobuf/descriptor.proto: $PROTOC_INCLUDE" >&2; exit 2; }
