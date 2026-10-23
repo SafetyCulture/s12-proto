@@ -18,3 +18,31 @@ jobs:
       - run: mise run vet
       - run: mise run verify:generated
       - run: mise run test
+
+  native-evidence:
+    name: Native evidence
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: jdx/mise-action@v2
+      - name: Install pinned Kotlin compiler
+        env:
+          KOTLIN_SHA256: 7cc140e76daf416a0424a5557f99afd7ca89ebd463ea1101261e3e01c33e75cd
+          KOTLIN_VERSION: 2.4.21
+        run: |
+          set -euo pipefail
+          archive="$RUNNER_TEMP/kotlin-compiler-$KOTLIN_VERSION.zip"
+          curl --fail --location --silent --show-error --output "$archive" "https://github.com/JetBrains/kotlin/releases/download/v$KOTLIN_VERSION/kotlin-compiler-$KOTLIN_VERSION.zip"
+          echo "$KOTLIN_SHA256  $archive" | sha256sum --check --status
+          unzip -q "$archive" -d "$RUNNER_TEMP/kotlin"
+          echo "$RUNNER_TEMP/kotlin/kotlinc/bin" >> "$GITHUB_PATH"
+      - name: Compile Kotlin goldens
+        run: protobuf/protoc-gen-cruxclient-go/test/ci/compile_kotlin_goldens.sh
+      - name: Run Kotlin wire compatibility
+        run: protobuf/protoc-gen-cruxclient-go/test/wire_compat.sh
+      - name: Check generated C++ glue
+        run: protobuf/protoc-gen-cruxclient-go/test/ci/check_glue_headers.sh
