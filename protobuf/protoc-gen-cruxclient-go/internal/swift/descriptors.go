@@ -203,7 +203,7 @@ func (r *registry) addFile(fp *descriptorpb.FileDescriptorProto) (*file, error) 
 	for _, name := range fp.GetDependency() {
 		dep, ok := r.files[name]
 		if !ok {
-			return nil, fmt.Errorf("%s: the import %s has no descriptor", f.name, name)
+			return nil, fmt.Errorf("the import %s has no descriptor", name)
 		}
 		f.deps = append(f.deps, dep)
 	}

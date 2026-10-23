@@ -69,3 +69,12 @@ func TestBuildFilesRejectsUnsupportedEdition(t *testing.T) {
 	}})
 	require.EqualError(t, err, "add file edition-2024.proto: edition EDITION_2024 is not supported")
 }
+
+func TestBuildFilesRejectsMissingImport(t *testing.T) {
+	_, err := buildFiles([]*descriptorpb.FileDescriptorProto{{
+		Name:       proto.String("imp.proto"),
+		Syntax:     proto.String("proto3"),
+		Dependency: []string{"absent.proto"},
+	}})
+	require.EqualError(t, err, "add file imp.proto: the import absent.proto has no descriptor")
+}
