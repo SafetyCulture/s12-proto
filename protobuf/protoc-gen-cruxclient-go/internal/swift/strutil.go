@@ -10,24 +10,14 @@ import (
 
 // splitPath splits a path into the directory with its trailing slash, the base name and the suffix.
 func splitPath(pathname string) (dir, base, suffix string) {
-	for _, c := range pathname {
-		switch c {
-		case '/':
-			dir += base + suffix + string(c)
-			base = ""
-			suffix = ""
-		case '.':
-			base += suffix
-			suffix = string(c)
-		default:
-			suffix += string(c)
-		}
+	dirEnd := strings.LastIndexByte(pathname, '/') + 1
+	dir = pathname[:dirEnd]
+	filename := pathname[dirEnd:]
+	suffixStart := strings.LastIndexByte(filename, '.')
+	if suffixStart < 0 {
+		return dir, filename, ""
 	}
-	if suffix != "" && suffix[0] != '.' {
-		base += suffix
-		suffix = ""
-	}
-	return dir, base, suffix
+	return dir, filename[:suffixStart], filename[suffixStart:]
 }
 
 // escapedToDataLiteral converts escaped bytes into a Data literal.

@@ -8,7 +8,7 @@ import "strings"
 // newline, and a blank line gets no indentation.
 type printer struct {
 	sb          strings.Builder
-	indentation string
+	indentation int
 	atLineStart bool
 }
 
@@ -18,7 +18,6 @@ func newPrinter() *printer {
 	return &printer{atLineStart: true}
 }
 
-// sub returns an empty printer with the indentation of p.
 func (p *printer) sub() *printer {
 	return &printer{indentation: p.indentation, atLineStart: true}
 }
@@ -57,7 +56,9 @@ func (p *printer) write(text string) {
 	for i := range len(text) {
 		c := text[i]
 		if p.atLineStart && c != '\n' {
-			p.sb.WriteString(p.indentation)
+			for range p.indentation {
+				p.sb.WriteString(singleIndent)
+			}
 		}
 		p.sb.WriteByte(c)
 		p.atLineStart = c == '\n'
@@ -75,10 +76,10 @@ func (p *printer) appendPrinter(other *printer, indenting bool) {
 	p.atLineStart = other.atLineStart
 }
 
-func (p *printer) indent() { p.indentation += singleIndent }
+func (p *printer) indent() { p.indentation++ }
 
 func (p *printer) outdent() {
-	p.indentation = p.indentation[:len(p.indentation)-len(singleIndent)]
+	p.indentation--
 }
 
 func (p *printer) withIndentation(body func()) {
