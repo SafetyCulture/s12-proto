@@ -46,8 +46,11 @@ private fun compareSamples(dir: File): Int {
             val javaClass = Class.forName(javaName)
             val kAccepted = accepts({ parse(kotlinClass, it) }, input)
             val jAccepted = accepts({ parse(javaClass, it) }, input)
-            if (kAccepted != jAccepted) fail("Kotlin accepted=$kAccepted, Java lite accepted=$jAccepted")
-            if (kAccepted != true || jAccepted != true) {
+            if (kAccepted == null || jAccepted == null || kAccepted != jAccepted) {
+                fail("Kotlin accepted=$kAccepted, Java lite accepted=$jAccepted")
+                continue
+            }
+            if (!kAccepted) {
                 rejected++
                 continue
             }
