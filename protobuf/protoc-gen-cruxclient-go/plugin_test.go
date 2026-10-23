@@ -34,12 +34,30 @@ func runPlugin(t *testing.T, protoSources map[string]string, filesToGenerate []s
 	return runPluginWithParameter(t, protoSources, filesToGenerate, "")
 }
 
-// runPluginWithParameter is runPlugin with a protoc plugin parameter string.
+// runPluginWithParameter runs the plugin with a protoc parameter string.
 func runPluginWithParameter(t *testing.T, protoSources map[string]string, filesToGenerate []string, parameter string) map[string]string {
+	t.Helper()
+	resp, err := runPluginResponse(t, protoSources, filesToGenerate, parameter)
+	require.NoError(t, err)
+	require.Empty(t, resp.GetError())
+
+	output := make(map[string]string, len(resp.GetFile()))
+	for _, f := range resp.GetFile() {
+		output[f.GetName()] = f.GetContent()
+	}
+	return output
+}
+
+// runPluginResponse runs the plugin and returns its protocol response.
+func runPluginResponse(
+	t *testing.T,
+	protoSources map[string]string,
+	filesToGenerate []string,
+	parameter string,
+) (*pluginpb.CodeGeneratorResponse, error) {
 	t.Helper()
 	ctx := context.Background()
 
-	// Build resolver: custom source map + standard imports (google/protobuf/*)
 	sourceResolver := &protocompile.SourceResolver{
 		Accessor: protocompile.SourceAccessorFromMap(protoSources),
 	}
@@ -47,9 +65,6 @@ func runPluginWithParameter(t *testing.T, protoSources map[string]string, filesT
 		Resolver: protocompile.WithStandardImports(sourceResolver),
 	}
 
-	// Compile ALL files in the source map so that transitive dependencies are
-	// included in the ProtoFile list of the CodeGeneratorRequest. protoplugin
-	// needs the full closure to resolve imports when unmarshaling the request.
 	allFiles := make([]string, 0, len(protoSources))
 	for path := range protoSources {
 		allFiles = append(allFiles, path)
@@ -57,16 +72,12 @@ func runPluginWithParameter(t *testing.T, protoSources map[string]string, filesT
 	compiled, err := compiler.Compile(ctx, allFiles...)
 	require.NoError(t, err, "protocompile.Compile failed")
 
-	// Collect all compiled file descriptor protos, including transitive imports
-	// (standard well-known types like google/protobuf/descriptor.proto) so that
-	// protoplugin can resolve them when unmarshaling the CodeGeneratorRequest.
 	seen := make(map[string]struct{})
 	var protoFiles []*descriptorpb.FileDescriptorProto
-	for i := 0; i < len(compiled); i++ {
+	for i := range compiled {
 		collectTransitiveDeps(compiled[i], seen, &protoFiles)
 	}
 
-	// Build the CodeGeneratorRequest.
 	req := &pluginpb.CodeGeneratorRequest{
 		FileToGenerate: filesToGenerate,
 		ProtoFile:      protoFiles,
@@ -75,7 +86,6 @@ func runPluginWithParameter(t *testing.T, protoSources map[string]string, filesT
 	reqBytes, err := proto.Marshal(req)
 	require.NoError(t, err, "proto.Marshal(CodeGeneratorRequest) failed")
 
-	// Run the plugin handler via stdin/stdout.
 	var stdout bytes.Buffer
 	var stderr strings.Builder
 	env := protoplugin.Env{
@@ -84,20 +94,21 @@ func runPluginWithParameter(t *testing.T, protoSources map[string]string, filesT
 		Stdout: &stdout,
 		Stderr: &stderr,
 	}
-	err = protoplugin.Run(ctx, env, protoplugin.HandlerFunc(handle))
-	require.NoError(t, err, "protoplugin.Run failed; stderr: %s", stderr.String())
+	if err := protoplugin.Run(ctx, env, protoplugin.HandlerFunc(handle)); err != nil {
+		return nil, err
+	}
 
-	// Unmarshal the response.
 	resp := &pluginpb.CodeGeneratorResponse{}
 	err = proto.Unmarshal(stdout.Bytes(), resp)
 	require.NoError(t, err, "proto.Unmarshal(CodeGeneratorResponse) failed")
+	return resp, nil
+}
 
-	// Collect output files into a map.
-	output := make(map[string]string, len(resp.GetFile()))
-	for _, f := range resp.GetFile() {
-		output[f.GetName()] = f.GetContent()
-	}
-	return output
+func TestInvalidOptionAddsResponseError(t *testing.T) {
+	resp, err := runPluginResponse(t, messageProtoSources(t), []string{"routeguide/v1/message.proto"}, "unknown")
+	require.NoError(t, err)
+	require.Equal(t, `cruxclient-go: unknown option "unknown"`, resp.GetError())
+	require.Empty(t, resp.GetFile())
 }
 
 // mustReadFile reads a file relative to the test's working directory.
@@ -382,6 +393,8 @@ func swiftTypeNames(yaml string) []string {
 	}
 	return names
 }
+
+// timestamp.djinni.yaml and reserved.djinni.yaml pin malformed names for master byte identity.
 
 // TestSwiftTypeNames checks the type names against the output of protoc-gen-swift for the same
 // protos: reserved nested names, no package, swift_prefix. The names of reserved.proto are the

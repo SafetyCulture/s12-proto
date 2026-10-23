@@ -39,7 +39,8 @@ func handle(
 	}
 	opts, err := generator.ParseOptions(request.Parameter())
 	if err != nil {
-		return err
+		responseWriter.AddError(err)
+		return nil
 	}
 	cruxclientFiles := fileDescriptors
 	if opts.MessagesOnly {
@@ -59,7 +60,8 @@ func handle(
 	}
 	if opts.KotlinMessagesEnabled() {
 		if err := kotlin.Generate(responseWriter, fileDescriptors, opts.KotlinMessages); err != nil {
-			return fmt.Errorf("cruxclient-go: kotlin.Generate: %w", err)
+			responseWriter.AddError(fmt.Errorf("cruxclient-go: kotlin.Generate: %w", err))
+			return nil
 		}
 	}
 	return nil
