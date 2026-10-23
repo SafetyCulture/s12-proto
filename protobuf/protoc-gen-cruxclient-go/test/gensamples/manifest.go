@@ -34,15 +34,17 @@ func manifest(files *protoregistry.Files, paths map[string]bool, root string) st
 		check(err)
 		walkMessages(fd.Messages(), func(md protoreflect.MessageDescriptor) {
 			fmt.Fprintf(&b, "M\t%s\n", kotlin.BinaryClassName(md, root))
+			names := javaFieldNames(md)
 			for i := 0; i < md.Fields().Len(); i++ {
-				b.WriteString(fieldLine(md.Fields().Get(i), root))
+				fd := md.Fields().Get(i)
+				b.WriteString(fieldLine(fd, names[fd.Number()], root))
 			}
 		})
 	}
 	return b.String()
 }
 
-func fieldLine(fd protoreflect.FieldDescriptor, root string) string {
+func fieldLine(fd protoreflect.FieldDescriptor, javaName, root string) string {
 	value := fd
 	shape := "single"
 	oneofProp, oneofJava, member := "", "", ""
@@ -61,7 +63,49 @@ func fieldLine(fd protoreflect.FieldDescriptor, root string) string {
 		shape = "optional"
 	}
 	kind, open, class := valueKind(value, root)
-	return fmt.Sprintf("F\t%d\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", fd.Number(), kotlin.PropertyName(fd), javaCamel(string(fd.Name())), shape, kind, open, class, oneofProp, oneofJava, member)
+	return fmt.Sprintf("F\t%d\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", fd.Number(), kotlin.PropertyName(fd), javaName, shape, kind, open, class, oneofProp, oneofJava, member)
+}
+
+// javaFieldNames returns the name that Java lite uses in the accessors of each field of a message.
+// When two fields would make the same accessor, protoc appends the field number to the name of both:
+// a repeated field and a singular field named like its count or its list, and an open enum field and
+// a field named like its value accessor.
+func javaFieldNames(md protoreflect.MessageDescriptor) map[protoreflect.FieldNumber]string {
+	fields := md.Fields()
+	conflict := map[protoreflect.FieldNumber]bool{}
+	for i := 0; i < fields.Len(); i++ {
+		for j := i + 1; j < fields.Len(); j++ {
+			if javaAccessorsClash(fields.Get(i), fields.Get(j)) || javaAccessorsClash(fields.Get(j), fields.Get(i)) {
+				conflict[fields.Get(i).Number()] = true
+				conflict[fields.Get(j).Number()] = true
+			}
+		}
+	}
+	names := map[protoreflect.FieldNumber]string{}
+	for i := 0; i < fields.Len(); i++ {
+		fd := fields.Get(i)
+		names[fd.Number()] = javaCamel(string(fd.Name()))
+		if conflict[fd.Number()] {
+			names[fd.Number()] += fmt.Sprint(fd.Number())
+		}
+	}
+	return names
+}
+
+// javaAccessorsClash reports whether a field makes an accessor with the name of one of the accessors
+// of another field.
+func javaAccessorsClash(other, field protoreflect.FieldDescriptor) bool {
+	a, b := javaCamel(string(other.Name())), javaCamel(string(field.Name()))
+	if a == b {
+		return true
+	}
+	if other.IsList() && !field.IsList() && !field.IsMap() {
+		return b == a+"Count" || b == a+"List"
+	}
+	if other.Kind() == protoreflect.EnumKind && !other.Enum().IsClosed() {
+		return b == a+"Value"
+	}
+	return false
 }
 
 func valueKind(fd protoreflect.FieldDescriptor, root string) (kind, open, class string) {
