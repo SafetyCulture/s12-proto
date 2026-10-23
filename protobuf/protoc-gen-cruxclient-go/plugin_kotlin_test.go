@@ -470,8 +470,8 @@ func TestRequiredMessageCyclesRejectMissingFields(t *testing.T) {
 		name string
 		body string
 	}{
-		{"self", "message A { required A a = 1; optional int32 x = 2; }"},
-		{"indirect", "message B { required C c = 1; } message C { required B b = 1; }"},
+		{"self", "message A { required A a = 1; optional int32 x = 2; } message HolderA { optional A a = 1; } message ListA { repeated A a = 1; }"},
+		{"indirect", "message B { required C c = 1; } message C { required B b = 1; } message HolderB { optional B b = 1; }"},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -480,6 +480,7 @@ func TestRequiredMessageCyclesRejectMissingFields(t *testing.T) {
 			require.NoError(t, os.WriteFile(filepath.Join(dir, "cycle.proto"), []byte(source), 0o644))
 			out := runPluginOnDisk(t, []string{dir}, "kotlin_messages", "cycle.proto")
 			code := out["com/safetyculture/s12kt/cycle/v1/cycle.pb.kt"]
+			require.NotContains(t, code, ".decode(com.safetyculture.s12kt.wire.WireReader(kotlin.ByteArray(0)))")
 			require.Contains(t, code, "throw com.safetyculture.s12kt.wire.InvalidWireException(\"missing required field ")
 		})
 	}

@@ -883,7 +883,11 @@ func (g *fileGen) companion(msg protoreflect.MessageDescriptor, qualified string
 				typ += "?"
 				g.w.line("var v_%s: %s = null", f.prop, typ)
 				if fd.Message() != nil {
-					args = append(args, fmt.Sprintf("%s = v_%s ?: %s.decode(%s(kotlin.ByteArray(0)))", f.prop, f.prop, QualifiedClassName(fd.Message(), g.root), g.rt("WireReader")))
+					if requiredMessageCycle(fd.Message()) != "" {
+						args = append(args, fmt.Sprintf("%s = v_%s ?: throw %s(\"missing required field %s\")", f.prop, f.prop, g.rt("InvalidWireException"), fd.Name()))
+					} else {
+						args = append(args, fmt.Sprintf("%s = v_%s ?: %s.decode(%s(kotlin.ByteArray(0)))", f.prop, f.prop, QualifiedClassName(fd.Message(), g.root), g.rt("WireReader")))
+					}
 				} else {
 					args = append(args, fmt.Sprintf("%s = v_%s ?: %s", f.prop, f.prop, g.requiredFallback(f)))
 				}
