@@ -1,5 +1,8 @@
-# Output of protoc-gen-swift. GitHub collapses these files in a diff.
-protobuf/protoc-gen-cruxclient-go/internal/swift/testdata/golden/** linguist-generated=true
-protobuf/protoc-gen-cruxclient-go/internal/swift/testdata/kitchen/golden/** linguist-generated=true
-protobuf/protoc-gen-cruxclient-go/testdata/swiftmessages/** linguist-generated=true
+# Output of protoc-gen-swift. GitHub collapses these files in a diff. The tests compare
+# them byte for byte, so git must not change their line endings.
+protobuf/protoc-gen-cruxclient-go/internal/swift/testdata/golden/** linguist-generated=true text eol=lf
+protobuf/protoc-gen-cruxclient-go/internal/swift/testdata/*/golden/** linguist-generated=true text eol=lf
+protobuf/protoc-gen-cruxclient-go/testdata/swiftmessages/** linguist-generated=true text eol=lf
 protobuf/protoc-gen-cruxclient-go/internal/swift/testdata/whitelist.binpb.gz binary linguist-generated=true
+# Protos of swift-protobuf, copied as they are.
+protobuf/protoc-gen-cruxclient-go/internal/swift/testdata/upstream/*.proto linguist-vendored=true text eol=lf
