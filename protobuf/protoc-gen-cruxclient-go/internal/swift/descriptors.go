@@ -672,8 +672,8 @@ func (v *enumValue) jsonOption() (string, bool) {
 }
 
 // readJSONOption reads the string of the option from the extension with the given number. The
-// option is an extension that a program can register, so the registered type comes first, and the
-// unknown fields of the options are the other source.
+// option is an extension that a program can register, so the registered type comes first. The unknown
+// fields of the options are the other source: a program can register the type after it read the options.
 func readJSONOption(options *descriptorpb.EnumValueOptions, number protowire.Number, types interface {
 	FindExtensionByNumber(message protoreflect.FullName, field protoreflect.FieldNumber) (protoreflect.ExtensionType, error)
 }) (string, bool) {
@@ -682,17 +682,16 @@ func readJSONOption(options *descriptorpb.EnumValueOptions, number protowire.Num
 	}
 	if xt, err := types.FindExtensionByNumber(options.ProtoReflect().Descriptor().FullName(), number); err == nil {
 		xd := xt.TypeDescriptor()
-		if !options.ProtoReflect().Has(xd) {
-			return "", false
-		}
-		if xd.Message() == nil {
+		if options.ProtoReflect().Has(xd) {
+			if xd.Message() == nil {
+				return "", true
+			}
+			message := options.ProtoReflect().Get(xd).Message()
+			if field := message.Descriptor().Fields().ByNumber(1); field != nil && field.Kind() == protoreflect.StringKind {
+				return message.Get(field).String(), true
+			}
 			return "", true
 		}
-		message := options.ProtoReflect().Get(xd).Message()
-		if field := message.Descriptor().Fields().ByNumber(1); field != nil && field.Kind() == protoreflect.StringKind {
-			return message.Get(field).String(), true
-		}
-		return "", true
 	}
 	return jsonOptionFromUnknown(options.ProtoReflect().GetUnknown(), number)
 }

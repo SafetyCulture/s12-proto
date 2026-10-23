@@ -85,4 +85,9 @@ func TestJSONOption(t *testing.T) {
 
 	_, ok = readJSONOption(&descriptorpb.EnumValueOptions{Deprecated: proto.Bool(true)}, testOptionNumber, registered)
 	require.False(t, ok)
+
+	// Options that were read before the type was registered still have the option in the unknown fields.
+	name, ok = readJSONOption(unknown, testOptionNumber, registered)
+	require.True(t, ok)
+	require.Equal(t, "custom_name", name)
 }
