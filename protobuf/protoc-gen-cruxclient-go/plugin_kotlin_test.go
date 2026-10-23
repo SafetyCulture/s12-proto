@@ -233,6 +233,91 @@ func TestKitchenNullability(t *testing.T) {
 	}
 }
 
+// constructorField is the expected declaration of one constructor parameter: its name, its type and its default.
+type constructorField struct{ name, typ, def string }
+
+// kitchenConstructors lists, for the messages with presence, required fields or a field default, the
+// parameters of the constructor as the ticket rules give them. The tables are literal on purpose:
+// they do not use the rule that the generator follows.
+var kitchenConstructors = map[string][]constructorField{
+	"OptionalScalars": {
+		{"fDouble", "kotlin.Double?", "null"},
+		{"fFloat", "kotlin.Float?", "null"},
+		{"fInt32", "kotlin.Int?", "null"},
+		{"fInt64", "kotlin.Long?", "null"},
+		{"fUint32", "kotlin.Int?", "null"},
+		{"fUint64", "kotlin.Long?", "null"},
+		{"fSint32", "kotlin.Int?", "null"},
+		{"fSint64", "kotlin.Long?", "null"},
+		{"fFixed32", "kotlin.Int?", "null"},
+		{"fFixed64", "kotlin.Long?", "null"},
+		{"fSfixed32", "kotlin.Int?", "null"},
+		{"fSfixed64", "kotlin.Long?", "null"},
+		{"fBool", "kotlin.Boolean?", "null"},
+		{"fString", "kotlin.String?", "null"},
+		{"fBytes", "com.safetyculture.s12kt.wire.ByteString?", "null"},
+		{"fEnum", "com.safetyculture.s12kt.kitchen.v1.Color?", "null"},
+		{"fMessage", "com.safetyculture.s12kt.kitchen.v1.Scalars?", "null"},
+	},
+	"Legacy": {
+		{"id", "kotlin.String", "\"\""},
+		{"count", "kotlin.Int?", "null"},
+		{"label", "kotlin.String?", "null"},
+		{"level", "com.safetyculture.s12kt.kitchen.legacy.Level?", "null"},
+		{"numbers", "kotlin.collections.List<kotlin.Int>", "kotlin.collections.emptyList()"},
+		{"packedNumbers", "kotlin.collections.List<kotlin.Int>", "kotlin.collections.emptyList()"},
+		{"blob", "com.safetyculture.s12kt.wire.ByteString?", "null"},
+		{"parent", "com.safetyculture.s12kt.kitchen.legacy.Legacy?", "null"},
+		{"score", "kotlin.Double", "1.5"},
+		{"pick", "com.safetyculture.s12kt.kitchen.legacy.Legacy.Pick?", "null"},
+	},
+	"ReqEnum": {
+		{"level", "com.safetyculture.s12kt.kitchen.legacy.Level", "com.safetyculture.s12kt.kitchen.legacy.Level.LEVEL_LOW"},
+	},
+	"ReqHolder": {
+		{"one", "com.safetyculture.s12kt.kitchen.legacy.Req?", "null"},
+		{"many", "kotlin.collections.List<com.safetyculture.s12kt.kitchen.legacy.Req>", "kotlin.collections.emptyList()"},
+		{"byName", "kotlin.collections.Map<kotlin.String, com.safetyculture.s12kt.kitchen.legacy.Req>", "kotlin.collections.emptyMap()"},
+		{"tags", "kotlin.collections.Map<kotlin.String, kotlin.String>", "kotlin.collections.emptyMap()"},
+	},
+}
+
+// constructorFields returns the parameters of the top-level data class name in source, in order,
+// without the unknownFields parameter.
+func constructorFields(t *testing.T, source, name string) []constructorField {
+	t.Helper()
+	marker := "\npublic data class " + name + "(\n"
+	start := strings.Index(source, marker)
+	require.GreaterOrEqual(t, start, 0, "no data class for %s", name)
+	start += len(marker)
+	end := strings.Index(source[start:], "\n) ")
+	require.GreaterOrEqual(t, end, 0, "no end of the constructor of %s", name)
+	var fields []constructorField
+	for _, line := range strings.Split(source[start:start+end], "\n") {
+		m := declaredParam.FindStringSubmatch(strings.TrimSpace(line))
+		if m != nil && m[1] != "unknownFields" {
+			fields = append(fields, constructorField{m[1], m[2], m[3]})
+		}
+	}
+	return fields
+}
+
+// declaredParam matches one constructor parameter of a generated data class: name, type and default.
+var declaredParam = regexp.MustCompile("^public val `?(\\w+)`?: (.+?) = (.+),$")
+
+// TestKitchenConstructorTables checks the type and the default of every parameter of the messages
+// with explicit presence, required fields and field defaults against literal tables.
+func TestKitchenConstructorTables(t *testing.T) {
+	out := kitchenOutput(t, "kotlin_messages")
+	for name, want := range kitchenConstructors {
+		file := "com/safetyculture/s12kt/kitchen/v1/kitchen.pb.kt"
+		if name != "OptionalScalars" {
+			file = "com/safetyculture/s12kt/kitchen/legacy/legacy.pb.kt"
+		}
+		require.Equal(t, want, constructorFields(t, "\n"+out[file], name), name)
+	}
+}
+
 // assetNullability is the expectation for s12.assets.v1.Asset, field by field.
 var assetNullability = map[string]string{
 	"id":                        "kotlin.String",

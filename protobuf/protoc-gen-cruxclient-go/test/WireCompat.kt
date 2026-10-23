@@ -471,8 +471,9 @@ private fun malformedChecks(): Int {
     agree("negative length", field(14, 2, byteArrayOf(ff, ff, ff, ff, 0x0F)))
     agree("huge length", field(14, 2, byteArrayOf(ff, ff, ff, 0x7F)))
     agree("ten byte varint", varint((3 shl 3) or 0) + ByteArray(9) { ff } + byteArrayOf(0x01))
-    // Java lite reads an int32 varint of any length from a byte array; Kotlin refuses a varint of more than ten bytes.
+    // Java lite reads an int32 or int64 varint of any length from a byte array; Kotlin refuses a varint of more than ten bytes.
     failures += check("malformed eleven byte varint is refused by Kotlin", accepts({ Scalars.parseFrom(it) }, varint((3 shl 3) or 0) + ByteArray(10) { ff } + byteArrayOf(0x01)) == false)
+    failures += check("malformed eleven byte int64 varint is refused by Kotlin", accepts({ Scalars.parseFrom(it) }, varint((4 shl 3) or 0) + ByteArray(10) { ff } + byteArrayOf(0x01)) == false)
     agree("truncated varint", varint((3 shl 3) or 0) + byteArrayOf(ff))
     agree("truncated tag", byteArrayOf(0x80.toByte()))
     agree("a tag in ten bytes", ByteArray(9) { ff } + byteArrayOf(0x01))
