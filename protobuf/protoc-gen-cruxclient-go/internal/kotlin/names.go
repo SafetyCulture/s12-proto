@@ -177,8 +177,8 @@ func ValidateRoot(root string) error {
 			return fmt.Errorf("the root package %q is not a Kotlin package name: %q is not an identifier", root, segment)
 		}
 	}
-	// Generated code names library types through the root, so a parameter or local of the same
-	// name would hide it. The codec's own locals all contain "_".
+	// Generated code names library types through the root, so a parameter, local or member of the
+	// same name would hide it. The codec's own locals all contain "_".
 	if first := strings.Split(root, ".")[0]; codecLocals[first] || strings.Contains(first, "_") {
 		return fmt.Errorf("the root package %q starts with %q, which is a name in the generated code", root, first)
 	}

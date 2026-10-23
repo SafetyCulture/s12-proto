@@ -497,7 +497,7 @@ func TestKotlinOneofCallbackDoesNotShadowRoot(t *testing.T) {
 }
 
 // TestKotlinRootRejectsCodecLocals checks that a root cannot start with a name that the generated
-// code declares as a parameter or a local.
+// code declares as a parameter, a local or a member.
 func TestKotlinRootRejectsCodecLocals(t *testing.T) {
 	dir := t.TempDir()
 	source := "syntax = \"proto3\";\npackage rq.v1;\nmessage Leaf {}\n"
