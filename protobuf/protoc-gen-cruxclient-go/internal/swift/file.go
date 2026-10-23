@@ -11,6 +11,7 @@ const compatibilityVersion = 2
 
 // generateFile returns the text of the Swift file of one proto file.
 func (g *generator) generateFile(f *file) (string, error) {
+	g.err = nil
 	prefix := f.swiftPrefix()
 	if prefix != nil && *prefix != "" && !isValidSwiftIdentifier(*prefix) {
 		return "", fmt.Errorf("%s has an 'swift_prefix' that isn't a valid Swift identifier (%s).", f.name, *prefix)
@@ -106,6 +107,9 @@ func (g *generator) generateFile(f *file) (string, error) {
 		for _, m := range messages {
 			m.generateRuntimeSupport(p, nil)
 		}
+	}
+	if g.err != nil {
+		return "", g.err
 	}
 	return p.String(), nil
 }

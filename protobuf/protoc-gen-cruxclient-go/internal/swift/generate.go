@@ -20,6 +20,7 @@ type generator struct {
 	namer      *namer
 	storage    *storageAnalyzer
 	extensions *extensionSet
+	err        error
 }
 
 // Generate adds the Swift file of each file to generate to the response.

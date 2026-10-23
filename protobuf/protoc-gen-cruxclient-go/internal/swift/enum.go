@@ -140,6 +140,10 @@ func (e *enumGen) generateProtoNameProviding(p *printer) {
 			w.writeSame(v.number, v.name)
 		}
 	}
+	if w.err != nil {
+		g.err = w.err
+		return
+	}
 	p.print(fmt.Sprintf("%sstatic let _protobuf_nameMap = %s_NameMap(bytecode: %s)", visibility, rt, w.bytecode.stringLiteral()))
 }
 

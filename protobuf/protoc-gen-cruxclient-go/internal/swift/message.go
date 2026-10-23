@@ -200,6 +200,10 @@ func (mg *messageGen) generateProtoNameProviding(p *printer) {
 	for _, r := range mg.desc.reservedRanges {
 		w.writeReservedNumbers(r[0], r[1])
 	}
+	if w.err != nil {
+		mg.g.err = w.err
+		return
+	}
 	if w.shouldUseEmptyNameMapInitializer() {
 		p.print(fmt.Sprintf("%sstatic let _protobuf_nameMap = %s_NameMap()", mg.visibility, rt))
 		return

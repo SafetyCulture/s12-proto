@@ -99,6 +99,7 @@ type nameInstructionWriter struct {
 	bytecode       *bytecodeWriter
 	previousNumber int32
 	hasPrevious    bool
+	err            error
 }
 
 func newNameInstructionWriter() *nameInstructionWriter {
@@ -110,13 +111,17 @@ func (w *nameInstructionWriter) shouldUseEmptyNameMapInitializer() bool {
 }
 
 func (w *nameInstructionWriter) delta(number int32) int32 {
+	if w.err != nil {
+		return 0
+	}
 	if !w.hasPrevious {
 		w.hasPrevious = true
 		w.previousNumber = number
 		return number
 	}
 	if number < w.previousNumber {
-		panic("field and case numbers must be written in ascending order")
+		w.err = fmt.Errorf("field and case numbers must be written in ascending order")
+		return 0
 	}
 	d := number - w.previousNumber
 	w.previousNumber = number
@@ -125,6 +130,9 @@ func (w *nameInstructionWriter) delta(number int32) int32 {
 
 func (w *nameInstructionWriter) writeOp(number int32, next, deltaOp uint64) {
 	d := w.delta(number)
+	if w.err != nil {
+		return
+	}
 	if d == 1 {
 		w.bytecode.writeOpcode(next)
 		return
@@ -135,27 +143,38 @@ func (w *nameInstructionWriter) writeOp(number int32, next, deltaOp uint64) {
 
 func (w *nameInstructionWriter) writeSame(number int32, name string) {
 	w.writeOp(number, opSameNext, opSameDelta)
-	w.bytecode.writeNullTerminatedString(name)
+	if w.err == nil {
+		w.bytecode.writeNullTerminatedString(name)
+	}
 }
 
 func (w *nameInstructionWriter) writeStandard(number int32, name string) {
 	w.writeOp(number, opStandardNext, opStandardDelta)
-	w.bytecode.writeNullTerminatedString(name)
+	if w.err == nil {
+		w.bytecode.writeNullTerminatedString(name)
+	}
 }
 
 func (w *nameInstructionWriter) writeUnique(number int32, protoName, jsonName string) {
 	w.writeOp(number, opUniqueNext, opUniqueDelta)
-	w.bytecode.writeNullTerminatedString(protoName)
-	w.bytecode.writeNullTerminatedString(jsonName)
+	if w.err == nil {
+		w.bytecode.writeNullTerminatedString(protoName)
+		w.bytecode.writeNullTerminatedString(jsonName)
+	}
 }
 
 func (w *nameInstructionWriter) writeGroup(number int32, name string) {
 	w.writeOp(number, opGroupNext, opGroupDelta)
-	w.bytecode.writeNullTerminatedString(name)
+	if w.err == nil {
+		w.bytecode.writeNullTerminatedString(name)
+	}
 }
 
 func (w *nameInstructionWriter) writeAliased(v *enumValue, aliases []*enumValue) {
 	w.writeOp(v.number, opAliasNext, opAliasDelta)
+	if w.err != nil {
+		return
+	}
 	w.bytecode.writeNullTerminatedString(v.name)
 	names := make([]string, len(aliases))
 	for i, a := range aliases {
