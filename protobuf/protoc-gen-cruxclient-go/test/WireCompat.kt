@@ -577,9 +577,18 @@ private fun requiredEncodeChecks(): Int {
     } catch (e: UninitializedMessageException) {
         true
     }
+    val copiedMissing = Req.decode(WireReader(ByteArray(0))).copy().toByteArray().contentEquals(byteArrayOf(0x0A, 0))
+    val javaCopiedMissing = try {
+        JReq.newBuilder().build()
+        false
+    } catch (e: com.google.protobuf.UninitializedMessageException) {
+        true
+    }
     val explicitDefault = Req(name = "").toByteArray().contentEquals(JReq.newBuilder().setName("").build().toByteArray())
     var failures = check("a missing required message field is refused on decode", missingMessage)
     failures += check("a required scalar field that is missing is refused on encode", missingScalar)
+    failures += check("a copy writes the default for a missing required field", copiedMissing)
+    failures += check("Java lite rejects a copy of a partial message", javaCopiedMissing)
     failures += check("a required scalar set to its default is encoded", explicitDefault)
     return failures
 }
