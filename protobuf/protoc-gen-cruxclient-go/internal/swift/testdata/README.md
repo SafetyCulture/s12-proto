@@ -40,7 +40,7 @@ PROTOC_GEN_SWIFT=/tmp/swift-protobuf/.build/release/protoc-gen-swift \
   APISCHEMA=<APISchema checkout> MITTI_MOBILE=<mitti-mobile checkout> ./regen.sh
 ```
 
-The revision command must print `55d7a1cc5666b85c13464aea1c4b4a90feccb4c8`. Run the golden tests after regeneration. A zero-difference result proves that the goldens are upstream output.
+Check out APISchema and mitti-mobile at the commits in the table. After `regen.sh`, `git status --short .` must print nothing: the committed goldens are upstream output. Then `go test -count=1 ./internal/swift` must report 0 differ: the plugin output is upstream output.
 
 ## Scripts
 
