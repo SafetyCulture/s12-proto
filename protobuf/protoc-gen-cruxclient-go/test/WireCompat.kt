@@ -1,13 +1,16 @@
 // Copyright (c) 2026 SafetyCulture Pty Ltd. All Rights Reserved.
 
 // Compares the Kotlin message classes with the Java lite classes of the same proto files. For
-// each sample from gensamples, both classes parse the sample and write it again, and the bytes
-// must be equal in both directions. The kitchen checks at the end cover edits and nesting limits.
+// each sample from gensamples, both classes parse the sample, every field must have the same
+// value, and both classes write it again to equal bytes in both directions. The kitchen checks at
+// the end cover edits, nesting limits, merges, encodings and required fields.
 import com.safetyculture.s12kt.kitchen.legacy.Legacy
 import com.safetyculture.s12kt.kitchen.legacy.Req
 import com.safetyculture.s12kt.kitchen.legacy.ReqEnum
 import com.safetyculture.s12kt.kitchen.legacy.ReqHolder
 import com.safetyculture.s12kt.kitchen.v1.Color
+import com.safetyculture.s12kt.kitchen.v1.Maps
+import com.safetyculture.s12kt.kitchen.v1.OptionalScalars
 import com.safetyculture.s12kt.kitchen.v1.Oneofs
 import com.safetyculture.s12kt.kitchen.v1.Repeated
 import com.safetyculture.s12kt.kitchen.v1.Scalars
@@ -58,6 +61,9 @@ private fun compareSamples(dir: File): Int {
             val j = parse(javaClass, input)
             val kBytes = bytesOf(k)
             val jBytes = bytesOf(j)
+            val kDump = dumpKotlin(manifest, k)
+            val jDump = dumpJava(manifest, j, kotlinName)
+            if (kDump != jDump) fail("decoded values differ: ${firstDifference(kDump, jDump)}")
             if (!kBytes.contentEquals(jBytes)) fail("Kotlin writes ${kBytes.size} bytes, Java lite writes ${jBytes.size} bytes different")
             if (sizeOf(k) != kBytes.size) fail("Kotlin getSerializedSize ${sizeOf(k)} but toByteArray ${kBytes.size}")
             if (sizeOf(j) != sizeOf(k)) fail("getSerializedSize differs: Kotlin ${sizeOf(k)} Java ${sizeOf(j)}")
@@ -77,6 +83,8 @@ private fun compareSamples(dir: File): Int {
 }
 
 private typealias JScalars = com.safetyculture.s12.kitchen.v1.Scalars
+private typealias JMaps = com.safetyculture.s12.kitchen.v1.Maps
+private typealias JOptionalScalars = com.safetyculture.s12.kitchen.v1.OptionalScalars
 private typealias JOneofs = com.safetyculture.s12.kitchen.v1.Oneofs
 private typealias JRepeated = com.safetyculture.s12.kitchen.v1.Repeated
 private typealias JLegacy = com.safetyculture.kitchen.legacy.Legacy
@@ -179,6 +187,20 @@ private fun same(name: String, kotlin: (ByteArray) -> Any, java: (ByteArray) -> 
     return check("$name: Kotlin=$k Java=$j", ok)
 }
 
+private lateinit var manifest: Map<String, List<FieldInfo>>
+
+/** Like [same], and an accepted message must also have the same value in every field. */
+private fun sameValues(name: String, kotlin: Class<*>, java: Class<*>, bytes: ByteArray, accepted: Boolean): Int {
+    var failures = same(name, { parse(kotlin, it) }, { parse(java, it) }, bytes, accepted)
+    if (failures == 0 && accepted) {
+        val kDump = dumpKotlin(manifest, parse(kotlin, bytes))
+        val jDump = dumpJava(manifest, parse(java, bytes), kotlin.name)
+        failures += check("$name: values", kDump == jDump)
+        if (kDump != jDump) println("  ${firstDifference(kDump, jDump)}")
+    }
+    return failures
+}
+
 private fun field(number: Int, wireType: Int, payload: ByteArray = ByteArray(0)): ByteArray =
     varint((number shl 3) or wireType) + payload
 
@@ -229,11 +251,109 @@ private fun utf8Checks(): Int {
     return failures
 }
 
+private fun fixed64(number: Int, bits: Long): ByteArray =
+    field(number, 1, ByteArray(8) { (bits ushr (8 * it)).toByte() })
+
+private fun fixed32(number: Int, bits: Int): ByteArray =
+    field(number, 5, ByteArray(4) { (bits ushr (8 * it)).toByte() })
+
+private fun vint(number: Int, value: Long): ByteArray {
+    val out = ByteArrayOutputStream()
+    var v = value
+    while (v and 0x7FL.inv() != 0L) {
+        out.write(((v and 0x7F) or 0x80).toInt())
+        v = v ushr 7
+    }
+    out.write(v.toInt())
+    return varint((number shl 3) or 0) + out.toByteArray()
+}
+
+/** The checks use one case for each way in which a value can arrive that the random samples do not produce. */
+private fun valueChecks(): Int {
+    var failures = 0
+    fun scalars(name: String, bytes: ByteArray) {
+        failures += sameValues("Scalars $name", Scalars::class.java, JScalars::class.java, bytes, true)
+    }
+    fun repeated(name: String, bytes: ByteArray) {
+        failures += sameValues("Repeated $name", Repeated::class.java, JRepeated::class.java, bytes, true)
+    }
+    fun oneofs(name: String, bytes: ByteArray) {
+        failures += sameValues("Oneofs $name", Oneofs::class.java, JOneofs::class.java, bytes, true)
+    }
+    fun optional(name: String, bytes: ByteArray) {
+        failures += sameValues("OptionalScalars $name", OptionalScalars::class.java, JOptionalScalars::class.java, bytes, true)
+    }
+
+    val nanPayload = 0x7FF8000000000001L
+    scalars("double NaN with a payload", fixed64(1, nanPayload))
+    scalars("double negative zero", fixed64(1, Long.MIN_VALUE))
+    scalars("double infinity", fixed64(1, 0x7FF0000000000000L))
+    scalars("float NaN with a payload", fixed32(2, 0x7FC00001))
+    scalars("float negative zero", fixed32(2, Int.MIN_VALUE))
+    scalars("both zero", fixed64(1, 0L) + fixed32(2, 0))
+    optional("optional double NaN", fixed64(1, nanPayload))
+    optional("optional float negative zero", fixed32(2, Int.MIN_VALUE))
+    repeated("packed doubles with NaN and zero", delimited(1, ByteArray(0) + ByteArray(8) { (nanPayload ushr (8 * it)).toByte() } + ByteArray(8)))
+    repeated("unpacked doubles with NaN", fixed64(20, nanPayload) + fixed64(20, 0L))
+
+    scalars("a singular field twice, the last value wins", vint(3, 5) + vint(3, 7))
+    scalars("a singular field twice, the last value is the default", vint(3, 5) + vint(3, 0))
+    scalars("a string twice", delimited(14, "a".toByteArray()) + delimited(14, "b".toByteArray()))
+    scalars("a negative int32 in ten bytes", vint(3, -1L))
+    scalars("an int32 with a value above 32 bits", vint(3, 0x1_0000_0005L))
+    scalars("a bool that is 2", vint(13, 2))
+
+    repeated("packed int32 in the unpacked form", vint(3, 1) + vint(3, 2) + vint(3, 300))
+    repeated("unpacked int32 in the packed form", delimited(18, byteArrayOf(1, 2) + varint(300)))
+    repeated("packed doubles in the unpacked form", fixed64(1, 1L) + fixed64(1, 2L))
+    repeated("unpacked doubles in the packed form", delimited(20, ByteArray(8) { if (it == 0) 3 else 0 } + ByteArray(8)))
+    repeated("packed enums in the unpacked form", vint(16, 1) + vint(16, 99) + vint(16, 2))
+    repeated("unpacked enums in the packed form", delimited(19, byteArrayOf(1, 99, 2)))
+    repeated("both forms mixed", delimited(3, byteArrayOf(1, 2)) + vint(3, 3) + delimited(3, byteArrayOf(4)))
+    repeated("an empty packed run", delimited(3, ByteArray(0)) + vint(3, 9))
+
+    val scalarsPart1 = vint(3, 5) + delimited(14, "x".toByteArray())
+    val scalarsPart2 = vint(4, 8) + vint(3, 0)
+    oneofs("a oneof member twice", delimited(2, "a".toByteArray()) + delimited(2, "b".toByteArray()))
+    oneofs("a oneof member replaced by another member", delimited(2, "a".toByteArray()) + vint(3, 4))
+    oneofs("a oneof message merged with itself", delimited(4, scalarsPart1) + delimited(4, scalarsPart2))
+    oneofs("a oneof message replaced and then set again", delimited(4, scalarsPart1) + vint(3, 1) + delimited(4, scalarsPart2))
+    oneofs("a oneof message with unknown fields in both parts", delimited(4, scalarsPart1 + vint(100, 1)) + delimited(4, scalarsPart2 + vint(101, 2)))
+    oneofs("two oneofs set", delimited(2, "a".toByteArray()) + vint(20, 1))
+    optional("a message field merged with itself", delimited(17, scalarsPart1) + delimited(17, scalarsPart2))
+    optional("a message field set to an empty message after a value", delimited(17, scalarsPart1) + delimited(17, ByteArray(0)))
+    optional("an optional field set to its default", vint(3, 0))
+    failures += sameValues(
+        "Maps a key twice, the last value wins",
+        Maps::class.java,
+        JMaps::class.java,
+        delimited(1, delimited(1, "k".toByteArray()) + delimited(2, "1".toByteArray())) + delimited(1, delimited(1, "k".toByteArray()) + delimited(2, "2".toByteArray())),
+        true,
+    )
+    failures += sameValues(
+        "Maps an entry with no key and no value",
+        Maps::class.java,
+        JMaps::class.java,
+        delimited(1, ByteArray(0)) + delimited(8, ByteArray(0)),
+        true,
+    )
+    failures += sameValues(
+        "Maps a value message split in two entries",
+        Maps::class.java,
+        JMaps::class.java,
+        delimited(8, vint(1, 1) + delimited(2, scalarsPart1)) + delimited(8, vint(1, 1) + delimited(2, scalarsPart2)),
+        true,
+    )
+    return failures
+}
+
 fun main(args: Array<String>) {
+    manifest = readManifest(File(args[0], "fields.tsv"))
     var failures = compareSamples(File(args[0]))
     failures += editChecks()
     failures += nestingChecks()
     failures += requiredChecks()
     failures += utf8Checks()
+    failures += valueChecks()
     exitProcess(if (failures == 0) 0 else 1)
 }

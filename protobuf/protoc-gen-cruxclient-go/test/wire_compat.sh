@@ -68,5 +68,5 @@ protoc "${includes[@]}" --experimental_allow_proto3_optional --java_out=lite:"$W
 
 find "$WORK/java" -name '*.java' >"$WORK/java-files.txt"
 javac -nowarn -cp "$JAVALITE_JAR" -d "$WORK/java-classes" @"$WORK/java-files.txt" 2>&1 | grep -v '^Note:' || true
-JAVA_OPTS=${JAVA_OPTS:--Xmx6g} kotlinc -nowarn -include-runtime -cp "$WORK/java-classes:$JAVALITE_JAR" -d "$WORK/compat.jar" "$WORK/kt" "$HERE/WireCompat.kt"
+JAVA_OPTS=${JAVA_OPTS:--Xmx6g} kotlinc -nowarn -include-runtime -cp "$WORK/java-classes:$JAVALITE_JAR" -d "$WORK/compat.jar" "$WORK/kt" "$HERE/WireCompat.kt" "$HERE/FieldDump.kt"
 java -Xmx4g -cp "$WORK/compat.jar:$WORK/java-classes:$JAVALITE_JAR" WireCompatKt "$WORK/samples"

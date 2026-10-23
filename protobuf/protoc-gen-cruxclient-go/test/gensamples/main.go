@@ -86,6 +86,7 @@ func main() {
 	}
 	sort.Strings(closure)
 	check(os.WriteFile(filepath.Join(*out, "closure.txt"), []byte(strings.Join(closure, "\n")+"\n"), 0o644))
+	check(os.WriteFile(filepath.Join(*out, "fields.tsv"), []byte(manifest(files, reach, *root)), 0o644))
 	fmt.Printf("%d samples, %d files in the closure\n", count, len(closure))
 }
 
@@ -168,22 +169,7 @@ func javaClassName(md protoreflect.MessageDescriptor) string {
 	return pkg + "." + strings.Join(chain, "$")
 }
 
-func upperCamel(s string) string {
-	var b strings.Builder
-	up := true
-	for _, r := range s {
-		if r == '_' {
-			up = true
-			continue
-		}
-		if up && r >= 'a' && r <= 'z' {
-			r -= 'a' - 'A'
-		}
-		up = false
-		b.WriteRune(r)
-	}
-	return b.String()
-}
+func upperCamel(s string) string { return javaCamel(s) }
 
 func fill(r *rand.Rand, m *dynamicpb.Message, depth int) {
 	md := m.Descriptor()
@@ -355,8 +341,18 @@ func openEnumValue(r *rand.Rand) protoreflect.Value {
 	return protoreflect.ValueOfEnum(protoreflect.EnumNumber(100 + r.Intn(50)))
 }
 
-// declares reports whether a file has a top-level message, enum or service of the given name.
+// declares reports whether a file has a message, enum or service of the given name at any depth.
+// protoc adds OuterClass to the name of the outer class when it does.
 func declares(fd protoreflect.FileDescriptor, name string) bool {
 	n := protoreflect.Name(name)
-	return fd.Messages().ByName(n) != nil || fd.Enums().ByName(n) != nil || fd.Services().ByName(n) != nil
+	if fd.Enums().ByName(n) != nil || fd.Services().ByName(n) != nil {
+		return true
+	}
+	found := false
+	walkAll(fd.Messages(), func(md protoreflect.MessageDescriptor) {
+		if md.Name() == n || md.Enums().ByName(n) != nil {
+			found = true
+		}
+	})
+	return found
 }
