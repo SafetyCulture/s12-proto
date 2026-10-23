@@ -6,7 +6,7 @@ HERE=$(cd "$(dirname "$0")" && pwd)
 PLUGIN_DIR=$(cd "$HERE/../.." && pwd)
 CACHE_DIR=${CRUXCLIENT_CI_CACHE:-"${TMPDIR:-/tmp}/cruxclient-go-ci"}
 PROTOBUF_VERSION=36.1
-DJINNI_COMMIT=bd2e2eee2002df116ef3c5e50843050423693e0d
+DJINNI_COMMIT=43a4a98a40110b755d26d7dbd6164986b287a9b7
 mkdir -p "$CACHE_DIR"
 
 download() {
