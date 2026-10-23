@@ -18,8 +18,14 @@ description = "Generate Go code from proto definitions"
 run = "make generate"
 
 [tasks.test]
-description = "Run tests (root module)"
-run = "go test ./..."
+description = "Run tests (root module and the plugin modules)"
+run = """
+set -eu
+go test ./...
+for d in protobuf/protoc-gen-cruxclient-go protobuf/protoc-gen-crux-kotlin; do
+  (cd "$d" && go test ./...)
+done
+"""
 
 [tasks."verify:generated"]
 description = "Fail if the checked-in govalidator fixtures do not match a fresh generation"

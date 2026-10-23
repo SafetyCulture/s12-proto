@@ -1,6 +1,6 @@
 module github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-crux-kotlin
 
-go 1.26
+go 1.21
 
 require (
 	github.com/bufbuild/protocompile v0.14.1
