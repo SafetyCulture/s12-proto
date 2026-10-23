@@ -1,6 +1,8 @@
 // Copyright (c) 2020 SafetyCulture Pty Ltd. All Rights Reserved.
 
 #pragma once
+#include <cctype>
+#include <functional>
 #include <string>
 #include <string_view>
 #include <set>
@@ -193,24 +195,29 @@ inline std::string ToCamelCase(std::string_view text) {
 // Swift module of the SwiftProtobuf types that a bare swift_module option selects.
 inline constexpr const char *kDefaultSwiftModule = "S12Protos";
 
-// Reads the swift_module option from a comma-separated protoc parameter string.
-// Returns an empty string if the Swift output is off. A bare swift_module
-// selects kDefaultSwiftModule. Other keys are ignored.
-inline std::string ParseSwiftModule(std::string_view parameter) {
-  auto trim = [](std::string_view text) {
-    while (!text.empty() && std::isspace(static_cast<unsigned char>(text.front()))) text.remove_prefix(1);
-    while (!text.empty() && std::isspace(static_cast<unsigned char>(text.back()))) text.remove_suffix(1);
-    return text;
-  };
-  std::string module;
+// Root package of the pure Kotlin messages that a bare kotlin_package option selects.
+inline constexpr const char *kDefaultKotlinPackage = "com.safetyculture.s12kt";
+
+inline std::string_view TrimString(std::string_view text) {
+  while (!text.empty() && std::isspace(static_cast<unsigned char>(text.front()))) text.remove_prefix(1);
+  while (!text.empty() && std::isspace(static_cast<unsigned char>(text.back()))) text.remove_suffix(1);
+  return text;
+}
+
+// Reads one option from a comma-separated protoc parameter string. Returns an empty string
+// if the key is absent, which means the output of the option is off. A bare key, or a key
+// with an empty value, selects the fallback. The last occurrence of a key wins, and other
+// keys are ignored.
+inline std::string ParseOption(std::string_view parameter, std::string_view key, std::string_view fallback) {
+  std::string value;
   for (const auto &item : tokenize(parameter, ",")) {
-    const std::string_view entry = trim(item);
+    const std::string_view entry = TrimString(item);
     const size_t equals = entry.find('=');
-    if (trim(entry.substr(0, equals)) != "swift_module") continue;
-    module = equals == std::string_view::npos ? "" : std::string(trim(entry.substr(equals + 1)));
-    if (module.empty()) module = kDefaultSwiftModule;
+    if (TrimString(entry.substr(0, equals)) != key) continue;
+    value = equals == std::string_view::npos ? "" : std::string(TrimString(entry.substr(equals + 1)));
+    if (value.empty()) value = fallback;
   }
-  return module;
+  return value;
 }
 
 // Type prefix of the SwiftProtobuf types of a file. The swift_prefix file option wins,
@@ -244,19 +251,19 @@ inline std::string SwiftProtobufPrefix(const google::protobuf::FileDescriptor *f
 // Swift module of the SwiftProtobuf types of a file. The types of the bundled google.protobuf files
 // (isBundledProto in protoc-gen-swift) are in the SwiftProtobuf runtime, not in the module of the other protos.
 inline std::string SwiftProtobufModule(const google::protobuf::FileDescriptor *file, const std::string &module) {
-  static const std::set<std::string> bundled = {
+  static const std::set<std::string, std::less<>> bundled = {
     "google/protobuf/any.proto", "google/protobuf/api.proto", "google/protobuf/descriptor.proto",
     "google/protobuf/duration.proto", "google/protobuf/empty.proto", "google/protobuf/field_mask.proto",
     "google/protobuf/source_context.proto", "google/protobuf/struct.proto",
     "google/protobuf/timestamp.proto", "google/protobuf/type.proto", "google/protobuf/wrappers.proto",
   };
-  const bool is_bundled = file->package() == "google.protobuf" && bundled.count(std::string(file->name())) > 0;
+  const bool is_bundled = file->package() == "google.protobuf" && bundled.count(std::string_view(file->name())) > 0;
   return is_bundled ? "SwiftProtobuf" : module;
 }
 
 // Names that SwiftProtobuf does not use for a type (reservedTypeNames in the NamingUtils of protoc-gen-swift).
-inline bool IsSwiftReservedTypeName(const std::string &name) {
-  static const std::set<std::string> reserved = {
+inline bool IsSwiftReservedTypeName(std::string_view name) {
+  static const std::set<std::string, std::less<>> reserved = {
     "SwiftProtobuf", "Extensions", "protoMessageName", "decodeMessage", "traverse",
     "isInitialized", "unknownFields", "debugDescription", "description", "dynamicType",
     "hashValue", "Type", "Protocol", "Swift", "Equatable", "Hashable", "Sendable",
@@ -279,14 +286,16 @@ inline bool IsSwiftReservedTypeName(const std::string &name) {
 
 // Adds the "Message" suffix to a reserved name, as SwiftProtobuf does. A name that
 // already ends in "Message" gets the suffix again if its root is reserved.
-inline std::string SanitizeSwiftMessageName(const std::string &name) {
-  const std::string disambiguator = "Message";
-  if (IsSwiftReservedTypeName(name)) return name + disambiguator;
-  if (!name.empty() && name.find_first_not_of('_') == std::string::npos) return name + disambiguator;
-  if (HasSuffixString(name, disambiguator)) {
-    return SanitizeSwiftMessageName(StripSuffixString(name, disambiguator)) + disambiguator;
+inline std::string SanitizeSwiftMessageName(std::string_view name) {
+  static constexpr std::string_view kDisambiguator = "Message";
+  const bool all_underscores = !name.empty() && name.find_first_not_of('_') == std::string_view::npos;
+  if (IsSwiftReservedTypeName(name) || all_underscores) {
+    return std::string(name) + std::string(kDisambiguator);
   }
-  return name;
+  if (HasSuffixString(name, kDisambiguator)) {
+    return SanitizeSwiftMessageName(StripSuffixString(name, kDisambiguator)) + std::string(kDisambiguator);
+  }
+  return std::string(name);
 }
 
 // SwiftProtobuf type name of a message. A nested message is a nested Swift type.
@@ -304,36 +313,13 @@ inline std::string SwiftxxTranslatorName(const std::string &cpp_type_name) {
   return "djinni::swift::" + cpp_type_name + "::Translator";
 }
 
-// Root package of the pure Kotlin messages that a bare kotlin_package option selects.
-inline constexpr const char *kDefaultKotlinPackage = "com.safetyculture.s12kt";
-
-// Reads the kotlin_package option from a comma-separated protoc parameter string.
-// Returns an empty string if the Kotlin output is off. A bare kotlin_package
-// selects kDefaultKotlinPackage. Other keys are ignored.
-inline std::string ParseKotlinPackage(std::string_view parameter) {
-  auto trim = [](std::string_view text) {
-    while (!text.empty() && std::isspace(static_cast<unsigned char>(text.front()))) text.remove_prefix(1);
-    while (!text.empty() && std::isspace(static_cast<unsigned char>(text.back()))) text.remove_suffix(1);
-    return text;
-  };
-  std::string package;
-  for (const auto &item : tokenize(parameter, ",")) {
-    const std::string_view entry = trim(item);
-    const size_t equals = entry.find('=');
-    if (trim(entry.substr(0, equals)) != "kotlin_package") continue;
-    package = equals == std::string_view::npos ? "" : std::string(trim(entry.substr(equals + 1)));
-    if (package.empty()) package = kDefaultKotlinPackage;
-  }
-  return package;
-}
-
 // Kotlin package of the messages of a file: the root package, then the proto package. The
 // leading "s12" segment of the proto package is not repeated, because the root package
 // already names it. For example "s12.assets.v1" gives "com.safetyculture.s12kt.assets.v1".
 inline std::string KotlinPackage(const google::protobuf::FileDescriptor *file, const std::string &root) {
   std::string package(file->package());
   if (package == "s12") return root;
-  if (package.compare(0, 4, "s12.") == 0) package = package.substr(4);
+  package = StripPrefixString(package, "s12.");
   if (package.empty()) return root;
   return root + "." + package;
 }

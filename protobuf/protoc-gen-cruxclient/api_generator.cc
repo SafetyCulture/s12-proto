@@ -415,6 +415,25 @@ void APIGenerator::PrintDjinniYAML(
   else {
     vars["domain_name"] = paths[0];
   }
+
+  // These values belong to the file, not to a message.
+  const auto file_name_camel = ToCamelCase(tokenize(StripProto(file->name()), "/").back());
+  const auto &options = file->options();
+  vars["file_name"] = StripProto(file->name());
+  vars["file_name_camel"] = file_name_camel;
+  vars["objc_file_name"] = file_name_camel;
+  vars["main_file_name"] = main_file_name;
+  vars["java_package"] = options.java_package();
+  vars["java_package_slashes"] = DotsToSlashs(options.java_package());
+  vars["objc_class_prefix"] = options.objc_class_prefix();
+  const bool has_wire_package = options.HasExtension(wire::wire_package);
+  if (has_wire_package) {
+    vars["wire_package"] = options.GetExtension(wire::wire_package);
+  }
+  if (!swift_module.empty()) {
+    vars["swift_module"] = SwiftProtobufModule(file, swift_module);
+  }
+
   for (const auto message : messages) {
     if (message->map_key() != nullptr) {
       continue;
@@ -424,20 +443,6 @@ void APIGenerator::PrintDjinniYAML(
     vars["java_message_box_name"] = UnderscoresToDots(vars["message_name"]);
     vars["cpp_type_name"] = DotsToColons(message->full_name());
     vars["objc_header"] = DotsToSlashs(message->full_name());
-    vars["file_name"] = StripProto(file->name());
-    const auto file_name_camel = ToCamelCase(tokenize(StripProto(file->name()), "/").back());
-    vars["file_name_camel"] = file_name_camel;
-    vars["objc_file_name"] = file_name_camel;
-    vars["main_file_name"] = main_file_name;
-
-    const auto options = file->options();
-    vars["java_package"] = options.java_package();
-    vars["java_package_slashes"] = DotsToSlashs(options.java_package());
-    vars["objc_class_prefix"] = options.objc_class_prefix();
-
-    if (options.HasExtension(wire::wire_package)) {
-      vars["wire_package"] = options.GetExtension(wire::wire_package);
-    }
 
     printer->Print("---\n");
     printer->Print(vars, "name: pb_$domain_name$_$file_name_camel$_$message_name$\n");
@@ -493,7 +498,6 @@ void APIGenerator::PrintDjinniYAML(
     printer->Outdent();
 
     if (!swift_module.empty()) {
-      vars["swift_module"] = SwiftProtobufModule(file, swift_module);
       vars["swift_type_name"] = SwiftProtobufTypeName(message);
       vars["swiftxx_translator"] = SwiftxxTranslatorName(vars["cpp_type_name"]);
 
@@ -513,10 +517,10 @@ void APIGenerator::PrintDjinniYAML(
       printer->Outdent();
     }
 
-    if (vars.find("wire_package") != vars.end() || !kotlin_package.empty()) {
+    if (has_wire_package || !kotlin_package.empty()) {
       printer->Print("kotlin:\n");
       printer->Indent();
-      if (vars.find("wire_package") != vars.end()) {
+      if (has_wire_package) {
         printer->Print(vars, "typename: '$wire_package$.$java_message_box_name$'\n");
         printer->Print("isProtobufMessage: true\n");
       }
@@ -887,8 +891,8 @@ void APIGenerator::GenerateDjinniSupport(
   google::protobuf::compiler::GeneratorContext *context,
   std::string *error) const {
   if (file->message_type_count() == 0) { return; }
-  const std::string swift_module = ParseSwiftModule(parameter);
-  const std::string kotlin_package = ParseKotlinPackage(parameter);
+  const std::string swift_module = ParseOption(parameter, "swift_module", kDefaultSwiftModule);
+  const std::string kotlin_package = ParseOption(parameter, "kotlin_package", kDefaultKotlinPackage);
   GenerateDjinniYAML(file, context, swift_module, kotlin_package);
   GenerateDjinniObjcSupport(file, context);
   GenerateDjinniJNISupport(file, context);
