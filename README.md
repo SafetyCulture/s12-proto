@@ -58,6 +58,6 @@ go test ./...
 # protoc-gen-cruxclient-go
 cd protobuf/protoc-gen-cruxclient-go && go test ./...
 
-# Kotlin and Java lite wire compatibility (needs go, protoc, kotlinc and java)
+# Kotlin and Java lite wire compatibility (needs go, protoc, kotlinc, javac, java and curl)
 protobuf/protoc-gen-cruxclient-go/test/wire_compat.sh
 ```

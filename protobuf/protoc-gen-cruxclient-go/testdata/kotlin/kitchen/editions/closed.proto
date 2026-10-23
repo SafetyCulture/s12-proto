@@ -20,3 +20,11 @@ message Holder {
   Closed closed = 2;
   repeated Closed closed_list = 3;
 }
+
+message Features {
+  string explicit_text = 1;
+  string implicit_text = 2 [features.field_presence = IMPLICIT];
+  string required_text = 3 [features.field_presence = LEGACY_REQUIRED];
+  repeated int32 packed_numbers = 4;
+  repeated int32 expanded_numbers = 5 [features.repeated_field_encoding = EXPANDED];
+}

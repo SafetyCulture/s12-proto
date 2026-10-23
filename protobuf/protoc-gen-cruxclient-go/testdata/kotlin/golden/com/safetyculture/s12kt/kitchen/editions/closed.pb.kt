@@ -150,3 +150,132 @@ public data class Holder(
         }
     }
 }
+
+public data class Features(
+    public val explicitText: kotlin.String? = null,
+    public val implicitText: kotlin.String = "",
+    public val requiredText: kotlin.String = "",
+    public val packedNumbers: kotlin.collections.List<kotlin.Int> = kotlin.collections.emptyList(),
+    public val expandedNumbers: kotlin.collections.List<kotlin.Int> = kotlin.collections.emptyList(),
+    /** The fields that this version of the schema does not know, kept as encoded bytes. */
+    public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
+) : com.safetyculture.s12kt.wire.WireMessage {
+    @kotlin.jvm.Volatile
+    private var memoizedSize: kotlin.Int = -1
+
+    /** Bit i is set while required field i has not been read. It is zero for a message that code builds. */
+    internal var missingRequired: kotlin.Long = 0L
+        private set
+
+    public fun hasExplicitText(): kotlin.Boolean = this.explicitText != null
+
+    override fun getSerializedSize(): kotlin.Int {
+        val _cached = this.memoizedSize
+        if (_cached >= 0) return _cached
+        var _size = 0
+        if (this.explicitText != null) _size += com.safetyculture.s12kt.wire.WireSize.string(1, this.explicitText)
+        if (this.implicitText.isNotEmpty()) _size += com.safetyculture.s12kt.wire.WireSize.string(2, this.implicitText)
+        if ((this.missingRequired and 1L) == 0L) _size += com.safetyculture.s12kt.wire.WireSize.string(3, this.requiredText)
+        if (this.packedNumbers.isNotEmpty()) {
+            _size += com.safetyculture.s12kt.wire.WireSize.packed(4, com.safetyculture.s12kt.wire.WireSize.packedInt32Payload(this.packedNumbers))
+        }
+        for (_e in this.expandedNumbers) {
+            _size += com.safetyculture.s12kt.wire.WireSize.int32(5, _e)
+        }
+        _size += this.unknownFields.size
+        this.memoizedSize = _size
+        return _size
+    }
+
+    override fun writeTo(writer: com.safetyculture.s12kt.wire.WireWriter) {
+        if (this.explicitText != null) writer.writeString(1, this.explicitText)
+        if (this.implicitText.isNotEmpty()) writer.writeString(2, this.implicitText)
+        if ((this.missingRequired and 1L) == 0L) writer.writeString(3, this.requiredText)
+        if (this.packedNumbers.isNotEmpty()) {
+            writer.writePackedInt32(4, this.packedNumbers)
+        }
+        for (_e in this.expandedNumbers) {
+            writer.writeInt32(5, _e)
+        }
+        writer.writeUnknown(this.unknownFields)
+    }
+
+    override fun toByteArray(): kotlin.ByteArray {
+        val writer = com.safetyculture.s12kt.wire.WireWriter(kotlin.ByteArray(getSerializedSize()))
+        writeTo(writer)
+        return writer.toByteArray()
+    }
+
+    internal fun findMissingRequired(): kotlin.String? {
+        if ((this.missingRequired and 1L) != 0L) return "required_text"
+        return null
+    }
+
+    public companion object : com.safetyculture.s12kt.wire.WireCodec<com.safetyculture.s12kt.kitchen.editions.Features> {
+        @kotlin.jvm.JvmStatic
+        public fun parseFrom(bytes: kotlin.ByteArray): com.safetyculture.s12kt.kitchen.editions.Features {
+            val _message = decode(com.safetyculture.s12kt.wire.WireReader(bytes))
+            _message.findMissingRequired()?.let { throw com.safetyculture.s12kt.wire.InvalidWireException("missing required field " + it) }
+            return _message
+        }
+
+        override fun decodeSections(reader: com.safetyculture.s12kt.wire.WireReader, sections: com.safetyculture.s12kt.wire.Sections?): com.safetyculture.s12kt.kitchen.editions.Features {
+            var v_explicitText: kotlin.String? = null
+            var v_implicitText: kotlin.String = ""
+            var v_requiredText: kotlin.String = ""
+            val v_packedNumbers = kotlin.collections.ArrayList<kotlin.Int>()
+            val v_expandedNumbers = kotlin.collections.ArrayList<kotlin.Int>()
+            var _missing = 1L
+            val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+            var _part = 0
+            while (reader.nextSection(sections, _part++)) {
+                loop@ while (true) {
+                    when (val _tag = reader.readTag()) {
+                        0 -> break@loop
+                        10 -> {
+                            v_explicitText = reader.readString()
+                        }
+                        18 -> {
+                            v_implicitText = reader.readString()
+                        }
+                        26 -> {
+                            v_requiredText = reader.readString()
+                            _missing = _missing and -2L
+                        }
+                        32 -> {
+                            v_packedNumbers.add(reader.readInt32())
+                        }
+                        34 -> {
+                            val _saved = reader.beginSection()
+                            while (!reader.isAtEnd()) {
+                                v_packedNumbers.add(reader.readInt32())
+                            }
+                            reader.endSection(_saved)
+                        }
+                        40 -> {
+                            v_expandedNumbers.add(reader.readInt32())
+                        }
+                        42 -> {
+                            val _saved = reader.beginSection()
+                            while (!reader.isAtEnd()) {
+                                v_expandedNumbers.add(reader.readInt32())
+                            }
+                            reader.endSection(_saved)
+                        }
+                        else -> reader.readUnknown(_tag, _unknown)
+                    }
+                }
+            }
+            val _result = com.safetyculture.s12kt.kitchen.editions.Features(
+                explicitText = v_explicitText,
+                implicitText = v_implicitText,
+                requiredText = v_requiredText,
+                packedNumbers = java.util.Collections.unmodifiableList(v_packedNumbers),
+                expandedNumbers = java.util.Collections.unmodifiableList(v_expandedNumbers),
+                unknownFields = _unknown.toByteString(),
+            )
+            _result.missingRequired = _missing
+            return _result
+        }
+    }
+}

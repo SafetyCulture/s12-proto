@@ -27,6 +27,11 @@ message Legacy {
   extensions 100 to 199;
 }
 
+extend Legacy {
+  optional int32 ext_count = 100;
+  optional string ext_label = 101;
+}
+
 message Req {
   required string name = 1;
   optional int32 count = 2;
