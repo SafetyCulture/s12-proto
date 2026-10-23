@@ -50,7 +50,7 @@ var optionSetters = map[string]optionSetter{
 	"messages_only": {set: func(p *parsedOptions, _ string) { p.MessagesOnly = true }},
 }
 
-var SwiftOptionKeys = map[string]bool{
+var swiftOptionKeys = map[string]bool{
 	"EnumGeneration":                           true,
 	"ExperimentalHiddenNames":                  true,
 	"FileNaming":                               true,
@@ -60,6 +60,15 @@ var SwiftOptionKeys = map[string]bool{
 	"UseAccessLevelOnImports":                  true,
 	"Visibility":                               true,
 	"experimental_strip_nonfunctional_codegen": true,
+}
+
+// SwiftOptionKeys returns the supported Swift generator option keys.
+func SwiftOptionKeys() []string {
+	keys := make([]string, 0, len(swiftOptionKeys))
+	for key := range swiftOptionKeys {
+		keys = append(keys, key)
+	}
+	return keys
 }
 
 // IsOptionKey reports whether key is a plugin option.
@@ -92,7 +101,7 @@ func ParseOptions(parameter string) (Options, error) {
 		if key == "paths" {
 			continue
 		}
-		if SwiftOptionKeys[key] {
+		if swiftOptionKeys[key] {
 			if firstSwiftOption == "" {
 				firstSwiftOption = key
 			}

@@ -198,7 +198,7 @@ func TestGeneratorSwiftOptionKeysParse(t *testing.T) {
 		"Visibility":                               "internal",
 		"experimental_strip_nonfunctional_codegen": "",
 	}
-	for key := range cruxgen.SwiftOptionKeys {
+	for _, key := range cruxgen.SwiftOptionKeys() {
 		t.Run(key, func(t *testing.T) {
 			_, err := parseOptions("swift_messages,"+key+"="+values[key], cruxgen.IsOptionKey)
 			require.NoError(t, err)
