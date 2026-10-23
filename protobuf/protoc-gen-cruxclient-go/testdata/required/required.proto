@@ -1,0 +1,8 @@
+syntax = "proto2";
+
+package required.v1;
+
+message Req {
+  required string name = 1;
+  optional int32 count = 2;
+}
