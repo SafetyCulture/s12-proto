@@ -785,6 +785,18 @@ func (g *fileGen) companion(msg protoreflect.MessageDescriptor, qualified string
 				if oi := f.oneof; oi.hasMessage() {
 					g.w.line("var s_%s: %s? = null", oi.prop, g.rt("Sections"))
 					g.w.line("var n_%s = 0", oi.prop)
+					// A message member that a later member replaces is parsed here, once, so invalid
+					// bytes in it are refused as in Java lite.
+					g.w.open("fun c_%s() {", oi.prop)
+					g.w.line("val _s = s_%s ?: return", oi.prop)
+					g.w.open("when (n_%s) {", oi.prop)
+					for _, m := range oi.fields {
+						if m.fd.Message() != nil {
+							g.w.line("%d -> reader.readSections(%s, _s)", m.fd.Number(), QualifiedClassName(m.fd.Message(), g.root))
+						}
+					}
+					g.w.close("}")
+					g.w.close("}")
 				}
 				args = append(args, fmt.Sprintf("%s = v_%s", f.oneof.prop, f.oneof.prop))
 			}
@@ -893,8 +905,10 @@ func (g *fileGen) decodeCase(f *fieldInfo, qualified string) {
 		switch {
 		case fd.Message() != nil:
 			g.w.line("val _next = reader.deferMessage(null)")
-			g.w.line("reader.readSections(%s, _next)", QualifiedClassName(fd.Message(), g.root))
-			g.w.line("if (n_%s != %d) s_%s = null", op, n, op)
+			g.w.open("if (n_%s != %d) {", op, n)
+			g.w.line("c_%s()", op)
+			g.w.line("s_%s = null", op)
+			g.w.close("}")
 			g.w.line("n_%s = %d", op, n)
 			g.w.line("s_%s = s_%s?.append(_next) ?: _next", op, op)
 			g.w.line("v_%s = null", op)
@@ -905,7 +919,7 @@ func (g *fileGen) decodeCase(f *fieldInfo, qualified string) {
 			}
 			after := ""
 			if f.oneof.hasMessage() {
-				after = fmt.Sprintf("n_%s = 0; s_%s = null", op, op)
+				after = fmt.Sprintf("c_%s(); n_%s = 0; s_%s = null", op, op, op)
 			}
 			g.writeStore(fd, fmt.Sprintf("v_%s = %s(%s)", op, variant, expr), after)
 		}

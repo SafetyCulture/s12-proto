@@ -220,9 +220,13 @@ private fun nestingChecks(): Int {
     var failures = 0
     for (depth in listOf(1, 50, 99, 100, 101, 102, 3000)) {
         val bytes = nestedMessages(depth)
+        val start = System.nanoTime()
         val kotlin = accepts({ Oneofs.parseFrom(it) }, bytes)
+        val millis = (System.nanoTime() - start) / 1_000_000
         val java = accepts({ JOneofs.parseFrom(it) }, bytes)
         failures += check("messages nested $depth deep: Kotlin=$kotlin Java=$java", kotlin != null && kotlin == java)
+        // Each nested oneof message is parsed once, so the parse time grows with the depth, not with 2^depth.
+        failures += check("messages nested $depth deep parse in under 1 s: ${millis} ms", millis < 1000)
     }
     for (depth in listOf(1, 99, 100, 101, 200000)) {
         val bytes = nestedGroups(depth)
