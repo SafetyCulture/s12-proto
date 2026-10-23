@@ -32,6 +32,7 @@ plugins:
     path: $PLUGIN
     out: ./swift
     opt: Visibility=Public,FileNaming=PathToUnderscores
+    strategy: all
 YAML
 cd "$APISCHEMA"
 "$BUF" build "${BUF_EXCLUDES[@]}" -o "$OUT/image.binpb"
