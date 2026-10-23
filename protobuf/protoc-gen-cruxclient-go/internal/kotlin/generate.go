@@ -56,6 +56,33 @@ func Generate(rw protoplugin.ResponseWriter, files []protoreflect.FileDescriptor
 	if err := ValidateRoot(root); err != nil {
 		return err
 	}
+	packageNames := map[string]map[string]string{}
+	for _, file := range files {
+		if file.Messages().Len() == 0 && file.Enums().Len() == 0 {
+			continue
+		}
+		kotlinPackage := kotlinPackage(file, root)
+		names := packageNames[kotlinPackage]
+		if names == nil {
+			names = map[string]string{}
+			packageNames[kotlinPackage] = names
+		}
+		enums := file.Enums()
+		for i := range enums.Len() {
+			e := enums.Get(i)
+			if err := checkKotlinName(names, string(e.Name()), escapeIdent(classNameForRoot(string(e.Name()), root))); err != nil {
+				return fmt.Errorf("%s: %w", file.Path(), err)
+			}
+		}
+		messages := file.Messages()
+		for i := range messages.Len() {
+			m := messages.Get(i)
+			if err := checkKotlinName(names, string(m.Name()), escapeIdent(classNameForRoot(string(m.Name()), root))); err != nil {
+				return fmt.Errorf("%s: %w", file.Path(), err)
+			}
+		}
+	}
+
 	wrote := false
 	written := map[string]protoreflect.FileDescriptor{}
 	for _, file := range files {

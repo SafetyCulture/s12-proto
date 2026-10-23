@@ -457,6 +457,12 @@ func TestKotlinClassNameCollisions(t *testing.T) {
 			requirePluginResponseError(t, []string{dir}, "kotlin_messages="+tc.root, tc.want, "collision.proto")
 		})
 	}
+	t.Run("package", func(t *testing.T) {
+		dir := t.TempDir()
+		require.NoError(t, os.WriteFile(filepath.Join(dir, "f1.proto"), []byte("syntax = \"proto3\";\npackage x.v1;\nmessage io {}\n"), 0o644))
+		require.NoError(t, os.WriteFile(filepath.Join(dir, "f2.proto"), []byte("syntax = \"proto3\";\npackage x.v1;\nmessage ioMessage {}\n"), 0o644))
+		requirePluginResponseError(t, []string{dir}, "kotlin_messages=io.acme", `io and ioMessage map to the same Kotlin name "ioMessage"`, "f1.proto", "f2.proto")
+	})
 }
 
 func TestRequiredMessageCyclesRejectMissingFields(t *testing.T) {
