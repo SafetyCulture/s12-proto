@@ -6,6 +6,7 @@
 package swift
 
 import (
+	"errors"
 	"fmt"
 	"runtime/debug"
 
@@ -67,7 +68,8 @@ func render(protos []*descriptorpb.FileDescriptorProto, names []string, opts *op
 		}
 		content, err := g.generateFileRecovering(f)
 		if err != nil {
-			if len(names) > 1 {
+			var internal *internalError
+			if len(names) > 1 && !errors.As(err, &internal) {
 				err = fmt.Errorf("%s: %w", name, err)
 			}
 			return nil, err
@@ -77,11 +79,16 @@ func render(protos []*descriptorpb.FileDescriptorProto, names []string, opts *op
 	return out, nil
 }
 
+// internalError is a panic of the generator. Its text names the file already.
+type internalError struct{ text string }
+
+func (e *internalError) Error() string { return e.text }
+
 // generateFileRecovering turns a panic of the generator into an error with the file name and the stack.
 func (g *generator) generateFileRecovering(f *file) (content string, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			content, err = "", fmt.Errorf("internal error of the Swift generator on %s: %v\n%s", f.name, r, debug.Stack())
+			content, err = "", &internalError{text: fmt.Sprintf("internal error of the Swift generator on %s: %v\n%s", f.name, r, debug.Stack())}
 		}
 	}()
 	return g.generateFile(f)
