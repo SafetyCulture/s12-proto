@@ -50,10 +50,30 @@ public interface WireMessage {
 
 /** The decoder of a generated message class. The companion object of the class implements it. */
 public interface WireCodec<T : WireMessage> {
-    /** Reads one message from the reader. The fields of [previous] stay unless the bytes set them again. */
-    public fun decodeInto(reader: WireReader, previous: T?): T
+    /**
+     * Reads one message from the parts in [sections]. Several parts are one message whose fields the
+     * later parts set again. A null value stands for the bytes from the position of the reader to its limit.
+     */
+    public fun decodeSections(reader: WireReader, sections: Sections?): T
 
-    public fun decode(reader: WireReader): T = decodeInto(reader, null)
+    public fun decode(reader: WireReader): T = decodeSections(reader, null)
+}
+
+/** The byte ranges of the occurrences of one message field. */
+public class Sections internal constructor() {
+    internal var count = 0
+    internal var starts = IntArray(2)
+    internal var ends = IntArray(2)
+
+    internal fun add(start: Int, end: Int) {
+        if (count == starts.size) {
+            starts = starts.copyOf(count * 2)
+            ends = ends.copyOf(count * 2)
+        }
+        starts[count] = start
+        ends[count] = end
+        count++
+    }
 }
 
 /** The unknown fields of a message, kept as encoded bytes in the order they arrived. */
@@ -233,15 +253,46 @@ public class WireReader(private val buffer: ByteArray) {
         depth++
     }
 
-    /**
-     * Reads a length-delimited message field. A field that is already set is merged with
-     * the new one, because the concatenation of two encodings is the merge of the messages.
-     */
-    public fun <T : WireMessage> readMessage(codec: WireCodec<T>, previous: T?): T {
+    /** Reads a length-delimited message field. */
+    public fun <T : WireMessage> readMessage(codec: WireCodec<T>): T {
         val saved = beginMessage()
-        val value = codec.decodeInto(this, previous)
+        val value = codec.decode(this)
         endMessage(saved)
         return value
+    }
+
+    /**
+     * Skips a length-delimited message field and records where its bytes are. A message field that
+     * occurs again is one message with the parts merged, because the concatenation of two encodings
+     * is the merge of the messages. [readSections] reads all parts at once.
+     */
+    public fun deferMessage(sections: Sections?): Sections {
+        val length = readLength()
+        val result = sections ?: Sections()
+        result.add(position, position + length)
+        position += length
+        return result
+    }
+
+    /** Reads the message that the parts in [sections] hold. */
+    public fun <T : WireMessage> readSections(codec: WireCodec<T>, sections: Sections): T {
+        enter()
+        val savedPosition = position
+        val savedLimit = limit
+        val value = codec.decodeSections(this, sections)
+        position = savedPosition
+        limit = savedLimit
+        depth--
+        return value
+    }
+
+    /** Moves to the part at [index]. It returns false after the last part. Generated code calls it. */
+    public fun nextSection(sections: Sections?, index: Int): Boolean {
+        if (sections == null) return index == 0
+        if (index >= sections.count) return false
+        position = sections.starts[index]
+        limit = sections.ends[index]
+        return true
     }
 
     /** Returns the position of the tag that was just read. */

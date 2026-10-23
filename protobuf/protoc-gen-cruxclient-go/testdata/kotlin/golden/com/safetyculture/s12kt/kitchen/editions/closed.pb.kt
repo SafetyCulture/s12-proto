@@ -106,37 +106,40 @@ public data class Holder(
         @kotlin.jvm.JvmStatic
         public fun parseFrom(bytes: kotlin.ByteArray): com.safetyculture.s12kt.kitchen.editions.Holder = decode(com.safetyculture.s12kt.wire.WireReader(bytes))
 
-        override fun decodeInto(reader: com.safetyculture.s12kt.wire.WireReader, previous: com.safetyculture.s12kt.kitchen.editions.Holder?): com.safetyculture.s12kt.kitchen.editions.Holder {
-            var v_open: com.safetyculture.s12kt.kitchen.editions.Open? = previous?.open
-            var v_closed: com.safetyculture.s12kt.kitchen.editions.Closed? = previous?.closed
-            val v_closedList = kotlin.collections.ArrayList<com.safetyculture.s12kt.kitchen.editions.Closed>(previous?.closedList ?: kotlin.collections.emptyList())
-            val _unknown = com.safetyculture.s12kt.wire.UnknownFields(previous?.unknownFields)
-            loop@ while (true) {
-                when (val _tag = reader.readTag()) {
-                    0 -> break@loop
-                    8 -> {
-                        v_open = com.safetyculture.s12kt.kitchen.editions.Open.fromNumber(reader.readInt32())
-                    }
-                    16 -> {
-                        val _n = reader.readInt32()
-                        val _e = com.safetyculture.s12kt.kitchen.editions.Closed.fromNumber(_n)
-                        if (_e is com.safetyculture.s12kt.kitchen.editions.Closed.UNRECOGNIZED) _unknown.addVarint(16, _n.toLong()) else v_closed = _e
-                    }
-                    24 -> {
-                        val _n = reader.readInt32()
-                        val _e = com.safetyculture.s12kt.kitchen.editions.Closed.fromNumber(_n)
-                        if (_e is com.safetyculture.s12kt.kitchen.editions.Closed.UNRECOGNIZED) _unknown.addVarint(24, _n.toLong()) else v_closedList.add(_e)
-                    }
-                    26 -> {
-                        val _saved = reader.beginSection()
-                        while (!reader.isAtEnd()) {
+        override fun decodeSections(reader: com.safetyculture.s12kt.wire.WireReader, sections: com.safetyculture.s12kt.wire.Sections?): com.safetyculture.s12kt.kitchen.editions.Holder {
+            var v_open: com.safetyculture.s12kt.kitchen.editions.Open? = null
+            var v_closed: com.safetyculture.s12kt.kitchen.editions.Closed? = null
+            val v_closedList = kotlin.collections.ArrayList<com.safetyculture.s12kt.kitchen.editions.Closed>()
+            val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+            var _part = 0
+            while (reader.nextSection(sections, _part++)) {
+                loop@ while (true) {
+                    when (val _tag = reader.readTag()) {
+                        0 -> break@loop
+                        8 -> {
+                            v_open = com.safetyculture.s12kt.kitchen.editions.Open.fromNumber(reader.readInt32())
+                        }
+                        16 -> {
+                            val _n = reader.readInt32()
+                            val _e = com.safetyculture.s12kt.kitchen.editions.Closed.fromNumber(_n)
+                            if (_e is com.safetyculture.s12kt.kitchen.editions.Closed.UNRECOGNIZED) _unknown.addVarint(16, _n.toLong()) else v_closed = _e
+                        }
+                        24 -> {
                             val _n = reader.readInt32()
                             val _e = com.safetyculture.s12kt.kitchen.editions.Closed.fromNumber(_n)
                             if (_e is com.safetyculture.s12kt.kitchen.editions.Closed.UNRECOGNIZED) _unknown.addVarint(24, _n.toLong()) else v_closedList.add(_e)
                         }
-                        reader.endSection(_saved)
+                        26 -> {
+                            val _saved = reader.beginSection()
+                            while (!reader.isAtEnd()) {
+                                val _n = reader.readInt32()
+                                val _e = com.safetyculture.s12kt.kitchen.editions.Closed.fromNumber(_n)
+                                if (_e is com.safetyculture.s12kt.kitchen.editions.Closed.UNRECOGNIZED) _unknown.addVarint(24, _n.toLong()) else v_closedList.add(_e)
+                            }
+                            reader.endSection(_saved)
+                        }
+                        else -> reader.readUnknown(_tag, _unknown)
                     }
-                    else -> reader.readUnknown(_tag, _unknown)
                 }
             }
             return com.safetyculture.s12kt.kitchen.editions.Holder(

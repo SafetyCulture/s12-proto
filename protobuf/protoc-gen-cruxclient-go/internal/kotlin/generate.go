@@ -166,6 +166,16 @@ type oneofInfo struct {
 	fields []*fieldInfo
 }
 
+// hasMessage reports whether a member of the oneof is a message.
+func (o *oneofInfo) hasMessage() bool {
+	for _, f := range o.fields {
+		if f.fd.Message() != nil {
+			return true
+		}
+	}
+	return false
+}
+
 // fieldInfo describes one field of a message.
 type fieldInfo struct {
 	fd     protoreflect.FieldDescriptor
@@ -646,13 +656,12 @@ func (f *fieldInfo) variant(qualified string) string {
 }
 
 // readValue returns the statements and the expression that read one value of a field.
-// previous is the expression of the earlier value of a message field, or "null".
 // With retain, a closed enum reads its number into _n, so that store can keep a number that the
-// enum does not declare.
-func (g *fileGen) readValue(fd protoreflect.FieldDescriptor, previous string, retain bool) ([]string, string) {
+// enum does not declare. A message that may occur again is not read here: see deferred.
+func (g *fileGen) readValue(fd protoreflect.FieldDescriptor, retain bool) ([]string, string) {
 	switch fd.Kind() {
 	case protoreflect.MessageKind:
-		return nil, fmt.Sprintf("reader.readMessage(%s, %s)", qualifiedName(fd.Message(), g.root), previous)
+		return nil, fmt.Sprintf("reader.readMessage(%s)", qualifiedName(fd.Message(), g.root))
 	case protoreflect.EnumKind:
 		enum := qualifiedName(fd.Enum(), g.root)
 		if !retain || !closedEnum(fd) {
@@ -702,7 +711,7 @@ func (g *fileGen) companion(msg protoreflect.MessageDescriptor, qualified string
 		g.w.line("public fun parseFrom(bytes: kotlin.ByteArray): %s = decode(%s(bytes))", qualified, g.rt("WireReader"))
 	}
 	g.w.line("")
-	g.w.open("override fun decodeInto(reader: %s, previous: %s?): %s {", g.rt("WireReader"), qualified, qualified)
+	g.w.open("override fun decodeSections(reader: %s, sections: %s?): %s {", g.rt("WireReader"), g.rt("Sections"), qualified)
 
 	oneofSeen := map[*oneofInfo]bool{}
 	var args []string
@@ -712,28 +721,33 @@ func (g *fileGen) companion(msg protoreflect.MessageDescriptor, qualified string
 		case f.oneof != nil:
 			if !oneofSeen[f.oneof] {
 				oneofSeen[f.oneof] = true
-				g.w.line("var v_%s: %s.%s? = previous?.%s", f.oneof.prop, qualified, f.oneof.class, f.oneof.prop)
+				g.w.line("var v_%s: %s.%s? = null", f.oneof.prop, qualified, f.oneof.class)
+				if oi := f.oneof; oi.hasMessage() {
+					g.w.line("var s_%s: %s? = null", oi.prop, g.rt("Sections"))
+					g.w.line("var n_%s = 0", oi.prop)
+				}
 				args = append(args, fmt.Sprintf("%s = v_%s", f.oneof.prop, f.oneof.prop))
 			}
 		case fd.IsMap():
-			g.w.line("val v_%s = kotlin.collections.LinkedHashMap<%s, %s>(previous?.%s ?: kotlin.collections.emptyMap())", f.prop, g.elementType(fd.MapKey()), g.elementType(fd.MapValue()), f.prop)
+			g.w.line("val v_%s = kotlin.collections.LinkedHashMap<%s, %s>()", f.prop, g.elementType(fd.MapKey()), g.elementType(fd.MapValue()))
 			args = append(args, fmt.Sprintf("%s = v_%s", f.prop, f.prop))
 		case fd.IsList():
-			g.w.line("val v_%s = kotlin.collections.ArrayList<%s>(previous?.%s ?: kotlin.collections.emptyList())", f.prop, g.elementType(fd), f.prop)
+			g.w.line("val v_%s = kotlin.collections.ArrayList<%s>()", f.prop, g.elementType(fd))
 			args = append(args, fmt.Sprintf("%s = v_%s", f.prop, f.prop))
 		default:
-			if f.nullable() {
-				g.w.line("var v_%s: %s = previous?.%s", f.prop, g.propertyType(f), f.prop)
-			} else {
-				g.w.line("var v_%s: %s = previous?.%s ?: %s", f.prop, g.propertyType(f), f.prop, g.propertyDefault(f))
+			g.w.line("var v_%s: %s = %s", f.prop, g.propertyType(f), g.propertyDefault(f))
+			if fd.Message() != nil {
+				g.w.line("var s_%s: %s? = null", f.prop, g.rt("Sections"))
 			}
 			args = append(args, fmt.Sprintf("%s = v_%s", f.prop, f.prop))
 		}
 	}
 	if len(required) > 0 {
-		g.w.line("var _missing = previous?.missingRequired ?: %dL", int64(1)<<len(required)-1)
+		g.w.line("var _missing = %dL", int64(1)<<len(required)-1)
 	}
-	g.w.line("val _unknown = %s(previous?.unknownFields)", g.rt("UnknownFields"))
+	g.w.line("val _unknown = %s()", g.rt("UnknownFields"))
+	g.w.line("var _part = 0")
+	g.w.open("while (reader.nextSection(sections, _part++)) {")
 	g.w.open("loop@ while (true) {")
 	g.w.open("when (val _tag = reader.readTag()) {")
 	g.w.line("0 -> break@loop")
@@ -743,6 +757,28 @@ func (g *fileGen) companion(msg protoreflect.MessageDescriptor, qualified string
 	g.w.line("else -> reader.readUnknown(_tag, _unknown)")
 	g.w.close("}")
 	g.w.close("}")
+	g.w.close("}")
+	oneofDone := map[*oneofInfo]bool{}
+	for _, f := range fields {
+		switch {
+		case f.oneof != nil:
+			oi := f.oneof
+			if oneofDone[oi] || !oi.hasMessage() {
+				continue
+			}
+			oneofDone[oi] = true
+			g.w.open("when (n_%s) {", oi.prop)
+			for _, m := range oi.fields {
+				if m.fd.Message() == nil {
+					continue
+				}
+				g.w.line("%d -> v_%s = %s(reader.readSections(%s, s_%s!!))", m.fd.Number(), oi.prop, m.variant(qualified), qualifiedName(m.fd.Message(), g.root), oi.prop)
+			}
+			g.w.close("}")
+		case !f.fd.IsMap() && !f.fd.IsList() && f.fd.Message() != nil:
+			g.w.line("if (s_%s != null) v_%s = reader.readSections(%s, s_%s)", f.prop, f.prop, qualifiedName(f.fd.Message(), g.root), f.prop)
+		}
+	}
 	args = append(args, "unknownFields = _unknown.toByteString()")
 	ret := "return"
 	if len(required) > 0 {
@@ -768,7 +804,7 @@ func (g *fileGen) decodeCase(f *fieldInfo, qualified string) {
 	case fd.IsMap():
 		g.decodeMap(f)
 	case fd.IsList():
-		pre, expr := g.readValue(fd, "null", true)
+		pre, expr := g.readValue(fd, true)
 		g.w.open("%d -> {", tagOf(n, wireTypeOf(fd.Kind())))
 		for _, l := range pre {
 			g.w.text(l)
@@ -789,24 +825,44 @@ func (g *fileGen) decodeCase(f *fieldInfo, qualified string) {
 		}
 	case f.oneof != nil:
 		variant := f.variant(qualified)
-		pre, expr := g.readValue(fd, fmt.Sprintf("(v_%s as? %s)?.value", f.oneof.prop, variant), true)
+		op := f.oneof.prop
 		g.w.open("%d -> {", tagOf(n, wireTypeOf(fd.Kind())))
-		for _, l := range pre {
-			g.w.text(l)
+		switch {
+		case fd.Message() != nil:
+			g.w.line("if (n_%s != %d) s_%s = null", op, n, op)
+			g.w.line("n_%s = %d", op, n)
+			g.w.line("s_%s = reader.deferMessage(s_%s)", op, op)
+			g.w.line("v_%s = null", op)
+		default:
+			pre, expr := g.readValue(fd, true)
+			for _, l := range pre {
+				g.w.text(l)
+			}
+			after := ""
+			if f.oneof.hasMessage() {
+				after = fmt.Sprintf("n_%s = 0; s_%s = null", op, op)
+			}
+			g.writeStore(fd, fmt.Sprintf("v_%s = %s(%s)", op, variant, expr), after)
 		}
-		g.writeStore(fd, fmt.Sprintf("v_%s = %s(%s)", f.oneof.prop, variant, expr), "")
 		g.w.close("}")
 	default:
-		pre, expr := g.readValue(fd, "v_"+f.prop, true)
 		g.w.open("%d -> {", tagOf(n, wireTypeOf(fd.Kind())))
-		for _, l := range pre {
-			g.w.text(l)
-		}
 		after := ""
 		if f.reqBit >= 0 {
 			after = fmt.Sprintf("_missing = _missing and %dL", ^(int64(1) << f.reqBit))
 		}
-		g.writeStore(fd, fmt.Sprintf("v_%s = %s", f.prop, expr), after)
+		if fd.Message() != nil {
+			g.w.line("s_%s = reader.deferMessage(s_%s)", f.prop, f.prop)
+			if after != "" {
+				g.w.text(after)
+			}
+		} else {
+			pre, expr := g.readValue(fd, true)
+			for _, l := range pre {
+				g.w.text(l)
+			}
+			g.writeStore(fd, fmt.Sprintf("v_%s = %s", f.prop, expr), after)
+		}
 		g.w.close("}")
 	}
 }
@@ -823,24 +879,27 @@ func (g *fileGen) decodeMap(f *fieldInfo) {
 	g.w.line("var _key: %s = %s", g.elementType(key), g.defaultLiteral(key))
 	if val.Kind() == protoreflect.MessageKind {
 		g.w.line("var _value: %s? = null", g.elementType(val))
+		g.w.line("var _valueSections: %s? = null", g.rt("Sections"))
 	} else {
 		g.w.line("var _value: %s = %s", g.elementType(val), g.defaultLiteral(val))
 	}
 	g.w.open("entry@ while (true) {")
 	g.w.open("when (val _t = reader.readTag()) {")
 	g.w.line("0 -> break@entry")
-	_, keyExpr := g.readValue(key, "null", false)
+	_, keyExpr := g.readValue(key, false)
 	g.w.line("%d -> _key = %s", tagOf(1, wireTypeOf(key.Kind())), keyExpr)
 	if val.Kind() == protoreflect.MessageKind {
-		_, valExpr := g.readValue(val, "_value", false)
-		g.w.line("%d -> _value = %s", tagOf(2, wireTypeOf(val.Kind())), valExpr)
+		g.w.line("%d -> _valueSections = reader.deferMessage(_valueSections)", tagOf(2, wireTypeOf(val.Kind())))
 	} else {
-		_, valExpr := g.readValue(val, "null", false)
+		_, valExpr := g.readValue(val, false)
 		g.w.line("%d -> _value = %s", tagOf(2, wireTypeOf(val.Kind())), valExpr)
 	}
 	g.w.line("else -> reader.skipField(_t)")
 	g.w.close("}")
 	g.w.close("}")
+	if val.Kind() == protoreflect.MessageKind {
+		g.w.line("if (_valueSections != null) _value = reader.readSections(%s, _valueSections)", g.qualifiedValue(val))
+	}
 	g.w.line("reader.endSection(_saved)")
 	switch {
 	case val.Kind() == protoreflect.MessageKind && g.needsRequiredCheck(val.Message()):
@@ -853,6 +912,11 @@ func (g *fileGen) decodeMap(f *fieldInfo) {
 		g.w.line("v_%s[_key] = _value", f.prop)
 	}
 	g.w.close("}")
+}
+
+// qualifiedValue returns the codec expression of a message.
+func (g *fileGen) qualifiedValue(fd protoreflect.FieldDescriptor) string {
+	return qualifiedName(fd.Message(), g.root)
 }
 
 // maxRequired is the number of required fields of one message that the missing-required mask holds.

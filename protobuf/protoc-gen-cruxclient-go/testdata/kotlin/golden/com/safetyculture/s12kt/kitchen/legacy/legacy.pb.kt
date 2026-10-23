@@ -133,76 +133,81 @@ public data class Legacy(
             return _message
         }
 
-        override fun decodeInto(reader: com.safetyculture.s12kt.wire.WireReader, previous: com.safetyculture.s12kt.kitchen.legacy.Legacy?): com.safetyculture.s12kt.kitchen.legacy.Legacy {
-            var v_id: kotlin.String = previous?.id ?: ""
-            var v_count: kotlin.Int? = previous?.count
-            var v_label: kotlin.String? = previous?.label
-            var v_level: com.safetyculture.s12kt.kitchen.legacy.Level? = previous?.level
-            val v_numbers = kotlin.collections.ArrayList<kotlin.Int>(previous?.numbers ?: kotlin.collections.emptyList())
-            val v_packedNumbers = kotlin.collections.ArrayList<kotlin.Int>(previous?.packedNumbers ?: kotlin.collections.emptyList())
-            var v_blob: com.safetyculture.s12kt.wire.ByteString? = previous?.blob
-            var v_parent: com.safetyculture.s12kt.kitchen.legacy.Legacy? = previous?.parent
-            var v_score: kotlin.Double = previous?.score ?: 1.5
-            var v_pick: com.safetyculture.s12kt.kitchen.legacy.Legacy.Pick? = previous?.pick
-            var _missing = previous?.missingRequired ?: 3L
-            val _unknown = com.safetyculture.s12kt.wire.UnknownFields(previous?.unknownFields)
-            loop@ while (true) {
-                when (val _tag = reader.readTag()) {
-                    0 -> break@loop
-                    10 -> {
-                        v_id = reader.readStringLenient()
-                        _missing = _missing and -2L
-                    }
-                    16 -> {
-                        v_count = reader.readInt32()
-                    }
-                    26 -> {
-                        v_label = reader.readStringLenient()
-                    }
-                    32 -> {
-                        val _n = reader.readInt32()
-                        val _e = com.safetyculture.s12kt.kitchen.legacy.Level.fromNumber(_n)
-                        if (_e is com.safetyculture.s12kt.kitchen.legacy.Level.UNRECOGNIZED) _unknown.addVarint(32, _n.toLong()) else v_level = _e
-                    }
-                    40 -> {
-                        v_numbers.add(reader.readInt32())
-                    }
-                    42 -> {
-                        val _saved = reader.beginSection()
-                        while (!reader.isAtEnd()) {
+        override fun decodeSections(reader: com.safetyculture.s12kt.wire.WireReader, sections: com.safetyculture.s12kt.wire.Sections?): com.safetyculture.s12kt.kitchen.legacy.Legacy {
+            var v_id: kotlin.String = ""
+            var v_count: kotlin.Int? = null
+            var v_label: kotlin.String? = null
+            var v_level: com.safetyculture.s12kt.kitchen.legacy.Level? = null
+            val v_numbers = kotlin.collections.ArrayList<kotlin.Int>()
+            val v_packedNumbers = kotlin.collections.ArrayList<kotlin.Int>()
+            var v_blob: com.safetyculture.s12kt.wire.ByteString? = null
+            var v_parent: com.safetyculture.s12kt.kitchen.legacy.Legacy? = null
+            var s_parent: com.safetyculture.s12kt.wire.Sections? = null
+            var v_score: kotlin.Double = 1.5
+            var v_pick: com.safetyculture.s12kt.kitchen.legacy.Legacy.Pick? = null
+            var _missing = 3L
+            val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+            var _part = 0
+            while (reader.nextSection(sections, _part++)) {
+                loop@ while (true) {
+                    when (val _tag = reader.readTag()) {
+                        0 -> break@loop
+                        10 -> {
+                            v_id = reader.readStringLenient()
+                            _missing = _missing and -2L
+                        }
+                        16 -> {
+                            v_count = reader.readInt32()
+                        }
+                        26 -> {
+                            v_label = reader.readStringLenient()
+                        }
+                        32 -> {
+                            val _n = reader.readInt32()
+                            val _e = com.safetyculture.s12kt.kitchen.legacy.Level.fromNumber(_n)
+                            if (_e is com.safetyculture.s12kt.kitchen.legacy.Level.UNRECOGNIZED) _unknown.addVarint(32, _n.toLong()) else v_level = _e
+                        }
+                        40 -> {
                             v_numbers.add(reader.readInt32())
                         }
-                        reader.endSection(_saved)
-                    }
-                    48 -> {
-                        v_packedNumbers.add(reader.readInt32())
-                    }
-                    50 -> {
-                        val _saved = reader.beginSection()
-                        while (!reader.isAtEnd()) {
+                        42 -> {
+                            val _saved = reader.beginSection()
+                            while (!reader.isAtEnd()) {
+                                v_numbers.add(reader.readInt32())
+                            }
+                            reader.endSection(_saved)
+                        }
+                        48 -> {
                             v_packedNumbers.add(reader.readInt32())
                         }
-                        reader.endSection(_saved)
+                        50 -> {
+                            val _saved = reader.beginSection()
+                            while (!reader.isAtEnd()) {
+                                v_packedNumbers.add(reader.readInt32())
+                            }
+                            reader.endSection(_saved)
+                        }
+                        58 -> {
+                            v_blob = reader.readBytes()
+                        }
+                        66 -> {
+                            s_parent = reader.deferMessage(s_parent)
+                        }
+                        73 -> {
+                            v_score = reader.readDouble()
+                            _missing = _missing and -3L
+                        }
+                        82 -> {
+                            v_pick = com.safetyculture.s12kt.kitchen.legacy.Legacy.Pick.A(reader.readStringLenient())
+                        }
+                        88 -> {
+                            v_pick = com.safetyculture.s12kt.kitchen.legacy.Legacy.Pick.B(reader.readInt64())
+                        }
+                        else -> reader.readUnknown(_tag, _unknown)
                     }
-                    58 -> {
-                        v_blob = reader.readBytes()
-                    }
-                    66 -> {
-                        v_parent = reader.readMessage(com.safetyculture.s12kt.kitchen.legacy.Legacy, v_parent)
-                    }
-                    73 -> {
-                        v_score = reader.readDouble()
-                        _missing = _missing and -3L
-                    }
-                    82 -> {
-                        v_pick = com.safetyculture.s12kt.kitchen.legacy.Legacy.Pick.A(reader.readStringLenient())
-                    }
-                    88 -> {
-                        v_pick = com.safetyculture.s12kt.kitchen.legacy.Legacy.Pick.B(reader.readInt64())
-                    }
-                    else -> reader.readUnknown(_tag, _unknown)
                 }
             }
+            if (s_parent != null) v_parent = reader.readSections(com.safetyculture.s12kt.kitchen.legacy.Legacy, s_parent)
             val _result = com.safetyculture.s12kt.kitchen.legacy.Legacy(
                 id = v_id,
                 count = v_count,
@@ -273,22 +278,25 @@ public data class Req(
             return _message
         }
 
-        override fun decodeInto(reader: com.safetyculture.s12kt.wire.WireReader, previous: com.safetyculture.s12kt.kitchen.legacy.Req?): com.safetyculture.s12kt.kitchen.legacy.Req {
-            var v_name: kotlin.String = previous?.name ?: ""
-            var v_count: kotlin.Int? = previous?.count
-            var _missing = previous?.missingRequired ?: 1L
-            val _unknown = com.safetyculture.s12kt.wire.UnknownFields(previous?.unknownFields)
-            loop@ while (true) {
-                when (val _tag = reader.readTag()) {
-                    0 -> break@loop
-                    10 -> {
-                        v_name = reader.readStringLenient()
-                        _missing = _missing and -2L
+        override fun decodeSections(reader: com.safetyculture.s12kt.wire.WireReader, sections: com.safetyculture.s12kt.wire.Sections?): com.safetyculture.s12kt.kitchen.legacy.Req {
+            var v_name: kotlin.String = ""
+            var v_count: kotlin.Int? = null
+            var _missing = 1L
+            val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+            var _part = 0
+            while (reader.nextSection(sections, _part++)) {
+                loop@ while (true) {
+                    when (val _tag = reader.readTag()) {
+                        0 -> break@loop
+                        10 -> {
+                            v_name = reader.readStringLenient()
+                            _missing = _missing and -2L
+                        }
+                        16 -> {
+                            v_count = reader.readInt32()
+                        }
+                        else -> reader.readUnknown(_tag, _unknown)
                     }
-                    16 -> {
-                        v_count = reader.readInt32()
-                    }
-                    else -> reader.readUnknown(_tag, _unknown)
                 }
             }
             val _result = com.safetyculture.s12kt.kitchen.legacy.Req(
@@ -381,54 +389,61 @@ public data class ReqHolder(
             return _message
         }
 
-        override fun decodeInto(reader: com.safetyculture.s12kt.wire.WireReader, previous: com.safetyculture.s12kt.kitchen.legacy.ReqHolder?): com.safetyculture.s12kt.kitchen.legacy.ReqHolder {
-            var v_one: com.safetyculture.s12kt.kitchen.legacy.Req? = previous?.one
-            val v_many = kotlin.collections.ArrayList<com.safetyculture.s12kt.kitchen.legacy.Req>(previous?.many ?: kotlin.collections.emptyList())
-            val v_byName = kotlin.collections.LinkedHashMap<kotlin.String, com.safetyculture.s12kt.kitchen.legacy.Req>(previous?.byName ?: kotlin.collections.emptyMap())
-            val v_tags = kotlin.collections.LinkedHashMap<kotlin.String, kotlin.String>(previous?.tags ?: kotlin.collections.emptyMap())
-            val _unknown = com.safetyculture.s12kt.wire.UnknownFields(previous?.unknownFields)
-            loop@ while (true) {
-                when (val _tag = reader.readTag()) {
-                    0 -> break@loop
-                    10 -> {
-                        v_one = reader.readMessage(com.safetyculture.s12kt.kitchen.legacy.Req, v_one)
-                    }
-                    18 -> {
-                        v_many.add(reader.readMessage(com.safetyculture.s12kt.kitchen.legacy.Req, null))
-                    }
-                    26 -> {
-                        val _saved = reader.beginSection()
-                        var _key: kotlin.String = ""
-                        var _value: com.safetyculture.s12kt.kitchen.legacy.Req? = null
-                        entry@ while (true) {
-                            when (val _t = reader.readTag()) {
-                                0 -> break@entry
-                                10 -> _key = reader.readString()
-                                18 -> _value = reader.readMessage(com.safetyculture.s12kt.kitchen.legacy.Req, _value)
-                                else -> reader.skipField(_t)
-                            }
+        override fun decodeSections(reader: com.safetyculture.s12kt.wire.WireReader, sections: com.safetyculture.s12kt.wire.Sections?): com.safetyculture.s12kt.kitchen.legacy.ReqHolder {
+            var v_one: com.safetyculture.s12kt.kitchen.legacy.Req? = null
+            var s_one: com.safetyculture.s12kt.wire.Sections? = null
+            val v_many = kotlin.collections.ArrayList<com.safetyculture.s12kt.kitchen.legacy.Req>()
+            val v_byName = kotlin.collections.LinkedHashMap<kotlin.String, com.safetyculture.s12kt.kitchen.legacy.Req>()
+            val v_tags = kotlin.collections.LinkedHashMap<kotlin.String, kotlin.String>()
+            val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+            var _part = 0
+            while (reader.nextSection(sections, _part++)) {
+                loop@ while (true) {
+                    when (val _tag = reader.readTag()) {
+                        0 -> break@loop
+                        10 -> {
+                            s_one = reader.deferMessage(s_one)
                         }
-                        reader.endSection(_saved)
-                        v_byName[_key] = _value ?: com.safetyculture.s12kt.kitchen.legacy.Req.decode(com.safetyculture.s12kt.wire.WireReader(kotlin.ByteArray(0)))
-                    }
-                    34 -> {
-                        val _saved = reader.beginSection()
-                        var _key: kotlin.String = ""
-                        var _value: kotlin.String = ""
-                        entry@ while (true) {
-                            when (val _t = reader.readTag()) {
-                                0 -> break@entry
-                                10 -> _key = reader.readString()
-                                18 -> _value = reader.readString()
-                                else -> reader.skipField(_t)
-                            }
+                        18 -> {
+                            v_many.add(reader.readMessage(com.safetyculture.s12kt.kitchen.legacy.Req))
                         }
-                        reader.endSection(_saved)
-                        v_tags[_key] = _value
+                        26 -> {
+                            val _saved = reader.beginSection()
+                            var _key: kotlin.String = ""
+                            var _value: com.safetyculture.s12kt.kitchen.legacy.Req? = null
+                            var _valueSections: com.safetyculture.s12kt.wire.Sections? = null
+                            entry@ while (true) {
+                                when (val _t = reader.readTag()) {
+                                    0 -> break@entry
+                                    10 -> _key = reader.readString()
+                                    18 -> _valueSections = reader.deferMessage(_valueSections)
+                                    else -> reader.skipField(_t)
+                                }
+                            }
+                            if (_valueSections != null) _value = reader.readSections(com.safetyculture.s12kt.kitchen.legacy.Req, _valueSections)
+                            reader.endSection(_saved)
+                            v_byName[_key] = _value ?: com.safetyculture.s12kt.kitchen.legacy.Req.decode(com.safetyculture.s12kt.wire.WireReader(kotlin.ByteArray(0)))
+                        }
+                        34 -> {
+                            val _saved = reader.beginSection()
+                            var _key: kotlin.String = ""
+                            var _value: kotlin.String = ""
+                            entry@ while (true) {
+                                when (val _t = reader.readTag()) {
+                                    0 -> break@entry
+                                    10 -> _key = reader.readString()
+                                    18 -> _value = reader.readString()
+                                    else -> reader.skipField(_t)
+                                }
+                            }
+                            reader.endSection(_saved)
+                            v_tags[_key] = _value
+                        }
+                        else -> reader.readUnknown(_tag, _unknown)
                     }
-                    else -> reader.readUnknown(_tag, _unknown)
                 }
             }
+            if (s_one != null) v_one = reader.readSections(com.safetyculture.s12kt.kitchen.legacy.Req, s_one)
             return com.safetyculture.s12kt.kitchen.legacy.ReqHolder(
                 one = v_one,
                 many = v_many,
@@ -487,22 +502,25 @@ public data class ReqEnum(
             return _message
         }
 
-        override fun decodeInto(reader: com.safetyculture.s12kt.wire.WireReader, previous: com.safetyculture.s12kt.kitchen.legacy.ReqEnum?): com.safetyculture.s12kt.kitchen.legacy.ReqEnum {
-            var v_level: com.safetyculture.s12kt.kitchen.legacy.Level = previous?.level ?: com.safetyculture.s12kt.kitchen.legacy.Level.LEVEL_LOW
-            var _missing = previous?.missingRequired ?: 1L
-            val _unknown = com.safetyculture.s12kt.wire.UnknownFields(previous?.unknownFields)
-            loop@ while (true) {
-                when (val _tag = reader.readTag()) {
-                    0 -> break@loop
-                    8 -> {
-                        val _n = reader.readInt32()
-                        val _e = com.safetyculture.s12kt.kitchen.legacy.Level.fromNumber(_n)
-                        if (_e is com.safetyculture.s12kt.kitchen.legacy.Level.UNRECOGNIZED) _unknown.addVarint(8, _n.toLong()) else {
-                            v_level = _e
-                            _missing = _missing and -2L
+        override fun decodeSections(reader: com.safetyculture.s12kt.wire.WireReader, sections: com.safetyculture.s12kt.wire.Sections?): com.safetyculture.s12kt.kitchen.legacy.ReqEnum {
+            var v_level: com.safetyculture.s12kt.kitchen.legacy.Level = com.safetyculture.s12kt.kitchen.legacy.Level.LEVEL_LOW
+            var _missing = 1L
+            val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+            var _part = 0
+            while (reader.nextSection(sections, _part++)) {
+                loop@ while (true) {
+                    when (val _tag = reader.readTag()) {
+                        0 -> break@loop
+                        8 -> {
+                            val _n = reader.readInt32()
+                            val _e = com.safetyculture.s12kt.kitchen.legacy.Level.fromNumber(_n)
+                            if (_e is com.safetyculture.s12kt.kitchen.legacy.Level.UNRECOGNIZED) _unknown.addVarint(8, _n.toLong()) else {
+                                v_level = _e
+                                _missing = _missing and -2L
+                            }
                         }
+                        else -> reader.readUnknown(_tag, _unknown)
                     }
-                    else -> reader.readUnknown(_tag, _unknown)
                 }
             }
             val _result = com.safetyculture.s12kt.kitchen.legacy.ReqEnum(
