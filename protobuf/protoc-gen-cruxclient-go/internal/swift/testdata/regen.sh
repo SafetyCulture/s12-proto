@@ -36,7 +36,7 @@ cd "$APISCHEMA"
 "$BUF" build "${BUF_EXCLUDES[@]}" -o "$WORK/image.binpb"
 python3 "$MITTI_MOBILE/tools/lib/s12_prefixes.py" "$MITTI_MOBILE/crux/deps/s12-prefixes.yaml" "$MITTI_MOBILE/crux/tools" \
   "$WORK/image.binpb" "$WORK/prefixed.binpb" > "$WORK/files.txt"
-sort "$WORK/files.txt" > "$HERE/whitelist.txt"
+LC_ALL=C sort "$WORK/files.txt" > "$HERE/whitelist.txt"
 
 paths=()
 while IFS= read -r file; do paths+=(--path "$file"); done < "$HERE/whitelist.txt"
