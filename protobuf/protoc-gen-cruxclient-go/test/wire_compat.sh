@@ -28,7 +28,13 @@ if [ -z "${WORK:-}" ]; then
 fi
 mkdir -p "$WORK"
 
-PROTOC_INCLUDE=${PROTOC_INCLUDE:-$(dirname "$(dirname "$(command -v protoc)")")/include}
+# The include directory of protoc. A mise shim does not sit next to the include directory, so ask mise first.
+protoc_include() {
+  local real
+  real=$( (command -v mise >/dev/null && mise which "$1" 2>/dev/null) || readlink -f "$(command -v "$1")")
+  echo "$(dirname "$(dirname "$real")")/include"
+}
+PROTOC_INCLUDE=${PROTOC_INCLUDE:-$(protoc_include protoc)}
 [ -f "$PROTOC_INCLUDE/google/protobuf/descriptor.proto" ] || { echo "PROTOC_INCLUDE has no google/protobuf/descriptor.proto: $PROTOC_INCLUDE" >&2; exit 2; }
 
 if [ -z "${JAVALITE_JAR:-}" ]; then

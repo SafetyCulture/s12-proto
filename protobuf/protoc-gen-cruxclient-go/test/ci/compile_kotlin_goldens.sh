@@ -6,7 +6,13 @@ HERE=$(cd "$(dirname "$0")" && pwd)
 PLUGIN_DIR=$(cd "$HERE/../.." && pwd)
 KOTLINC=${KOTLINC:-kotlinc}
 PROTOC=${PROTOC:-protoc}
-PROTOC_INCLUDE=${PROTOC_INCLUDE:-$(dirname "$(dirname "$(command -v "$PROTOC")")")/include}
+# The include directory of protoc. A mise shim does not sit next to the include directory, so ask mise first.
+protoc_include() {
+  local real
+  real=$( (command -v mise >/dev/null && mise which "$1" 2>/dev/null) || readlink -f "$(command -v "$1")")
+  echo "$(dirname "$(dirname "$real")")/include"
+}
+PROTOC_INCLUDE=${PROTOC_INCLUDE:-$(protoc_include "$PROTOC")}
 WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' EXIT
 
