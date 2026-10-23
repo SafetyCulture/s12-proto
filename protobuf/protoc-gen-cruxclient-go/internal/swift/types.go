@@ -87,7 +87,7 @@ func (g *generator) swiftDefaultValue(f *field) string {
 		case typeString:
 			return stringToEscapedStringLiteral(defaultValue)
 		case typeBytes:
-			return escapedToDataLiteral(f.file.name, defaultValue)
+			return escapedToDataLiteral(defaultValue)
 		case typeEnum:
 			for _, v := range f.enumType.values {
 				if v.name == defaultValue {

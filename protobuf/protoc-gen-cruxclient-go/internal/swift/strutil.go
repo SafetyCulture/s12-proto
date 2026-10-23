@@ -31,7 +31,7 @@ func splitPath(pathname string) (dir, base, suffix string) {
 }
 
 // escapedToDataLiteral converts escaped bytes into a Data literal.
-func escapedToDataLiteral(filename, s string) string {
+func escapedToDataLiteral(s string) string {
 	if s == "" {
 		return "Data()"
 	}
@@ -51,7 +51,7 @@ func escapedToDataLiteral(filename, s string) string {
 		switch {
 		case octal > 0:
 			if c < '0' || c > '7' {
-				panic(fmt.Sprintf("%s: non-octal byte %q in an octal escape", filename, c))
+				panic(fmt.Sprintf("non-octal byte %q in an octal escape", c))
 			}
 			accumulator = accumulator<<3 | int(c-'0')
 			octal--

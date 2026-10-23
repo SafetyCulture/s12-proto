@@ -27,11 +27,11 @@ type generator struct {
 func Generate(rw protoplugin.ResponseWriter, request protoplugin.Request, isPluginKey func(key string) bool) error {
 	opts, err := parseOptions(request.Parameter(), isPluginKey)
 	if err != nil {
-		return fmt.Errorf("swift: parseOptions: %w", err)
+		return fmt.Errorf("parseOptions: %w", err)
 	}
 	files, err := render(request.AllFileDescriptorProtos(), toGenerate(request.FileDescriptorProtosToGenerate()), opts)
 	if err != nil {
-		return fmt.Errorf("swift: render: %w", err)
+		return fmt.Errorf("render: %w", err)
 	}
 	for _, f := range files {
 		rw.AddFile(f.Name, f.Content)

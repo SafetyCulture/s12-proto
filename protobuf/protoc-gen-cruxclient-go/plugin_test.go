@@ -122,7 +122,7 @@ func TestSwiftGenerationErrorAddsResponseError(t *testing.T) {
 		"swift_messages,Visibility=Bogus",
 	)
 	require.NoError(t, err)
-	require.Equal(t, `cruxclient-go: swift.Generate: swift: parseOptions: unknown value "Bogus" for the option Visibility`, resp.GetError())
+	require.Equal(t, `cruxclient-go: swift.Generate: parseOptions: unknown value "Bogus" for the option Visibility`, resp.GetError())
 }
 
 func TestDjinniYAMLEscapesNewValues(t *testing.T) {

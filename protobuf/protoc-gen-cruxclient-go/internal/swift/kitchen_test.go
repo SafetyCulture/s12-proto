@@ -252,13 +252,13 @@ func TestBytecode(t *testing.T) {
 func TestPrintSwiftLiterals(t *testing.T) {
 	require.Equal(t, `"a\"b\\c\u{0a}"`, stringToEscapedStringLiteral("a\"b\\c\n"))
 	require.Equal(t, "String()", stringToEscapedStringLiteral(""))
-	require.Equal(t, "Data([0, 1, 97, 255, 10])", escapedToDataLiteral("test.proto", `\000\001a\377\n`))
-	require.Equal(t, "Data()", escapedToDataLiteral("test.proto", ""))
+	require.Equal(t, "Data([0, 1, 97, 255, 10])", escapedToDataLiteral(`\000\001a\377\n`))
+	require.Equal(t, "Data()", escapedToDataLiteral(""))
 }
 
 func TestEscapedDataLiteralNamesNonOctalByte(t *testing.T) {
-	require.PanicsWithValue(t, "broken.proto: non-octal byte 'x' in an octal escape", func() {
-		escapedToDataLiteral("broken.proto", `\00x`)
+	require.PanicsWithValue(t, "non-octal byte 'x' in an octal escape", func() {
+		escapedToDataLiteral(`\00x`)
 	})
 
 	broken := &descriptorpb.FileDescriptorProto{
