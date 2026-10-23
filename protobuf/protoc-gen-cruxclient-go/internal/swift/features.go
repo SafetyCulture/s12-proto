@@ -31,11 +31,10 @@ func defaultFeatures(edition descriptorpb.Edition) *descriptorpb.FeatureSet {
 
 // resolveFeatures applies the features of a descriptor on top of the features it inherits.
 func resolveFeatures(parent, own *descriptorpb.FeatureSet) *descriptorpb.FeatureSet {
-	if own == nil {
-		return parent
-	}
 	result := proto.Clone(parent).(*descriptorpb.FeatureSet)
-	proto.Merge(result, own)
+	if own != nil {
+		proto.Merge(result, own)
+	}
 	return result
 }
 
