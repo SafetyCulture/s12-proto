@@ -490,9 +490,6 @@ func rootFirstSegment(root string) string {
 }
 
 func (g *fileGen) requiredFallback(f *fieldInfo) string {
-	if f.fd.Message() != nil {
-		return QualifiedClassName(f.fd.Message(), g.root) + ".decode(" + g.rt("WireReader") + "(kotlin.ByteArray(0)))"
-	}
 	return g.propertyDefault(f)
 }
 
@@ -811,7 +808,11 @@ func (g *fileGen) companion(msg protoreflect.MessageDescriptor, qualified string
 			if f.reqBit >= 0 {
 				typ += "?"
 				g.w.line("var v_%s: %s = null", f.prop, typ)
-				args = append(args, fmt.Sprintf("%s = v_%s ?: %s", f.prop, f.prop, g.requiredFallback(f)))
+				if fd.Message() != nil {
+					args = append(args, fmt.Sprintf("%s = v_%s ?: throw %s(\"missing required field %s\")", f.prop, f.prop, g.rt("InvalidWireException"), fd.Name()))
+				} else {
+					args = append(args, fmt.Sprintf("%s = v_%s ?: %s", f.prop, f.prop, g.requiredFallback(f)))
+				}
 			} else {
 				g.w.line("var v_%s: %s = %s", f.prop, typ, g.propertyDefault(f))
 				args = append(args, fmt.Sprintf("%s = v_%s", f.prop, f.prop))

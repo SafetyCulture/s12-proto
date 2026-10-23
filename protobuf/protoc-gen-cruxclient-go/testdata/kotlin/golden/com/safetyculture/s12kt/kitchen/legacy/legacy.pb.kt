@@ -372,7 +372,7 @@ public data class RequiredMessage(
             }
             if (s_child != null) v_child = reader.readSections(com.safetyculture.s12kt.kitchen.legacy.Req, s_child)
             return com.safetyculture.s12kt.kitchen.legacy.RequiredMessage(
-                child = v_child ?: com.safetyculture.s12kt.kitchen.legacy.Req.decode(com.safetyculture.s12kt.wire.WireReader(kotlin.ByteArray(0))),
+                child = v_child ?: throw com.safetyculture.s12kt.wire.InvalidWireException("missing required field child"),
                 unknownFields = _unknown.toByteString(),
                 missingRequired = _missing,
             )
