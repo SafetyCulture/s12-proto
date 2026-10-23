@@ -5,7 +5,7 @@
 
 package com.safetyculture.s12kt.kitchen.v1
 
-public sealed class Color(public val number: kotlin.Int, public val name: kotlin.String) {
+public sealed class Color(override val number: kotlin.Int, public val name: kotlin.String) : com.safetyculture.s12kt.wire.WireEnum {
     public object COLOR_UNSPECIFIED : Color(0, "COLOR_UNSPECIFIED")
     public object COLOR_RED : Color(1, "COLOR_RED")
     public object COLOR_GREEN : Color(2, "COLOR_GREEN")
@@ -38,7 +38,7 @@ public sealed class Color(public val number: kotlin.Int, public val name: kotlin
     }
 }
 
-public sealed class Alias(public val number: kotlin.Int, public val name: kotlin.String) {
+public sealed class Alias(override val number: kotlin.Int, public val name: kotlin.String) : com.safetyculture.s12kt.wire.WireEnum {
     public object ALIAS_UNSPECIFIED : Alias(0, "ALIAS_UNSPECIFIED")
     public object ALIAS_FIRST : Alias(1, "ALIAS_FIRST")
 
@@ -92,7 +92,6 @@ public data class Scalars(
 ) : com.safetyculture.s12kt.wire.WireMessage {
     @kotlin.jvm.Volatile
     private var memoizedSize: kotlin.Int = -1
-
 
     override fun getSerializedSize(): kotlin.Int {
         val _cached = this.memoizedSize
@@ -484,7 +483,6 @@ public data class Repeated(
     @kotlin.jvm.Volatile
     private var memoizedSize: kotlin.Int = -1
 
-
     override fun getSerializedSize(): kotlin.Int {
         val _cached = this.memoizedSize
         if (_cached >= 0) return _cached
@@ -535,8 +533,7 @@ public data class Repeated(
             _size += com.safetyculture.s12kt.wire.WireSize.bytes(15, _e)
         }
         if (this.fEnum.isNotEmpty()) {
-            val _nums = this.fEnum.map { it.number }
-            _size += com.safetyculture.s12kt.wire.WireSize.packed(16, com.safetyculture.s12kt.wire.WireSize.packedInt32Payload(_nums))
+            _size += com.safetyculture.s12kt.wire.WireSize.packed(16, com.safetyculture.s12kt.wire.WireSize.packedEnumPayload(this.fEnum))
         }
         for (_e in this.fMessage) {
             _size += com.safetyculture.s12kt.wire.WireSize.message(17, _e)
@@ -600,7 +597,7 @@ public data class Repeated(
             writer.writeBytes(15, _e)
         }
         if (this.fEnum.isNotEmpty()) {
-            writer.writePackedInt32(16, this.fEnum.map { it.number })
+            writer.writePackedEnum(16, this.fEnum)
         }
         for (_e in this.fMessage) {
             writer.writeMessage(17, _e)
@@ -838,26 +835,26 @@ public data class Repeated(
                 }
             }
             return com.safetyculture.s12kt.kitchen.v1.Repeated(
-                fDouble = v_fDouble,
-                fFloat = v_fFloat,
-                fInt32 = v_fInt32,
-                fInt64 = v_fInt64,
-                fUint32 = v_fUint32,
-                fUint64 = v_fUint64,
-                fSint32 = v_fSint32,
-                fSint64 = v_fSint64,
-                fFixed32 = v_fFixed32,
-                fFixed64 = v_fFixed64,
-                fSfixed32 = v_fSfixed32,
-                fSfixed64 = v_fSfixed64,
-                fBool = v_fBool,
-                fString = v_fString,
-                fBytes = v_fBytes,
-                fEnum = v_fEnum,
-                fMessage = v_fMessage,
-                unpackedInt32 = v_unpackedInt32,
-                unpackedEnum = v_unpackedEnum,
-                unpackedDouble = v_unpackedDouble,
+                fDouble = java.util.Collections.unmodifiableList(v_fDouble),
+                fFloat = java.util.Collections.unmodifiableList(v_fFloat),
+                fInt32 = java.util.Collections.unmodifiableList(v_fInt32),
+                fInt64 = java.util.Collections.unmodifiableList(v_fInt64),
+                fUint32 = java.util.Collections.unmodifiableList(v_fUint32),
+                fUint64 = java.util.Collections.unmodifiableList(v_fUint64),
+                fSint32 = java.util.Collections.unmodifiableList(v_fSint32),
+                fSint64 = java.util.Collections.unmodifiableList(v_fSint64),
+                fFixed32 = java.util.Collections.unmodifiableList(v_fFixed32),
+                fFixed64 = java.util.Collections.unmodifiableList(v_fFixed64),
+                fSfixed32 = java.util.Collections.unmodifiableList(v_fSfixed32),
+                fSfixed64 = java.util.Collections.unmodifiableList(v_fSfixed64),
+                fBool = java.util.Collections.unmodifiableList(v_fBool),
+                fString = java.util.Collections.unmodifiableList(v_fString),
+                fBytes = java.util.Collections.unmodifiableList(v_fBytes),
+                fEnum = java.util.Collections.unmodifiableList(v_fEnum),
+                fMessage = java.util.Collections.unmodifiableList(v_fMessage),
+                unpackedInt32 = java.util.Collections.unmodifiableList(v_unpackedInt32),
+                unpackedEnum = java.util.Collections.unmodifiableList(v_unpackedEnum),
+                unpackedDouble = java.util.Collections.unmodifiableList(v_unpackedDouble),
                 unknownFields = _unknown.toByteString(),
             )
         }
@@ -886,7 +883,6 @@ public data class Maps(
 ) : com.safetyculture.s12kt.wire.WireMessage {
     @kotlin.jvm.Volatile
     private var memoizedSize: kotlin.Int = -1
-
 
     override fun getSerializedSize(): kotlin.Int {
         val _cached = this.memoizedSize
@@ -1265,19 +1261,19 @@ public data class Maps(
                 }
             }
             return com.safetyculture.s12kt.kitchen.v1.Maps(
-                byString = v_byString,
-                byInt32 = v_byInt32,
-                byInt64 = v_byInt64,
-                byUint32 = v_byUint32,
-                byUint64 = v_byUint64,
-                bySint32 = v_bySint32,
-                bySint64 = v_bySint64,
-                byFixed32 = v_byFixed32,
-                byFixed64 = v_byFixed64,
-                bySfixed32 = v_bySfixed32,
-                bySfixed64 = v_bySfixed64,
-                byBool = v_byBool,
-                nested = v_nested,
+                byString = java.util.Collections.unmodifiableMap(v_byString),
+                byInt32 = java.util.Collections.unmodifiableMap(v_byInt32),
+                byInt64 = java.util.Collections.unmodifiableMap(v_byInt64),
+                byUint32 = java.util.Collections.unmodifiableMap(v_byUint32),
+                byUint64 = java.util.Collections.unmodifiableMap(v_byUint64),
+                bySint32 = java.util.Collections.unmodifiableMap(v_bySint32),
+                bySint64 = java.util.Collections.unmodifiableMap(v_bySint64),
+                byFixed32 = java.util.Collections.unmodifiableMap(v_byFixed32),
+                byFixed64 = java.util.Collections.unmodifiableMap(v_byFixed64),
+                bySfixed32 = java.util.Collections.unmodifiableMap(v_bySfixed32),
+                bySfixed64 = java.util.Collections.unmodifiableMap(v_bySfixed64),
+                byBool = java.util.Collections.unmodifiableMap(v_byBool),
+                nested = java.util.Collections.unmodifiableMap(v_nested),
                 unknownFields = _unknown.toByteString(),
             )
         }
@@ -1297,7 +1293,6 @@ public data class Oneofs(
 ) : com.safetyculture.s12kt.wire.WireMessage {
     @kotlin.jvm.Volatile
     private var memoizedSize: kotlin.Int = -1
-
 
     override fun getSerializedSize(): kotlin.Int {
         val _cached = this.memoizedSize
@@ -1517,7 +1512,7 @@ public data class Outer(
         public data class Number(public val value: com.safetyculture.s12kt.kitchen.v1.Outer.Choice) : ChoiceOneof()
     }
 
-    public sealed class Kind(public val number: kotlin.Int, public val name: kotlin.String) {
+    public sealed class Kind(override val number: kotlin.Int, public val name: kotlin.String) : com.safetyculture.s12kt.wire.WireEnum {
         public object KIND_UNSPECIFIED : Kind(0, "KIND_UNSPECIFIED")
         public object KIND_A : Kind(1, "KIND_A")
 
@@ -1585,7 +1580,6 @@ public data class Outer(
         ) : com.safetyculture.s12kt.wire.WireMessage {
             @kotlin.jvm.Volatile
             private var memoizedSize: kotlin.Int = -1
-
 
             override fun getSerializedSize(): kotlin.Int {
                 val _cached = this.memoizedSize
@@ -1677,7 +1671,6 @@ public data class Outer(
         @kotlin.jvm.Volatile
         private var memoizedSize: kotlin.Int = -1
 
-
         override fun getSerializedSize(): kotlin.Int {
             val _cached = this.memoizedSize
             if (_cached >= 0) return _cached
@@ -1733,7 +1726,6 @@ public data class Outer(
     ) : com.safetyculture.s12kt.wire.WireMessage {
         @kotlin.jvm.Volatile
         private var memoizedSize: kotlin.Int = -1
-
 
         override fun getSerializedSize(): kotlin.Int {
             val _cached = this.memoizedSize
@@ -2112,8 +2104,8 @@ public data class WellKnown(
                 data = v_data,
                 value = v_value,
                 list = v_list,
-                many = v_many,
-                byName = v_byName,
+                many = java.util.Collections.unmodifiableList(v_many),
+                byName = java.util.Collections.unmodifiableMap(v_byName),
                 unknownFields = _unknown.toByteString(),
             )
         }
@@ -2179,7 +2171,6 @@ public data class String(
     @kotlin.jvm.Volatile
     private var memoizedSize: kotlin.Int = -1
 
-
     override fun getSerializedSize(): kotlin.Int {
         val _cached = this.memoizedSize
         if (_cached >= 0) return _cached
@@ -2236,7 +2227,6 @@ public data class List(
 ) : com.safetyculture.s12kt.wire.WireMessage {
     @kotlin.jvm.Volatile
     private var memoizedSize: kotlin.Int = -1
-
 
     override fun getSerializedSize(): kotlin.Int {
         val _cached = this.memoizedSize
@@ -2311,8 +2301,8 @@ public data class List(
                 }
             }
             return com.safetyculture.s12kt.kitchen.v1.List(
-                items = v_items,
-                byName = v_byName,
+                items = java.util.Collections.unmodifiableList(v_items),
+                byName = java.util.Collections.unmodifiableMap(v_byName),
                 unknownFields = _unknown.toByteString(),
             )
         }
@@ -2328,7 +2318,6 @@ public data class Highest(
 ) : com.safetyculture.s12kt.wire.WireMessage {
     @kotlin.jvm.Volatile
     private var memoizedSize: kotlin.Int = -1
-
 
     override fun getSerializedSize(): kotlin.Int {
         val _cached = this.memoizedSize

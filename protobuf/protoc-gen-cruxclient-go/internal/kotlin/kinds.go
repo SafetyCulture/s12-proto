@@ -13,10 +13,11 @@ import (
 
 // Wire types of the protobuf encoding.
 const (
-	wireVarint  = 0
-	wireFixed64 = 1
-	wireLength  = 2
-	wireFixed32 = 5
+	wireVarint     = 0
+	wireFixed64    = 1
+	wireLength     = 2
+	wireStartGroup = 3
+	wireFixed32    = 5
 )
 
 // wireTypeOf returns the wire type of a value of the kind outside a packed run.
@@ -26,15 +27,21 @@ func wireTypeOf(k protoreflect.Kind) int {
 		return wireFixed64
 	case protoreflect.Fixed32Kind, protoreflect.Sfixed32Kind, protoreflect.FloatKind:
 		return wireFixed32
-	case protoreflect.StringKind, protoreflect.BytesKind, protoreflect.MessageKind, protoreflect.GroupKind:
+	case protoreflect.StringKind, protoreflect.BytesKind, protoreflect.MessageKind:
 		return wireLength
+	case protoreflect.GroupKind:
+		return wireStartGroup
 	}
 	return wireVarint
 }
 
 // isPackable reports whether a repeated field of the kind can use the packed encoding.
 func isPackable(k protoreflect.Kind) bool {
-	return wireTypeOf(k) != wireLength
+	switch k {
+	case protoreflect.StringKind, protoreflect.BytesKind, protoreflect.MessageKind, protoreflect.GroupKind:
+		return false
+	}
+	return true
 }
 
 // tagOf returns the tag of a field number and a wire type, as the signed 32 bits that the reader returns.
@@ -126,7 +133,9 @@ func readMethod(k protoreflect.Kind) string {
 // packedSuffix returns the suffix of the WireWriter method that writes a packed run of the kind.
 func packedSuffix(k protoreflect.Kind) string {
 	switch k {
-	case protoreflect.Int32Kind, protoreflect.EnumKind:
+	case protoreflect.EnumKind:
+		return "Enum"
+	case protoreflect.Int32Kind:
 		return "Int32"
 	case protoreflect.Uint32Kind:
 		return "UInt32"
@@ -151,7 +160,9 @@ func packedSuffix(k protoreflect.Kind) string {
 // packedPayload returns the Kotlin expression of the size of a packed run of the kind.
 func (g *fileGen) packedPayload(k protoreflect.Kind, list string) string {
 	switch k {
-	case protoreflect.Int32Kind, protoreflect.EnumKind:
+	case protoreflect.EnumKind:
+		return g.rt("WireSize") + ".packedEnumPayload(" + list + ")"
+	case protoreflect.Int32Kind:
 		return g.rt("WireSize") + ".packedInt32Payload(" + list + ")"
 	case protoreflect.Uint32Kind:
 		return g.rt("WireSize") + ".packedUInt32Payload(" + list + ")"

@@ -122,7 +122,7 @@ func (g *fileGen) comment(d protoreflect.Descriptor) {
 func (g *fileGen) enum(e protoreflect.EnumDescriptor) {
 	name := escapeIdent(className(string(e.Name())))
 	g.comment(e)
-	g.w.open("public sealed class %s(public val number: kotlin.Int, public val name: kotlin.String) {", name)
+	g.w.open("public sealed class %s(override val number: kotlin.Int, public val name: kotlin.String) : %s {", name, g.rt("WireEnum"))
 	values := e.Values()
 	first := map[protoreflect.EnumNumber]string{}
 	var order []protoreflect.EnumNumber
@@ -391,12 +391,14 @@ func (g *fileGen) message(msg protoreflect.MessageDescriptor) error {
 		g.w.indent--
 		g.w.line("")
 	}
+	hasMethods := false
 	for _, f := range fields {
 		if f.nullable() {
 			g.w.line("public fun has%s(): kotlin.Boolean = this.%s != null", upperFirst(strings.TrimSuffix(f.prop, "_")), f.prop)
+			hasMethods = true
 		}
 	}
-	if len(fields) > 0 {
+	if hasMethods {
 		g.w.line("")
 	}
 
@@ -595,12 +597,7 @@ func (g *fileGen) sizeField(f *fieldInfo, qualified string) {
 		g.w.close("}")
 	case fd.IsList() && fd.IsPacked():
 		g.w.open("if (%s.isNotEmpty()) {", p)
-		if fd.Kind() == protoreflect.EnumKind {
-			g.w.line("val _nums = %s.map { it.number }", p)
-			g.w.line("_size += %s.packed(%d, %s)", ws, n, g.packedPayload(fd.Kind(), "_nums"))
-		} else {
-			g.w.line("_size += %s.packed(%d, %s)", ws, n, g.packedPayload(fd.Kind(), p))
-		}
+		g.w.line("_size += %s.packed(%d, %s)", ws, n, g.packedPayload(fd.Kind(), p))
 		g.w.close("}")
 	case fd.IsList() && fixedSize(fd.Kind()):
 		g.w.line("_size += %s.size * %s", p, g.sizeCall(fd.Kind(), n, ""))
@@ -643,11 +640,7 @@ func (g *fileGen) writeField(f *fieldInfo, qualified string) {
 		g.w.close("}")
 	case fd.IsList() && fd.IsPacked():
 		g.w.open("if (%s.isNotEmpty()) {", p)
-		if fd.Kind() == protoreflect.EnumKind {
-			g.w.line("writer.writePacked%s(%d, %s.map { it.number })", packedSuffix(fd.Kind()), n, p)
-		} else {
-			g.w.line("writer.writePacked%s(%d, %s)", packedSuffix(fd.Kind()), n, p)
-		}
+		g.w.line("writer.writePacked%s(%d, %s)", packedSuffix(fd.Kind()), n, p)
 		g.w.close("}")
 	case fd.IsList():
 		g.w.open("for (_e in %s) {", p)
@@ -745,10 +738,10 @@ func (g *fileGen) companion(msg protoreflect.MessageDescriptor, qualified string
 			}
 		case fd.IsMap():
 			g.w.line("val v_%s = kotlin.collections.LinkedHashMap<%s, %s>()", f.prop, g.elementType(fd.MapKey()), g.elementType(fd.MapValue()))
-			args = append(args, fmt.Sprintf("%s = v_%s", f.prop, f.prop))
+			args = append(args, fmt.Sprintf("%s = java.util.Collections.unmodifiableMap(v_%s)", f.prop, f.prop))
 		case fd.IsList():
 			g.w.line("val v_%s = kotlin.collections.ArrayList<%s>()", f.prop, g.elementType(fd))
-			args = append(args, fmt.Sprintf("%s = v_%s", f.prop, f.prop))
+			args = append(args, fmt.Sprintf("%s = java.util.Collections.unmodifiableList(v_%s)", f.prop, f.prop))
 		default:
 			g.w.line("var v_%s: %s = %s", f.prop, g.propertyType(f), g.propertyDefault(f))
 			if fd.Message() != nil {

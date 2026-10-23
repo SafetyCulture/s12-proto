@@ -7,6 +7,11 @@ package com.safetyculture.s12kt.wire
 /** Thrown when bytes are not a valid protobuf message. */
 public class InvalidWireException(message: String) : RuntimeException(message)
 
+/** A generated enum. */
+public interface WireEnum {
+    public val number: Int
+}
+
 /** An immutable sequence of bytes with value equality. */
 public class ByteString private constructor(private val bytes: ByteArray) {
     public val size: Int get() = bytes.size
@@ -38,7 +43,11 @@ public class ByteString private constructor(private val bytes: ByteArray) {
     }
 }
 
-/** A generated message. */
+/**
+ * A generated message. A parse returns lists and maps that cannot change. A message keeps the lists
+ * and maps that the caller passes to its constructor, so a caller must not change them later: the
+ * serialized size of the message is cached.
+ */
 public interface WireMessage {
     /** The size in bytes of the serialized message, unknown fields included. */
     public fun getSerializedSize(): Int
@@ -489,6 +498,12 @@ public class WireWriter(private val buffer: ByteArray) {
         position += value.size
     }
 
+    public fun writePackedEnum(number: Int, values: List<WireEnum>) {
+        writeTag(number, WireType.LENGTH_DELIMITED)
+        writeVarint32(WireSize.packedEnumPayload(values))
+        for (v in values) writeInt32NoTag(v.number)
+    }
+
     public fun writePackedInt32(number: Int, values: List<Int>) {
         writeTag(number, WireType.LENGTH_DELIMITED)
         writeVarint32(WireSize.packedInt32Payload(values))
@@ -613,7 +628,13 @@ public object WireSize {
         return tag(number) + varint32(length) + length
     }
 
-    public fun packed(number: Int, payload: Int): Int = if (payload == 0) 0 else tag(number) + varint32(payload) + payload
+    public fun packed(number: Int, payload: Int): Int = tag(number) + varint32(payload) + payload
+
+    public fun packedEnumPayload(values: List<WireEnum>): Int {
+        var n = 0
+        for (v in values) n += int32NoTag(v.number)
+        return n
+    }
 
     public fun packedInt32Payload(values: List<Int>): Int {
         var n = 0

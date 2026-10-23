@@ -5,7 +5,7 @@
 
 package com.safetyculture.s12kt.kitchen.legacy
 
-public sealed class Level(public val number: kotlin.Int, public val name: kotlin.String) {
+public sealed class Level(override val number: kotlin.Int, public val name: kotlin.String) : com.safetyculture.s12kt.wire.WireEnum {
     public object LEVEL_LOW : Level(1, "LEVEL_LOW")
     public object LEVEL_HIGH : Level(2, "LEVEL_HIGH")
 
@@ -213,8 +213,8 @@ public data class Legacy(
                 count = v_count,
                 label = v_label,
                 level = v_level,
-                numbers = v_numbers,
-                packedNumbers = v_packedNumbers,
+                numbers = java.util.Collections.unmodifiableList(v_numbers),
+                packedNumbers = java.util.Collections.unmodifiableList(v_packedNumbers),
                 blob = v_blob,
                 parent = v_parent,
                 score = v_score,
@@ -446,9 +446,9 @@ public data class ReqHolder(
             if (s_one != null) v_one = reader.readSections(com.safetyculture.s12kt.kitchen.legacy.Req, s_one)
             return com.safetyculture.s12kt.kitchen.legacy.ReqHolder(
                 one = v_one,
-                many = v_many,
-                byName = v_byName,
-                tags = v_tags,
+                many = java.util.Collections.unmodifiableList(v_many),
+                byName = java.util.Collections.unmodifiableMap(v_byName),
+                tags = java.util.Collections.unmodifiableMap(v_tags),
                 unknownFields = _unknown.toByteString(),
             )
         }
@@ -466,7 +466,6 @@ public data class ReqEnum(
     /** Bit i is set while required field i has not been read. It is zero for a message that code builds. */
     internal var missingRequired: kotlin.Long = 0L
         private set
-
 
     override fun getSerializedSize(): kotlin.Int {
         val _cached = this.memoizedSize

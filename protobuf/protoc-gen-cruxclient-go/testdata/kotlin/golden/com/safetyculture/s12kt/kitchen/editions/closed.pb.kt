@@ -5,7 +5,7 @@
 
 package com.safetyculture.s12kt.kitchen.editions
 
-public sealed class Open(public val number: kotlin.Int, public val name: kotlin.String) {
+public sealed class Open(override val number: kotlin.Int, public val name: kotlin.String) : com.safetyculture.s12kt.wire.WireEnum {
     public object OPEN_ZERO : Open(0, "OPEN_ZERO")
     public object OPEN_ONE : Open(1, "OPEN_ONE")
 
@@ -32,7 +32,7 @@ public sealed class Open(public val number: kotlin.Int, public val name: kotlin.
     }
 }
 
-public sealed class Closed(public val number: kotlin.Int, public val name: kotlin.String) {
+public sealed class Closed(override val number: kotlin.Int, public val name: kotlin.String) : com.safetyculture.s12kt.wire.WireEnum {
     public object CLOSED_ZERO : Closed(0, "CLOSED_ZERO")
     public object CLOSED_ONE : Closed(1, "CLOSED_ONE")
 
@@ -79,8 +79,7 @@ public data class Holder(
         if (this.open != null) _size += com.safetyculture.s12kt.wire.WireSize.int32(1, this.open.number)
         if (this.closed != null) _size += com.safetyculture.s12kt.wire.WireSize.int32(2, this.closed.number)
         if (this.closedList.isNotEmpty()) {
-            val _nums = this.closedList.map { it.number }
-            _size += com.safetyculture.s12kt.wire.WireSize.packed(3, com.safetyculture.s12kt.wire.WireSize.packedInt32Payload(_nums))
+            _size += com.safetyculture.s12kt.wire.WireSize.packed(3, com.safetyculture.s12kt.wire.WireSize.packedEnumPayload(this.closedList))
         }
         _size += this.unknownFields.size
         this.memoizedSize = _size
@@ -91,7 +90,7 @@ public data class Holder(
         if (this.open != null) writer.writeInt32(1, this.open.number)
         if (this.closed != null) writer.writeInt32(2, this.closed.number)
         if (this.closedList.isNotEmpty()) {
-            writer.writePackedInt32(3, this.closedList.map { it.number })
+            writer.writePackedEnum(3, this.closedList)
         }
         writer.writeUnknown(this.unknownFields)
     }
@@ -145,7 +144,7 @@ public data class Holder(
             return com.safetyculture.s12kt.kitchen.editions.Holder(
                 open = v_open,
                 closed = v_closed,
-                closedList = v_closedList,
+                closedList = java.util.Collections.unmodifiableList(v_closedList),
                 unknownFields = _unknown.toByteString(),
             )
         }
