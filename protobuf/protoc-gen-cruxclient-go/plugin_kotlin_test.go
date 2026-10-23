@@ -22,6 +22,8 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/descriptorpb"
 	"google.golang.org/protobuf/types/pluginpb"
+
+	"github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-cruxclient-go/internal/kotlin"
 )
 
 var update = flag.Bool("update", false, "rewrite the golden files in testdata/kotlin/golden")
@@ -142,18 +144,16 @@ var paramLine = regexp.MustCompile("^public val `?(\\w+)`?: (.+?) = .+,$")
 
 // constructorTypes returns the declared type of every constructor parameter of the class at the
 // given depth, found after offset in the source.
-func constructorTypes(t *testing.T, source string, offset int, depth int, name string) (map[string]string, int) {
+func constructorTypes(t *testing.T, source string, offset int, depth int, md protoreflect.MessageDescriptor) (map[string]string, int) {
 	t.Helper()
+	name := kotlin.SimpleClassName(md)
 	indent := strings.Repeat("    ", depth)
 	marker := "\n" + indent + "public data class " + name + "(\n"
 	start := strings.Index(source[offset:], marker)
-	if start < 0 {
-		// A message without fields is a plain class.
-		return nil, offset
-	}
+	require.GreaterOrEqual(t, start, 0, "no data class for %s", md.FullName())
 	start += offset + len(marker)
 	end := strings.Index(source[start:], "\n"+indent+") ")
-	require.GreaterOrEqual(t, end, 0, name)
+	require.GreaterOrEqual(t, end, 0, "no end of the constructor of %s", md.FullName())
 	types := map[string]string{}
 	for _, line := range strings.Split(source[start:start+end], "\n") {
 		if strings.HasPrefix(line, indent+"    public val ") {
@@ -182,54 +182,35 @@ func expectedKind(fd protoreflect.FieldDescriptor) string {
 	return "plain"
 }
 
-// lookup finds a property by name. The generator adds an underscore to a name that is a Kotlin keyword.
-func lookup(types map[string]string, name string) (string, bool) {
-	if got, ok := types[name]; ok {
-		return got, true
-	}
-	got, ok := types[name+"_"]
-	return got, ok
-}
-
-func lowerCamel(name string) string {
-	parts := strings.Split(name, "_")
-	for i := 1; i < len(parts); i++ {
-		parts[i] = strings.ToUpper(parts[i][:1]) + parts[i][1:]
-	}
-	return strings.Join(parts, "")
-}
-
 func checkNullability(t *testing.T, source string, md protoreflect.MessageDescriptor, offset int, depth int) {
 	t.Helper()
-	types, start := constructorTypes(t, source, offset, depth, string(md.Name()))
-	if len(types) > 0 {
-		for i := 0; i < md.Fields().Len(); i++ {
-			fd := md.Fields().Get(i)
-			if fd.ContainingOneof() != nil && !fd.ContainingOneof().IsSynthetic() {
-				continue
-			}
-			got, ok := lookup(types, lowerCamel(string(fd.Name())))
-			require.True(t, ok, "%s.%s is not a constructor parameter", md.FullName(), fd.Name())
-			switch expectedKind(fd) {
-			case "List":
-				require.True(t, strings.HasPrefix(got, "kotlin.collections.List<"), "%s.%s: %s", md.FullName(), fd.Name(), got)
-			case "Map":
-				require.True(t, strings.HasPrefix(got, "kotlin.collections.Map<"), "%s.%s: %s", md.FullName(), fd.Name(), got)
-			case "nullable":
-				require.True(t, strings.HasSuffix(got, "?"), "%s.%s must be nullable: %s", md.FullName(), fd.Name(), got)
-			case "plain":
-				require.False(t, strings.HasSuffix(got, "?"), "%s.%s must not be nullable: %s", md.FullName(), fd.Name(), got)
-			}
+	types, start := constructorTypes(t, source, offset, depth, md)
+	for i := 0; i < md.Fields().Len(); i++ {
+		fd := md.Fields().Get(i)
+		if fd.ContainingOneof() != nil && !fd.ContainingOneof().IsSynthetic() {
+			continue
 		}
-		for i := 0; i < md.Oneofs().Len(); i++ {
-			od := md.Oneofs().Get(i)
-			if od.IsSynthetic() {
-				continue
-			}
-			got, ok := lookup(types, lowerCamel(string(od.Name())))
-			require.True(t, ok, "%s.%s is not a constructor parameter", md.FullName(), od.Name())
-			require.True(t, strings.HasSuffix(got, "?"), "oneof %s.%s must be nullable: %s", md.FullName(), od.Name(), got)
+		got, ok := types[kotlin.PropertyName(fd)]
+		require.True(t, ok, "%s.%s is not a constructor parameter", md.FullName(), fd.Name())
+		switch expectedKind(fd) {
+		case "List":
+			require.True(t, strings.HasPrefix(got, "kotlin.collections.List<"), "%s.%s: %s", md.FullName(), fd.Name(), got)
+		case "Map":
+			require.True(t, strings.HasPrefix(got, "kotlin.collections.Map<"), "%s.%s: %s", md.FullName(), fd.Name(), got)
+		case "nullable":
+			require.True(t, strings.HasSuffix(got, "?"), "%s.%s must be nullable: %s", md.FullName(), fd.Name(), got)
+		case "plain":
+			require.False(t, strings.HasSuffix(got, "?"), "%s.%s must not be nullable: %s", md.FullName(), fd.Name(), got)
 		}
+	}
+	for i := 0; i < md.Oneofs().Len(); i++ {
+		od := md.Oneofs().Get(i)
+		if od.IsSynthetic() {
+			continue
+		}
+		got, ok := types[kotlin.OneofPropertyName(od)]
+		require.True(t, ok, "%s.%s is not a constructor parameter", md.FullName(), od.Name())
+		require.True(t, strings.HasSuffix(got, "?"), "oneof %s.%s must be nullable: %s", md.FullName(), od.Name(), got)
 	}
 	nested := md.Messages()
 	for i := 0; i < nested.Len(); i++ {
@@ -286,10 +267,10 @@ func TestAssetNullability(t *testing.T) {
 	source := "\n" + out["s12/assets/v1/asset.pb.kt"]
 	require.NotEqual(t, "\n", source)
 
-	types, _ := constructorTypes(t, source, 0, 0, "Asset")
+	asset := compileOnDisk(t, includes, "s12/assets/v1/asset.proto")[0].Messages().ByName("Asset")
+	types, _ := constructorTypes(t, source, 0, 0, asset)
 	require.Equal(t, assetNullability, types)
 
-	asset := compileOnDisk(t, includes, "s12/assets/v1/asset.proto")[0].Messages().ByName("Asset")
 	checkNullability(t, source, asset, 0, 0)
 }
 

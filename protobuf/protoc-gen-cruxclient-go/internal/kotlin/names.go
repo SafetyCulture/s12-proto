@@ -50,11 +50,22 @@ func className(name string) string {
 	return name
 }
 
-// propertyName returns the Kotlin property name of a field: the lower camel case field name.
+// SimpleClassName returns the name that a message or enum has as a class declaration, with the
+// backticks that a hard keyword needs.
+func SimpleClassName(d protoreflect.Descriptor) string {
+	return escapeIdent(className(string(d.Name())))
+}
+
+// PropertyName returns the Kotlin property name of a field: the lower camel case field name.
 // It is not the JSON name, because a json_name option can hold any text. A name that clashes
 // gets a trailing underscore.
-func propertyName(fd protoreflect.FieldDescriptor) string {
+func PropertyName(fd protoreflect.FieldDescriptor) string {
 	return safeProperty(lowerFirst(upperCamel(string(fd.Name()))))
+}
+
+// OneofPropertyName returns the Kotlin property name of a oneof.
+func OneofPropertyName(od protoreflect.OneofDescriptor) string {
+	return safeProperty(lowerFirst(upperCamel(string(od.Name()))))
 }
 
 func safeProperty(name string) string {

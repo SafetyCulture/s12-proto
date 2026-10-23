@@ -240,11 +240,11 @@ func (g *fileGen) message(msg protoreflect.MessageDescriptor) error {
 		if fd.Kind() == protoreflect.GroupKind {
 			return fmt.Errorf("%s: group fields are not supported", fd.FullName())
 		}
-		f := &fieldInfo{fd: fd, prop: propertyName(fd), reqBit: -1}
+		f := &fieldInfo{fd: fd, prop: PropertyName(fd), reqBit: -1}
 		if od := fd.ContainingOneof(); od != nil && !od.IsSynthetic() {
 			oi := oneofs[od]
 			if oi == nil {
-				oi = &oneofInfo{od: od, prop: safeProperty(lowerFirst(upperCamel(string(od.Name())))), class: upperCamel(string(od.Name()))}
+				oi = &oneofInfo{od: od, prop: OneofPropertyName(od), class: upperCamel(string(od.Name()))}
 				for used[oi.class] {
 					oi.class += "Oneof"
 				}
