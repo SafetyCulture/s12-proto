@@ -13,7 +13,7 @@ const compatibilityVersion = 2
 func (g *generator) generateFile(f *file) (string, error) {
 	prefix := f.swiftPrefix()
 	if prefix != nil && *prefix != "" && !isValidSwiftIdentifier(*prefix) {
-		return "", fmt.Errorf("%s has an 'swift_prefix' that isn't a valid Swift identifier (%s)", f.name, *prefix)
+		return "", fmt.Errorf("%s has an 'swift_prefix' that isn't a valid Swift identifier (%s).", f.name, *prefix)
 	}
 	g.namer = newNamer(g.opts.swiftProtobufModule, f)
 	g.extensions = g.newExtensionSet(f)
