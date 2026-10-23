@@ -539,7 +539,8 @@ func swiftTypeNames(yaml string) []string {
 }
 
 // TestSwiftTypeNames checks the type names against the output of protoc-gen-swift for the same
-// protos: reserved nested names, no package, swift_prefix. The names of reserved.proto are the
+// protos: reserved nested names, no package, swift_prefix. reserved.djinni.yaml keeps the
+// malformed legacy Java and JNI names of master for names with "_"; byte identity needs them. The names of reserved.proto are the
 // output of protoc-gen-swift 1.38.1 and 1.39.0, and the other names are the output of 1.26.0.
 func TestSwiftTypeNames(t *testing.T) {
 	sources := map[string]string{}
@@ -783,6 +784,7 @@ func TestKeywordDjinniGoldens(t *testing.T) {
 	require.Contains(t, output["keyword/keyword.djinni.swiftxx.h"], "using CppType = ::keyword::private_::v1::Holder::class_;")
 	require.Contains(t, output["keyword/keyword.djinni.kotlin.jni.h"], "using CppType = ::keyword::private_::v1::NULL_;")
 	require.Contains(t, output["keyword/keyword.djinni.swiftxx.h"], "using CppType = ::keyword::private_::v1::Holder::New_;")
+	require.Contains(t, output["keyword/keyword.djinni.yaml"], "cpp:\n  typename: 'keyword::private_::v1::Holder::New_'\n")
 	require.Contains(t, output["keyword/keyword.djinni.kotlin.jni.h"], "using CppType = ::keyword::private_::v1::Clear_;")
 }
 

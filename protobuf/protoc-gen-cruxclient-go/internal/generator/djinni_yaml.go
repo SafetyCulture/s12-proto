@@ -83,8 +83,13 @@ func GenerateDjinniYAML(rw protoplugin.ResponseWriter, fileDesc protoreflect.Fil
 			}
 		}
 
+		// The new translators name the protoc C++ type; master's record keeps its own name.
+		cppRecordTypeName := cppTypeName
+		if swift != nil || kotlin != nil {
+			cppRecordTypeName = cppQualifiedName(msg)
+		}
 		writeDjinniYAMLRecord(w, domainName, fileNameCamel, dir, baseName, mainFileName,
-			messageName, cppTypeName, javaMessageBoxName, javaMessageName,
+			messageName, cppTypeName, cppRecordTypeName, javaMessageBoxName, javaMessageName,
 			javaPackageSlashes, javaPackage, objcClassPrefix, wirePackage, swift, kotlin)
 	}
 
@@ -111,7 +116,7 @@ type kotlinYAML struct {
 // A nil swift leaves out the swift: and swiftxx: blocks. A nil kotlin leaves out the Kotlin keys.
 func writeDjinniYAMLRecord(w *codegen.CodeWriter,
 	domainName, fileNameCamel, dir, baseName, mainFileName,
-	messageName, cppTypeName, javaMessageBoxName, javaMessageName,
+	messageName, cppTypeName, cppRecordTypeName, javaMessageBoxName, javaMessageName,
 	javaPackageSlashes, javaPackage, objcClassPrefix, wirePackage string,
 	swift *swiftYAML, kotlin *kotlinYAML) {
 
@@ -127,7 +132,7 @@ func writeDjinniYAMLRecord(w *codegen.CodeWriter,
 	w.WL("prefix: 'pb'")
 
 	w.WL("cpp:")
-	w.WL("  typename: '%s'", yamlValue(cppTypeName))
+	w.WL("  typename: '%s'", yamlValue(cppRecordTypeName))
 	w.WL("  header: '\"%s.pb.h\"'", yamlValue(baseName))
 	w.WL("  byValue: false")
 
