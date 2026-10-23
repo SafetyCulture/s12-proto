@@ -55,6 +55,7 @@ plugins:
     path: $PLUGIN
     out: ./swift
     opt: Visibility=Public,FileNaming=PathToUnderscores
+    strategy: all
 YAML
 rm -rf "$HERE/golden" "$WORK/out"
 "$BUF" generate "$WORK/prefixed.binpb" "${paths[@]}" --template "$WORK/swift.yaml" -o "$WORK/out"
