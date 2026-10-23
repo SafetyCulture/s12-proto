@@ -27,8 +27,6 @@ The golden files are in the repository, because CI has no Swift toolchain: the t
 | mitti-mobile | `49159543207f31dd13e4a20ce3e8196ac34a9fc6` (`tools/lib/s12_prefixes.py`, `crux/deps/s12-prefixes.yaml`, `crux/tools/s12_modules_*.txt`) |
 
 ## Oracle procedure
-
-
 Build the pinned generator before you change a golden file.
 
 ```sh

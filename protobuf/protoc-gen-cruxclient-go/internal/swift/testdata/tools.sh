@@ -35,7 +35,7 @@ find_buf() {
   echo "$WORK/buf"
 }
 
-# find_protoc_gen_swift prints the path of protoc-gen-swift 1.38.1. It builds the tag when PROTOC_GEN_SWIFT is not set.
+# find_protoc_gen_swift prints the path of protoc-gen-swift 1.38.1. It builds the pinned commit when PROTOC_GEN_SWIFT is not set.
 find_protoc_gen_swift() {
   if [ -z "${PROTOC_GEN_SWIFT:-}" ]; then
     have swift || die "set PROTOC_GEN_SWIFT, or install the Swift toolchain so that the script can build protoc-gen-swift $SWIFT_PROTOBUF_TAG"

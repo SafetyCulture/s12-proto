@@ -20,7 +20,7 @@
 # The whitelist image is what the Crux codegen gives to every plugin, and the golden
 # files use the options of the APISchema Swift lane: Visibility=Public,FileNaming=PathToUnderscores.
 # Set PROTOC_GEN_SWIFT to a protoc-gen-swift 1.38.1 binary. Without it the script builds
-# the tag, which needs the Swift toolchain. protoc is read from PATH.
+# the pinned commit, which needs the Swift toolchain. protoc is read from PATH.
 #
 # After the run, record the inputs in README.md: the commit of APISchema and of mitti-mobile.
 set -euo pipefail
