@@ -2,12 +2,16 @@
 #pragma once
 #include "djinni_support.hpp"
 #include "swiftnames/names.pb.h"
+#include <limits>
+#include <memory>
+#include <stdexcept>
+#include <string>
+
 namespace djinni::kotlin::s12::name_test::v1::Outer {
 struct JNIInfo {
-  const GlobalRef<jclass> clazz { jniFindClass("com/safetyculture/s12kt/name_test/v1/Outer")  };
-  const jmethodID method_toBytes { jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
-  const jmethodID method_byteSize { jniGetMethodID(clazz.get(), "getSerializedSize", "()I") };
-  const jmethodID method_fromBytes { jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lcom/safetyculture/s12kt/name_test/v1/Outer;") };
+  const ::djinni::GlobalRef<jclass> clazz { ::djinni::jniFindClass("com/safetyculture/s12kt/name_test/v1/Outer") };
+  const jmethodID method_toBytes { ::djinni::jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
+  const jmethodID method_fromBytes { ::djinni::jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lcom/safetyculture/s12kt/name_test/v1/Outer;") };
 };
 
 struct Translator {
@@ -17,42 +21,44 @@ struct Translator {
 
   static CppType toCpp(JNIEnv* jniEnv, JniType j) {
     assert(j != nullptr);
-    const auto& data = JniClass<JNIInfo>::get();
+    const auto& data = ::djinni::JniClass<JNIInfo>::get();
     assert(jniEnv->IsInstanceOf(j, data.clazz.get()));
-    jbyteArray byteArray = static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes));
-    jniExceptionCheck(jniEnv);
-    auto byte_len = jniEnv->CallIntMethod(j, data.method_byteSize);
-    jniExceptionCheck(jniEnv);
-    jbyte* byte = jniEnv->GetByteArrayElements(byteArray, NULL);
+    ::djinni::LocalRef<jbyteArray> byteArray { static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes)) };
+    ::djinni::jniExceptionCheck(jniEnv);
+    const jsize byte_len = jniEnv->GetArrayLength(byteArray.get());
+    auto release = [&](jbyte* elements) { jniEnv->ReleaseByteArrayElements(byteArray.get(), elements, JNI_ABORT); };
+    const std::unique_ptr<jbyte, decltype(release)> byte { jniEnv->GetByteArrayElements(byteArray.get(), nullptr), release };
+    ::djinni::jniExceptionCheck(jniEnv);
     CppType cpp_message;
-    cpp_message.ParseFromArray(byte, byte_len);
-    jniEnv->ReleaseByteArrayElements(byteArray, byte, JNI_ABORT);
-    jniExceptionCheck(jniEnv);
+    if (byte == nullptr || !cpp_message.ParseFromArray(byte.get(), byte_len)) {
+      throw std::runtime_error(std::string("failed to parse protobuf type ") + std::string(cpp_message.GetTypeName()));
+    }
     return cpp_message;
   }
 
-  static LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
-    size_t size = message.ByteSizeLong();
-    jbyte* temp = new jbyte[size];
-    message.SerializeToArray(temp, static_cast<int>(size));
-    jbyteArray bytes = jniEnv->NewByteArray(size);
-    jniEnv->SetByteArrayRegion(bytes, 0, size, temp);
-    delete[] temp;
-    const auto& data = JniClass<JNIInfo>::get();
-    auto j = LocalRef<JniType>{jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes)};
-    jniExceptionCheck(jniEnv);
+  static ::djinni::LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
+    std::string buffer;
+    if (!message.SerializeToString(&buffer) || buffer.size() > static_cast<size_t>(std::numeric_limits<jsize>::max())) {
+      throw std::runtime_error(std::string("failed to serialize protobuf type ") + std::string(message.GetTypeName()));
+    }
+    const auto size = static_cast<jsize>(buffer.size());
+    ::djinni::LocalRef<jbyteArray> bytes { jniEnv->NewByteArray(size) };
+    ::djinni::jniExceptionCheck(jniEnv);
+    jniEnv->SetByteArrayRegion(bytes.get(), 0, size, reinterpret_cast<const jbyte*>(buffer.data()));
+    ::djinni::jniExceptionCheck(jniEnv);
+    const auto& data = ::djinni::JniClass<JNIInfo>::get();
+    ::djinni::LocalRef<JniType> j { jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes.get()) };
+    ::djinni::jniExceptionCheck(jniEnv);
     return j;
   }
 };
 }  //namespace djinni::kotlin::s12::name_test::v1::Outer
 
-#include "swiftnames/names.pb.h"
 namespace djinni::kotlin::s12::name_test::v1::Outer::Data {
 struct JNIInfo {
-  const GlobalRef<jclass> clazz { jniFindClass("com/safetyculture/s12kt/name_test/v1/Outer$Data")  };
-  const jmethodID method_toBytes { jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
-  const jmethodID method_byteSize { jniGetMethodID(clazz.get(), "getSerializedSize", "()I") };
-  const jmethodID method_fromBytes { jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lcom/safetyculture/s12kt/name_test/v1/Outer$Data;") };
+  const ::djinni::GlobalRef<jclass> clazz { ::djinni::jniFindClass("com/safetyculture/s12kt/name_test/v1/Outer$Data") };
+  const jmethodID method_toBytes { ::djinni::jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
+  const jmethodID method_fromBytes { ::djinni::jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lcom/safetyculture/s12kt/name_test/v1/Outer$Data;") };
 };
 
 struct Translator {
@@ -62,42 +68,44 @@ struct Translator {
 
   static CppType toCpp(JNIEnv* jniEnv, JniType j) {
     assert(j != nullptr);
-    const auto& data = JniClass<JNIInfo>::get();
+    const auto& data = ::djinni::JniClass<JNIInfo>::get();
     assert(jniEnv->IsInstanceOf(j, data.clazz.get()));
-    jbyteArray byteArray = static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes));
-    jniExceptionCheck(jniEnv);
-    auto byte_len = jniEnv->CallIntMethod(j, data.method_byteSize);
-    jniExceptionCheck(jniEnv);
-    jbyte* byte = jniEnv->GetByteArrayElements(byteArray, NULL);
+    ::djinni::LocalRef<jbyteArray> byteArray { static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes)) };
+    ::djinni::jniExceptionCheck(jniEnv);
+    const jsize byte_len = jniEnv->GetArrayLength(byteArray.get());
+    auto release = [&](jbyte* elements) { jniEnv->ReleaseByteArrayElements(byteArray.get(), elements, JNI_ABORT); };
+    const std::unique_ptr<jbyte, decltype(release)> byte { jniEnv->GetByteArrayElements(byteArray.get(), nullptr), release };
+    ::djinni::jniExceptionCheck(jniEnv);
     CppType cpp_message;
-    cpp_message.ParseFromArray(byte, byte_len);
-    jniEnv->ReleaseByteArrayElements(byteArray, byte, JNI_ABORT);
-    jniExceptionCheck(jniEnv);
+    if (byte == nullptr || !cpp_message.ParseFromArray(byte.get(), byte_len)) {
+      throw std::runtime_error(std::string("failed to parse protobuf type ") + std::string(cpp_message.GetTypeName()));
+    }
     return cpp_message;
   }
 
-  static LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
-    size_t size = message.ByteSizeLong();
-    jbyte* temp = new jbyte[size];
-    message.SerializeToArray(temp, static_cast<int>(size));
-    jbyteArray bytes = jniEnv->NewByteArray(size);
-    jniEnv->SetByteArrayRegion(bytes, 0, size, temp);
-    delete[] temp;
-    const auto& data = JniClass<JNIInfo>::get();
-    auto j = LocalRef<JniType>{jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes)};
-    jniExceptionCheck(jniEnv);
+  static ::djinni::LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
+    std::string buffer;
+    if (!message.SerializeToString(&buffer) || buffer.size() > static_cast<size_t>(std::numeric_limits<jsize>::max())) {
+      throw std::runtime_error(std::string("failed to serialize protobuf type ") + std::string(message.GetTypeName()));
+    }
+    const auto size = static_cast<jsize>(buffer.size());
+    ::djinni::LocalRef<jbyteArray> bytes { jniEnv->NewByteArray(size) };
+    ::djinni::jniExceptionCheck(jniEnv);
+    jniEnv->SetByteArrayRegion(bytes.get(), 0, size, reinterpret_cast<const jbyte*>(buffer.data()));
+    ::djinni::jniExceptionCheck(jniEnv);
+    const auto& data = ::djinni::JniClass<JNIInfo>::get();
+    ::djinni::LocalRef<JniType> j { jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes.get()) };
+    ::djinni::jniExceptionCheck(jniEnv);
     return j;
   }
 };
 }  //namespace djinni::kotlin::s12::name_test::v1::Outer::Data
 
-#include "swiftnames/names.pb.h"
 namespace djinni::kotlin::s12::name_test::v1::Outer::Int {
 struct JNIInfo {
-  const GlobalRef<jclass> clazz { jniFindClass("com/safetyculture/s12kt/name_test/v1/Outer$Int")  };
-  const jmethodID method_toBytes { jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
-  const jmethodID method_byteSize { jniGetMethodID(clazz.get(), "getSerializedSize", "()I") };
-  const jmethodID method_fromBytes { jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lcom/safetyculture/s12kt/name_test/v1/Outer$Int;") };
+  const ::djinni::GlobalRef<jclass> clazz { ::djinni::jniFindClass("com/safetyculture/s12kt/name_test/v1/Outer$Int") };
+  const jmethodID method_toBytes { ::djinni::jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
+  const jmethodID method_fromBytes { ::djinni::jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lcom/safetyculture/s12kt/name_test/v1/Outer$Int;") };
 };
 
 struct Translator {
@@ -107,42 +115,44 @@ struct Translator {
 
   static CppType toCpp(JNIEnv* jniEnv, JniType j) {
     assert(j != nullptr);
-    const auto& data = JniClass<JNIInfo>::get();
+    const auto& data = ::djinni::JniClass<JNIInfo>::get();
     assert(jniEnv->IsInstanceOf(j, data.clazz.get()));
-    jbyteArray byteArray = static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes));
-    jniExceptionCheck(jniEnv);
-    auto byte_len = jniEnv->CallIntMethod(j, data.method_byteSize);
-    jniExceptionCheck(jniEnv);
-    jbyte* byte = jniEnv->GetByteArrayElements(byteArray, NULL);
+    ::djinni::LocalRef<jbyteArray> byteArray { static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes)) };
+    ::djinni::jniExceptionCheck(jniEnv);
+    const jsize byte_len = jniEnv->GetArrayLength(byteArray.get());
+    auto release = [&](jbyte* elements) { jniEnv->ReleaseByteArrayElements(byteArray.get(), elements, JNI_ABORT); };
+    const std::unique_ptr<jbyte, decltype(release)> byte { jniEnv->GetByteArrayElements(byteArray.get(), nullptr), release };
+    ::djinni::jniExceptionCheck(jniEnv);
     CppType cpp_message;
-    cpp_message.ParseFromArray(byte, byte_len);
-    jniEnv->ReleaseByteArrayElements(byteArray, byte, JNI_ABORT);
-    jniExceptionCheck(jniEnv);
+    if (byte == nullptr || !cpp_message.ParseFromArray(byte.get(), byte_len)) {
+      throw std::runtime_error(std::string("failed to parse protobuf type ") + std::string(cpp_message.GetTypeName()));
+    }
     return cpp_message;
   }
 
-  static LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
-    size_t size = message.ByteSizeLong();
-    jbyte* temp = new jbyte[size];
-    message.SerializeToArray(temp, static_cast<int>(size));
-    jbyteArray bytes = jniEnv->NewByteArray(size);
-    jniEnv->SetByteArrayRegion(bytes, 0, size, temp);
-    delete[] temp;
-    const auto& data = JniClass<JNIInfo>::get();
-    auto j = LocalRef<JniType>{jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes)};
-    jniExceptionCheck(jniEnv);
+  static ::djinni::LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
+    std::string buffer;
+    if (!message.SerializeToString(&buffer) || buffer.size() > static_cast<size_t>(std::numeric_limits<jsize>::max())) {
+      throw std::runtime_error(std::string("failed to serialize protobuf type ") + std::string(message.GetTypeName()));
+    }
+    const auto size = static_cast<jsize>(buffer.size());
+    ::djinni::LocalRef<jbyteArray> bytes { jniEnv->NewByteArray(size) };
+    ::djinni::jniExceptionCheck(jniEnv);
+    jniEnv->SetByteArrayRegion(bytes.get(), 0, size, reinterpret_cast<const jbyte*>(buffer.data()));
+    ::djinni::jniExceptionCheck(jniEnv);
+    const auto& data = ::djinni::JniClass<JNIInfo>::get();
+    ::djinni::LocalRef<JniType> j { jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes.get()) };
+    ::djinni::jniExceptionCheck(jniEnv);
     return j;
   }
 };
 }  //namespace djinni::kotlin::s12::name_test::v1::Outer::Int
 
-#include "swiftnames/names.pb.h"
 namespace djinni::kotlin::s12::name_test::v1::Outer::String {
 struct JNIInfo {
-  const GlobalRef<jclass> clazz { jniFindClass("com/safetyculture/s12kt/name_test/v1/Outer$String")  };
-  const jmethodID method_toBytes { jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
-  const jmethodID method_byteSize { jniGetMethodID(clazz.get(), "getSerializedSize", "()I") };
-  const jmethodID method_fromBytes { jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lcom/safetyculture/s12kt/name_test/v1/Outer$String;") };
+  const ::djinni::GlobalRef<jclass> clazz { ::djinni::jniFindClass("com/safetyculture/s12kt/name_test/v1/Outer$String") };
+  const jmethodID method_toBytes { ::djinni::jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
+  const jmethodID method_fromBytes { ::djinni::jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lcom/safetyculture/s12kt/name_test/v1/Outer$String;") };
 };
 
 struct Translator {
@@ -152,42 +162,44 @@ struct Translator {
 
   static CppType toCpp(JNIEnv* jniEnv, JniType j) {
     assert(j != nullptr);
-    const auto& data = JniClass<JNIInfo>::get();
+    const auto& data = ::djinni::JniClass<JNIInfo>::get();
     assert(jniEnv->IsInstanceOf(j, data.clazz.get()));
-    jbyteArray byteArray = static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes));
-    jniExceptionCheck(jniEnv);
-    auto byte_len = jniEnv->CallIntMethod(j, data.method_byteSize);
-    jniExceptionCheck(jniEnv);
-    jbyte* byte = jniEnv->GetByteArrayElements(byteArray, NULL);
+    ::djinni::LocalRef<jbyteArray> byteArray { static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes)) };
+    ::djinni::jniExceptionCheck(jniEnv);
+    const jsize byte_len = jniEnv->GetArrayLength(byteArray.get());
+    auto release = [&](jbyte* elements) { jniEnv->ReleaseByteArrayElements(byteArray.get(), elements, JNI_ABORT); };
+    const std::unique_ptr<jbyte, decltype(release)> byte { jniEnv->GetByteArrayElements(byteArray.get(), nullptr), release };
+    ::djinni::jniExceptionCheck(jniEnv);
     CppType cpp_message;
-    cpp_message.ParseFromArray(byte, byte_len);
-    jniEnv->ReleaseByteArrayElements(byteArray, byte, JNI_ABORT);
-    jniExceptionCheck(jniEnv);
+    if (byte == nullptr || !cpp_message.ParseFromArray(byte.get(), byte_len)) {
+      throw std::runtime_error(std::string("failed to parse protobuf type ") + std::string(cpp_message.GetTypeName()));
+    }
     return cpp_message;
   }
 
-  static LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
-    size_t size = message.ByteSizeLong();
-    jbyte* temp = new jbyte[size];
-    message.SerializeToArray(temp, static_cast<int>(size));
-    jbyteArray bytes = jniEnv->NewByteArray(size);
-    jniEnv->SetByteArrayRegion(bytes, 0, size, temp);
-    delete[] temp;
-    const auto& data = JniClass<JNIInfo>::get();
-    auto j = LocalRef<JniType>{jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes)};
-    jniExceptionCheck(jniEnv);
+  static ::djinni::LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
+    std::string buffer;
+    if (!message.SerializeToString(&buffer) || buffer.size() > static_cast<size_t>(std::numeric_limits<jsize>::max())) {
+      throw std::runtime_error(std::string("failed to serialize protobuf type ") + std::string(message.GetTypeName()));
+    }
+    const auto size = static_cast<jsize>(buffer.size());
+    ::djinni::LocalRef<jbyteArray> bytes { jniEnv->NewByteArray(size) };
+    ::djinni::jniExceptionCheck(jniEnv);
+    jniEnv->SetByteArrayRegion(bytes.get(), 0, size, reinterpret_cast<const jbyte*>(buffer.data()));
+    ::djinni::jniExceptionCheck(jniEnv);
+    const auto& data = ::djinni::JniClass<JNIInfo>::get();
+    ::djinni::LocalRef<JniType> j { jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes.get()) };
+    ::djinni::jniExceptionCheck(jniEnv);
     return j;
   }
 };
 }  //namespace djinni::kotlin::s12::name_test::v1::Outer::String
 
-#include "swiftnames/names.pb.h"
 namespace djinni::kotlin::s12::name_test::v1::Outer::Type {
 struct JNIInfo {
-  const GlobalRef<jclass> clazz { jniFindClass("com/safetyculture/s12kt/name_test/v1/Outer$Type")  };
-  const jmethodID method_toBytes { jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
-  const jmethodID method_byteSize { jniGetMethodID(clazz.get(), "getSerializedSize", "()I") };
-  const jmethodID method_fromBytes { jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lcom/safetyculture/s12kt/name_test/v1/Outer$Type;") };
+  const ::djinni::GlobalRef<jclass> clazz { ::djinni::jniFindClass("com/safetyculture/s12kt/name_test/v1/Outer$Type") };
+  const jmethodID method_toBytes { ::djinni::jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
+  const jmethodID method_fromBytes { ::djinni::jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lcom/safetyculture/s12kt/name_test/v1/Outer$Type;") };
 };
 
 struct Translator {
@@ -197,42 +209,44 @@ struct Translator {
 
   static CppType toCpp(JNIEnv* jniEnv, JniType j) {
     assert(j != nullptr);
-    const auto& data = JniClass<JNIInfo>::get();
+    const auto& data = ::djinni::JniClass<JNIInfo>::get();
     assert(jniEnv->IsInstanceOf(j, data.clazz.get()));
-    jbyteArray byteArray = static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes));
-    jniExceptionCheck(jniEnv);
-    auto byte_len = jniEnv->CallIntMethod(j, data.method_byteSize);
-    jniExceptionCheck(jniEnv);
-    jbyte* byte = jniEnv->GetByteArrayElements(byteArray, NULL);
+    ::djinni::LocalRef<jbyteArray> byteArray { static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes)) };
+    ::djinni::jniExceptionCheck(jniEnv);
+    const jsize byte_len = jniEnv->GetArrayLength(byteArray.get());
+    auto release = [&](jbyte* elements) { jniEnv->ReleaseByteArrayElements(byteArray.get(), elements, JNI_ABORT); };
+    const std::unique_ptr<jbyte, decltype(release)> byte { jniEnv->GetByteArrayElements(byteArray.get(), nullptr), release };
+    ::djinni::jniExceptionCheck(jniEnv);
     CppType cpp_message;
-    cpp_message.ParseFromArray(byte, byte_len);
-    jniEnv->ReleaseByteArrayElements(byteArray, byte, JNI_ABORT);
-    jniExceptionCheck(jniEnv);
+    if (byte == nullptr || !cpp_message.ParseFromArray(byte.get(), byte_len)) {
+      throw std::runtime_error(std::string("failed to parse protobuf type ") + std::string(cpp_message.GetTypeName()));
+    }
     return cpp_message;
   }
 
-  static LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
-    size_t size = message.ByteSizeLong();
-    jbyte* temp = new jbyte[size];
-    message.SerializeToArray(temp, static_cast<int>(size));
-    jbyteArray bytes = jniEnv->NewByteArray(size);
-    jniEnv->SetByteArrayRegion(bytes, 0, size, temp);
-    delete[] temp;
-    const auto& data = JniClass<JNIInfo>::get();
-    auto j = LocalRef<JniType>{jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes)};
-    jniExceptionCheck(jniEnv);
+  static ::djinni::LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
+    std::string buffer;
+    if (!message.SerializeToString(&buffer) || buffer.size() > static_cast<size_t>(std::numeric_limits<jsize>::max())) {
+      throw std::runtime_error(std::string("failed to serialize protobuf type ") + std::string(message.GetTypeName()));
+    }
+    const auto size = static_cast<jsize>(buffer.size());
+    ::djinni::LocalRef<jbyteArray> bytes { jniEnv->NewByteArray(size) };
+    ::djinni::jniExceptionCheck(jniEnv);
+    jniEnv->SetByteArrayRegion(bytes.get(), 0, size, reinterpret_cast<const jbyte*>(buffer.data()));
+    ::djinni::jniExceptionCheck(jniEnv);
+    const auto& data = ::djinni::JniClass<JNIInfo>::get();
+    ::djinni::LocalRef<JniType> j { jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes.get()) };
+    ::djinni::jniExceptionCheck(jniEnv);
     return j;
   }
 };
 }  //namespace djinni::kotlin::s12::name_test::v1::Outer::Type
 
-#include "swiftnames/names.pb.h"
 namespace djinni::kotlin::s12::name_test::v1::Outer::Protocol {
 struct JNIInfo {
-  const GlobalRef<jclass> clazz { jniFindClass("com/safetyculture/s12kt/name_test/v1/Outer$Protocol")  };
-  const jmethodID method_toBytes { jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
-  const jmethodID method_byteSize { jniGetMethodID(clazz.get(), "getSerializedSize", "()I") };
-  const jmethodID method_fromBytes { jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lcom/safetyculture/s12kt/name_test/v1/Outer$Protocol;") };
+  const ::djinni::GlobalRef<jclass> clazz { ::djinni::jniFindClass("com/safetyculture/s12kt/name_test/v1/Outer$Protocol") };
+  const jmethodID method_toBytes { ::djinni::jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
+  const jmethodID method_fromBytes { ::djinni::jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lcom/safetyculture/s12kt/name_test/v1/Outer$Protocol;") };
 };
 
 struct Translator {
@@ -242,42 +256,44 @@ struct Translator {
 
   static CppType toCpp(JNIEnv* jniEnv, JniType j) {
     assert(j != nullptr);
-    const auto& data = JniClass<JNIInfo>::get();
+    const auto& data = ::djinni::JniClass<JNIInfo>::get();
     assert(jniEnv->IsInstanceOf(j, data.clazz.get()));
-    jbyteArray byteArray = static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes));
-    jniExceptionCheck(jniEnv);
-    auto byte_len = jniEnv->CallIntMethod(j, data.method_byteSize);
-    jniExceptionCheck(jniEnv);
-    jbyte* byte = jniEnv->GetByteArrayElements(byteArray, NULL);
+    ::djinni::LocalRef<jbyteArray> byteArray { static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes)) };
+    ::djinni::jniExceptionCheck(jniEnv);
+    const jsize byte_len = jniEnv->GetArrayLength(byteArray.get());
+    auto release = [&](jbyte* elements) { jniEnv->ReleaseByteArrayElements(byteArray.get(), elements, JNI_ABORT); };
+    const std::unique_ptr<jbyte, decltype(release)> byte { jniEnv->GetByteArrayElements(byteArray.get(), nullptr), release };
+    ::djinni::jniExceptionCheck(jniEnv);
     CppType cpp_message;
-    cpp_message.ParseFromArray(byte, byte_len);
-    jniEnv->ReleaseByteArrayElements(byteArray, byte, JNI_ABORT);
-    jniExceptionCheck(jniEnv);
+    if (byte == nullptr || !cpp_message.ParseFromArray(byte.get(), byte_len)) {
+      throw std::runtime_error(std::string("failed to parse protobuf type ") + std::string(cpp_message.GetTypeName()));
+    }
     return cpp_message;
   }
 
-  static LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
-    size_t size = message.ByteSizeLong();
-    jbyte* temp = new jbyte[size];
-    message.SerializeToArray(temp, static_cast<int>(size));
-    jbyteArray bytes = jniEnv->NewByteArray(size);
-    jniEnv->SetByteArrayRegion(bytes, 0, size, temp);
-    delete[] temp;
-    const auto& data = JniClass<JNIInfo>::get();
-    auto j = LocalRef<JniType>{jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes)};
-    jniExceptionCheck(jniEnv);
+  static ::djinni::LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
+    std::string buffer;
+    if (!message.SerializeToString(&buffer) || buffer.size() > static_cast<size_t>(std::numeric_limits<jsize>::max())) {
+      throw std::runtime_error(std::string("failed to serialize protobuf type ") + std::string(message.GetTypeName()));
+    }
+    const auto size = static_cast<jsize>(buffer.size());
+    ::djinni::LocalRef<jbyteArray> bytes { jniEnv->NewByteArray(size) };
+    ::djinni::jniExceptionCheck(jniEnv);
+    jniEnv->SetByteArrayRegion(bytes.get(), 0, size, reinterpret_cast<const jbyte*>(buffer.data()));
+    ::djinni::jniExceptionCheck(jniEnv);
+    const auto& data = ::djinni::JniClass<JNIInfo>::get();
+    ::djinni::LocalRef<JniType> j { jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes.get()) };
+    ::djinni::jniExceptionCheck(jniEnv);
     return j;
   }
 };
 }  //namespace djinni::kotlin::s12::name_test::v1::Outer::Protocol
 
-#include "swiftnames/names.pb.h"
 namespace djinni::kotlin::s12::name_test::v1::Outer::Any {
 struct JNIInfo {
-  const GlobalRef<jclass> clazz { jniFindClass("com/safetyculture/s12kt/name_test/v1/Outer$Any")  };
-  const jmethodID method_toBytes { jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
-  const jmethodID method_byteSize { jniGetMethodID(clazz.get(), "getSerializedSize", "()I") };
-  const jmethodID method_fromBytes { jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lcom/safetyculture/s12kt/name_test/v1/Outer$Any;") };
+  const ::djinni::GlobalRef<jclass> clazz { ::djinni::jniFindClass("com/safetyculture/s12kt/name_test/v1/Outer$Any") };
+  const jmethodID method_toBytes { ::djinni::jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
+  const jmethodID method_fromBytes { ::djinni::jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lcom/safetyculture/s12kt/name_test/v1/Outer$Any;") };
 };
 
 struct Translator {
@@ -287,42 +303,44 @@ struct Translator {
 
   static CppType toCpp(JNIEnv* jniEnv, JniType j) {
     assert(j != nullptr);
-    const auto& data = JniClass<JNIInfo>::get();
+    const auto& data = ::djinni::JniClass<JNIInfo>::get();
     assert(jniEnv->IsInstanceOf(j, data.clazz.get()));
-    jbyteArray byteArray = static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes));
-    jniExceptionCheck(jniEnv);
-    auto byte_len = jniEnv->CallIntMethod(j, data.method_byteSize);
-    jniExceptionCheck(jniEnv);
-    jbyte* byte = jniEnv->GetByteArrayElements(byteArray, NULL);
+    ::djinni::LocalRef<jbyteArray> byteArray { static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes)) };
+    ::djinni::jniExceptionCheck(jniEnv);
+    const jsize byte_len = jniEnv->GetArrayLength(byteArray.get());
+    auto release = [&](jbyte* elements) { jniEnv->ReleaseByteArrayElements(byteArray.get(), elements, JNI_ABORT); };
+    const std::unique_ptr<jbyte, decltype(release)> byte { jniEnv->GetByteArrayElements(byteArray.get(), nullptr), release };
+    ::djinni::jniExceptionCheck(jniEnv);
     CppType cpp_message;
-    cpp_message.ParseFromArray(byte, byte_len);
-    jniEnv->ReleaseByteArrayElements(byteArray, byte, JNI_ABORT);
-    jniExceptionCheck(jniEnv);
+    if (byte == nullptr || !cpp_message.ParseFromArray(byte.get(), byte_len)) {
+      throw std::runtime_error(std::string("failed to parse protobuf type ") + std::string(cpp_message.GetTypeName()));
+    }
     return cpp_message;
   }
 
-  static LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
-    size_t size = message.ByteSizeLong();
-    jbyte* temp = new jbyte[size];
-    message.SerializeToArray(temp, static_cast<int>(size));
-    jbyteArray bytes = jniEnv->NewByteArray(size);
-    jniEnv->SetByteArrayRegion(bytes, 0, size, temp);
-    delete[] temp;
-    const auto& data = JniClass<JNIInfo>::get();
-    auto j = LocalRef<JniType>{jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes)};
-    jniExceptionCheck(jniEnv);
+  static ::djinni::LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
+    std::string buffer;
+    if (!message.SerializeToString(&buffer) || buffer.size() > static_cast<size_t>(std::numeric_limits<jsize>::max())) {
+      throw std::runtime_error(std::string("failed to serialize protobuf type ") + std::string(message.GetTypeName()));
+    }
+    const auto size = static_cast<jsize>(buffer.size());
+    ::djinni::LocalRef<jbyteArray> bytes { jniEnv->NewByteArray(size) };
+    ::djinni::jniExceptionCheck(jniEnv);
+    jniEnv->SetByteArrayRegion(bytes.get(), 0, size, reinterpret_cast<const jbyte*>(buffer.data()));
+    ::djinni::jniExceptionCheck(jniEnv);
+    const auto& data = ::djinni::JniClass<JNIInfo>::get();
+    ::djinni::LocalRef<JniType> j { jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes.get()) };
+    ::djinni::jniExceptionCheck(jniEnv);
     return j;
   }
 };
 }  //namespace djinni::kotlin::s12::name_test::v1::Outer::Any
 
-#include "swiftnames/names.pb.h"
 namespace djinni::kotlin::s12::name_test::v1::Outer::Self {
 struct JNIInfo {
-  const GlobalRef<jclass> clazz { jniFindClass("com/safetyculture/s12kt/name_test/v1/Outer$Self")  };
-  const jmethodID method_toBytes { jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
-  const jmethodID method_byteSize { jniGetMethodID(clazz.get(), "getSerializedSize", "()I") };
-  const jmethodID method_fromBytes { jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lcom/safetyculture/s12kt/name_test/v1/Outer$Self;") };
+  const ::djinni::GlobalRef<jclass> clazz { ::djinni::jniFindClass("com/safetyculture/s12kt/name_test/v1/Outer$Self") };
+  const jmethodID method_toBytes { ::djinni::jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
+  const jmethodID method_fromBytes { ::djinni::jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lcom/safetyculture/s12kt/name_test/v1/Outer$Self;") };
 };
 
 struct Translator {
@@ -332,42 +350,44 @@ struct Translator {
 
   static CppType toCpp(JNIEnv* jniEnv, JniType j) {
     assert(j != nullptr);
-    const auto& data = JniClass<JNIInfo>::get();
+    const auto& data = ::djinni::JniClass<JNIInfo>::get();
     assert(jniEnv->IsInstanceOf(j, data.clazz.get()));
-    jbyteArray byteArray = static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes));
-    jniExceptionCheck(jniEnv);
-    auto byte_len = jniEnv->CallIntMethod(j, data.method_byteSize);
-    jniExceptionCheck(jniEnv);
-    jbyte* byte = jniEnv->GetByteArrayElements(byteArray, NULL);
+    ::djinni::LocalRef<jbyteArray> byteArray { static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes)) };
+    ::djinni::jniExceptionCheck(jniEnv);
+    const jsize byte_len = jniEnv->GetArrayLength(byteArray.get());
+    auto release = [&](jbyte* elements) { jniEnv->ReleaseByteArrayElements(byteArray.get(), elements, JNI_ABORT); };
+    const std::unique_ptr<jbyte, decltype(release)> byte { jniEnv->GetByteArrayElements(byteArray.get(), nullptr), release };
+    ::djinni::jniExceptionCheck(jniEnv);
     CppType cpp_message;
-    cpp_message.ParseFromArray(byte, byte_len);
-    jniEnv->ReleaseByteArrayElements(byteArray, byte, JNI_ABORT);
-    jniExceptionCheck(jniEnv);
+    if (byte == nullptr || !cpp_message.ParseFromArray(byte.get(), byte_len)) {
+      throw std::runtime_error(std::string("failed to parse protobuf type ") + std::string(cpp_message.GetTypeName()));
+    }
     return cpp_message;
   }
 
-  static LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
-    size_t size = message.ByteSizeLong();
-    jbyte* temp = new jbyte[size];
-    message.SerializeToArray(temp, static_cast<int>(size));
-    jbyteArray bytes = jniEnv->NewByteArray(size);
-    jniEnv->SetByteArrayRegion(bytes, 0, size, temp);
-    delete[] temp;
-    const auto& data = JniClass<JNIInfo>::get();
-    auto j = LocalRef<JniType>{jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes)};
-    jniExceptionCheck(jniEnv);
+  static ::djinni::LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
+    std::string buffer;
+    if (!message.SerializeToString(&buffer) || buffer.size() > static_cast<size_t>(std::numeric_limits<jsize>::max())) {
+      throw std::runtime_error(std::string("failed to serialize protobuf type ") + std::string(message.GetTypeName()));
+    }
+    const auto size = static_cast<jsize>(buffer.size());
+    ::djinni::LocalRef<jbyteArray> bytes { jniEnv->NewByteArray(size) };
+    ::djinni::jniExceptionCheck(jniEnv);
+    jniEnv->SetByteArrayRegion(bytes.get(), 0, size, reinterpret_cast<const jbyte*>(buffer.data()));
+    ::djinni::jniExceptionCheck(jniEnv);
+    const auto& data = ::djinni::JniClass<JNIInfo>::get();
+    ::djinni::LocalRef<JniType> j { jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes.get()) };
+    ::djinni::jniExceptionCheck(jniEnv);
     return j;
   }
 };
 }  //namespace djinni::kotlin::s12::name_test::v1::Outer::Self
 
-#include "swiftnames/names.pb.h"
 namespace djinni::kotlin::s12::name_test::v1::Outer::Message {
 struct JNIInfo {
-  const GlobalRef<jclass> clazz { jniFindClass("com/safetyculture/s12kt/name_test/v1/Outer$Message")  };
-  const jmethodID method_toBytes { jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
-  const jmethodID method_byteSize { jniGetMethodID(clazz.get(), "getSerializedSize", "()I") };
-  const jmethodID method_fromBytes { jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lcom/safetyculture/s12kt/name_test/v1/Outer$Message;") };
+  const ::djinni::GlobalRef<jclass> clazz { ::djinni::jniFindClass("com/safetyculture/s12kt/name_test/v1/Outer$Message") };
+  const jmethodID method_toBytes { ::djinni::jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
+  const jmethodID method_fromBytes { ::djinni::jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lcom/safetyculture/s12kt/name_test/v1/Outer$Message;") };
 };
 
 struct Translator {
@@ -377,42 +397,44 @@ struct Translator {
 
   static CppType toCpp(JNIEnv* jniEnv, JniType j) {
     assert(j != nullptr);
-    const auto& data = JniClass<JNIInfo>::get();
+    const auto& data = ::djinni::JniClass<JNIInfo>::get();
     assert(jniEnv->IsInstanceOf(j, data.clazz.get()));
-    jbyteArray byteArray = static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes));
-    jniExceptionCheck(jniEnv);
-    auto byte_len = jniEnv->CallIntMethod(j, data.method_byteSize);
-    jniExceptionCheck(jniEnv);
-    jbyte* byte = jniEnv->GetByteArrayElements(byteArray, NULL);
+    ::djinni::LocalRef<jbyteArray> byteArray { static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes)) };
+    ::djinni::jniExceptionCheck(jniEnv);
+    const jsize byte_len = jniEnv->GetArrayLength(byteArray.get());
+    auto release = [&](jbyte* elements) { jniEnv->ReleaseByteArrayElements(byteArray.get(), elements, JNI_ABORT); };
+    const std::unique_ptr<jbyte, decltype(release)> byte { jniEnv->GetByteArrayElements(byteArray.get(), nullptr), release };
+    ::djinni::jniExceptionCheck(jniEnv);
     CppType cpp_message;
-    cpp_message.ParseFromArray(byte, byte_len);
-    jniEnv->ReleaseByteArrayElements(byteArray, byte, JNI_ABORT);
-    jniExceptionCheck(jniEnv);
+    if (byte == nullptr || !cpp_message.ParseFromArray(byte.get(), byte_len)) {
+      throw std::runtime_error(std::string("failed to parse protobuf type ") + std::string(cpp_message.GetTypeName()));
+    }
     return cpp_message;
   }
 
-  static LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
-    size_t size = message.ByteSizeLong();
-    jbyte* temp = new jbyte[size];
-    message.SerializeToArray(temp, static_cast<int>(size));
-    jbyteArray bytes = jniEnv->NewByteArray(size);
-    jniEnv->SetByteArrayRegion(bytes, 0, size, temp);
-    delete[] temp;
-    const auto& data = JniClass<JNIInfo>::get();
-    auto j = LocalRef<JniType>{jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes)};
-    jniExceptionCheck(jniEnv);
+  static ::djinni::LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
+    std::string buffer;
+    if (!message.SerializeToString(&buffer) || buffer.size() > static_cast<size_t>(std::numeric_limits<jsize>::max())) {
+      throw std::runtime_error(std::string("failed to serialize protobuf type ") + std::string(message.GetTypeName()));
+    }
+    const auto size = static_cast<jsize>(buffer.size());
+    ::djinni::LocalRef<jbyteArray> bytes { jniEnv->NewByteArray(size) };
+    ::djinni::jniExceptionCheck(jniEnv);
+    jniEnv->SetByteArrayRegion(bytes.get(), 0, size, reinterpret_cast<const jbyte*>(buffer.data()));
+    ::djinni::jniExceptionCheck(jniEnv);
+    const auto& data = ::djinni::JniClass<JNIInfo>::get();
+    ::djinni::LocalRef<JniType> j { jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes.get()) };
+    ::djinni::jniExceptionCheck(jniEnv);
     return j;
   }
 };
 }  //namespace djinni::kotlin::s12::name_test::v1::Outer::Message
 
-#include "swiftnames/names.pb.h"
 namespace djinni::kotlin::s12::name_test::v1::Outer::DataMessage {
 struct JNIInfo {
-  const GlobalRef<jclass> clazz { jniFindClass("com/safetyculture/s12kt/name_test/v1/Outer$DataMessage")  };
-  const jmethodID method_toBytes { jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
-  const jmethodID method_byteSize { jniGetMethodID(clazz.get(), "getSerializedSize", "()I") };
-  const jmethodID method_fromBytes { jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lcom/safetyculture/s12kt/name_test/v1/Outer$DataMessage;") };
+  const ::djinni::GlobalRef<jclass> clazz { ::djinni::jniFindClass("com/safetyculture/s12kt/name_test/v1/Outer$DataMessage") };
+  const jmethodID method_toBytes { ::djinni::jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
+  const jmethodID method_fromBytes { ::djinni::jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lcom/safetyculture/s12kt/name_test/v1/Outer$DataMessage;") };
 };
 
 struct Translator {
@@ -422,42 +444,44 @@ struct Translator {
 
   static CppType toCpp(JNIEnv* jniEnv, JniType j) {
     assert(j != nullptr);
-    const auto& data = JniClass<JNIInfo>::get();
+    const auto& data = ::djinni::JniClass<JNIInfo>::get();
     assert(jniEnv->IsInstanceOf(j, data.clazz.get()));
-    jbyteArray byteArray = static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes));
-    jniExceptionCheck(jniEnv);
-    auto byte_len = jniEnv->CallIntMethod(j, data.method_byteSize);
-    jniExceptionCheck(jniEnv);
-    jbyte* byte = jniEnv->GetByteArrayElements(byteArray, NULL);
+    ::djinni::LocalRef<jbyteArray> byteArray { static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes)) };
+    ::djinni::jniExceptionCheck(jniEnv);
+    const jsize byte_len = jniEnv->GetArrayLength(byteArray.get());
+    auto release = [&](jbyte* elements) { jniEnv->ReleaseByteArrayElements(byteArray.get(), elements, JNI_ABORT); };
+    const std::unique_ptr<jbyte, decltype(release)> byte { jniEnv->GetByteArrayElements(byteArray.get(), nullptr), release };
+    ::djinni::jniExceptionCheck(jniEnv);
     CppType cpp_message;
-    cpp_message.ParseFromArray(byte, byte_len);
-    jniEnv->ReleaseByteArrayElements(byteArray, byte, JNI_ABORT);
-    jniExceptionCheck(jniEnv);
+    if (byte == nullptr || !cpp_message.ParseFromArray(byte.get(), byte_len)) {
+      throw std::runtime_error(std::string("failed to parse protobuf type ") + std::string(cpp_message.GetTypeName()));
+    }
     return cpp_message;
   }
 
-  static LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
-    size_t size = message.ByteSizeLong();
-    jbyte* temp = new jbyte[size];
-    message.SerializeToArray(temp, static_cast<int>(size));
-    jbyteArray bytes = jniEnv->NewByteArray(size);
-    jniEnv->SetByteArrayRegion(bytes, 0, size, temp);
-    delete[] temp;
-    const auto& data = JniClass<JNIInfo>::get();
-    auto j = LocalRef<JniType>{jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes)};
-    jniExceptionCheck(jniEnv);
+  static ::djinni::LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
+    std::string buffer;
+    if (!message.SerializeToString(&buffer) || buffer.size() > static_cast<size_t>(std::numeric_limits<jsize>::max())) {
+      throw std::runtime_error(std::string("failed to serialize protobuf type ") + std::string(message.GetTypeName()));
+    }
+    const auto size = static_cast<jsize>(buffer.size());
+    ::djinni::LocalRef<jbyteArray> bytes { jniEnv->NewByteArray(size) };
+    ::djinni::jniExceptionCheck(jniEnv);
+    jniEnv->SetByteArrayRegion(bytes.get(), 0, size, reinterpret_cast<const jbyte*>(buffer.data()));
+    ::djinni::jniExceptionCheck(jniEnv);
+    const auto& data = ::djinni::JniClass<JNIInfo>::get();
+    ::djinni::LocalRef<JniType> j { jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes.get()) };
+    ::djinni::jniExceptionCheck(jniEnv);
     return j;
   }
 };
 }  //namespace djinni::kotlin::s12::name_test::v1::Outer::DataMessage
 
-#include "swiftnames/names.pb.h"
 namespace djinni::kotlin::s12::name_test::v1::Outer::Error {
 struct JNIInfo {
-  const GlobalRef<jclass> clazz { jniFindClass("com/safetyculture/s12kt/name_test/v1/Outer$Error")  };
-  const jmethodID method_toBytes { jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
-  const jmethodID method_byteSize { jniGetMethodID(clazz.get(), "getSerializedSize", "()I") };
-  const jmethodID method_fromBytes { jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lcom/safetyculture/s12kt/name_test/v1/Outer$Error;") };
+  const ::djinni::GlobalRef<jclass> clazz { ::djinni::jniFindClass("com/safetyculture/s12kt/name_test/v1/Outer$Error") };
+  const jmethodID method_toBytes { ::djinni::jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
+  const jmethodID method_fromBytes { ::djinni::jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lcom/safetyculture/s12kt/name_test/v1/Outer$Error;") };
 };
 
 struct Translator {
@@ -467,42 +491,44 @@ struct Translator {
 
   static CppType toCpp(JNIEnv* jniEnv, JniType j) {
     assert(j != nullptr);
-    const auto& data = JniClass<JNIInfo>::get();
+    const auto& data = ::djinni::JniClass<JNIInfo>::get();
     assert(jniEnv->IsInstanceOf(j, data.clazz.get()));
-    jbyteArray byteArray = static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes));
-    jniExceptionCheck(jniEnv);
-    auto byte_len = jniEnv->CallIntMethod(j, data.method_byteSize);
-    jniExceptionCheck(jniEnv);
-    jbyte* byte = jniEnv->GetByteArrayElements(byteArray, NULL);
+    ::djinni::LocalRef<jbyteArray> byteArray { static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes)) };
+    ::djinni::jniExceptionCheck(jniEnv);
+    const jsize byte_len = jniEnv->GetArrayLength(byteArray.get());
+    auto release = [&](jbyte* elements) { jniEnv->ReleaseByteArrayElements(byteArray.get(), elements, JNI_ABORT); };
+    const std::unique_ptr<jbyte, decltype(release)> byte { jniEnv->GetByteArrayElements(byteArray.get(), nullptr), release };
+    ::djinni::jniExceptionCheck(jniEnv);
     CppType cpp_message;
-    cpp_message.ParseFromArray(byte, byte_len);
-    jniEnv->ReleaseByteArrayElements(byteArray, byte, JNI_ABORT);
-    jniExceptionCheck(jniEnv);
+    if (byte == nullptr || !cpp_message.ParseFromArray(byte.get(), byte_len)) {
+      throw std::runtime_error(std::string("failed to parse protobuf type ") + std::string(cpp_message.GetTypeName()));
+    }
     return cpp_message;
   }
 
-  static LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
-    size_t size = message.ByteSizeLong();
-    jbyte* temp = new jbyte[size];
-    message.SerializeToArray(temp, static_cast<int>(size));
-    jbyteArray bytes = jniEnv->NewByteArray(size);
-    jniEnv->SetByteArrayRegion(bytes, 0, size, temp);
-    delete[] temp;
-    const auto& data = JniClass<JNIInfo>::get();
-    auto j = LocalRef<JniType>{jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes)};
-    jniExceptionCheck(jniEnv);
+  static ::djinni::LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
+    std::string buffer;
+    if (!message.SerializeToString(&buffer) || buffer.size() > static_cast<size_t>(std::numeric_limits<jsize>::max())) {
+      throw std::runtime_error(std::string("failed to serialize protobuf type ") + std::string(message.GetTypeName()));
+    }
+    const auto size = static_cast<jsize>(buffer.size());
+    ::djinni::LocalRef<jbyteArray> bytes { jniEnv->NewByteArray(size) };
+    ::djinni::jniExceptionCheck(jniEnv);
+    jniEnv->SetByteArrayRegion(bytes.get(), 0, size, reinterpret_cast<const jbyte*>(buffer.data()));
+    ::djinni::jniExceptionCheck(jniEnv);
+    const auto& data = ::djinni::JniClass<JNIInfo>::get();
+    ::djinni::LocalRef<JniType> j { jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes.get()) };
+    ::djinni::jniExceptionCheck(jniEnv);
     return j;
   }
 };
 }  //namespace djinni::kotlin::s12::name_test::v1::Outer::Error
 
-#include "swiftnames/names.pb.h"
 namespace djinni::kotlin::s12::name_test::v1::Outer::Date {
 struct JNIInfo {
-  const GlobalRef<jclass> clazz { jniFindClass("com/safetyculture/s12kt/name_test/v1/Outer$Date")  };
-  const jmethodID method_toBytes { jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
-  const jmethodID method_byteSize { jniGetMethodID(clazz.get(), "getSerializedSize", "()I") };
-  const jmethodID method_fromBytes { jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lcom/safetyculture/s12kt/name_test/v1/Outer$Date;") };
+  const ::djinni::GlobalRef<jclass> clazz { ::djinni::jniFindClass("com/safetyculture/s12kt/name_test/v1/Outer$Date") };
+  const jmethodID method_toBytes { ::djinni::jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
+  const jmethodID method_fromBytes { ::djinni::jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lcom/safetyculture/s12kt/name_test/v1/Outer$Date;") };
 };
 
 struct Translator {
@@ -512,42 +538,44 @@ struct Translator {
 
   static CppType toCpp(JNIEnv* jniEnv, JniType j) {
     assert(j != nullptr);
-    const auto& data = JniClass<JNIInfo>::get();
+    const auto& data = ::djinni::JniClass<JNIInfo>::get();
     assert(jniEnv->IsInstanceOf(j, data.clazz.get()));
-    jbyteArray byteArray = static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes));
-    jniExceptionCheck(jniEnv);
-    auto byte_len = jniEnv->CallIntMethod(j, data.method_byteSize);
-    jniExceptionCheck(jniEnv);
-    jbyte* byte = jniEnv->GetByteArrayElements(byteArray, NULL);
+    ::djinni::LocalRef<jbyteArray> byteArray { static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes)) };
+    ::djinni::jniExceptionCheck(jniEnv);
+    const jsize byte_len = jniEnv->GetArrayLength(byteArray.get());
+    auto release = [&](jbyte* elements) { jniEnv->ReleaseByteArrayElements(byteArray.get(), elements, JNI_ABORT); };
+    const std::unique_ptr<jbyte, decltype(release)> byte { jniEnv->GetByteArrayElements(byteArray.get(), nullptr), release };
+    ::djinni::jniExceptionCheck(jniEnv);
     CppType cpp_message;
-    cpp_message.ParseFromArray(byte, byte_len);
-    jniEnv->ReleaseByteArrayElements(byteArray, byte, JNI_ABORT);
-    jniExceptionCheck(jniEnv);
+    if (byte == nullptr || !cpp_message.ParseFromArray(byte.get(), byte_len)) {
+      throw std::runtime_error(std::string("failed to parse protobuf type ") + std::string(cpp_message.GetTypeName()));
+    }
     return cpp_message;
   }
 
-  static LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
-    size_t size = message.ByteSizeLong();
-    jbyte* temp = new jbyte[size];
-    message.SerializeToArray(temp, static_cast<int>(size));
-    jbyteArray bytes = jniEnv->NewByteArray(size);
-    jniEnv->SetByteArrayRegion(bytes, 0, size, temp);
-    delete[] temp;
-    const auto& data = JniClass<JNIInfo>::get();
-    auto j = LocalRef<JniType>{jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes)};
-    jniExceptionCheck(jniEnv);
+  static ::djinni::LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
+    std::string buffer;
+    if (!message.SerializeToString(&buffer) || buffer.size() > static_cast<size_t>(std::numeric_limits<jsize>::max())) {
+      throw std::runtime_error(std::string("failed to serialize protobuf type ") + std::string(message.GetTypeName()));
+    }
+    const auto size = static_cast<jsize>(buffer.size());
+    ::djinni::LocalRef<jbyteArray> bytes { jniEnv->NewByteArray(size) };
+    ::djinni::jniExceptionCheck(jniEnv);
+    jniEnv->SetByteArrayRegion(bytes.get(), 0, size, reinterpret_cast<const jbyte*>(buffer.data()));
+    ::djinni::jniExceptionCheck(jniEnv);
+    const auto& data = ::djinni::JniClass<JNIInfo>::get();
+    ::djinni::LocalRef<JniType> j { jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes.get()) };
+    ::djinni::jniExceptionCheck(jniEnv);
     return j;
   }
 };
 }  //namespace djinni::kotlin::s12::name_test::v1::Outer::Date
 
-#include "swiftnames/names.pb.h"
 namespace djinni::kotlin::s12::name_test::v1::Outer::Foo {
 struct JNIInfo {
-  const GlobalRef<jclass> clazz { jniFindClass("com/safetyculture/s12kt/name_test/v1/Outer$Foo")  };
-  const jmethodID method_toBytes { jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
-  const jmethodID method_byteSize { jniGetMethodID(clazz.get(), "getSerializedSize", "()I") };
-  const jmethodID method_fromBytes { jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lcom/safetyculture/s12kt/name_test/v1/Outer$Foo;") };
+  const ::djinni::GlobalRef<jclass> clazz { ::djinni::jniFindClass("com/safetyculture/s12kt/name_test/v1/Outer$Foo") };
+  const jmethodID method_toBytes { ::djinni::jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
+  const jmethodID method_fromBytes { ::djinni::jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lcom/safetyculture/s12kt/name_test/v1/Outer$Foo;") };
 };
 
 struct Translator {
@@ -557,42 +585,44 @@ struct Translator {
 
   static CppType toCpp(JNIEnv* jniEnv, JniType j) {
     assert(j != nullptr);
-    const auto& data = JniClass<JNIInfo>::get();
+    const auto& data = ::djinni::JniClass<JNIInfo>::get();
     assert(jniEnv->IsInstanceOf(j, data.clazz.get()));
-    jbyteArray byteArray = static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes));
-    jniExceptionCheck(jniEnv);
-    auto byte_len = jniEnv->CallIntMethod(j, data.method_byteSize);
-    jniExceptionCheck(jniEnv);
-    jbyte* byte = jniEnv->GetByteArrayElements(byteArray, NULL);
+    ::djinni::LocalRef<jbyteArray> byteArray { static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes)) };
+    ::djinni::jniExceptionCheck(jniEnv);
+    const jsize byte_len = jniEnv->GetArrayLength(byteArray.get());
+    auto release = [&](jbyte* elements) { jniEnv->ReleaseByteArrayElements(byteArray.get(), elements, JNI_ABORT); };
+    const std::unique_ptr<jbyte, decltype(release)> byte { jniEnv->GetByteArrayElements(byteArray.get(), nullptr), release };
+    ::djinni::jniExceptionCheck(jniEnv);
     CppType cpp_message;
-    cpp_message.ParseFromArray(byte, byte_len);
-    jniEnv->ReleaseByteArrayElements(byteArray, byte, JNI_ABORT);
-    jniExceptionCheck(jniEnv);
+    if (byte == nullptr || !cpp_message.ParseFromArray(byte.get(), byte_len)) {
+      throw std::runtime_error(std::string("failed to parse protobuf type ") + std::string(cpp_message.GetTypeName()));
+    }
     return cpp_message;
   }
 
-  static LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
-    size_t size = message.ByteSizeLong();
-    jbyte* temp = new jbyte[size];
-    message.SerializeToArray(temp, static_cast<int>(size));
-    jbyteArray bytes = jniEnv->NewByteArray(size);
-    jniEnv->SetByteArrayRegion(bytes, 0, size, temp);
-    delete[] temp;
-    const auto& data = JniClass<JNIInfo>::get();
-    auto j = LocalRef<JniType>{jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes)};
-    jniExceptionCheck(jniEnv);
+  static ::djinni::LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
+    std::string buffer;
+    if (!message.SerializeToString(&buffer) || buffer.size() > static_cast<size_t>(std::numeric_limits<jsize>::max())) {
+      throw std::runtime_error(std::string("failed to serialize protobuf type ") + std::string(message.GetTypeName()));
+    }
+    const auto size = static_cast<jsize>(buffer.size());
+    ::djinni::LocalRef<jbyteArray> bytes { jniEnv->NewByteArray(size) };
+    ::djinni::jniExceptionCheck(jniEnv);
+    jniEnv->SetByteArrayRegion(bytes.get(), 0, size, reinterpret_cast<const jbyte*>(buffer.data()));
+    ::djinni::jniExceptionCheck(jniEnv);
+    const auto& data = ::djinni::JniClass<JNIInfo>::get();
+    ::djinni::LocalRef<JniType> j { jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes.get()) };
+    ::djinni::jniExceptionCheck(jniEnv);
     return j;
   }
 };
 }  //namespace djinni::kotlin::s12::name_test::v1::Outer::Foo
 
-#include "swiftnames/names.pb.h"
 namespace djinni::kotlin::s12::name_test::v1::Outer::Foo::Type {
 struct JNIInfo {
-  const GlobalRef<jclass> clazz { jniFindClass("com/safetyculture/s12kt/name_test/v1/Outer$Foo$Type")  };
-  const jmethodID method_toBytes { jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
-  const jmethodID method_byteSize { jniGetMethodID(clazz.get(), "getSerializedSize", "()I") };
-  const jmethodID method_fromBytes { jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lcom/safetyculture/s12kt/name_test/v1/Outer$Foo$Type;") };
+  const ::djinni::GlobalRef<jclass> clazz { ::djinni::jniFindClass("com/safetyculture/s12kt/name_test/v1/Outer$Foo$Type") };
+  const jmethodID method_toBytes { ::djinni::jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
+  const jmethodID method_fromBytes { ::djinni::jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lcom/safetyculture/s12kt/name_test/v1/Outer$Foo$Type;") };
 };
 
 struct Translator {
@@ -602,42 +632,44 @@ struct Translator {
 
   static CppType toCpp(JNIEnv* jniEnv, JniType j) {
     assert(j != nullptr);
-    const auto& data = JniClass<JNIInfo>::get();
+    const auto& data = ::djinni::JniClass<JNIInfo>::get();
     assert(jniEnv->IsInstanceOf(j, data.clazz.get()));
-    jbyteArray byteArray = static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes));
-    jniExceptionCheck(jniEnv);
-    auto byte_len = jniEnv->CallIntMethod(j, data.method_byteSize);
-    jniExceptionCheck(jniEnv);
-    jbyte* byte = jniEnv->GetByteArrayElements(byteArray, NULL);
+    ::djinni::LocalRef<jbyteArray> byteArray { static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes)) };
+    ::djinni::jniExceptionCheck(jniEnv);
+    const jsize byte_len = jniEnv->GetArrayLength(byteArray.get());
+    auto release = [&](jbyte* elements) { jniEnv->ReleaseByteArrayElements(byteArray.get(), elements, JNI_ABORT); };
+    const std::unique_ptr<jbyte, decltype(release)> byte { jniEnv->GetByteArrayElements(byteArray.get(), nullptr), release };
+    ::djinni::jniExceptionCheck(jniEnv);
     CppType cpp_message;
-    cpp_message.ParseFromArray(byte, byte_len);
-    jniEnv->ReleaseByteArrayElements(byteArray, byte, JNI_ABORT);
-    jniExceptionCheck(jniEnv);
+    if (byte == nullptr || !cpp_message.ParseFromArray(byte.get(), byte_len)) {
+      throw std::runtime_error(std::string("failed to parse protobuf type ") + std::string(cpp_message.GetTypeName()));
+    }
     return cpp_message;
   }
 
-  static LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
-    size_t size = message.ByteSizeLong();
-    jbyte* temp = new jbyte[size];
-    message.SerializeToArray(temp, static_cast<int>(size));
-    jbyteArray bytes = jniEnv->NewByteArray(size);
-    jniEnv->SetByteArrayRegion(bytes, 0, size, temp);
-    delete[] temp;
-    const auto& data = JniClass<JNIInfo>::get();
-    auto j = LocalRef<JniType>{jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes)};
-    jniExceptionCheck(jniEnv);
+  static ::djinni::LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
+    std::string buffer;
+    if (!message.SerializeToString(&buffer) || buffer.size() > static_cast<size_t>(std::numeric_limits<jsize>::max())) {
+      throw std::runtime_error(std::string("failed to serialize protobuf type ") + std::string(message.GetTypeName()));
+    }
+    const auto size = static_cast<jsize>(buffer.size());
+    ::djinni::LocalRef<jbyteArray> bytes { jniEnv->NewByteArray(size) };
+    ::djinni::jniExceptionCheck(jniEnv);
+    jniEnv->SetByteArrayRegion(bytes.get(), 0, size, reinterpret_cast<const jbyte*>(buffer.data()));
+    ::djinni::jniExceptionCheck(jniEnv);
+    const auto& data = ::djinni::JniClass<JNIInfo>::get();
+    ::djinni::LocalRef<JniType> j { jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes.get()) };
+    ::djinni::jniExceptionCheck(jniEnv);
     return j;
   }
 };
 }  //namespace djinni::kotlin::s12::name_test::v1::Outer::Foo::Type
 
-#include "swiftnames/names.pb.h"
 namespace djinni::kotlin::s12::name_test::v1::Data {
 struct JNIInfo {
-  const GlobalRef<jclass> clazz { jniFindClass("com/safetyculture/s12kt/name_test/v1/Data")  };
-  const jmethodID method_toBytes { jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
-  const jmethodID method_byteSize { jniGetMethodID(clazz.get(), "getSerializedSize", "()I") };
-  const jmethodID method_fromBytes { jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lcom/safetyculture/s12kt/name_test/v1/Data;") };
+  const ::djinni::GlobalRef<jclass> clazz { ::djinni::jniFindClass("com/safetyculture/s12kt/name_test/v1/Data") };
+  const jmethodID method_toBytes { ::djinni::jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
+  const jmethodID method_fromBytes { ::djinni::jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)Lcom/safetyculture/s12kt/name_test/v1/Data;") };
 };
 
 struct Translator {
@@ -647,30 +679,34 @@ struct Translator {
 
   static CppType toCpp(JNIEnv* jniEnv, JniType j) {
     assert(j != nullptr);
-    const auto& data = JniClass<JNIInfo>::get();
+    const auto& data = ::djinni::JniClass<JNIInfo>::get();
     assert(jniEnv->IsInstanceOf(j, data.clazz.get()));
-    jbyteArray byteArray = static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes));
-    jniExceptionCheck(jniEnv);
-    auto byte_len = jniEnv->CallIntMethod(j, data.method_byteSize);
-    jniExceptionCheck(jniEnv);
-    jbyte* byte = jniEnv->GetByteArrayElements(byteArray, NULL);
+    ::djinni::LocalRef<jbyteArray> byteArray { static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes)) };
+    ::djinni::jniExceptionCheck(jniEnv);
+    const jsize byte_len = jniEnv->GetArrayLength(byteArray.get());
+    auto release = [&](jbyte* elements) { jniEnv->ReleaseByteArrayElements(byteArray.get(), elements, JNI_ABORT); };
+    const std::unique_ptr<jbyte, decltype(release)> byte { jniEnv->GetByteArrayElements(byteArray.get(), nullptr), release };
+    ::djinni::jniExceptionCheck(jniEnv);
     CppType cpp_message;
-    cpp_message.ParseFromArray(byte, byte_len);
-    jniEnv->ReleaseByteArrayElements(byteArray, byte, JNI_ABORT);
-    jniExceptionCheck(jniEnv);
+    if (byte == nullptr || !cpp_message.ParseFromArray(byte.get(), byte_len)) {
+      throw std::runtime_error(std::string("failed to parse protobuf type ") + std::string(cpp_message.GetTypeName()));
+    }
     return cpp_message;
   }
 
-  static LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
-    size_t size = message.ByteSizeLong();
-    jbyte* temp = new jbyte[size];
-    message.SerializeToArray(temp, static_cast<int>(size));
-    jbyteArray bytes = jniEnv->NewByteArray(size);
-    jniEnv->SetByteArrayRegion(bytes, 0, size, temp);
-    delete[] temp;
-    const auto& data = JniClass<JNIInfo>::get();
-    auto j = LocalRef<JniType>{jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes)};
-    jniExceptionCheck(jniEnv);
+  static ::djinni::LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
+    std::string buffer;
+    if (!message.SerializeToString(&buffer) || buffer.size() > static_cast<size_t>(std::numeric_limits<jsize>::max())) {
+      throw std::runtime_error(std::string("failed to serialize protobuf type ") + std::string(message.GetTypeName()));
+    }
+    const auto size = static_cast<jsize>(buffer.size());
+    ::djinni::LocalRef<jbyteArray> bytes { jniEnv->NewByteArray(size) };
+    ::djinni::jniExceptionCheck(jniEnv);
+    jniEnv->SetByteArrayRegion(bytes.get(), 0, size, reinterpret_cast<const jbyte*>(buffer.data()));
+    ::djinni::jniExceptionCheck(jniEnv);
+    const auto& data = ::djinni::JniClass<JNIInfo>::get();
+    ::djinni::LocalRef<JniType> j { jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes.get()) };
+    ::djinni::jniExceptionCheck(jniEnv);
     return j;
   }
 };
