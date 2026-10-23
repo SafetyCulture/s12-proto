@@ -40,6 +40,7 @@ func (g *generator) generateFile(f *file) (string, error) {
 		}
 	}
 
+	// Module mappings are not supported, so generated files need no proto module imports.
 	fileDefinesTypes := len(f.enums) > 0 || len(f.messages) > 0 || len(f.extensions) > 0
 	snippet := g.opts.importDirective
 	hasImports := false
