@@ -29,6 +29,20 @@ type Options struct {
 	MessagesOnly bool
 }
 
+// optionKeys names the plugin options.
+var optionKeys = map[string]bool{
+	"swift_module":    true,
+	"swift_messages":  true,
+	"kotlin_package":  true,
+	"kotlin_messages": true,
+	"messages_only":   true,
+}
+
+// IsOptionKey reports whether key is a plugin option.
+func IsOptionKey(key string) bool {
+	return optionKeys[key]
+}
+
 // ParseOptions reads a comma-separated protoc parameter string.
 func ParseOptions(parameter string) (Options, error) {
 	var opts Options

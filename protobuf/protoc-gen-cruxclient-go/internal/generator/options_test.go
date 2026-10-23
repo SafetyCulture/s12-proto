@@ -164,3 +164,18 @@ func TestParseOptionsNamesAnEmptyKey(t *testing.T) {
 		t.Fatalf("ParseOptions returned %v", err)
 	}
 }
+
+func TestOptionKeysAreParsed(t *testing.T) {
+	for key := range optionKeys {
+		opts, err := ParseOptions(key)
+		if err != nil {
+			t.Fatalf("ParseOptions(%q) returned %v", key, err)
+		}
+		if opts == (Options{}) {
+			t.Errorf("ParseOptions(%q) ignores the key", key)
+		}
+	}
+	if IsOptionKey("Visibility") || !IsOptionKey("messages_only") {
+		t.Error("IsOptionKey does not match the plugin options")
+	}
+}

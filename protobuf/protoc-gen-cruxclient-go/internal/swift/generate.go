@@ -23,8 +23,9 @@ type generator struct {
 }
 
 // Generate adds the Swift file of each file to generate to the response.
-func Generate(rw protoplugin.ResponseWriter, request protoplugin.Request) error {
-	opts, err := parseOptions(request.Parameter())
+// The function isPluginKey names the options of the other outputs of the plugin, which this output ignores.
+func Generate(rw protoplugin.ResponseWriter, request protoplugin.Request, isPluginKey func(key string) bool) error {
+	opts, err := parseOptions(request.Parameter(), isPluginKey)
 	if err != nil {
 		return err
 	}

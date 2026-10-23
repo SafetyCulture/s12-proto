@@ -74,7 +74,7 @@ func handle(
 		}
 	}
 	if opts.SwiftMessagesEnabled() {
-		if err := swift.Generate(responseWriter, request); err != nil {
+		if err := swift.Generate(responseWriter, request, generator.IsOptionKey); err != nil {
 			return fmt.Errorf("cruxclient-go: swift.Generate: %w", err)
 		}
 	}

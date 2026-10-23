@@ -67,13 +67,12 @@ func (o *options) enumAnnotation() string {
 	return ""
 }
 
-// ownKeys are the options of the other outputs of the plugin.
-var ownKeys = map[string]bool{
-	"swift_module":    true,
-	"swift_messages":  true,
-	"kotlin_package":  true,
-	"kotlin_messages": true,
-	"messages_only":   true,
+// splitNonEmpty splits a comma-separated value. An empty value has no part.
+func splitNonEmpty(value string) []string {
+	if value == "" {
+		return nil
+	}
+	return strings.Split(value, ",")
 }
 
 func parseBool(value string) (bool, bool) {
@@ -86,15 +85,16 @@ func parseBool(value string) (bool, bool) {
 	return false, false
 }
 
-// parseOptions reads the comma-separated parameter of a request.
-func parseOptions(parameter string) (*options, error) {
+// parseOptions reads the comma-separated parameter of a request. The options of the
+// other outputs of the plugin pass through: isPluginKey names them, and nil names none.
+func parseOptions(parameter string, isPluginKey func(key string) bool) (*options, error) {
 	opts := &options{visibility: "internal", swiftProtobufModule: "SwiftProtobuf"}
 	implementationOnly := false
 	if parameter != "" {
 		for _, part := range strings.Split(parameter, ",") {
 			key, value, _ := strings.Cut(part, "=")
 			key, value = strings.TrimSpace(key), strings.TrimSpace(value)
-			if ownKeys[key] {
+			if isPluginKey != nil && isPluginKey(key) {
 				continue
 			}
 			invalid := fmt.Errorf("unknown value %q for the option %s", value, key)
@@ -159,7 +159,7 @@ func parseOptions(parameter string) (*options, error) {
 				}
 			case "ExperimentalHiddenNames":
 				var names hiddenNames
-				for _, name := range strings.Split(value, ",") {
+				for _, name := range splitNonEmpty(value) {
 					switch strings.TrimSpace(name) {
 					case "Fields":
 						names |= hiddenFields

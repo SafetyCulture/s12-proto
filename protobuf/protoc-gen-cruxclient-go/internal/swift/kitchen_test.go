@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	cruxgen "github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-cruxclient-go/internal/generator"
 	"github.com/bufbuild/protocompile"
 	"github.com/bufbuild/protocompile/protoutil"
 	"github.com/stretchr/testify/require"
@@ -60,7 +61,7 @@ func TestKitchenGolden(t *testing.T) {
 		{"public", "Visibility=Public,FileNaming=PathToUnderscores"},
 	} {
 		t.Run(tt.dir, func(t *testing.T) {
-			opts, err := parseOptions(tt.parameter)
+			opts, err := parseOptions(tt.parameter, nil)
 			require.NoError(t, err)
 			out, err := render(protos, kitchenFiles, opts)
 			require.NoError(t, err)
@@ -88,17 +89,21 @@ func TestKitchenGolden(t *testing.T) {
 }
 
 func TestParseOptions(t *testing.T) {
-	opts, err := parseOptions("swift_messages=S12Protos,messages_only,Visibility=Public,FileNaming=pathToUnderscores,kotlin_messages")
+	opts, err := parseOptions("swift_messages=S12Protos,messages_only,Visibility=Public,FileNaming=pathToUnderscores,kotlin_messages", cruxgen.IsOptionKey)
 	require.NoError(t, err)
 	require.Equal(t, "public ", opts.visibilitySnippet())
 	require.Equal(t, "s12_assets_v1_asset.pb.swift", opts.outputFilename("s12/assets/v1/asset.proto"))
 
-	opts, err = parseOptions("")
+	opts, err = parseOptions("", nil)
 	require.NoError(t, err)
 	require.Equal(t, "", opts.visibilitySnippet())
 	require.Equal(t, "s12/assets/v1/asset.pb.swift", opts.outputFilename("s12/assets/v1/asset.proto"))
 
-	opts, err = parseOptions("FileNaming=DropPath")
+	opts, err = parseOptions("ExperimentalHiddenNames=", nil)
+	require.NoError(t, err)
+	require.Zero(t, opts.hiddenNames)
+
+	opts, err = parseOptions("FileNaming=DropPath", nil)
 	require.NoError(t, err)
 	require.Equal(t, "asset.pb.swift", opts.outputFilename("s12/assets/v1/asset.proto"))
 
@@ -107,7 +112,7 @@ func TestParseOptions(t *testing.T) {
 		"ImplementationOnlyImports=true,UseAccessLevelOnImports=true", "ImplementationOnlyImports=true,Visibility=Public",
 		"SwiftProtobufModuleName=1x",
 	} {
-		_, err := parseOptions(bad)
+		_, err := parseOptions(bad, nil)
 		require.Error(t, err, bad)
 	}
 }
@@ -154,7 +159,7 @@ func TestInternalErrorNamesFile(t *testing.T) {
 		Syntax:   proto.String("proto3"),
 		EnumType: []*descriptorpb.EnumDescriptorProto{{Name: proto.String("Empty")}},
 	}
-	opts, err := parseOptions("")
+	opts, err := parseOptions("", nil)
 	require.NoError(t, err)
 	_, err = render([]*descriptorpb.FileDescriptorProto{broken}, []string{"broken.proto"}, opts)
 	require.ErrorContains(t, err, "internal error of the Swift generator on broken.proto")

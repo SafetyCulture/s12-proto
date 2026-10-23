@@ -56,7 +56,7 @@ func readLines(t *testing.T, path string) []string {
 // It lists each difference, so one run shows the whole gap.
 func compareCorpus(t *testing.T, protos []*descriptorpb.FileDescriptorProto, names []string, goldenDir string) {
 	t.Helper()
-	opts, err := parseOptions(goldenParameter)
+	opts, err := parseOptions(goldenParameter, nil)
 	require.NoError(t, err)
 	out, err := render(protos, names, opts)
 	require.NoError(t, err)
