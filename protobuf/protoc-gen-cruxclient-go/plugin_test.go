@@ -783,3 +783,14 @@ func TestKeywordDjinniGoldens(t *testing.T) {
 	require.Contains(t, output["keyword/keyword.djinni.swiftxx.h"], "using CppType = ::keyword::private_::v1::Holder::class_;")
 	require.Contains(t, output["keyword/keyword.djinni.kotlin.jni.h"], "using CppType = ::keyword::private_::v1::NULL_;")
 }
+
+// TestDjinniYAMLEscapesLegacyValues checks that a quote in a file path is doubled in the values
+// that the plugin writes without an option.
+func TestDjinniYAMLEscapesLegacyValues(t *testing.T) {
+	output := runPlugin(t, map[string]string{"q/it's.proto": "syntax = \"proto3\";\npackage q.v1;\nmessage M {}\n"},
+		[]string{"q/it's.proto"})
+	yaml := output["q/it's.djinni.yaml"]
+	require.Contains(t, yaml, "  header: '\"q/it''s.pb.h\"'\n")
+	require.Contains(t, yaml, "  header: '\"q/it''s.djinni.objc.h\"'\n")
+	require.Contains(t, yaml, "  header: '\"q/it''s.djinni.jni.h\"'\n")
+}

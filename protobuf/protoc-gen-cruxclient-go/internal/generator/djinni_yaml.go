@@ -127,33 +127,33 @@ func writeDjinniYAMLRecord(w *codegen.CodeWriter,
 	w.WL("prefix: 'pb'")
 
 	w.WL("cpp:")
-	w.WL("  typename: '%s'", cppTypeName)
-	w.WL("  header: '\"%s.pb.h\"'", baseName)
+	w.WL("  typename: '%s'", yamlValue(cppTypeName))
+	w.WL("  header: '\"%s.pb.h\"'", yamlValue(baseName))
 	w.WL("  byValue: false")
 
 	w.WL("objc:")
-	w.WL("  typename: '%s%s'", objcClassPrefix, messageName)
-	w.WL("  header: '\"%s_%s.pbobjc.h\"'", dir, fileNameCamel)
-	w.WL("  boxed: '%s%s'", objcClassPrefix, messageName)
+	w.WL("  typename: '%s%s'", yamlValue(objcClassPrefix), yamlValue(messageName))
+	w.WL("  header: '\"%s_%s.pbobjc.h\"'", yamlValue(dir), yamlValue(fileNameCamel))
+	w.WL("  boxed: '%s%s'", yamlValue(objcClassPrefix), yamlValue(messageName))
 	w.WL("  pointer: true")
 	w.WL("  hash: '%s.hash()'")
 
 	w.WL("objcpp:")
-	w.WL("  translator: 'djinni::%s::Translator'", cppTypeName)
-	w.WL("  header: '\"%s.djinni.objc.h\"'", mainFileName)
+	w.WL("  translator: 'djinni::%s::Translator'", yamlValue(cppTypeName))
+	w.WL("  header: '\"%s.djinni.objc.h\"'", yamlValue(mainFileName))
 
 	w.WL("java:")
-	w.WL("  typename: '%s.%s'", javaPackage, javaMessageBoxName)
-	w.WL("  boxed: '%s.%s'", javaPackage, javaMessageBoxName)
+	w.WL("  typename: '%s.%s'", yamlValue(javaPackage), yamlValue(javaMessageBoxName))
+	w.WL("  boxed: '%s.%s'", yamlValue(javaPackage), yamlValue(javaMessageBoxName))
 	w.WL("  reference: true")
 	w.WL("  generic: false")
 	w.WL("  hash: '%s.hashCode()'")
 
 	w.WL("jni:")
-	w.WL("  translator: 'djinni::%s::Translator'", cppTypeName)
-	w.WL("  header: '\"%s.djinni.jni.h\"'", mainFileName)
+	w.WL("  translator: 'djinni::%s::Translator'", yamlValue(cppTypeName))
+	w.WL("  header: '\"%s.djinni.jni.h\"'", yamlValue(mainFileName))
 	w.WL("  typename: jobject")
-	w.WL("  typeSignature: 'L%s/%s;'", javaPackageSlashes, javaMessageName)
+	w.WL("  typeSignature: 'L%s/%s;'", yamlValue(javaPackageSlashes), yamlValue(javaMessageName))
 	if kotlin != nil {
 		w.WL("  kotlinTranslator: '%s'", yamlValue(kotlin.translator))
 		w.WL("  kotlinHeader: '%s'", yamlValue("\""+kotlin.translatorHdr+"\""))
@@ -175,7 +175,7 @@ func writeDjinniYAMLRecord(w *codegen.CodeWriter,
 	if wirePackage != "" || kotlin != nil {
 		w.WL("kotlin:")
 		if wirePackage != "" {
-			w.WL("  typename: '%s.%s'", wirePackage, javaMessageBoxName)
+			w.WL("  typename: '%s.%s'", yamlValue(wirePackage), yamlValue(javaMessageBoxName))
 			w.WL("  isProtobufMessage: true")
 		}
 		if kotlin != nil {
