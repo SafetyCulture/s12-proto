@@ -6,8 +6,14 @@ protoc = "36.1"
 "go:google.golang.org/protobuf/cmd/protoc-gen-go" = "latest"
 
 [tasks.build]
-description = "Build all packages"
-run = "go build ./..."
+description = "Build all packages (root module and the plugin modules)"
+run = """
+set -eu
+go build ./...
+for d in protobuf/protoc-gen-cruxclient-go; do
+  (cd "$d" && go build ./...)
+done
+"""
 
 [tasks.vet]
 description = "Run go vet (root module and the plugin modules)"
