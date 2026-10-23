@@ -510,6 +510,22 @@ func TestKotlinKeywordNameCollisions(t *testing.T) {
 			},
 			want: `object and object_ map to the same Kotlin name "object_"`,
 		},
+		{
+			name: "enum",
+			file: &descriptorpb.FileDescriptorProto{
+				Name:    proto.String("collision.proto"),
+				Syntax:  proto.String("proto2"),
+				Package: proto.String("collision.v1"),
+				EnumType: []*descriptorpb.EnumDescriptorProto{{
+					Name: proto.String("E"),
+					Value: []*descriptorpb.EnumValueDescriptorProto{
+						{Name: proto.String("name"), Number: proto.Int32(0)},
+						{Name: proto.String("name_"), Number: proto.Int32(2)},
+					},
+				}},
+			},
+			want: `name and name_ map to the same Kotlin name "name_"`,
+		},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
