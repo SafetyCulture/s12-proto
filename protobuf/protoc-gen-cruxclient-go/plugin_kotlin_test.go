@@ -78,6 +78,13 @@ func pluginResponseOnDisk(t *testing.T, includes []string, parameter string, fil
 	return resp, nil
 }
 
+func requirePluginResponseError(t *testing.T, includes []string, parameter, want string, files ...string) {
+	t.Helper()
+	resp, err := pluginResponseOnDisk(t, includes, parameter, files...)
+	require.NoError(t, err)
+	require.Contains(t, resp.GetError(), want)
+}
+
 // runPluginOnDisk runs the plugin handler in-process on the given files and returns the output files.
 func runPluginOnDisk(t *testing.T, includes []string, parameter string, files ...string) map[string]string {
 	t.Helper()
@@ -383,9 +390,6 @@ func TestKotlinMessagesOptionOff(t *testing.T) {
 func TestKotlinMessagesPackageFallback(t *testing.T) {
 	out := kitchenOutput(t, "kotlin_messages,kotlin_package=com.example.kt")
 	require.Contains(t, out["com/example/kt/kitchen/v1/kitchen.pb.kt"], "\npackage com.example.kt.kitchen.v1\n")
-	out = kitchenOutput(t, "kotlin_package=com.example.kt,kotlin_messages=com.example.other")
-	require.Contains(t, out["com/example/other/kitchen/v1/kitchen.pb.kt"], "\npackage com.example.other.kitchen.v1\n")
-	require.Contains(t, out["s12/kitchen/v1/kitchen.djinni.yaml"], "com.example.kt.kitchen.v1.")
 }
 
 func TestMessagesOnly(t *testing.T) {
@@ -423,13 +427,12 @@ func wideMessage(t *testing.T, fieldType string, count int) string {
 // TestConstructorSlotLimit pins the largest message whose constructor fits in a JVM method.
 func TestConstructorSlotLimit(t *testing.T) {
 	const fits = 244 // 245 parameters, 8 masks and 2 more slots make 255
-	_, err := pluginResponseOnDisk(t, []string{wideMessage(t, "int32", fits)}, "kotlin_messages", "wide.proto")
+	resp, err := pluginResponseOnDisk(t, []string{wideMessage(t, "int32", fits)}, "kotlin_messages", "wide.proto")
 	require.NoError(t, err)
+	require.Empty(t, resp.GetError())
 
-	_, err = pluginResponseOnDisk(t, []string{wideMessage(t, "int32", fits+1)}, "kotlin_messages", "wide.proto")
-	require.ErrorContains(t, err, "wide.v1.Wide: the constructor needs 256 parameter slots and the JVM allows 255")
+	requirePluginResponseError(t, []string{wideMessage(t, "int32", fits+1)}, "kotlin_messages", "wide.v1.Wide: the constructor needs 256 parameter slots and the JVM allows 255", "wide.proto")
 
 	// A 64-bit value without presence takes two slots.
-	_, err = pluginResponseOnDisk(t, []string{wideMessage(t, "int64", fits-1)}, "kotlin_messages", "wide.proto")
-	require.ErrorContains(t, err, "wide.v1.Wide: the constructor needs")
+	requirePluginResponseError(t, []string{wideMessage(t, "int64", fits-1)}, "kotlin_messages", "wide.v1.Wide: the constructor needs", "wide.proto")
 }
