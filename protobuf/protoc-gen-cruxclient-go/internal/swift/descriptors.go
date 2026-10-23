@@ -193,10 +193,10 @@ func (r *registry) addFile(fp *descriptorpb.FileDescriptorProto) (*file, error) 
 	case fp.GetSyntax() == "proto3":
 		f.edition = descriptorpb.Edition_EDITION_PROTO3
 	default:
-		return nil, fmt.Errorf("%s: unknown syntax %q", f.name, fp.GetSyntax())
+		return nil, fmt.Errorf("unknown syntax %q", fp.GetSyntax())
 	}
 	if f.edition < descriptorpb.Edition_EDITION_PROTO2 || f.edition > descriptorpb.Edition_EDITION_2023 {
-		return nil, fmt.Errorf("%s: edition %s is not supported", f.name, f.edition)
+		return nil, fmt.Errorf("edition %s is not supported", f.edition)
 	}
 	f.features = resolveFeatures(defaultFeatures(f.edition), fp.GetOptions().GetFeatures())
 
@@ -209,7 +209,7 @@ func (r *registry) addFile(fp *descriptorpb.FileDescriptorProto) (*file, error) 
 	}
 	for _, i := range fp.GetPublicDependency() {
 		if i < 0 || int(i) >= len(f.deps) {
-			return nil, fmt.Errorf("%s: public dependency index %d is out of range", f.name, i)
+			return nil, fmt.Errorf("public dependency index %d is out of range", i)
 		}
 		f.publicDeps = append(f.publicDeps, f.deps[i])
 	}
@@ -296,7 +296,7 @@ func (r *registry) newMessage(mp *descriptorpb.DescriptorProto, index int, f *fi
 	for i, fp := range mp.GetField() {
 		oneofIndex := int(fp.GetOneofIndex())
 		if fp.OneofIndex != nil && (oneofIndex < 0 || oneofIndex >= len(m.oneofs)) {
-			return nil, fmt.Errorf("%s: field %s has oneof index %d out of range", f.name, fp.GetName(), oneofIndex)
+			return nil, fmt.Errorf("field %s has oneof index %d out of range", fp.GetName(), oneofIndex)
 		}
 		parentFeatures := m.features
 		if fp.OneofIndex != nil && !fp.GetProto3Optional() {

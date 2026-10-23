@@ -20,7 +20,7 @@ func TestBuildFilesRejectsInvalidIndexes(t *testing.T) {
 			PublicDependency: []int32{1},
 		},
 	})
-	require.ErrorContains(t, err, "broken-public.proto: public dependency index 1 is out of range")
+	require.EqualError(t, err, "add file broken-public.proto: public dependency index 1 is out of range")
 	require.NotContains(t, err.Error(), "goroutine")
 
 	_, err = buildFiles([]*descriptorpb.FileDescriptorProto{{
@@ -38,7 +38,7 @@ func TestBuildFilesRejectsInvalidIndexes(t *testing.T) {
 			}},
 		}},
 	}})
-	require.ErrorContains(t, err, "broken-oneof.proto: field value has oneof index 1 out of range")
+	require.EqualError(t, err, "add file broken-oneof.proto: add message Message: field value has oneof index 1 out of range")
 	require.NotContains(t, err.Error(), "goroutine")
 }
 
@@ -67,5 +67,5 @@ func TestBuildFilesRejectsUnsupportedEdition(t *testing.T) {
 		Name:    proto.String("edition-2024.proto"),
 		Edition: descriptorpb.Edition_EDITION_2024.Enum(),
 	}})
-	require.ErrorContains(t, err, "edition-2024.proto: edition EDITION_2024 is not supported")
+	require.EqualError(t, err, "add file edition-2024.proto: edition EDITION_2024 is not supported")
 }
