@@ -858,9 +858,9 @@ func (g *fileGen) companion(msg protoreflect.MessageDescriptor, qualified string
 					g.w.line("var n_%s = 0", oi.prop)
 					// A message member that a later member replaces is parsed here, once, so invalid
 					// bytes in it are refused as in Java lite.
-					g.w.open("fun c_%s(reader: %s, s: %s?, n: kotlin.Int) {", oi.prop, g.rt("WireReader"), g.rt("Sections"))
-					g.w.line("val _s = s ?: return")
-					g.w.open("when (n) {")
+					g.w.open("fun c_%s(reader: %s, s_%s: %s?, n_%s: kotlin.Int) {", oi.prop, g.rt("WireReader"), oi.prop, g.rt("Sections"), oi.prop)
+					g.w.line("val _s = s_%s ?: return", oi.prop)
+					g.w.open("when (n_%s) {", oi.prop)
 					for _, m := range oi.fields {
 						if m.fd.Message() != nil {
 							g.w.line("%d -> reader.readSections(%s, _s)", m.fd.Number(), QualifiedClassName(m.fd.Message(), g.root))

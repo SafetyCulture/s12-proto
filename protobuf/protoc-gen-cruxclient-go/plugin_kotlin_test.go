@@ -486,6 +486,14 @@ func TestRequiredMessageCyclesRejectMissingFields(t *testing.T) {
 	}
 }
 
+func TestKotlinOneofCallbackDoesNotShadowRoot(t *testing.T) {
+	dir := t.TempDir()
+	source := "syntax = \"proto3\";\npackage rq.v1;\nmessage Leaf {} message Holder { oneof k { Leaf child = 1; int32 n = 2; } }\n"
+	require.NoError(t, os.WriteFile(filepath.Join(dir, "callback.proto"), []byte(source), 0o644))
+	out := runPluginOnDisk(t, []string{dir}, "kotlin_messages=n.acme", "callback.proto")
+	require.Contains(t, out["n/acme/rq/v1/callback.pb.kt"], "fun c_k(reader: n.acme.wire.WireReader, s_k: n.acme.wire.Sections?, n_k: kotlin.Int)")
+}
+
 func TestMissingRequiredIsNotConstructorArgument(t *testing.T) {
 	source := kitchenOutput(t, "kotlin_messages")["com/safetyculture/s12kt/kitchen/legacy/legacy.pb.kt"]
 	require.Contains(t, source, "internal var missingRequired: kotlin.Long = 0L")

@@ -949,9 +949,9 @@ public data class PartialHolder(
             var v_pick: com.safetyculture.s12kt.kitchen.legacy.PartialHolder.Pick? = null
             var s_pick: com.safetyculture.s12kt.wire.Sections? = null
             var n_pick = 0
-            fun c_pick(reader: com.safetyculture.s12kt.wire.WireReader, s: com.safetyculture.s12kt.wire.Sections?, n: kotlin.Int) {
-                val _s = s ?: return
-                when (n) {
+            fun c_pick(reader: com.safetyculture.s12kt.wire.WireReader, s_pick: com.safetyculture.s12kt.wire.Sections?, n_pick: kotlin.Int) {
+                val _s = s_pick ?: return
+                when (n_pick) {
                     1 -> reader.readSections(com.safetyculture.s12kt.kitchen.legacy.PartialWrap, _s)
                 }
             }

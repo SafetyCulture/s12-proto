@@ -1318,18 +1318,18 @@ public data class Oneofs(
             var v_choice: com.safetyculture.s12kt.kitchen.v1.Oneofs.Choice? = null
             var s_choice: com.safetyculture.s12kt.wire.Sections? = null
             var n_choice = 0
-            fun c_choice(reader: com.safetyculture.s12kt.wire.WireReader, s: com.safetyculture.s12kt.wire.Sections?, n: kotlin.Int) {
-                val _s = s ?: return
-                when (n) {
+            fun c_choice(reader: com.safetyculture.s12kt.wire.WireReader, s_choice: com.safetyculture.s12kt.wire.Sections?, n_choice: kotlin.Int) {
+                val _s = s_choice ?: return
+                when (n_choice) {
                     4 -> reader.readSections(com.safetyculture.s12kt.kitchen.v1.Scalars, _s)
                 }
             }
             var v_other: com.safetyculture.s12kt.kitchen.v1.Oneofs.Other? = null
             var s_other: com.safetyculture.s12kt.wire.Sections? = null
             var n_other = 0
-            fun c_other(reader: com.safetyculture.s12kt.wire.WireReader, s: com.safetyculture.s12kt.wire.Sections?, n: kotlin.Int) {
-                val _s = s ?: return
-                when (n) {
+            fun c_other(reader: com.safetyculture.s12kt.wire.WireReader, s_other: com.safetyculture.s12kt.wire.Sections?, n_other: kotlin.Int) {
+                val _s = s_other ?: return
+                when (n_other) {
                     21 -> reader.readSections(com.safetyculture.s12kt.kitchen.v1.Oneofs, _s)
                 }
             }
@@ -1717,9 +1717,9 @@ public data class Outer(
             var v_choice: com.safetyculture.s12kt.kitchen.v1.Outer.ChoiceOneof? = null
             var s_choice: com.safetyculture.s12kt.wire.Sections? = null
             var n_choice = 0
-            fun c_choice(reader: com.safetyculture.s12kt.wire.WireReader, s: com.safetyculture.s12kt.wire.Sections?, n: kotlin.Int) {
-                val _s = s ?: return
-                when (n) {
+            fun c_choice(reader: com.safetyculture.s12kt.wire.WireReader, s_choice: com.safetyculture.s12kt.wire.Sections?, n_choice: kotlin.Int) {
+                val _s = s_choice ?: return
+                when (n_choice) {
                     6 -> reader.readSections(com.safetyculture.s12kt.kitchen.v1.Outer.Choice, _s)
                 }
             }
