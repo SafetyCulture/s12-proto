@@ -102,6 +102,10 @@ type nameInstructionWriter struct {
 	err            error
 }
 
+// newNameWriter makes the name-map writer of a message or enum. A test replaces it to reach the
+// order error, which valid descriptors cannot cause.
+var newNameWriter = newNameInstructionWriter
+
 func newNameInstructionWriter() *nameInstructionWriter {
 	return &nameInstructionWriter{bytecode: newBytecodeWriter()}
 }

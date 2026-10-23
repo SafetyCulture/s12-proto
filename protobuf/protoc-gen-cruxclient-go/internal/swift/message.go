@@ -190,7 +190,7 @@ func (mg *messageGen) generateProtoNameProviding(p *printer) {
 		p.print(fmt.Sprintf("%sstatic let _protobuf_nameMap = %s_NameMap()", mg.visibility, rt))
 		return
 	}
-	w := newNameInstructionWriter()
+	w := newNameWriter()
 	for _, f := range mg.fieldsByNumber {
 		f.writeProtoNameInstruction(w)
 	}

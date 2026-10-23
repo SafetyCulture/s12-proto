@@ -124,7 +124,7 @@ func (e *enumGen) generateProtoNameProviding(p *printer) {
 		p.print(fmt.Sprintf("%sstatic let _protobuf_nameMap = %s_NameMap()", visibility, rt))
 		return
 	}
-	w := newNameInstructionWriter()
+	w := newNameWriter()
 	for _, v := range e.mainSorted {
 		jsonName, hasJSON := v.jsonOption()
 		aliases := e.aliasInfo.aliases(v)
