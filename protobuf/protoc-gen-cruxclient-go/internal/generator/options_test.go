@@ -108,6 +108,8 @@ func TestParseOptionsRejectsInvalidInput(t *testing.T) {
 		"messages_only",
 		"kotlin_package,messages_only",
 		"swift_module,messages_only",
+		"swift_messages=false",
+		"Visibility=Public",
 		"kotlin_package=com/example",
 		"kotlin_package=com..example",
 		"kotlin_package=class",
@@ -130,9 +132,7 @@ func TestParseSwiftMessages(t *testing.T) {
 		{"", false},
 		{"swift_module", false},
 		{"swift_messages", true},
-		{"swift_messages=", true},
-		{"swift_messages=Custom", true},
-		{"Visibility=Public, swift_messages ", true},
+		{"Visibility=Public, swift_messages", true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.parameter, func(t *testing.T) {

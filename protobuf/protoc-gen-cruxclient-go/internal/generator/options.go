@@ -46,14 +46,14 @@ var optionSetters = map[string]func(p *parsedOptions, value string){
 }
 
 var swiftOptionKeys = map[string]bool{
-	"EnumGeneration":                     true,
-	"ExperimentalHiddenNames":             true,
-	"FileNaming":                          true,
-	"ImplementationOnlyImports":           true,
-	"ProtoPathModuleMappings":             true,
-	"SwiftProtobufModuleName":             true,
-	"UseAccessLevelOnImports":             true,
-	"Visibility":                          true,
+	"EnumGeneration":                           true,
+	"ExperimentalHiddenNames":                  true,
+	"FileNaming":                               true,
+	"ImplementationOnlyImports":                true,
+	"ProtoPathModuleMappings":                  true,
+	"SwiftProtobufModuleName":                  true,
+	"UseAccessLevelOnImports":                  true,
+	"Visibility":                               true,
 	"experimental_strip_nonfunctional_codegen": true,
 }
 
@@ -62,12 +62,12 @@ func IsOptionKey(key string) bool {
 	return optionSetters[key] != nil || key == "paths"
 }
 
-
 // ParseOptions reads a comma-separated protoc parameter string.
 func ParseOptions(parameter string) (Options, error) {
 	var parsed parsedOptions
+	var firstSwiftOption string
 	for _, item := range strings.Split(parameter, ",") {
-		key, value, _ := strings.Cut(item, "=")
+		key, value, hasValue := strings.Cut(item, "=")
 		key = strings.TrimSpace(key)
 		value = strings.TrimSpace(value)
 		if key == "" {
@@ -77,13 +77,25 @@ func ParseOptions(parameter string) (Options, error) {
 			return Options{}, fmt.Errorf("cruxclient-go: empty option key in %q", item)
 		}
 		if set := optionSetters[key]; set != nil {
+			if hasValue && (key == "swift_messages" || key == "messages_only") {
+				return Options{}, fmt.Errorf("cruxclient-go: option %q does not accept a value", key)
+			}
 			set(&parsed, value)
 			continue
 		}
-		if key == "paths" || swiftOptionKeys[key] {
+		if key == "paths" {
+			continue
+		}
+		if swiftOptionKeys[key] {
+			if firstSwiftOption == "" {
+				firstSwiftOption = key
+			}
 			continue
 		}
 		return Options{}, fmt.Errorf("cruxclient-go: unknown option %q", key)
+	}
+	if firstSwiftOption != "" && !parsed.SwiftMessages {
+		return Options{}, fmt.Errorf("cruxclient-go: option %q requires swift_messages", firstSwiftOption)
 	}
 	if parsed.MessagesOnly && !parsed.kotlinMessages && !parsed.SwiftMessages {
 		return Options{}, fmt.Errorf("cruxclient-go: messages_only requires swift_messages or kotlin_messages")

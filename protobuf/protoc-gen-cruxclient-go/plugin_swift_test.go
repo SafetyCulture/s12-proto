@@ -5,6 +5,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"errors"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -55,7 +56,9 @@ func runPluginRequest(t *testing.T, protoSources map[string]string, filesToGener
 	}
 	resp := &pluginpb.CodeGeneratorResponse{}
 	require.NoError(t, proto.Unmarshal(stdout.Bytes(), resp))
-	require.Empty(t, resp.GetError())
+	if resp.GetError() != "" {
+		return nil, stderr.String(), errors.New(resp.GetError())
+	}
 	output := map[string]string{}
 	for _, f := range resp.GetFile() {
 		output[f.GetName()] = f.GetContent()
@@ -116,8 +119,19 @@ func TestMessagesOnlyWithoutMessagesFails(t *testing.T) {
 func TestSwiftMessagesRejectsUnknownOption(t *testing.T) {
 	_, _, err := runPluginRequest(t, messageProtoSources(t), []string{"routeguide/v1/message.proto"}, "swift_messages,Visibilty=Public")
 
-	require.ErrorContains(t, err, "cruxclient-go: swift.Generate: ")
+	require.ErrorContains(t, err, "cruxclient-go: unknown option")
 	require.ErrorContains(t, err, "Visibilty")
+}
+
+func TestSwiftOptionValidation(t *testing.T) {
+	for _, parameter := range []string{
+		"swift_messages=false",
+		"Visibility=Public",
+		"swift_mesages",
+	} {
+		_, _, err := runPluginRequest(t, messageProtoSources(t), []string{"routeguide/v1/message.proto"}, parameter)
+		require.Error(t, err, parameter)
+	}
 }
 
 // TestSwiftMessagesKitchenThroughPlugin runs protos with a message set, groups and
