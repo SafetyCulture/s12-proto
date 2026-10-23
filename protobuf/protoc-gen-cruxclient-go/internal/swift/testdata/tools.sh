@@ -1,4 +1,4 @@
-# Shared by regen.sh and regen-control.sh. Sourced, not run.
+# Shared by regen.sh and regen-control.sh, which source it. It has no action of its own.
 #
 # Finds or builds the tools. Versions are pinned here:
 #   protoc-gen-swift  swift-protobuf tag 1.38.1, the version the iOS app links
