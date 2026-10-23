@@ -10,8 +10,10 @@ import (
 
 	"github.com/bufbuild/protoplugin"
 	"google.golang.org/protobuf/reflect/protoreflect"
+	"google.golang.org/protobuf/types/descriptorpb"
 
 	"github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-cruxclient-go/internal/generator"
+	"github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-cruxclient-go/internal/kotlin"
 )
 
 func main() {
@@ -28,6 +30,8 @@ func handle(
 	responseWriter protoplugin.ResponseWriter,
 	request protoplugin.Request,
 ) error {
+	responseWriter.SetFeatureProto3Optional()
+	responseWriter.SetFeatureSupportsEditions(descriptorpb.Edition_EDITION_PROTO2, descriptorpb.Edition_EDITION_2023)
 	fileDescriptors, err := request.FileDescriptorsToGenerate()
 	if err != nil {
 		return err
@@ -44,6 +48,11 @@ func handle(
 		generateAPISource(responseWriter, fileDesc)
 		generateMock(responseWriter, fileDesc)
 		generateDjinniSupport(responseWriter, fileDesc, opts)
+	}
+	if opts.KotlinMessagesEnabled() {
+		if err := kotlin.Generate(responseWriter, fileDescriptors, opts.KotlinMessages); err != nil {
+			return err
+		}
 	}
 	return nil
 }

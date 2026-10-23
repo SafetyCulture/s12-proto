@@ -24,10 +24,10 @@ import (
 	"google.golang.org/protobuf/types/pluginpb"
 )
 
-var update = flag.Bool("update", false, "rewrite the golden files in testdata/golden")
+var update = flag.Bool("update", false, "rewrite the golden files in testdata/kotlin/golden")
 
-// compile compiles proto files from the given include directories, plus the standard imports.
-func compile(t *testing.T, includes []string, files ...string) linker.Files {
+// compileOnDisk compiles proto files from the given include directories, plus the standard imports.
+func compileOnDisk(t *testing.T, includes []string, files ...string) linker.Files {
 	t.Helper()
 	compiler := protocompile.Compiler{
 		Resolver:       protocompile.WithStandardImports(&protocompile.SourceResolver{ImportPaths: includes}),
@@ -38,10 +38,10 @@ func compile(t *testing.T, includes []string, files ...string) linker.Files {
 	return compiled
 }
 
-// runPlugin runs the plugin handler in-process on the given files and returns the output files.
-func runPlugin(t *testing.T, includes []string, parameter string, files ...string) map[string]string {
+// runPluginOnDisk runs the plugin handler in-process on the given files and returns the output files.
+func runPluginOnDisk(t *testing.T, includes []string, parameter string, files ...string) map[string]string {
 	t.Helper()
-	compiled := compile(t, includes, files...)
+	compiled := compileOnDisk(t, includes, files...)
 
 	seen := map[string]bool{}
 	var protoFiles []*descriptorpb.FileDescriptorProto
@@ -83,21 +83,22 @@ var kitchenFiles = []string{"s12/kitchen/v1/kitchen.proto", "legacy/legacy.proto
 
 func kitchenOutput(t *testing.T, parameter string) map[string]string {
 	t.Helper()
-	return runPlugin(t, []string{"testdata/kitchen"}, parameter, kitchenFiles...)
+	return runPluginOnDisk(t, []string{"testdata/kotlin/kitchen"}, parameter, kitchenFiles...)
 }
 
 func TestKitchenGolden(t *testing.T) {
-	out := kitchenOutput(t, "")
+	out := kitchenOutput(t, "kotlin_messages")
 	names := make([]string, 0, len(out))
 	for name := range out {
-		// TestRuntimeHasNoImports covers the runtime file, which is a copy of its source.
-		if !strings.HasSuffix(name, "S12Wire.kt") {
+		// TestRuntimeHasNoImports covers the runtime file, which is a copy of its source. The other
+		// generated files are not Kotlin messages.
+		if strings.HasSuffix(name, ".pb.kt") {
 			names = append(names, name)
 		}
 	}
 	sort.Strings(names)
 	for _, name := range names {
-		golden := filepath.Join("testdata", "golden", name)
+		golden := filepath.Join("testdata", "kotlin", "golden", name)
 		if *update {
 			require.NoError(t, os.MkdirAll(filepath.Dir(golden), 0o755))
 			require.NoError(t, os.WriteFile(golden, []byte(out[name]), 0o644))
@@ -109,7 +110,7 @@ func TestKitchenGolden(t *testing.T) {
 	}
 	if !*update {
 		var goldens []string
-		require.NoError(t, filepath.Walk(filepath.Join("testdata", "golden"), func(path string, info os.FileInfo, err error) error {
+		require.NoError(t, filepath.Walk(filepath.Join("testdata", "kotlin", "golden"), func(path string, info os.FileInfo, err error) error {
 			if err == nil && !info.IsDir() {
 				goldens = append(goldens, path)
 			}
@@ -120,17 +121,17 @@ func TestKitchenGolden(t *testing.T) {
 }
 
 func TestPackageOption(t *testing.T) {
-	out := kitchenOutput(t, "kotlin_package=com.example.kt")
+	out := kitchenOutput(t, "kotlin_messages=com.example.kt")
 	require.Contains(t, out["s12/kitchen/v1/kitchen.pb.kt"], "\npackage com.example.kt.kitchen.v1\n")
 	require.Contains(t, out, "com/example/kt/wire/S12Wire.kt")
 	require.Contains(t, out["com/example/kt/wire/S12Wire.kt"], "\npackage com.example.kt.wire\n")
 
-	out = kitchenOutput(t, "kotlin_package")
+	out = kitchenOutput(t, "kotlin_messages")
 	require.Contains(t, out["s12/kitchen/v1/kitchen.pb.kt"], "\npackage com.safetyculture.s12kt.kitchen.v1\n")
 }
 
 func TestRuntimeHasNoImports(t *testing.T) {
-	runtime := kitchenOutput(t, "")["com/safetyculture/s12kt/wire/S12Wire.kt"]
+	runtime := kitchenOutput(t, "kotlin_messages")["com/safetyculture/s12kt/wire/S12Wire.kt"]
 	require.NotEmpty(t, runtime)
 	require.NotRegexp(t, regexp.MustCompile(`(?m)^import `), runtime)
 	require.NotContains(t, runtime, "com.google")
@@ -240,8 +241,8 @@ func checkNullability(t *testing.T, source string, md protoreflect.MessageDescri
 }
 
 func TestKitchenNullability(t *testing.T) {
-	out := kitchenOutput(t, "")
-	compiled := compile(t, []string{"testdata/kitchen"}, kitchenFiles...)
+	out := kitchenOutput(t, "kotlin_messages")
+	compiled := compileOnDisk(t, []string{"testdata/kotlin/kitchen"}, kitchenFiles...)
 	for _, fd := range compiled {
 		source := out[strings.TrimSuffix(fd.Path(), ".proto")+".pb.kt"]
 		for i := 0; i < fd.Messages().Len(); i++ {
@@ -281,25 +282,41 @@ func TestAssetNullability(t *testing.T) {
 	repo, err := filepath.Abs("../..")
 	require.NoError(t, err)
 	includes := []string{filepath.Join(schema, "protos"), filepath.Join(schema, "third_party"), repo}
-	out := runPlugin(t, includes, "", "s12/assets/v1/asset.proto")
+	out := runPluginOnDisk(t, includes, "kotlin_messages", "s12/assets/v1/asset.proto")
 	source := "\n" + out["s12/assets/v1/asset.pb.kt"]
 	require.NotEqual(t, "\n", source)
 
 	types, _ := constructorTypes(t, source, 0, 0, "Asset")
 	require.Equal(t, assetNullability, types)
 
-	asset := compile(t, includes, "s12/assets/v1/asset.proto")[0].Messages().ByName("Asset")
+	asset := compileOnDisk(t, includes, "s12/assets/v1/asset.proto")[0].Messages().ByName("Asset")
 	checkNullability(t, source, asset, 0, 0)
 }
 
 // TestClosedEnum checks that only an enum that the schema marks as closed keeps an unknown number
 // in the unknown fields.
 func TestClosedEnum(t *testing.T) {
-	out := kitchenOutput(t, "")
+	out := kitchenOutput(t, "kotlin_messages")
 	source := out["editions/closed.pb.kt"]
 	require.Contains(t, source, "Closed.UNRECOGNIZED) _unknown.addVarint(16,")
 	require.Contains(t, source, "v_open = com.safetyculture.s12kt.kitchen.editions.Open.fromNumber(reader.readInt32())")
 	require.NotContains(t, source, "Open.UNRECOGNIZED) _unknown")
 	require.NotContains(t, out["s12/kitchen/v1/kitchen.pb.kt"], "_unknown.addVarint")
 	require.Contains(t, out["legacy/legacy.pb.kt"], "_unknown.addVarint")
+}
+
+func TestKotlinMessagesOptionOff(t *testing.T) {
+	for _, parameter := range []string{"", "kotlin_package", "kotlin_package=com.example.kt", "swift_module"} {
+		for name := range kitchenOutput(t, parameter) {
+			require.False(t, strings.HasSuffix(name, ".kt"), "parameter %q wrote %s", parameter, name)
+		}
+	}
+}
+
+func TestKotlinMessagesPackageFallback(t *testing.T) {
+	out := kitchenOutput(t, "kotlin_messages,kotlin_package=com.example.kt")
+	require.Contains(t, out["s12/kitchen/v1/kitchen.pb.kt"], "\npackage com.example.kt.kitchen.v1\n")
+	out = kitchenOutput(t, "kotlin_package=com.example.kt,kotlin_messages=com.example.other")
+	require.Contains(t, out["s12/kitchen/v1/kitchen.pb.kt"], "\npackage com.example.other.kitchen.v1\n")
+	require.Contains(t, out["s12/kitchen/v1/kitchen.djinni.yaml"], "com.example.kt.kitchen.v1.")
 }

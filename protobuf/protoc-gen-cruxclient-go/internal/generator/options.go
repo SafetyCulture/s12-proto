@@ -16,13 +16,18 @@ type Options struct {
 	SwiftModule string
 	// KotlinPackage enables the output for the pure Kotlin messages. An empty value leaves it off.
 	KotlinPackage string
+	// KotlinMessages enables the pure Kotlin message classes and sets their root package. An empty value leaves them off.
+	KotlinMessages string
 }
 
 // ParseOptions reads a comma-separated protoc parameter string. A bare
 // swift_module enables the Swift output with DefaultSwiftModule. A bare
-// kotlin_package enables the Kotlin output with DefaultKotlinPackage. Other keys are ignored.
+// kotlin_package enables the Kotlin output with DefaultKotlinPackage. A bare
+// kotlin_messages enables the Kotlin message classes with the kotlin_package
+// value, or DefaultKotlinPackage if kotlin_package is absent. Other keys are ignored.
 func ParseOptions(parameter string) Options {
 	var opts Options
+	var kotlinMessages bool
 	for _, item := range strings.Split(parameter, ",") {
 		key, value, _ := strings.Cut(item, "=")
 		value = strings.TrimSpace(value)
@@ -31,7 +36,13 @@ func ParseOptions(parameter string) Options {
 			opts.SwiftModule = valueOr(value, DefaultSwiftModule)
 		case "kotlin_package":
 			opts.KotlinPackage = valueOr(value, DefaultKotlinPackage)
+		case "kotlin_messages":
+			opts.KotlinMessages = value
+			kotlinMessages = true
 		}
+	}
+	if kotlinMessages {
+		opts.KotlinMessages = valueOr(opts.KotlinMessages, valueOr(opts.KotlinPackage, DefaultKotlinPackage))
 	}
 	return opts
 }
@@ -44,6 +55,11 @@ func (o Options) SwiftEnabled() bool {
 // KotlinEnabled reports whether the Kotlin output is on.
 func (o Options) KotlinEnabled() bool {
 	return o.KotlinPackage != ""
+}
+
+// KotlinMessagesEnabled reports whether the Kotlin message classes are on.
+func (o Options) KotlinMessagesEnabled() bool {
+	return o.KotlinMessages != ""
 }
 
 func valueOr(value, fallback string) string {

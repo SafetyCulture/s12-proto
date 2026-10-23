@@ -18,7 +18,6 @@ HERE=$(cd "$(dirname "$0")" && pwd)
 PLUGIN_DIR=$(dirname "$HERE")
 REPO=$(cd "$PLUGIN_DIR/../.." && pwd)
 CRUXCLIENT=$REPO/protobuf/protoc-gen-cruxclient
-CRUXCLIENT_GO=$REPO/protobuf/protoc-gen-cruxclient-go
 
 WORK=${WORK:-$(mktemp -d)}
 mkdir -p "$WORK"
@@ -34,7 +33,7 @@ if [ -z "${JAVALITE_JAR:-}" ]; then
   curl -sSfL -o "$JAVALITE_JAR" "https://repo1.maven.org/maven2/com/google/protobuf/protobuf-javalite/4.$version/protobuf-javalite-4.$version.jar"
 fi
 
-includes=(-I"$PLUGIN_DIR/testdata/kitchen" -I"$CRUXCLIENT/proto" -I"$CRUXCLIENT" -I"$CRUXCLIENT_GO/testdata/swiftnames" -I"$PROTOC_INCLUDE")
+includes=(-I"$PLUGIN_DIR/testdata/kotlin/kitchen" -I"$CRUXCLIENT/proto" -I"$CRUXCLIENT" -I"$PLUGIN_DIR/testdata/swiftnames" -I"$PROTOC_INCLUDE")
 roots=(s12/kitchen/v1/kitchen.proto legacy/legacy.proto editions/closed.proto routeguide/v1/message.proto names.proto loose.proto prefixed.proto)
 if [ -n "${APISCHEMA:-}" ]; then
   includes+=(-I"$APISCHEMA/protos" -I"$APISCHEMA/third_party" -I"$REPO")
@@ -48,7 +47,7 @@ else
   echo "APISCHEMA is not set: s12.assets.v1.Asset is not in the corpus" >&2
 fi
 
-(cd "$PLUGIN_DIR" && go build -o "$WORK/protoc-gen-crux-kotlin" . && go build -o "$WORK/gensamples" ./test/gensamples)
+(cd "$PLUGIN_DIR" && go build -o "$WORK/protoc-gen-cruxclient-go" . && go build -o "$WORK/gensamples" ./test/gensamples)
 
 protoc "${includes[@]}" --experimental_allow_proto3_optional --include_imports --descriptor_set_out="$WORK/corpus.desc" "${roots[@]}"
 "$WORK/gensamples" -desc "$WORK/corpus.desc" -roots "$(IFS=,; echo "${roots[*]}")" -n "${SAMPLES:-12}" -out "$WORK/samples"
@@ -61,7 +60,7 @@ while IFS= read -r f; do
 done <"$WORK/samples/closure.txt"
 
 mkdir -p "$WORK/kt" "$WORK/java" "$WORK/java-classes"
-protoc "${includes[@]}" --experimental_allow_proto3_optional --plugin=protoc-gen-crux-kotlin="$WORK/protoc-gen-crux-kotlin" --crux-kotlin_out="$WORK/kt" "${closure[@]}"
+protoc "${includes[@]}" --experimental_allow_proto3_optional --plugin=protoc-gen-cruxclient-go="$WORK/protoc-gen-cruxclient-go" --cruxclient-go_out=kotlin_messages:"$WORK/kt" "${closure[@]}"
 protoc "${includes[@]}" --experimental_allow_proto3_optional --java_out=lite:"$WORK/java" "${java_files[@]}"
 
 find "$WORK/java" -name '*.java' >"$WORK/java-files.txt"

@@ -23,14 +23,15 @@ import (
 	"google.golang.org/protobuf/types/descriptorpb"
 	"google.golang.org/protobuf/types/dynamicpb"
 
-	"github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-crux-kotlin/internal/kotlin"
+	"github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-cruxclient-go/internal/generator"
+	"github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-cruxclient-go/internal/kotlin"
 )
 
 func main() {
 	descPath := flag.String("desc", "", "descriptor set with imports")
 	roots := flag.String("roots", "", "comma-separated proto files whose messages get samples")
 	out := flag.String("out", "", "output directory")
-	root := flag.String("kotlin_package", kotlin.DefaultPackage, "root package of the Kotlin classes")
+	root := flag.String("kotlin_package", generator.DefaultKotlinPackage, "root package of the Kotlin classes")
 	perMessage := flag.Int("n", 12, "samples for each message")
 	seed := flag.Int64("seed", 1, "random seed")
 	flag.Parse()
