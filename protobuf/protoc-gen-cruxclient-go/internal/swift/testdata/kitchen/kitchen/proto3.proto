@@ -1,0 +1,69 @@
+// Constructs of proto3.
+syntax = "proto3";
+
+package kitchen.proto3;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/any.proto";
+
+// Says hello.
+message Greeting {
+  string text = 1;
+  optional string note = 2;
+  optional int32 count = 3;
+  repeated string tags = 4;
+  repeated double values = 5;
+  repeated uint64 unpacked = 6 [packed = false];
+  google.protobuf.Timestamp at = 7;
+  google.protobuf.Any detail = 8;
+  Mood mood = 9;
+  optional Mood other_mood = 10;
+  bytes data = 11;
+  float f = 12;
+  double d = 13;
+  fixed64 fx = 14;
+  sint32 si = 15;
+  map<string, google.protobuf.Timestamp> stamps = 16;
+  oneof kind {
+    string plain = 20;
+    Greeting reply = 21;
+    Mood mood_kind = 22;
+    bytes raw = 23;
+  }
+  oneof newValue {
+    string new_value = 30;
+    int32 other_value = 31;
+  }
+  // Nested, with a trailing comment.
+  message Part {
+    string value = 1; // The value.
+    /* A detached block. */
+
+    // Leading comment of the next field.
+    string other = 2;
+    option deprecated = true;
+  }
+  reserved 50 to 60;
+  reserved "gone";
+}
+
+// How things feel.
+enum Mood {
+  option allow_alias = true;
+  // The first.
+  MOOD_UNSPECIFIED = 0;
+  MOOD_HAPPY = 1;
+  GLAD = 1;
+  MOOD_SAD = 2 [deprecated = true];
+  MOOD_UPPER_CASE = 3;
+  MOOD_9LIVES = 4;
+  type = 5;
+  self = 6;
+  MOOD_NEGATIVE = -1;
+  reserved 20 to 30;
+  reserved "MOOD_GONE";
+}
+
+service Greeter {
+  rpc Say(Greeting) returns (Greeting);
+}
