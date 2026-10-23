@@ -37,7 +37,11 @@ func handle(
 		return err
 	}
 	opts := generator.ParseOptions(request.Parameter())
-	for _, fileDesc := range fileDescriptors {
+	cruxclientFiles := fileDescriptors
+	if opts.MessagesOnly {
+		cruxclientFiles = nil
+	}
+	for _, fileDesc := range cruxclientFiles {
 		if fileDesc.Services().Len() == 0 {
 			// PLUG-05: No services — generate djinni support files only
 			generateDjinniSupport(responseWriter, fileDesc, opts)

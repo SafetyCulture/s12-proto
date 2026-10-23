@@ -320,3 +320,20 @@ func TestKotlinMessagesPackageFallback(t *testing.T) {
 	require.Contains(t, out["s12/kitchen/v1/kitchen.pb.kt"], "\npackage com.example.other.kitchen.v1\n")
 	require.Contains(t, out["s12/kitchen/v1/kitchen.djinni.yaml"], "com.example.kt.kitchen.v1.")
 }
+
+func TestMessagesOnly(t *testing.T) {
+	out := kitchenOutput(t, "kotlin_messages,messages_only")
+	names := make([]string, 0, len(out))
+	for name := range out {
+		names = append(names, name)
+		require.True(t, strings.HasSuffix(name, ".pb.kt") || strings.HasSuffix(name, "S12Wire.kt"), name)
+	}
+	require.Contains(t, names, "s12/kitchen/v1/kitchen.pb.kt")
+	require.Contains(t, names, "com/safetyculture/s12kt/wire/S12Wire.kt")
+
+	withOutputs := kitchenOutput(t, "kotlin_messages")
+	for _, name := range names {
+		require.Equal(t, withOutputs[name], out[name], name)
+	}
+	require.Empty(t, kitchenOutput(t, "messages_only"))
+}

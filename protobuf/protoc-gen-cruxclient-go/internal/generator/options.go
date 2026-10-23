@@ -18,6 +18,8 @@ type Options struct {
 	KotlinPackage string
 	// KotlinMessages enables the pure Kotlin message classes and sets their root package. An empty value leaves them off.
 	KotlinMessages string
+	// MessagesOnly suppresses every cruxclient output, so that a run writes only the message classes.
+	MessagesOnly bool
 }
 
 // ParseOptions reads a comma-separated protoc parameter string. A bare
@@ -39,6 +41,8 @@ func ParseOptions(parameter string) Options {
 		case "kotlin_messages":
 			opts.KotlinMessages = value
 			kotlinMessages = true
+		case "messages_only":
+			opts.MessagesOnly = true
 		}
 	}
 	if kotlinMessages {

@@ -55,3 +55,33 @@ func TestParseKotlinPackage(t *testing.T) {
 		})
 	}
 }
+
+func TestParseKotlinMessages(t *testing.T) {
+	tests := []struct {
+		parameter string
+		root      string
+		only      bool
+	}{
+		{"", "", false},
+		{"kotlin_package", "", false},
+		{"kotlin_messages", DefaultKotlinPackage, false},
+		{"kotlin_messages=", DefaultKotlinPackage, false},
+		{"kotlin_messages=com.example.kt", "com.example.kt", false},
+		{"kotlin_messages,kotlin_package=com.example.kt", "com.example.kt", false},
+		{"kotlin_package=com.example.kt,kotlin_messages", "com.example.kt", false},
+		{"kotlin_package=com.example.kt,kotlin_messages=com.example.other", "com.example.other", false},
+		{"kotlin_messages, messages_only", DefaultKotlinPackage, true},
+		{"messages_only", "", true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.parameter, func(t *testing.T) {
+			opts := ParseOptions(tt.parameter)
+			if opts.KotlinMessages != tt.root || opts.KotlinMessagesEnabled() != (tt.root != "") {
+				t.Errorf("ParseOptions(%q).KotlinMessages = %q, want %q", tt.parameter, opts.KotlinMessages, tt.root)
+			}
+			if opts.MessagesOnly != tt.only {
+				t.Errorf("ParseOptions(%q).MessagesOnly = %v, want %v", tt.parameter, opts.MessagesOnly, tt.only)
+			}
+		})
+	}
+}

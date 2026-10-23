@@ -163,6 +163,8 @@ protoc \
 ```
 The plugin writes one `.pb.kt` file for each proto file that has a message or an enum, and one runtime file `<root>/wire/S12Wire.kt` for each run. The proto package follows the root, with the leading `s12.` removed, as the Java lite package does. The Kotlin classes and the Java lite classes can be in one app, because their packages are different. The plugin must get all files of a run in one request, because it writes the runtime file once. With `buf`, set `strategy: all`.
 
+**Option `messages_only`**: Turns off all cruxclient output in the run: the API, mock and Djinni files, and the files of `swift_module` and `kotlin_package`. A run with `kotlin_messages,messages_only` writes only the `.pb.kt` files and the runtime file. The option does not take a value. The output of the other options does not change when `messages_only` is absent.
+
 **Rules**:
 
 | Proto | Kotlin |
