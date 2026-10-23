@@ -5,6 +5,8 @@
 #   whitelist.txt        the proto files of the whitelist, which the test generates
 #   golden/              the output of protoc-gen-swift 1.38.1 for those files
 #   kitchen/golden/      the output of protoc-gen-swift 1.38.1 for the protos in kitchen/
+#   ../../../testdata/swiftmessages/  the output of protoc-gen-swift 1.38.1 for the route guide message proto,
+#                        which the test of the plugin handler compares
 #
 # Usage:
 #   APISCHEMA=<APISchema checkout> MITTI_MOBILE=<mitti-mobile checkout> testdata/regen.sh
@@ -62,3 +64,12 @@ rm -rf golden
 mkdir -p golden/default golden/public
 protoc -I . --plugin=protoc-gen-swift="$PLUGIN" --swift_out=golden/default kitchen/*.proto
 protoc -I . --plugin=protoc-gen-swift="$PLUGIN" --swift_out=Visibility=Public,FileNaming=PathToUnderscores:golden/public kitchen/*.proto
+
+# The route guide proto of the test of the plugin handler.
+MODULE_TESTDATA="$HERE/../../../testdata"
+mkdir -p "$WORK/routeguide/routeguide/v1" "$MODULE_TESTDATA/swiftmessages"
+cp "$MODULE_TESTDATA/routeguide/message.proto" "$WORK/routeguide/routeguide/v1/message.proto"
+cp "$MODULE_TESTDATA/routeguide/wire_options.proto" "$WORK/routeguide/wire_options.proto"
+rm -f "$MODULE_TESTDATA/swiftmessages/"*.pb.swift
+protoc -I "$WORK/routeguide" --plugin=protoc-gen-swift="$PLUGIN" \
+  --swift_out=Visibility=Public,FileNaming=PathToUnderscores:"$MODULE_TESTDATA/swiftmessages" routeguide/v1/message.proto

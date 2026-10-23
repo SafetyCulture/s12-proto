@@ -1,0 +1,5 @@
+# Output of protoc-gen-swift. GitHub collapses these files in a diff.
+protobuf/protoc-gen-cruxclient-go/internal/swift/testdata/golden/** linguist-generated=true
+protobuf/protoc-gen-cruxclient-go/internal/swift/testdata/kitchen/golden/** linguist-generated=true
+protobuf/protoc-gen-cruxclient-go/testdata/swiftmessages/** linguist-generated=true
+protobuf/protoc-gen-cruxclient-go/internal/swift/testdata/whitelist.binpb.gz binary linguist-generated=true
