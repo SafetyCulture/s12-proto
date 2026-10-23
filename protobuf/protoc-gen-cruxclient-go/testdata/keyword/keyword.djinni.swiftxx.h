@@ -72,6 +72,70 @@ struct Translator {
 };
 }  //namespace djinni::swift::keyword::private_::v1::Holder::class_
 
+namespace djinni::swift::keyword::private_::v1::Holder::New_ {
+struct Translator {
+  using CppType = ::keyword::private_::v1::Holder::New_;
+
+  static CppType toCpp(const ::djinni::swift::AnyValue& value) {
+    const auto& bytes = ::std::get<::djinni::swift::BinaryValue>(value);
+    CppType cpp_message;
+    if (bytes.size() > static_cast<::std::size_t>(::std::numeric_limits<int>::max()) ||
+        !cpp_message.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()))) {
+      throw ::djinni::swift::ErrorValue(::std::string("failed to parse protobuf type ") + ::std::string(cpp_message.GetTypeName()));
+    }
+    return cpp_message;
+  }
+
+  static ::djinni::swift::AnyValue fromCpp(const CppType& message) {
+    if (!message.IsInitialized()) {
+      throw ::djinni::swift::ErrorValue(::std::string("failed to serialize protobuf type ") +
+          ::std::string(message.GetTypeName()) + ": " + message.InitializationErrorString());
+    }
+    const ::std::size_t size = message.ByteSizeLong();
+    if (size > static_cast<::std::size_t>(::std::numeric_limits<int>::max())) {
+      throw ::djinni::swift::ErrorValue(::std::string("failed to serialize protobuf type ") + ::std::string(message.GetTypeName()));
+    }
+    ::djinni::swift::BinaryValue bytes(size);
+    if (message.SerializeWithCachedSizesToArray(bytes.data()) != bytes.data() + size) {
+      throw ::djinni::swift::ErrorValue(::std::string("failed to serialize protobuf type ") + ::std::string(message.GetTypeName()));
+    }
+    return {::std::move(bytes)};
+  }
+};
+}  //namespace djinni::swift::keyword::private_::v1::Holder::New_
+
+namespace djinni::swift::keyword::private_::v1::Clear_ {
+struct Translator {
+  using CppType = ::keyword::private_::v1::Clear_;
+
+  static CppType toCpp(const ::djinni::swift::AnyValue& value) {
+    const auto& bytes = ::std::get<::djinni::swift::BinaryValue>(value);
+    CppType cpp_message;
+    if (bytes.size() > static_cast<::std::size_t>(::std::numeric_limits<int>::max()) ||
+        !cpp_message.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()))) {
+      throw ::djinni::swift::ErrorValue(::std::string("failed to parse protobuf type ") + ::std::string(cpp_message.GetTypeName()));
+    }
+    return cpp_message;
+  }
+
+  static ::djinni::swift::AnyValue fromCpp(const CppType& message) {
+    if (!message.IsInitialized()) {
+      throw ::djinni::swift::ErrorValue(::std::string("failed to serialize protobuf type ") +
+          ::std::string(message.GetTypeName()) + ": " + message.InitializationErrorString());
+    }
+    const ::std::size_t size = message.ByteSizeLong();
+    if (size > static_cast<::std::size_t>(::std::numeric_limits<int>::max())) {
+      throw ::djinni::swift::ErrorValue(::std::string("failed to serialize protobuf type ") + ::std::string(message.GetTypeName()));
+    }
+    ::djinni::swift::BinaryValue bytes(size);
+    if (message.SerializeWithCachedSizesToArray(bytes.data()) != bytes.data() + size) {
+      throw ::djinni::swift::ErrorValue(::std::string("failed to serialize protobuf type ") + ::std::string(message.GetTypeName()));
+    }
+    return {::std::move(bytes)};
+  }
+};
+}  //namespace djinni::swift::keyword::private_::v1::Clear_
+
 namespace djinni::swift::keyword::private_::v1::NULL_ {
 struct Translator {
   using CppType = ::keyword::private_::v1::NULL_;

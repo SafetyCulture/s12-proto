@@ -42,7 +42,7 @@ func GenerateDjinniKotlinJNI(rw protoplugin.ResponseWriter, fileDesc protoreflec
 			continue
 		}
 
-		writeDjinniKotlinJNIBlock(w, cppQualifiedName(msg.FullName()),
+		writeDjinniKotlinJNIBlock(w, cppQualifiedName(msg),
 			common.KotlinBinaryName(msg, options.KotlinPackage))
 	}
 

@@ -42,7 +42,7 @@ func GenerateDjinniSwiftxx(rw protoplugin.ResponseWriter, fileDesc protoreflect.
 			continue
 		}
 
-		writeDjinniSwiftxxBlock(w, cppQualifiedName(msg.FullName()))
+		writeDjinniSwiftxxBlock(w, cppQualifiedName(msg))
 	}
 
 	rw.AddFile(baseName+swiftxxHeaderSuffix, w.String())

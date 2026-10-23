@@ -27,16 +27,40 @@ func init() {
 	}
 }
 
-// cppQualifiedName returns the C++ name of a proto full name as protoc writes it: "::" between the
-// parts and "_" after a C++ keyword.
-func cppQualifiedName(fullName protoreflect.FullName) string {
-	parts := strings.Split(string(fullName), ".")
-	for i, part := range parts {
-		if cppKeywords[part] {
-			parts[i] = part + "_"
+// cppKnownMethods is MessageKnownMethodsCamelCase of protoc 36.1 (compiler/cpp/helpers.cc). protoc
+// appends "_" to a message name in this list, because the name would hide a method of the class.
+var cppKnownMethods = map[string]bool{
+	"GetDescriptor": true, "GetReflection": true, "default_instance": true, "Swap": true,
+	"UnsafeArenaSwap": true, "New": true, "CopyFrom": true, "MergeFrom": true, "IsInitialized": true,
+	"GetMetadata": true, "Clear": true,
+}
+
+// cppQualifiedName returns the C++ name of a message as protoc writes it: "::" between the parts,
+// "_" after a package segment that is a C++ keyword, and "_" after a message name that is a C++
+// keyword or a known method name.
+func cppQualifiedName(msg protoreflect.MessageDescriptor) string {
+	var names []string
+	for d := protoreflect.Descriptor(msg); ; d = d.Parent() {
+		m, ok := d.(protoreflect.MessageDescriptor)
+		if !ok {
+			break
+		}
+		name := string(m.Name())
+		if cppKeywords[name] || cppKnownMethods[name] {
+			name += "_"
+		}
+		names = append([]string{name}, names...)
+	}
+	var parts []string
+	if pkg := string(msg.ParentFile().Package()); pkg != "" {
+		for _, part := range strings.Split(pkg, ".") {
+			if cppKeywords[part] {
+				part += "_"
+			}
+			parts = append(parts, part)
 		}
 	}
-	return strings.Join(parts, "::")
+	return strings.Join(append(parts, names...), "::")
 }
 
 // ValidateDjinniNames rejects proto names that cannot form a Djinni translator namespace.

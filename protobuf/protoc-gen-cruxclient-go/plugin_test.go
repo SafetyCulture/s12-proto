@@ -782,6 +782,8 @@ func TestKeywordDjinniGoldens(t *testing.T) {
 	}
 	require.Contains(t, output["keyword/keyword.djinni.swiftxx.h"], "using CppType = ::keyword::private_::v1::Holder::class_;")
 	require.Contains(t, output["keyword/keyword.djinni.kotlin.jni.h"], "using CppType = ::keyword::private_::v1::NULL_;")
+	require.Contains(t, output["keyword/keyword.djinni.swiftxx.h"], "using CppType = ::keyword::private_::v1::Holder::New_;")
+	require.Contains(t, output["keyword/keyword.djinni.kotlin.jni.h"], "using CppType = ::keyword::private_::v1::Clear_;")
 }
 
 // TestDjinniYAMLEscapesLegacyValues checks that a quote in a file path is doubled in the values

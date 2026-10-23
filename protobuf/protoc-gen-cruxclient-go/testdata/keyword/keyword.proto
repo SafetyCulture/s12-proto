@@ -6,7 +6,15 @@ message Holder {
   message class {
     int32 a = 1;
   }
+  message New {
+    int32 c = 1;
+  }
   class value = 1;
+  New fresh = 2;
+}
+
+message Clear {
+  int32 d = 1;
 }
 
 message NULL {
