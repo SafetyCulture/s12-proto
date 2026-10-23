@@ -14,8 +14,9 @@ message Ed {
   oneof pick {
     string a = 9;
     int32 b = 11;
+    int64 c = 12;
   }
-  string non_validated = 12 [features.utf8_validation = NONE];
+  string non_validated = 10 [features.utf8_validation = NONE];
 
   message Delim {
     int32 inner = 1;

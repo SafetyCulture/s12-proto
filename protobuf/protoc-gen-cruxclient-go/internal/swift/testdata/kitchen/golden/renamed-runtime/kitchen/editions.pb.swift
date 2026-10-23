@@ -138,6 +138,14 @@ public nonisolated struct Kitchen_Editions_Ed: Sendable {
     set {pick = .b(newValue)}
   }
 
+  public var c: Int64 {
+    get {
+      if case .c(let v)? = pick {return v}
+      return 0
+    }
+    set {pick = .c(newValue)}
+  }
+
   public var nonValidated: String {
     get {_nonValidated ?? String()}
     set {_nonValidated = newValue}
@@ -152,6 +160,7 @@ public nonisolated struct Kitchen_Editions_Ed: Sendable {
   public nonisolated enum OneOf_Pick: Equatable, Sendable {
     case a(String)
     case b(Int32)
+    case c(Int64)
 
   }
 
@@ -200,7 +209,7 @@ nonisolated extension Kitchen_Editions_Open: SPB._ProtoNameProviding {
 
 nonisolated extension Kitchen_Editions_Ed: SPB.Message, SPB._MessageImplementationBase, SPB._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".Ed"
-  public static let _protobuf_nameMap = SPB._NameMap(bytecode: "\0\u{1}implicit\0\u{1}explicit\0\u{1}required\0\u{1}packed\0\u{1}expanded\0\u{1}delimited\0\u{1}mode\0\u{1}open\0\u{1}a\0\u{2}\u{2}b\0\u{3}non_validated\0")
+  public static let _protobuf_nameMap = SPB._NameMap(bytecode: "\0\u{1}implicit\0\u{1}explicit\0\u{1}required\0\u{1}packed\0\u{1}expanded\0\u{1}delimited\0\u{1}mode\0\u{1}open\0\u{1}a\0\u{3}non_validated\0\u{1}b\0\u{1}c\0")
 
   public var isInitialized: Bool {
     if self._required == nil {return false}
@@ -229,6 +238,7 @@ nonisolated extension Kitchen_Editions_Ed: SPB.Message, SPB._MessageImplementati
           self.pick = .a(v)
         }
       }()
+      case 10: try { try decoder.decodeSingularStringField(value: &self._nonValidated) }()
       case 11: try {
         var v: Int32?
         try decoder.decodeSingularInt32Field(value: &v)
@@ -237,7 +247,14 @@ nonisolated extension Kitchen_Editions_Ed: SPB.Message, SPB._MessageImplementati
           self.pick = .b(v)
         }
       }()
-      case 12: try { try decoder.decodeSingularStringField(value: &self._nonValidated) }()
+      case 12: try {
+        var v: Int64?
+        try decoder.decodeSingularInt64Field(value: &v)
+        if let v = v {
+          if self.pick != nil {try decoder.handleConflictingOneOf()}
+          self.pick = .c(v)
+        }
+      }()
       default: break
       }
     }
@@ -272,20 +289,23 @@ nonisolated extension Kitchen_Editions_Ed: SPB.Message, SPB._MessageImplementati
     try { if let v = self._open {
       try visitor.visitSingularEnumField(value: v, fieldNumber: 8)
     } }()
-    switch self.pick {
-    case .a?: try {
-      guard case .a(let v)? = self.pick else { preconditionFailure() }
+    try { if case .a(let v)? = self.pick {
       try visitor.visitSingularStringField(value: v, fieldNumber: 9)
-    }()
+    } }()
+    try { if let v = self._nonValidated {
+      try visitor.visitSingularStringField(value: v, fieldNumber: 10)
+    } }()
+    switch self.pick {
     case .b?: try {
       guard case .b(let v)? = self.pick else { preconditionFailure() }
       try visitor.visitSingularInt32Field(value: v, fieldNumber: 11)
     }()
-    case nil: break
+    case .c?: try {
+      guard case .c(let v)? = self.pick else { preconditionFailure() }
+      try visitor.visitSingularInt64Field(value: v, fieldNumber: 12)
+    }()
+    default: break
     }
-    try { if let v = self._nonValidated {
-      try visitor.visitSingularStringField(value: v, fieldNumber: 12)
-    } }()
     try unknownFields.traverse(visitor: &visitor)
   }
 
