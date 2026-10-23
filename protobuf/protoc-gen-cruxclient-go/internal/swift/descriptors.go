@@ -176,7 +176,7 @@ func buildFiles(protos []*descriptorpb.FileDescriptorProto) (*registry, error) {
 	for _, fp := range protos {
 		f, err := reg.addFile(fp)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("add file %s: %w", fp.GetName(), err)
 		}
 		reg.files[f.name] = f
 	}
@@ -221,7 +221,7 @@ func (r *registry) addFile(fp *descriptorpb.FileDescriptorProto) (*file, error) 
 	for i, mp := range fp.GetMessageType() {
 		m, err := r.newMessage(mp, i, f, nil, fp.GetPackage(), f.features)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("add message %s: %w", mp.GetName(), err)
 		}
 		f.messages = append(f.messages, m)
 	}
@@ -230,7 +230,7 @@ func (r *registry) addFile(fp *descriptorpb.FileDescriptorProto) (*file, error) 
 	}
 	for _, m := range f.messages {
 		if err := r.bindMessage(m); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("bind message %s: %w", m.fullName, err)
 		}
 	}
 	for _, x := range f.extensions {
@@ -354,17 +354,17 @@ func trimDot(name string) string { return strings.TrimPrefix(name, ".") }
 func (r *registry) bindMessage(m *message) error {
 	for _, n := range m.nested {
 		if err := r.bindMessage(n); err != nil {
-			return err
+			return fmt.Errorf("bind nested message %s: %w", n.fullName, err)
 		}
 	}
 	for _, f := range m.fields {
 		if err := r.bindField(f, m); err != nil {
-			return err
+			return fmt.Errorf("bind field %s: %w", f.fullName, err)
 		}
 	}
 	for _, x := range m.extensions {
 		if err := r.bindField(x, m); err != nil {
-			return err
+			return fmt.Errorf("bind extension %s: %w", x.fullName, err)
 		}
 	}
 	return nil

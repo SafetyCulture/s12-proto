@@ -41,3 +41,23 @@ func TestBuildFilesRejectsInvalidIndexes(t *testing.T) {
 	require.ErrorContains(t, err, "broken-oneof.proto: field value has oneof index 1 out of range")
 	require.NotContains(t, err.Error(), "goroutine")
 }
+
+func TestBuildFilesAddsBindingContext(t *testing.T) {
+	_, err := buildFiles([]*descriptorpb.FileDescriptorProto{{
+		Name:    proto.String("broken-binding.proto"),
+		Syntax:  proto.String("proto3"),
+		Package: proto.String("example"),
+		MessageType: []*descriptorpb.DescriptorProto{{
+			Name: proto.String("Message"),
+			Field: []*descriptorpb.FieldDescriptorProto{{
+				Name:     proto.String("value"),
+				Number:   proto.Int32(1),
+				Label:    descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
+				Type:     descriptorpb.FieldDescriptorProto_TYPE_MESSAGE.Enum(),
+				TypeName: proto.String(".example.Missing"),
+			}},
+		}},
+	}})
+	require.ErrorContains(t, err, "add file broken-binding.proto: bind message example.Message: bind field example.Message.value")
+	require.ErrorContains(t, err, "unknown message .example.Missing")
+}
