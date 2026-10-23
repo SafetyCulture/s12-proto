@@ -42,7 +42,7 @@ func GenerateDjinniSwiftxx(rw protoplugin.ResponseWriter, fileDesc protoreflect.
 			continue
 		}
 
-		writeDjinniSwiftxxBlock(w, common.DotsToColons(string(msg.FullName())))
+		writeDjinniSwiftxxBlock(w, cppQualifiedName(msg.FullName()))
 	}
 
 	rw.AddFile(baseName+swiftxxHeaderSuffix, w.String())
@@ -79,7 +79,7 @@ func writeDjinniSwiftxxBlock(w *codegen.CodeWriter, cppTypeName string) {
 	w.WL("      throw ::djinni::swift::ErrorValue(::std::string(\"failed to serialize protobuf type \") + ::std::string(message.GetTypeName()));")
 	w.WL("    }")
 	w.WL("    ::djinni::swift::BinaryValue bytes(size);")
-	w.WL("    if (!message.SerializeToArray(bytes.data(), static_cast<int>(size))) {")
+	w.WL("    if (message.SerializeWithCachedSizesToArray(bytes.data()) != bytes.data() + size) {")
 	w.WL("      throw ::djinni::swift::ErrorValue(::std::string(\"failed to serialize protobuf type \") + ::std::string(message.GetTypeName()));")
 	w.WL("    }")
 	w.WL("    return {::std::move(bytes)};")

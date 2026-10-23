@@ -68,7 +68,7 @@ func GenerateDjinniYAML(rw protoplugin.ResponseWriter, fileDesc protoreflect.Fil
 			swift = &swiftYAML{
 				module:        common.SwiftProtobufModule(fileDesc, options.SwiftModule),
 				typeName:      common.SwiftProtobufTypeName(msg),
-				translator:    swiftxxTranslatorName(cppTypeName),
+				translator:    swiftxxTranslatorName(cppQualifiedName(msg.FullName())),
 				translatorHdr: baseName + swiftxxHeaderSuffix,
 			}
 		}
@@ -78,7 +78,7 @@ func GenerateDjinniYAML(rw protoplugin.ResponseWriter, fileDesc protoreflect.Fil
 			kotlin = &kotlinYAML{
 				typename:      common.KotlinQualifiedName(msg, options.KotlinPackage),
 				typeSignature: "L" + common.KotlinBinaryName(msg, options.KotlinPackage) + ";",
-				translator:    kotlinJNITranslatorName(cppTypeName),
+				translator:    kotlinJNITranslatorName(cppQualifiedName(msg.FullName())),
 				translatorHdr: baseName + kotlinJNIHeaderSuffix,
 			}
 		}

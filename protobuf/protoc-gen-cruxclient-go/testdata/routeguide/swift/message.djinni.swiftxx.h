@@ -32,7 +32,7 @@ struct Translator {
       throw ::djinni::swift::ErrorValue(::std::string("failed to serialize protobuf type ") + ::std::string(message.GetTypeName()));
     }
     ::djinni::swift::BinaryValue bytes(size);
-    if (!message.SerializeToArray(bytes.data(), static_cast<int>(size))) {
+    if (message.SerializeWithCachedSizesToArray(bytes.data()) != bytes.data() + size) {
       throw ::djinni::swift::ErrorValue(::std::string("failed to serialize protobuf type ") + ::std::string(message.GetTypeName()));
     }
     return {::std::move(bytes)};
@@ -64,7 +64,7 @@ struct Translator {
       throw ::djinni::swift::ErrorValue(::std::string("failed to serialize protobuf type ") + ::std::string(message.GetTypeName()));
     }
     ::djinni::swift::BinaryValue bytes(size);
-    if (!message.SerializeToArray(bytes.data(), static_cast<int>(size))) {
+    if (message.SerializeWithCachedSizesToArray(bytes.data()) != bytes.data() + size) {
       throw ::djinni::swift::ErrorValue(::std::string("failed to serialize protobuf type ") + ::std::string(message.GetTypeName()));
     }
     return {::std::move(bytes)};
@@ -96,7 +96,7 @@ struct Translator {
       throw ::djinni::swift::ErrorValue(::std::string("failed to serialize protobuf type ") + ::std::string(message.GetTypeName()));
     }
     ::djinni::swift::BinaryValue bytes(size);
-    if (!message.SerializeToArray(bytes.data(), static_cast<int>(size))) {
+    if (message.SerializeWithCachedSizesToArray(bytes.data()) != bytes.data() + size) {
       throw ::djinni::swift::ErrorValue(::std::string("failed to serialize protobuf type ") + ::std::string(message.GetTypeName()));
     }
     return {::std::move(bytes)};
@@ -128,7 +128,7 @@ struct Translator {
       throw ::djinni::swift::ErrorValue(::std::string("failed to serialize protobuf type ") + ::std::string(message.GetTypeName()));
     }
     ::djinni::swift::BinaryValue bytes(size);
-    if (!message.SerializeToArray(bytes.data(), static_cast<int>(size))) {
+    if (message.SerializeWithCachedSizesToArray(bytes.data()) != bytes.data() + size) {
       throw ::djinni::swift::ErrorValue(::std::string("failed to serialize protobuf type ") + ::std::string(message.GetTypeName()));
     }
     return {::std::move(bytes)};
@@ -160,7 +160,7 @@ struct Translator {
       throw ::djinni::swift::ErrorValue(::std::string("failed to serialize protobuf type ") + ::std::string(message.GetTypeName()));
     }
     ::djinni::swift::BinaryValue bytes(size);
-    if (!message.SerializeToArray(bytes.data(), static_cast<int>(size))) {
+    if (message.SerializeWithCachedSizesToArray(bytes.data()) != bytes.data() + size) {
       throw ::djinni::swift::ErrorValue(::std::string("failed to serialize protobuf type ") + ::std::string(message.GetTypeName()));
     }
     return {::std::move(bytes)};
@@ -192,7 +192,7 @@ struct Translator {
       throw ::djinni::swift::ErrorValue(::std::string("failed to serialize protobuf type ") + ::std::string(message.GetTypeName()));
     }
     ::djinni::swift::BinaryValue bytes(size);
-    if (!message.SerializeToArray(bytes.data(), static_cast<int>(size))) {
+    if (message.SerializeWithCachedSizesToArray(bytes.data()) != bytes.data() + size) {
       throw ::djinni::swift::ErrorValue(::std::string("failed to serialize protobuf type ") + ::std::string(message.GetTypeName()));
     }
     return {::std::move(bytes)};
@@ -224,7 +224,7 @@ struct Translator {
       throw ::djinni::swift::ErrorValue(::std::string("failed to serialize protobuf type ") + ::std::string(message.GetTypeName()));
     }
     ::djinni::swift::BinaryValue bytes(size);
-    if (!message.SerializeToArray(bytes.data(), static_cast<int>(size))) {
+    if (message.SerializeWithCachedSizesToArray(bytes.data()) != bytes.data() + size) {
       throw ::djinni::swift::ErrorValue(::std::string("failed to serialize protobuf type ") + ::std::string(message.GetTypeName()));
     }
     return {::std::move(bytes)};

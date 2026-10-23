@@ -145,16 +145,6 @@ func TestUnsupportedDjinniNamesAddResponseError(t *testing.T) {
 			source:    "syntax = \"proto3\";\npackage swift.v1;\nmessage Message {}\n",
 			parameter: "swift_module",
 		},
-		{
-			name:      "C++ keyword package",
-			source:    "syntax = \"proto3\";\npackage switch.v1;\nmessage Message {}\n",
-			parameter: "swift_module",
-		},
-		{
-			name:      "C++ keyword message",
-			source:    "syntax = \"proto3\";\npackage test.v1;\nmessage class {}\n",
-			parameter: "kotlin_package",
-		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -430,8 +420,13 @@ func TestRequiredMessageDjinniHeaders(t *testing.T) {
 			name := "required/required" + tt.suffix
 			golden := mustReadFile(t, "testdata/required/"+tt.name+"/required"+tt.suffix)
 			require.Equal(t, string(golden), output[name])
-			require.Less(t, strings.Index(output[name], "IsInitialized()"),
-				strings.Index(output[name], "SerializeTo"))
+			isInitialized := strings.Index(output[name], "IsInitialized()")
+			require.Positive(t, isInitialized)
+			for _, use := range []string{"ByteSizeLong()", "message.Serialize"} {
+				if at := strings.Index(output[name], use); at >= 0 {
+					require.Less(t, isInitialized, at, use)
+				}
+			}
 		})
 	}
 }
@@ -754,4 +749,19 @@ func TestMessagesOnlySkipsDjinniNameRules(t *testing.T) {
 		[]string{"test.proto"}, "kotlin_package,kotlin_messages,messages_only")
 	require.NoError(t, err)
 	require.Empty(t, resp.GetError())
+}
+
+// TestKeywordDjinniGoldens checks that the glue names a C++ keyword in a package or a message
+// as protoc does, with a trailing underscore.
+func TestKeywordDjinniGoldens(t *testing.T) {
+	sources := map[string]string{"keyword/keyword.proto": string(mustReadFile(t, "testdata/keyword/keyword.proto"))}
+	output := runPluginWithParameter(t, sources, []string{"keyword/keyword.proto"}, "swift_module,kotlin_package")
+	for _, name := range []string{"keyword.djinni.swiftxx.h", "keyword.djinni.kotlin.jni.h", "keyword.djinni.yaml"} {
+		if *update {
+			require.NoError(t, os.WriteFile("testdata/keyword/"+name, []byte(output["keyword/"+name]), 0o644))
+		}
+		require.Equal(t, string(mustReadFile(t, "testdata/keyword/"+name)), output["keyword/"+name], name)
+	}
+	require.Contains(t, output["keyword/keyword.djinni.swiftxx.h"], "using CppType = ::keyword::private_::v1::Holder::class_;")
+	require.Contains(t, output["keyword/keyword.djinni.kotlin.jni.h"], "using CppType = ::keyword::private_::v1::NULL_;")
 }

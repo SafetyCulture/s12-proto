@@ -93,17 +93,18 @@ fi
 
 output="$CACHE_DIR/generated-$PROTOBUF_VERSION"
 rm -rf "$output"
-mkdir -p "$output/protos/routeguide/v1" "$output/protos/swiftnames" "$output/protos/shadow" "$output/protos/required"
+mkdir -p "$output/protos/routeguide/v1" "$output/protos/swiftnames" "$output/protos/shadow" "$output/protos/required" "$output/protos/keyword"
 cp "$PLUGIN_DIR/testdata/routeguide/message.proto" "$output/protos/routeguide/v1/message.proto"
 cp "$PLUGIN_DIR/testdata/routeguide/wire_options.proto" "$output/protos/wire_options.proto"
 cp "$PLUGIN_DIR/testdata/swiftnames/names.proto" "$output/protos/swiftnames/names.proto"
 cp "$PLUGIN_DIR/testdata/swiftnames/loose.proto" "$output/protos/swiftnames/loose.proto"
 cp "$PLUGIN_DIR/testdata/kotlin/kitchen/shadow/shadow.proto" "$output/protos/shadow/shadow.proto"
 cp "$PLUGIN_DIR/testdata/required/required.proto" "$output/protos/required/required.proto"
+cp "$PLUGIN_DIR/testdata/keyword/keyword.proto" "$output/protos/keyword/keyword.proto"
 protoc_log="$output/protoc.log"
 if ! "$protoc" -I"$output/protos" -I"$protoc_root/include" --cpp_out="$output" \
   routeguide/v1/message.proto wire_options.proto swiftnames/names.proto swiftnames/loose.proto \
-  shadow/shadow.proto required/required.proto >"$protoc_log" 2>&1; then
+  shadow/shadow.proto required/required.proto keyword/keyword.proto >"$protoc_log" 2>&1; then
   cat "$protoc_log" >&2
   exit 1
 fi

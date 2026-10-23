@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package keyword.private.v1;
+
+message Holder {
+  message class {
+    int32 a = 1;
+  }
+  class value = 1;
+}
+
+message NULL {
+  int32 b = 1;
+}
