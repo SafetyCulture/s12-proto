@@ -247,7 +247,6 @@ func TestEscapedDataLiteralNamesNonOctalByte(t *testing.T) {
 	require.ErrorContains(t, err, "non-octal byte 'x' in an octal escape")
 }
 
-
 // TestInternalErrorNamesFile checks that a descriptor that breaks the generator gives an error with the file name and the stack.
 func TestInternalErrorNamesFile(t *testing.T) {
 	broken := &descriptorpb.FileDescriptorProto{
