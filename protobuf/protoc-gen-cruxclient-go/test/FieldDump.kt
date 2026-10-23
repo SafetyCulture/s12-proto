@@ -26,7 +26,7 @@ fun readManifest(file: File): Map<String, List<FieldInfo>> {
             current = mutableListOf()
             result[c[1]] = current
         } else {
-            current!!.add(FieldInfo(c[1].toInt(), c[2], c[3], c[4], c[5], c[6] == "1", c[7], c[8], c[9], c[10]))
+            checkNotNull(current) { "field line before the first M line: $line" }.add(FieldInfo(c[1].toInt(), c[2], c[3], c[4], c[5], c[6] == "1", c[7], c[8], c[9], c[10]))
         }
     }
     return result
@@ -60,19 +60,21 @@ private fun scalar(kind: String, value: Any?): String =
         else -> value.toString()
     }
 
+private fun present(f: FieldInfo, value: Any?): Any = checkNotNull(value) { "field #${f.number} has a null ${f.kind} value" }
+
 private fun kotlinValue(manifest: Map<String, List<FieldInfo>>, f: FieldInfo, value: Any?): String =
     when (f.kind) {
-        "bytes" -> hex(call(value!!, "toByteArray") as ByteArray)
-        "enum" -> (call(value!!, "getNumber") as Int).toString()
-        "message" -> dumpKotlin(manifest, value!!)
+        "bytes" -> hex(call(present(f, value), "toByteArray") as ByteArray)
+        "enum" -> (call(present(f, value), "getNumber") as Int).toString()
+        "message" -> dumpKotlin(manifest, present(f, value))
         else -> scalar(f.kind, value)
     }
 
 private fun javaValue(manifest: Map<String, List<FieldInfo>>, f: FieldInfo, value: Any?): String =
     when (f.kind) {
-        "bytes" -> hex(call(value!!, "toByteArray") as ByteArray)
-        "enum" -> if (f.openEnum) value.toString() else (call(value!!, "getNumber") as Int).toString()
-        "message" -> dumpJava(manifest, value!!, f.messageClass)
+        "bytes" -> hex(call(present(f, value), "toByteArray") as ByteArray)
+        "enum" -> if (f.openEnum) value.toString() else (call(present(f, value), "getNumber") as Int).toString()
+        "message" -> dumpJava(manifest, present(f, value), f.messageClass)
         else -> scalar(f.kind, value)
     }
 
@@ -125,7 +127,8 @@ fun dumpJava(manifest: Map<String, List<FieldInfo>>, message: Any, kotlinClass: 
                     out.setLength(out.length - 1)
                     continue
                 }
-                val number = call(call(message, "get${f.oneofJavaName}Case")!!, "getNumber") as Int
+                val case = checkNotNull(call(message, "get${f.oneofJavaName}Case")) { "null case of oneof ${f.oneofJavaName}" }
+                val number = call(case, "getNumber") as Int
                 if (number == 0) {
                     out.append("oneof ${f.oneofProperty}=<none>")
                 } else {
