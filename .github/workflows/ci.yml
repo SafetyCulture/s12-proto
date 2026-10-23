@@ -30,7 +30,7 @@ jobs:
           java-version: "21.0.12"
           check-latest: false
       - name: Check the JDK version
-        run: java -version 2>&1 | tee /dev/stderr | grep -q 'version "21\.0\.12"'
+        run: java -version 2>&1 | tee /dev/stderr | grep -qE 'version "21\.0\.12(\.[0-9]+)?"'
       - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac # v2
       - name: Install pinned Kotlin compiler
         env:
