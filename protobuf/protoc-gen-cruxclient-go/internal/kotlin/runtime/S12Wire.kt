@@ -36,8 +36,10 @@ public class ByteString private constructor(private val bytes: ByteArray) {
     }
 
     public companion object {
+        @JvmField
         public val EMPTY: ByteString = ByteString(ByteArray(0))
 
+        @JvmStatic
         public fun copyFrom(bytes: ByteArray, offset: Int = 0, length: Int = bytes.size - offset): ByteString =
             if (length == 0) EMPTY else ByteString(bytes.copyOfRange(offset, offset + length))
     }
@@ -104,6 +106,34 @@ public class UnknownFields(initial: ByteString? = null) {
         length += count
     }
 
+    internal fun appendVarint32(value: Int) {
+        reserve(5)
+        var v = value
+        while (v and 0x7F.inv() != 0) {
+            buffer[length++] = ((v and 0x7F) or 0x80).toByte()
+            v = v ushr 7
+        }
+        buffer[length++] = v.toByte()
+    }
+
+    internal fun appendVarint64(value: Long) {
+        reserve(10)
+        var v = value
+        while (v and 0x7FL.inv() != 0L) {
+            buffer[length++] = ((v and 0x7F).toInt() or 0x80).toByte()
+            v = v ushr 7
+        }
+        buffer[length++] = v.toByte()
+    }
+
+    /** Keeps a length-delimited field, such as a map entry with an unknown enum number. */
+    public fun addLengthDelimited(number: Int, payload: ByteArray) {
+        val writer = WireWriter(ByteArray(WireSize.tag(number) + WireSize.varint32(payload.size) + payload.size))
+        writer.writeBytes(number, payload)
+        val bytes = writer.toByteArray()
+        append(bytes, 0, bytes.size)
+    }
+
     /** Keeps a varint field whose value the generated code did not accept, such as an unknown enum number. */
     public fun addVarint(tag: Int, value: Long) {
         val writer = WireWriter(ByteArray(WireSize.varint32(tag) + WireSize.varint64(value)))
@@ -134,14 +164,12 @@ public class WireReader(private val buffer: ByteArray) {
     private var position = 0
     private var limit = buffer.size
     private var depth = 1
-    private var tagStart = 0
 
     public fun isAtEnd(): Boolean = position >= limit
 
     /** Returns the next tag, or 0 at the end of the current message. */
     public fun readTag(): Int {
         if (position >= limit) return 0
-        tagStart = position
         val tag = readVarint32()
         if ((tag ushr 3) == 0) throw InvalidWireException("invalid tag")
         return tag
@@ -304,19 +332,43 @@ public class WireReader(private val buffer: ByteArray) {
         return true
     }
 
-    /** Returns the position of the tag that was just read. */
-    public fun fieldStart(): Int = tagStart
-
-    /** Keeps the bytes from [start] to the current position in [unknown]. */
-    public fun keep(start: Int, unknown: UnknownFields) {
-        unknown.append(buffer, start, position)
+    /**
+     * Reads the field of the tag that was just read and keeps it in [unknown]. The tags, the lengths
+     * and the varints are written in their shortest form, as Java lite writes them.
+     */
+    public fun readUnknown(tag: Int, unknown: UnknownFields) {
+        unknown.appendVarint32(tag)
+        when (tag and 7) {
+            WireType.VARINT -> unknown.appendVarint64(readVarint64())
+            WireType.FIXED64 -> copyUnknown(8, unknown)
+            WireType.LENGTH_DELIMITED -> {
+                val length = readLength()
+                unknown.appendVarint32(length)
+                copyUnknown(length, unknown)
+            }
+            WireType.START_GROUP -> {
+                enter()
+                while (true) {
+                    val inner = readTag()
+                    if (inner == 0) throw InvalidWireException("truncated message")
+                    if ((inner and 7) == WireType.END_GROUP) {
+                        if ((inner ushr 3) != (tag ushr 3)) throw InvalidWireException("mismatched end group")
+                        unknown.appendVarint32(inner)
+                        break
+                    }
+                    readUnknown(inner, unknown)
+                }
+                depth--
+            }
+            WireType.FIXED32 -> copyUnknown(4, unknown)
+            else -> throw InvalidWireException("invalid wire type")
+        }
     }
 
-    /** Skips the field of the tag that was just read and keeps its bytes in [unknown]. */
-    public fun readUnknown(tag: Int, unknown: UnknownFields) {
-        val start = tagStart
-        skipField(tag)
-        unknown.append(buffer, start, position)
+    private fun copyUnknown(count: Int, unknown: UnknownFields) {
+        if (count < 0 || count > limit - position) throw InvalidWireException("truncated message")
+        unknown.append(buffer, position, position + count)
+        position += count
     }
 
     /** Skips the field of the tag that was just read. */
@@ -357,6 +409,20 @@ public class WireReader(private val buffer: ByteArray) {
 /** Writes the protobuf wire format into a buffer whose size the caller computed before. */
 public class WireWriter(private val buffer: ByteArray) {
     private var position = 0
+
+    public companion object {
+        /** Writes a message to a new array. It fails if the message changed after its size was cached. */
+        @JvmStatic
+        public fun encode(message: WireMessage): ByteArray {
+            val writer = WireWriter(ByteArray(message.getSerializedSize()))
+            try {
+                message.writeTo(writer)
+            } catch (e: IndexOutOfBoundsException) {
+                throw IllegalStateException("a list or a map of the message changed after the message was created", e)
+            }
+            return writer.toByteArray()
+        }
+    }
 
     public fun toByteArray(): ByteArray {
         check(position == buffer.size) { "the serialized size does not match the buffer" }
@@ -479,7 +545,7 @@ public class WireWriter(private val buffer: ByteArray) {
         position += value.size
     }
 
-    private fun writeBytes(number: Int, value: ByteArray) {
+    internal fun writeBytes(number: Int, value: ByteArray) {
         writeTag(number, WireType.LENGTH_DELIMITED)
         writeVarint32(value.size)
         value.copyInto(buffer, position)

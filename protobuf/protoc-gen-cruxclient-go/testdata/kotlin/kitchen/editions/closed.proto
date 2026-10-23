@@ -28,3 +28,10 @@ message Features {
   repeated int32 packed_numbers = 4;
   repeated int32 expanded_numbers = 5 [features.repeated_field_encoding = EXPANDED];
 }
+
+message ClosedMaps {
+  map<string, Closed> by_name = 1;
+  map<int32, Closed> by_id = 2;
+  map<string, Open> open_by_name = 3;
+  string tail = 4;
+}

@@ -21,12 +21,41 @@ public sealed class Level(override val number: kotlin.Int, public val name: kotl
     override fun toString(): kotlin.String = name
 
     public companion object {
+        @kotlin.jvm.JvmStatic
         public val entries: kotlin.collections.List<Level> by lazy { kotlin.collections.listOf(LEVEL_LOW, LEVEL_HIGH) }
 
         @kotlin.jvm.JvmStatic
         public fun fromNumber(number: kotlin.Int): Level = when (number) {
             1 -> LEVEL_LOW
             2 -> LEVEL_HIGH
+            else -> UNRECOGNIZED(number)
+        }
+    }
+}
+
+public sealed class Zeroed(override val number: kotlin.Int, public val name: kotlin.String) : com.safetyculture.s12kt.wire.WireEnum {
+    public object ZEROED_NONE : Zeroed(0, "ZEROED_NONE")
+    public object ZEROED_ONE : Zeroed(1, "ZEROED_ONE")
+
+    /** A number that this version of the schema does not know. Get it from fromNumber. */
+    public class UNRECOGNIZED internal constructor(number: kotlin.Int) : Zeroed(number, "UNRECOGNIZED") {
+        override fun equals(other: kotlin.Any?): kotlin.Boolean = other is UNRECOGNIZED && other.number == number
+
+        override fun hashCode(): kotlin.Int = number
+
+        override fun toString(): kotlin.String = "UNRECOGNIZED($number)"
+    }
+
+    override fun toString(): kotlin.String = name
+
+    public companion object {
+        @kotlin.jvm.JvmStatic
+        public val entries: kotlin.collections.List<Zeroed> by lazy { kotlin.collections.listOf(ZEROED_NONE, ZEROED_ONE) }
+
+        @kotlin.jvm.JvmStatic
+        public fun fromNumber(number: kotlin.Int): Zeroed = when (number) {
+            0 -> ZEROED_NONE
+            1 -> ZEROED_ONE
             else -> UNRECOGNIZED(number)
         }
     }
@@ -102,11 +131,7 @@ public data class Legacy(
         writer.writeUnknown(this.unknownFields)
     }
 
-    override fun toByteArray(): kotlin.ByteArray {
-        val writer = com.safetyculture.s12kt.wire.WireWriter(kotlin.ByteArray(getSerializedSize()))
-        writeTo(writer)
-        return writer.toByteArray()
-    }
+    override fun toByteArray(): kotlin.ByteArray = com.safetyculture.s12kt.wire.WireWriter.encode(this)
 
     internal fun findMissingRequired(): kotlin.String? {
         if ((this.missingRequired and 1L) != 0L) return "id"
@@ -259,11 +284,7 @@ public data class Req(
         writer.writeUnknown(this.unknownFields)
     }
 
-    override fun toByteArray(): kotlin.ByteArray {
-        val writer = com.safetyculture.s12kt.wire.WireWriter(kotlin.ByteArray(getSerializedSize()))
-        writeTo(writer)
-        return writer.toByteArray()
-    }
+    override fun toByteArray(): kotlin.ByteArray = com.safetyculture.s12kt.wire.WireWriter.encode(this)
 
     internal fun findMissingRequired(): kotlin.String? {
         if ((this.missingRequired and 1L) != 0L) return "name"
@@ -364,11 +385,7 @@ public data class ReqHolder(
         writer.writeUnknown(this.unknownFields)
     }
 
-    override fun toByteArray(): kotlin.ByteArray {
-        val writer = com.safetyculture.s12kt.wire.WireWriter(kotlin.ByteArray(getSerializedSize()))
-        writeTo(writer)
-        return writer.toByteArray()
-    }
+    override fun toByteArray(): kotlin.ByteArray = com.safetyculture.s12kt.wire.WireWriter.encode(this)
 
     internal fun findMissingRequired(): kotlin.String? {
         this.one?.findMissingRequired()?.let { return "one." + it }
@@ -482,11 +499,7 @@ public data class ReqEnum(
         writer.writeUnknown(this.unknownFields)
     }
 
-    override fun toByteArray(): kotlin.ByteArray {
-        val writer = com.safetyculture.s12kt.wire.WireWriter(kotlin.ByteArray(getSerializedSize()))
-        writeTo(writer)
-        return writer.toByteArray()
-    }
+    override fun toByteArray(): kotlin.ByteArray = com.safetyculture.s12kt.wire.WireWriter.encode(this)
 
     internal fun findMissingRequired(): kotlin.String? {
         if ((this.missingRequired and 1L) != 0L) return "level"
@@ -528,6 +541,174 @@ public data class ReqEnum(
             )
             _result.missingRequired = _missing
             return _result
+        }
+    }
+}
+
+public data class LevelMaps(
+    public val byName: kotlin.collections.Map<kotlin.String, com.safetyculture.s12kt.kitchen.legacy.Zeroed> = kotlin.collections.emptyMap(),
+    public val byId: kotlin.collections.Map<kotlin.Int, com.safetyculture.s12kt.kitchen.legacy.Zeroed> = kotlin.collections.emptyMap(),
+    public val tags: kotlin.collections.Map<kotlin.String, kotlin.String> = kotlin.collections.emptyMap(),
+    public val tail: kotlin.String? = null,
+    /** The fields that this version of the schema does not know, kept as encoded bytes. */
+    public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
+) : com.safetyculture.s12kt.wire.WireMessage {
+    @kotlin.jvm.Volatile
+    private var memoizedSize: kotlin.Int = -1
+
+    public fun hasTail(): kotlin.Boolean = this.tail != null
+
+    override fun getSerializedSize(): kotlin.Int {
+        val _cached = this.memoizedSize
+        if (_cached >= 0) return _cached
+        var _size = 0
+        for ((_k, _v) in this.byName) {
+            val _entry = com.safetyculture.s12kt.wire.WireSize.string(1, _k) + com.safetyculture.s12kt.wire.WireSize.int32(2, _v.number)
+            _size += com.safetyculture.s12kt.wire.WireSize.tag(1) + com.safetyculture.s12kt.wire.WireSize.varint32(_entry) + _entry
+        }
+        for ((_k, _v) in this.byId) {
+            val _entry = com.safetyculture.s12kt.wire.WireSize.int32(1, _k) + com.safetyculture.s12kt.wire.WireSize.int32(2, _v.number)
+            _size += com.safetyculture.s12kt.wire.WireSize.tag(2) + com.safetyculture.s12kt.wire.WireSize.varint32(_entry) + _entry
+        }
+        for ((_k, _v) in this.tags) {
+            val _entry = com.safetyculture.s12kt.wire.WireSize.string(1, _k) + com.safetyculture.s12kt.wire.WireSize.string(2, _v)
+            _size += com.safetyculture.s12kt.wire.WireSize.tag(3) + com.safetyculture.s12kt.wire.WireSize.varint32(_entry) + _entry
+        }
+        if (this.tail != null) _size += com.safetyculture.s12kt.wire.WireSize.string(4, this.tail)
+        _size += this.unknownFields.size
+        this.memoizedSize = _size
+        return _size
+    }
+
+    override fun writeTo(writer: com.safetyculture.s12kt.wire.WireWriter) {
+        for ((_k, _v) in this.byName) {
+            writer.writeTag(1, 2)
+            writer.writeVarint32(com.safetyculture.s12kt.wire.WireSize.string(1, _k) + com.safetyculture.s12kt.wire.WireSize.int32(2, _v.number))
+            writer.writeString(1, _k)
+            writer.writeInt32(2, _v.number)
+        }
+        for ((_k, _v) in this.byId) {
+            writer.writeTag(2, 2)
+            writer.writeVarint32(com.safetyculture.s12kt.wire.WireSize.int32(1, _k) + com.safetyculture.s12kt.wire.WireSize.int32(2, _v.number))
+            writer.writeInt32(1, _k)
+            writer.writeInt32(2, _v.number)
+        }
+        for ((_k, _v) in this.tags) {
+            writer.writeTag(3, 2)
+            writer.writeVarint32(com.safetyculture.s12kt.wire.WireSize.string(1, _k) + com.safetyculture.s12kt.wire.WireSize.string(2, _v))
+            writer.writeString(1, _k)
+            writer.writeString(2, _v)
+        }
+        if (this.tail != null) writer.writeString(4, this.tail)
+        writer.writeUnknown(this.unknownFields)
+    }
+
+    override fun toByteArray(): kotlin.ByteArray = com.safetyculture.s12kt.wire.WireWriter.encode(this)
+
+    public companion object : com.safetyculture.s12kt.wire.WireCodec<com.safetyculture.s12kt.kitchen.legacy.LevelMaps> {
+        @kotlin.jvm.JvmStatic
+        public fun parseFrom(bytes: kotlin.ByteArray): com.safetyculture.s12kt.kitchen.legacy.LevelMaps = decode(com.safetyculture.s12kt.wire.WireReader(bytes))
+
+        override fun decodeSections(reader: com.safetyculture.s12kt.wire.WireReader, sections: com.safetyculture.s12kt.wire.Sections?): com.safetyculture.s12kt.kitchen.legacy.LevelMaps {
+            val v_byName = kotlin.collections.LinkedHashMap<kotlin.String, com.safetyculture.s12kt.kitchen.legacy.Zeroed>()
+            val v_byId = kotlin.collections.LinkedHashMap<kotlin.Int, com.safetyculture.s12kt.kitchen.legacy.Zeroed>()
+            val v_tags = kotlin.collections.LinkedHashMap<kotlin.String, kotlin.String>()
+            var v_tail: kotlin.String? = null
+            val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+            var _part = 0
+            while (reader.nextSection(sections, _part++)) {
+                loop@ while (true) {
+                    when (val _tag = reader.readTag()) {
+                        0 -> break@loop
+                        10 -> {
+                            val _saved = reader.beginSection()
+                            var _key: kotlin.String = ""
+                            var _value: com.safetyculture.s12kt.kitchen.legacy.Zeroed = com.safetyculture.s12kt.kitchen.legacy.Zeroed.ZEROED_NONE
+                            entry@ while (true) {
+                                when (val _t = reader.readTag()) {
+                                    0 -> break@entry
+                                    10 -> _key = reader.readString()
+                                    16 -> _value = com.safetyculture.s12kt.kitchen.legacy.Zeroed.fromNumber(reader.readInt32())
+                                    else -> reader.skipField(_t)
+                                }
+                            }
+                            reader.endSection(_saved)
+                            v_byName[_key] = _value
+                        }
+                        18 -> {
+                            val _saved = reader.beginSection()
+                            var _key: kotlin.Int = 0
+                            var _value: com.safetyculture.s12kt.kitchen.legacy.Zeroed = com.safetyculture.s12kt.kitchen.legacy.Zeroed.ZEROED_NONE
+                            entry@ while (true) {
+                                when (val _t = reader.readTag()) {
+                                    0 -> break@entry
+                                    8 -> _key = reader.readInt32()
+                                    16 -> _value = com.safetyculture.s12kt.kitchen.legacy.Zeroed.fromNumber(reader.readInt32())
+                                    else -> reader.skipField(_t)
+                                }
+                            }
+                            reader.endSection(_saved)
+                            v_byId[_key] = _value
+                        }
+                        26 -> {
+                            val _saved = reader.beginSection()
+                            var _key: kotlin.String = ""
+                            var _value: kotlin.String = ""
+                            entry@ while (true) {
+                                when (val _t = reader.readTag()) {
+                                    0 -> break@entry
+                                    10 -> _key = reader.readString()
+                                    18 -> _value = reader.readString()
+                                    else -> reader.skipField(_t)
+                                }
+                            }
+                            reader.endSection(_saved)
+                            v_tags[_key] = _value
+                        }
+                        34 -> {
+                            v_tail = reader.readStringLenient()
+                        }
+                        else -> reader.readUnknown(_tag, _unknown)
+                    }
+                }
+            }
+            run {
+                val _it = v_byName.entries.iterator()
+                while (_it.hasNext()) {
+                    val _entry = _it.next()
+                    if (_entry.value is com.safetyculture.s12kt.kitchen.legacy.Zeroed.UNRECOGNIZED) {
+                        val _k = _entry.key
+                        val _v = _entry.value
+                        val writer = com.safetyculture.s12kt.wire.WireWriter(kotlin.ByteArray(com.safetyculture.s12kt.wire.WireSize.string(1, _k) + com.safetyculture.s12kt.wire.WireSize.int32(2, _v.number)))
+                        writer.writeString(1, _k)
+                        writer.writeInt32(2, _v.number)
+                        _unknown.addLengthDelimited(1, writer.toByteArray())
+                        _it.remove()
+                    }
+                }
+            }
+            run {
+                val _it = v_byId.entries.iterator()
+                while (_it.hasNext()) {
+                    val _entry = _it.next()
+                    if (_entry.value is com.safetyculture.s12kt.kitchen.legacy.Zeroed.UNRECOGNIZED) {
+                        val _k = _entry.key
+                        val _v = _entry.value
+                        val writer = com.safetyculture.s12kt.wire.WireWriter(kotlin.ByteArray(com.safetyculture.s12kt.wire.WireSize.int32(1, _k) + com.safetyculture.s12kt.wire.WireSize.int32(2, _v.number)))
+                        writer.writeInt32(1, _k)
+                        writer.writeInt32(2, _v.number)
+                        _unknown.addLengthDelimited(2, writer.toByteArray())
+                        _it.remove()
+                    }
+                }
+            }
+            return com.safetyculture.s12kt.kitchen.legacy.LevelMaps(
+                byName = java.util.Collections.unmodifiableMap(v_byName),
+                byId = java.util.Collections.unmodifiableMap(v_byId),
+                tags = java.util.Collections.unmodifiableMap(v_tags),
+                tail = v_tail,
+                unknownFields = _unknown.toByteString(),
+            )
         }
     }
 }

@@ -1,0 +1,23 @@
+edition = "2023";
+
+package kitchen.editions;
+
+import "google/protobuf/java_features.proto";
+
+option java_multiple_files = true;
+option features.utf8_validation = NONE;
+option features.(pb.java).utf8_validation = VERIFY;
+
+// Java lite checks the UTF-8 of a string when the core feature verifies it, and also when the Java
+// feature utf8_validation is VERIFY on the field or, if the field does not set it, on the file.
+message Utf8Modes {
+  string from_file = 1;
+  string java_default = 2 [features.(pb.java).utf8_validation = DEFAULT];
+  string core_verify = 3 [features.utf8_validation = VERIFY];
+  string java_verify = 4 [features.(pb.java).utf8_validation = VERIFY];
+  Inner inner = 5;
+
+  message Inner {
+    string nested = 1;
+  }
+}

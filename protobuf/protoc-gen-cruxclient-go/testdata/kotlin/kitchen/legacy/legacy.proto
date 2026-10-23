@@ -47,3 +47,15 @@ message ReqHolder {
 message ReqEnum {
   required Level level = 1;
 }
+
+enum Zeroed {
+  ZEROED_NONE = 0;
+  ZEROED_ONE = 1;
+}
+
+message LevelMaps {
+  map<string, Zeroed> by_name = 1;
+  map<int32, Zeroed> by_id = 2;
+  map<string, string> tags = 3;
+  optional string tail = 4;
+}

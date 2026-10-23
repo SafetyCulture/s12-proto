@@ -7,7 +7,11 @@
 // takes the last value, a oneof takes the last member, a repeated field appends and a message field
 // merges. The kitchen checks at the end cover edits, nesting limits, merges, encodings and required
 // fields.
+import com.safetyculture.s12kt.kitchen.editions.ClosedMaps
+import com.safetyculture.s12kt.kitchen.editions.Utf8Modes
 import com.safetyculture.s12kt.kitchen.legacy.Legacy
+import com.safetyculture.s12kt.kitchen.legacy.LevelMaps
+import com.safetyculture.s12kt.kitchen.legacy.Strict
 import com.safetyculture.s12kt.kitchen.legacy.Req
 import com.safetyculture.s12kt.kitchen.legacy.ReqEnum
 import com.safetyculture.s12kt.kitchen.legacy.ReqHolder
@@ -128,6 +132,10 @@ private typealias JLegacy = com.safetyculture.kitchen.legacy.Legacy
 private typealias JReq = com.safetyculture.kitchen.legacy.Req
 private typealias JReqEnum = com.safetyculture.kitchen.legacy.ReqEnum
 private typealias JReqHolder = com.safetyculture.kitchen.legacy.ReqHolder
+private typealias JLevelMaps = com.safetyculture.kitchen.legacy.LevelMaps
+private typealias JStrict = com.safetyculture.kitchen.legacy.Strict
+private typealias JClosedMaps = kitchen.editions.ClosedMaps
+private typealias JUtf8Modes = kitchen.editions.Utf8Modes
 
 private fun check(name: String, ok: Boolean): Int {
     println((if (ok) "ok   " else "FAIL ") + name)
@@ -384,6 +392,140 @@ private fun valueChecks(): Int {
     return failures
 }
 
+/** The entry of a map<string, enum>. */
+private fun stringEntry(key: String, value: Long): ByteArray = delimited(1, key.toByteArray()) + vint(2, value)
+
+private fun intEntry(key: Int, value: Long): ByteArray = vint(1, key.toLong()) + vint(2, value)
+
+/**
+ * Java lite filters the map entries with an enum number that a closed enum does not declare after
+ * the whole message is read: it writes the entries again in the canonical form, after all other
+ * unknown fields, and removes them from the map.
+ */
+private fun mapEnumChecks(): Int {
+    var failures = 0
+    fun closed(name: String, bytes: ByteArray) {
+        failures += sameValues("ClosedMaps $name", ClosedMaps::class.java, JClosedMaps::class.java, bytes, true)
+    }
+    fun legacy(name: String, bytes: ByteArray) {
+        failures += sameValues("LevelMaps $name", LevelMaps::class.java, JLevelMaps::class.java, bytes, true)
+    }
+    val unknownField = vint(9, 5)
+    val overlongValue = byteArrayOf(0x99.toByte(), 0x80.toByte(), 0x00)
+    for ((prefix, check) in listOf<Pair<String, (String, ByteArray) -> Unit>>("edition" to ::closed, "proto2" to ::legacy)) {
+        check("$prefix: an entry with an unknown number", delimited(1, stringEntry("a", 99)))
+        check("$prefix: an entry with a known number", delimited(1, stringEntry("a", 1)))
+        check("$prefix: the same key, known and then unknown", delimited(1, stringEntry("k", 1)) + delimited(1, stringEntry("k", 99)))
+        check("$prefix: the same key, unknown and then known", delimited(1, stringEntry("k", 99)) + delimited(1, stringEntry("k", 1)))
+        check("$prefix: an unknown number and then an unknown field", delimited(1, stringEntry("a", 99)) + unknownField)
+        check("$prefix: an unknown field and then an unknown number", unknownField + delimited(1, stringEntry("a", 99)))
+        check("$prefix: two maps", delimited(2, intEntry(7, 99)) + delimited(1, stringEntry("b", 99)) + delimited(1, stringEntry("a", 99)))
+        check("$prefix: a negative number", delimited(1, stringEntry("n", -1)))
+        check("$prefix: a number above 32 bits", delimited(1, stringEntry("n", 0x1_0000_0005L)))
+        check("$prefix: a value in more bytes than needed", delimited(1, delimited(1, "o".toByteArray()) + varint((2 shl 3) or 0) + overlongValue))
+        check("$prefix: an entry without a value", delimited(1, delimited(1, "x".toByteArray())))
+        check("$prefix: an entry with the value first", delimited(1, vint(2, 99) + delimited(1, "v".toByteArray())))
+        check("$prefix: an entry with an unknown field inside", delimited(1, stringEntry("u", 99) + vint(5, 1)))
+        check("$prefix: the same key three times", delimited(1, stringEntry("k", 99)) + delimited(1, stringEntry("k", 1)) + delimited(1, stringEntry("k", 98)))
+    }
+    closed("an open enum keeps the number in the map", delimited(3, stringEntry("a", 99)))
+    closed("an entry with an unknown number and a field after it", delimited(1, stringEntry("a", 99)) + delimited(4, "tail".toByteArray()))
+    return failures
+}
+
+/** Java lite checks the UTF-8 of a string for the Java options too: java_string_check_utf8 and the Java feature. */
+private fun javaUtf8Checks(): Int {
+    var failures = 0
+    val invalid = byteArrayOf(0x61, 0xFF.toByte(), 0xC3.toByte(), 0x62)
+    fun strict(name: String, bytes: ByteArray, accepted: Boolean) {
+        failures += same("Strict $name", { Strict.parseFrom(it) }, { JStrict.parseFrom(it) }, bytes, accepted)
+    }
+    strict("optional string", delimited(1, invalid), false)
+    strict("repeated string", delimited(2, "ok".toByteArray()) + delimited(2, invalid), false)
+    strict("oneof string", delimited(3, invalid), false)
+    strict("valid optional string", delimited(1, "\u00e9".toByteArray()), true)
+    fun modes(name: String, bytes: ByteArray, accepted: Boolean) {
+        failures += same("Utf8Modes $name", { Utf8Modes.parseFrom(it) }, { JUtf8Modes.parseFrom(it) }, bytes, accepted)
+    }
+    modes("string from the file feature", delimited(1, invalid), false)
+    modes("string with the Java feature DEFAULT", delimited(2, invalid), true)
+    modes("string with the core feature VERIFY", delimited(3, invalid), false)
+    modes("string with the Java feature VERIFY", delimited(4, invalid), false)
+    modes("nested string from the file feature", delimited(5, delimited(1, invalid)), false)
+    return failures
+}
+
+/** Both classes must accept or both must refuse an input that is not a valid message. An accepted message must be equal. */
+private fun malformedChecks(): Int {
+    var failures = 0
+    fun agree(name: String, bytes: ByteArray) {
+        val k = accepts({ Scalars.parseFrom(it) }, bytes)
+        val j = accepts({ JScalars.parseFrom(it) }, bytes)
+        var ok = k != null && k == j
+        if (ok && k == true) ok = bytesOf(Scalars.parseFrom(bytes)).contentEquals(bytesOf(JScalars.parseFrom(bytes)))
+        failures += check("malformed $name: Kotlin=$k Java=$j", ok)
+    }
+    val ff = 0xFF.toByte()
+    agree("truncated length", field(14, 2, varint(10) + "ab".toByteArray()))
+    agree("length without data", varint((14 shl 3) or 2))
+    agree("negative length", field(14, 2, byteArrayOf(ff, ff, ff, ff, 0x0F)))
+    agree("huge length", field(14, 2, byteArrayOf(ff, ff, ff, 0x7F)))
+    agree("ten byte varint", varint((3 shl 3) or 0) + ByteArray(9) { ff } + byteArrayOf(0x01))
+    // Java lite reads an int32 varint of any length from a byte array; Kotlin refuses a varint of more than ten bytes.
+    failures += check("malformed eleven byte varint is refused by Kotlin", accepts({ Scalars.parseFrom(it) }, varint((3 shl 3) or 0) + ByteArray(10) { ff } + byteArrayOf(0x01)) == false)
+    agree("truncated varint", varint((3 shl 3) or 0) + byteArrayOf(ff))
+    agree("truncated tag", byteArrayOf(0x80.toByte()))
+    agree("a tag in ten bytes", ByteArray(9) { ff } + byteArrayOf(0x01))
+    agree("a tag in six bytes", byteArrayOf(ff, ff, ff, ff, ff, 0x01))
+    agree("wire type 6", varint((3 shl 3) or 6))
+    agree("wire type 7", varint((3 shl 3) or 7))
+    agree("wire type 6 and unknown number", varint((99 shl 3) or 6))
+    agree("field number 0", byteArrayOf(0x00))
+    agree("field number 0 with a value", field(0, 0, varint(1)))
+    agree("a stray end group", varint((7 shl 3) or 4))
+    agree("an end group of another number", varint((7 shl 3) or 3) + varint((8 shl 3) or 4))
+    agree("a group that is not closed", varint((7 shl 3) or 3) + vint(1, 1))
+    agree("a closed group", varint((7 shl 3) or 3) + vint(1, 1) + varint((7 shl 3) or 4))
+    agree("a valid message and half a tag", vint(3, 5) + byteArrayOf(0x80.toByte()))
+    agree("a valid message and a zero byte", vint(3, 5) + byteArrayOf(0x00))
+    agree("fixed64 with seven bytes", varint((1 shl 3) or 1) + ByteArray(7))
+    agree("fixed32 with three bytes", varint((2 shl 3) or 5) + ByteArray(3))
+    agree("a declared field with the wrong wire type", varint((3 shl 3) or 2) + varint(1) + byteArrayOf(0x05))
+    agree("a string with the varint wire type", vint(14, 5))
+    agree("enum -1", vint(16, -1L))
+    agree("enum -2147483648", vint(16, Int.MIN_VALUE.toLong()))
+    agree("enum 4294967297", vint(16, 0x1_0000_0001L))
+    agree("enum 4294967295", vint(16, 0xFFFF_FFFFL))
+    for (size in listOf(16383, 16384, 16385, 70000, 1 shl 20)) {
+        agree("string of $size bytes", delimited(14, ByteArray(size) { 'a'.code.toByte() }))
+        agree("bytes of $size bytes", delimited(15, ByteArray(size) { it.toByte() }))
+    }
+    agree("a length that is one byte too long", delimited(14, ByteArray(300) { 'a'.code.toByte() }).let { it.copyOf(it.size - 1) })
+    val big = ByteArray(40000) { (it % 7).toByte() }
+    val repeatedBytes = delimited(18, big)
+    failures += check(
+        "malformed packed int32 of 40000 values",
+        accepts({ Repeated.parseFrom(it) }, repeatedBytes) == accepts({ JRepeated.parseFrom(it) }, repeatedBytes) &&
+            bytesOf(Repeated.parseFrom(repeatedBytes)).contentEquals(bytesOf(JRepeated.parseFrom(repeatedBytes))),
+    )
+    return failures
+}
+
+/** A caller that changes a list after the message cached its size gets an IllegalStateException, not a corrupt array. */
+private fun staleSizeChecks(): Int {
+    val values = mutableListOf(1, 2, 3)
+    val message = Repeated(fInt32 = values)
+    message.getSerializedSize()
+    values.addAll(listOf(300, 400, 500))
+    val refused = try {
+        message.toByteArray()
+        false
+    } catch (e: IllegalStateException) {
+        true
+    }
+    return check("a list changed after the size was cached throws IllegalStateException", refused)
+}
+
 fun main(args: Array<String>) {
     manifest = readManifest(File(args[0], "fields.tsv"))
     var failures = compareSamples(File(args[0]))
@@ -392,5 +534,9 @@ fun main(args: Array<String>) {
     failures += requiredChecks()
     failures += utf8Checks()
     failures += valueChecks()
+    failures += mapEnumChecks()
+    failures += javaUtf8Checks()
+    failures += malformedChecks()
+    failures += staleSizeChecks()
     exitProcess(if (failures == 0) 0 else 1)
 }

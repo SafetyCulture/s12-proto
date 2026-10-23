@@ -160,6 +160,7 @@ func (g *fileGen) enum(e protoreflect.EnumDescriptor) {
 	if len(aliases) > 0 {
 		g.w.line("")
 	}
+	g.w.line("@kotlin.jvm.JvmStatic")
 	g.w.line("public val entries: kotlin.collections.List<%s> by lazy { kotlin.collections.listOf(%s) }", name, strings.Join(entries, ", "))
 	g.w.line("")
 	g.w.line("@kotlin.jvm.JvmStatic")
@@ -406,11 +407,7 @@ func (g *fileGen) message(msg protoreflect.MessageDescriptor) error {
 	g.w.line("")
 	g.writeMethod(byNumber, qualified)
 	g.w.line("")
-	g.w.open("override fun toByteArray(): kotlin.ByteArray {")
-	g.w.line("val writer = %s(kotlin.ByteArray(getSerializedSize()))", g.rt("WireWriter"))
-	g.w.line("writeTo(writer)")
-	g.w.line("return writer.toByteArray()")
-	g.w.close("}")
+	g.w.line("override fun toByteArray(): kotlin.ByteArray = %s.encode(this)", g.rt("WireWriter"))
 	if g.needsRequiredCheck(msg) {
 		g.w.line("")
 		g.findMissingRequired(fields, required, qualified)
@@ -687,10 +684,10 @@ func (g *fileGen) readValue(fd protoreflect.FieldDescriptor, retain bool) ([]str
 }
 
 // validatesUTF8 reports whether a parse rejects a string field with invalid UTF-8. A map entry
-// always does. Other fields follow the resolved feature utf8_validation: proto3 verifies, proto2
-// does not.
+// always does, and so does a field for which protoc Java asks for the check. Other fields follow
+// the resolved feature utf8_validation: proto3 verifies, proto2 does not.
 func validatesUTF8(fd protoreflect.FieldDescriptor) bool {
-	if fd.ContainingMessage().IsMapEntry() {
+	if fd.ContainingMessage().IsMapEntry() || javaUTF8Verify(fd) {
 		return true
 	}
 	if f, ok := fd.(interface{ EnforceUTF8() bool }); ok {
@@ -766,6 +763,7 @@ func (g *fileGen) companion(msg protoreflect.MessageDescriptor, qualified string
 	g.w.close("}")
 	g.w.close("}")
 	g.w.close("}")
+	g.dropUnknownMapEnums(fields)
 	oneofDone := map[*oneofInfo]bool{}
 	for _, f := range fields {
 		switch {
@@ -780,7 +778,7 @@ func (g *fileGen) companion(msg protoreflect.MessageDescriptor, qualified string
 				if m.fd.Message() == nil {
 					continue
 				}
-				g.w.line("%d -> v_%s = %s(reader.readSections(%s, s_%s!!))", m.fd.Number(), oi.prop, m.variant(qualified), qualifiedName(m.fd.Message(), g.root), oi.prop)
+				g.w.line("%d -> if (s_%s != null) v_%s = %s(reader.readSections(%s, s_%s))", m.fd.Number(), oi.prop, oi.prop, m.variant(qualified), qualifiedName(m.fd.Message(), g.root), oi.prop)
 			}
 			g.w.close("}")
 		case !f.fd.IsMap() && !f.fd.IsList() && f.fd.Message() != nil:
@@ -880,9 +878,6 @@ func (g *fileGen) decodeMap(f *fieldInfo) {
 	key, val := fd.MapKey(), fd.MapValue()
 	n := fd.Number()
 	g.w.open("%d -> {", tagOf(n, wireLength))
-	if closedEnum(val) {
-		g.w.line("val _start = reader.fieldStart()")
-	}
 	g.w.line("val _saved = reader.beginSection()")
 	g.w.line("var _key: %s = %s", g.elementType(key), g.defaultLiteral(key))
 	if val.Kind() == protoreflect.MessageKind {
@@ -914,12 +909,41 @@ func (g *fileGen) decodeMap(f *fieldInfo) {
 		g.w.line("v_%s[_key] = _value ?: %s.decode(%s(kotlin.ByteArray(0)))", f.prop, g.elementType(val), g.rt("WireReader"))
 	case val.Kind() == protoreflect.MessageKind:
 		g.w.line("v_%s[_key] = _value ?: %s()", f.prop, g.elementType(val))
-	case closedEnum(val):
-		g.w.line("if (_value is %s) reader.keep(_start, _unknown) else v_%s[_key] = _value", g.unrecognized(val), f.prop)
 	default:
 		g.w.line("v_%s[_key] = _value", f.prop)
 	}
 	g.w.close("}")
+}
+
+// dropUnknownMapEnums moves the entries of a map whose value is an enum number that a closed enum
+// does not declare into the unknown fields, after the parse has read every entry. The entries are
+// written again in their canonical form, after all other unknown fields, in the order of the map.
+func (g *fileGen) dropUnknownMapEnums(fields []*fieldInfo) {
+	var maps []*fieldInfo
+	for _, f := range fields {
+		if f.fd.IsMap() && closedEnum(f.fd.MapValue()) {
+			maps = append(maps, f)
+		}
+	}
+	sort.SliceStable(maps, func(i, j int) bool { return maps[i].number() < maps[j].number() })
+	for _, f := range maps {
+		key, val := f.fd.MapKey(), f.fd.MapValue()
+		g.w.open("run {")
+		g.w.line("val _it = v_%s.entries.iterator()", f.prop)
+		g.w.open("while (_it.hasNext()) {")
+		g.w.line("val _entry = _it.next()")
+		g.w.open("if (_entry.value is %s) {", g.unrecognized(val))
+		g.w.line("val _k = _entry.key")
+		g.w.line("val _v = _entry.value")
+		g.w.line("val writer = %s(kotlin.ByteArray(%s + %s))", g.rt("WireWriter"), g.sizeCall(key.Kind(), 1, "_k"), g.sizeCall(val.Kind(), 2, "_v"))
+		g.w.text(writeCall(key.Kind(), 1, "_k"))
+		g.w.text(writeCall(val.Kind(), 2, "_v"))
+		g.w.line("_unknown.addLengthDelimited(%d, writer.toByteArray())", f.fd.Number())
+		g.w.line("_it.remove()")
+		g.w.close("}")
+		g.w.close("}")
+		g.w.close("}")
+	}
 }
 
 // qualifiedValue returns the codec expression of a message.

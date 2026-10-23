@@ -17,9 +17,12 @@ var hardKeywords = map[string]bool{}
 var reservedProperties = map[string]bool{
 	"class": true, "serializedSize": true, "memoizedSize": true, "unknownFields": true,
 	"missingRequired": true, "findMissingRequired": true,
-	// The generated code names library types with their package, so a property called kotlin or com would hide them.
-	"kotlin": true, "com": true,
+	"kotlin": true, "com": true, "java": true,
 }
+
+// shadowingPackages are the first segments of the package names that the generated code uses to
+// name library types. A declaration with one of these names would hide the package.
+var shadowingPackages = map[string]bool{"kotlin": true, "com": true, "java": true}
 
 // reservedEntries are enum entry names that clash with a member of a Kotlin enum class
 // or with a member that the generator adds.
@@ -44,9 +47,10 @@ func escapeIdent(name string) string {
 }
 
 // className returns the Kotlin class name for a message or enum name. The name
-// Companion would clash with the companion object of the enclosing class.
+// Companion would clash with the companion object of the enclosing class, and the name of a
+// package that the generated code uses would hide that package.
 func className(name string) string {
-	if name == "Companion" {
+	if name == "Companion" || shadowingPackages[name] {
 		return name + "Message"
 	}
 	return name
@@ -105,7 +109,7 @@ func upperCamel(s string) string {
 }
 
 func entryName(name string) string {
-	if reservedEntries[name] || hardKeywords[name] {
+	if reservedEntries[name] || hardKeywords[name] || shadowingPackages[name] {
 		return name + "_"
 	}
 	return name

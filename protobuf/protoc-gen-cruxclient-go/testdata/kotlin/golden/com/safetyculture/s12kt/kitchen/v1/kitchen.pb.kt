@@ -24,6 +24,7 @@ public sealed class Color(override val number: kotlin.Int, public val name: kotl
     override fun toString(): kotlin.String = name
 
     public companion object {
+        @kotlin.jvm.JvmStatic
         public val entries: kotlin.collections.List<Color> by lazy { kotlin.collections.listOf(COLOR_UNSPECIFIED, COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_NEGATIVE) }
 
         @kotlin.jvm.JvmStatic
@@ -56,6 +57,7 @@ public sealed class Alias(override val number: kotlin.Int, public val name: kotl
     public companion object {
         public val ALIAS_ONE: Alias get() = ALIAS_FIRST
 
+        @kotlin.jvm.JvmStatic
         public val entries: kotlin.collections.List<Alias> by lazy { kotlin.collections.listOf(ALIAS_UNSPECIFIED, ALIAS_FIRST) }
 
         @kotlin.jvm.JvmStatic
@@ -138,11 +140,7 @@ public data class Scalars(
         writer.writeUnknown(this.unknownFields)
     }
 
-    override fun toByteArray(): kotlin.ByteArray {
-        val writer = com.safetyculture.s12kt.wire.WireWriter(kotlin.ByteArray(getSerializedSize()))
-        writeTo(writer)
-        return writer.toByteArray()
-    }
+    override fun toByteArray(): kotlin.ByteArray = com.safetyculture.s12kt.wire.WireWriter.encode(this)
 
     public companion object : com.safetyculture.s12kt.wire.WireCodec<com.safetyculture.s12kt.kitchen.v1.Scalars> {
         @kotlin.jvm.JvmStatic
@@ -338,11 +336,7 @@ public data class OptionalScalars(
         writer.writeUnknown(this.unknownFields)
     }
 
-    override fun toByteArray(): kotlin.ByteArray {
-        val writer = com.safetyculture.s12kt.wire.WireWriter(kotlin.ByteArray(getSerializedSize()))
-        writeTo(writer)
-        return writer.toByteArray()
-    }
+    override fun toByteArray(): kotlin.ByteArray = com.safetyculture.s12kt.wire.WireWriter.encode(this)
 
     public companion object : com.safetyculture.s12kt.wire.WireCodec<com.safetyculture.s12kt.kitchen.v1.OptionalScalars> {
         @kotlin.jvm.JvmStatic
@@ -614,11 +608,7 @@ public data class Repeated(
         writer.writeUnknown(this.unknownFields)
     }
 
-    override fun toByteArray(): kotlin.ByteArray {
-        val writer = com.safetyculture.s12kt.wire.WireWriter(kotlin.ByteArray(getSerializedSize()))
-        writeTo(writer)
-        return writer.toByteArray()
-    }
+    override fun toByteArray(): kotlin.ByteArray = com.safetyculture.s12kt.wire.WireWriter.encode(this)
 
     public companion object : com.safetyculture.s12kt.wire.WireCodec<com.safetyculture.s12kt.kitchen.v1.Repeated> {
         @kotlin.jvm.JvmStatic
@@ -1027,11 +1017,7 @@ public data class Maps(
         writer.writeUnknown(this.unknownFields)
     }
 
-    override fun toByteArray(): kotlin.ByteArray {
-        val writer = com.safetyculture.s12kt.wire.WireWriter(kotlin.ByteArray(getSerializedSize()))
-        writeTo(writer)
-        return writer.toByteArray()
-    }
+    override fun toByteArray(): kotlin.ByteArray = com.safetyculture.s12kt.wire.WireWriter.encode(this)
 
     public companion object : com.safetyculture.s12kt.wire.WireCodec<com.safetyculture.s12kt.kitchen.v1.Maps> {
         @kotlin.jvm.JvmStatic
@@ -1327,11 +1313,7 @@ public data class Oneofs(
         writer.writeUnknown(this.unknownFields)
     }
 
-    override fun toByteArray(): kotlin.ByteArray {
-        val writer = com.safetyculture.s12kt.wire.WireWriter(kotlin.ByteArray(getSerializedSize()))
-        writeTo(writer)
-        return writer.toByteArray()
-    }
+    override fun toByteArray(): kotlin.ByteArray = com.safetyculture.s12kt.wire.WireWriter.encode(this)
 
     public sealed class Choice {
         public data class Name(public val value: kotlin.String) : Choice()
@@ -1419,10 +1401,10 @@ public data class Oneofs(
                 }
             }
             when (n_choice) {
-                4 -> v_choice = com.safetyculture.s12kt.kitchen.v1.Oneofs.Choice.Scalars(reader.readSections(com.safetyculture.s12kt.kitchen.v1.Scalars, s_choice!!))
+                4 -> if (s_choice != null) v_choice = com.safetyculture.s12kt.kitchen.v1.Oneofs.Choice.Scalars(reader.readSections(com.safetyculture.s12kt.kitchen.v1.Scalars, s_choice))
             }
             when (n_other) {
-                21 -> v_other = com.safetyculture.s12kt.kitchen.v1.Oneofs.Other.Child(reader.readSections(com.safetyculture.s12kt.kitchen.v1.Oneofs, s_other!!))
+                21 -> if (s_other != null) v_other = com.safetyculture.s12kt.kitchen.v1.Oneofs.Other.Child(reader.readSections(com.safetyculture.s12kt.kitchen.v1.Oneofs, s_other))
             }
             return com.safetyculture.s12kt.kitchen.v1.Oneofs(
                 before = v_before,
@@ -1500,11 +1482,7 @@ public data class Outer(
         writer.writeUnknown(this.unknownFields)
     }
 
-    override fun toByteArray(): kotlin.ByteArray {
-        val writer = com.safetyculture.s12kt.wire.WireWriter(kotlin.ByteArray(getSerializedSize()))
-        writeTo(writer)
-        return writer.toByteArray()
-    }
+    override fun toByteArray(): kotlin.ByteArray = com.safetyculture.s12kt.wire.WireWriter.encode(this)
 
     public sealed class ChoiceOneof {
         public data class Text(public val value: kotlin.String) : ChoiceOneof()
@@ -1528,6 +1506,7 @@ public data class Outer(
         override fun toString(): kotlin.String = name
 
         public companion object {
+            @kotlin.jvm.JvmStatic
             public val entries: kotlin.collections.List<Kind> by lazy { kotlin.collections.listOf(KIND_UNSPECIFIED, KIND_A) }
 
             @kotlin.jvm.JvmStatic
@@ -1567,11 +1546,7 @@ public data class Outer(
             writer.writeUnknown(this.unknownFields)
         }
 
-        override fun toByteArray(): kotlin.ByteArray {
-            val writer = com.safetyculture.s12kt.wire.WireWriter(kotlin.ByteArray(getSerializedSize()))
-            writeTo(writer)
-            return writer.toByteArray()
-        }
+        override fun toByteArray(): kotlin.ByteArray = com.safetyculture.s12kt.wire.WireWriter.encode(this)
 
         public data class Deep(
             public val value: kotlin.String = "",
@@ -1596,11 +1571,7 @@ public data class Outer(
                 writer.writeUnknown(this.unknownFields)
             }
 
-            override fun toByteArray(): kotlin.ByteArray {
-                val writer = com.safetyculture.s12kt.wire.WireWriter(kotlin.ByteArray(getSerializedSize()))
-                writeTo(writer)
-                return writer.toByteArray()
-            }
+            override fun toByteArray(): kotlin.ByteArray = com.safetyculture.s12kt.wire.WireWriter.encode(this)
 
             public companion object : com.safetyculture.s12kt.wire.WireCodec<com.safetyculture.s12kt.kitchen.v1.Outer.Inner.Deep> {
                 @kotlin.jvm.JvmStatic
@@ -1686,11 +1657,7 @@ public data class Outer(
             writer.writeUnknown(this.unknownFields)
         }
 
-        override fun toByteArray(): kotlin.ByteArray {
-            val writer = com.safetyculture.s12kt.wire.WireWriter(kotlin.ByteArray(getSerializedSize()))
-            writeTo(writer)
-            return writer.toByteArray()
-        }
+        override fun toByteArray(): kotlin.ByteArray = com.safetyculture.s12kt.wire.WireWriter.encode(this)
 
         public companion object : com.safetyculture.s12kt.wire.WireCodec<com.safetyculture.s12kt.kitchen.v1.Outer.CompanionMessage> {
             @kotlin.jvm.JvmStatic
@@ -1742,11 +1709,7 @@ public data class Outer(
             writer.writeUnknown(this.unknownFields)
         }
 
-        override fun toByteArray(): kotlin.ByteArray {
-            val writer = com.safetyculture.s12kt.wire.WireWriter(kotlin.ByteArray(getSerializedSize()))
-            writeTo(writer)
-            return writer.toByteArray()
-        }
+        override fun toByteArray(): kotlin.ByteArray = com.safetyculture.s12kt.wire.WireWriter.encode(this)
 
         public companion object : com.safetyculture.s12kt.wire.WireCodec<com.safetyculture.s12kt.kitchen.v1.Outer.Choice> {
             @kotlin.jvm.JvmStatic
@@ -1854,7 +1817,7 @@ public data class Outer(
             if (s_companion != null) v_companion = reader.readSections(com.safetyculture.s12kt.kitchen.v1.Outer.CompanionMessage, s_companion)
             if (s_choiceMessage != null) v_choiceMessage = reader.readSections(com.safetyculture.s12kt.kitchen.v1.Outer.Choice, s_choiceMessage)
             when (n_choice) {
-                6 -> v_choice = com.safetyculture.s12kt.kitchen.v1.Outer.ChoiceOneof.Number(reader.readSections(com.safetyculture.s12kt.kitchen.v1.Outer.Choice, s_choice!!))
+                6 -> if (s_choice != null) v_choice = com.safetyculture.s12kt.kitchen.v1.Outer.ChoiceOneof.Number(reader.readSections(com.safetyculture.s12kt.kitchen.v1.Outer.Choice, s_choice))
             }
             return com.safetyculture.s12kt.kitchen.v1.Outer(
                 inner = v_inner,
@@ -1969,11 +1932,7 @@ public data class WellKnown(
         writer.writeUnknown(this.unknownFields)
     }
 
-    override fun toByteArray(): kotlin.ByteArray {
-        val writer = com.safetyculture.s12kt.wire.WireWriter(kotlin.ByteArray(getSerializedSize()))
-        writeTo(writer)
-        return writer.toByteArray()
-    }
+    override fun toByteArray(): kotlin.ByteArray = com.safetyculture.s12kt.wire.WireWriter.encode(this)
 
     public companion object : com.safetyculture.s12kt.wire.WireCodec<com.safetyculture.s12kt.kitchen.v1.WellKnown> {
         @kotlin.jvm.JvmStatic
@@ -2135,11 +2094,7 @@ public data class Empty(
         writer.writeUnknown(this.unknownFields)
     }
 
-    override fun toByteArray(): kotlin.ByteArray {
-        val writer = com.safetyculture.s12kt.wire.WireWriter(kotlin.ByteArray(getSerializedSize()))
-        writeTo(writer)
-        return writer.toByteArray()
-    }
+    override fun toByteArray(): kotlin.ByteArray = com.safetyculture.s12kt.wire.WireWriter.encode(this)
 
     public companion object : com.safetyculture.s12kt.wire.WireCodec<com.safetyculture.s12kt.kitchen.v1.Empty> {
         @kotlin.jvm.JvmStatic
@@ -2186,11 +2141,7 @@ public data class String(
         writer.writeUnknown(this.unknownFields)
     }
 
-    override fun toByteArray(): kotlin.ByteArray {
-        val writer = com.safetyculture.s12kt.wire.WireWriter(kotlin.ByteArray(getSerializedSize()))
-        writeTo(writer)
-        return writer.toByteArray()
-    }
+    override fun toByteArray(): kotlin.ByteArray = com.safetyculture.s12kt.wire.WireWriter.encode(this)
 
     public companion object : com.safetyculture.s12kt.wire.WireCodec<com.safetyculture.s12kt.kitchen.v1.String> {
         @kotlin.jvm.JvmStatic
@@ -2257,11 +2208,7 @@ public data class List(
         writer.writeUnknown(this.unknownFields)
     }
 
-    override fun toByteArray(): kotlin.ByteArray {
-        val writer = com.safetyculture.s12kt.wire.WireWriter(kotlin.ByteArray(getSerializedSize()))
-        writeTo(writer)
-        return writer.toByteArray()
-    }
+    override fun toByteArray(): kotlin.ByteArray = com.safetyculture.s12kt.wire.WireWriter.encode(this)
 
     public companion object : com.safetyculture.s12kt.wire.WireCodec<com.safetyculture.s12kt.kitchen.v1.List> {
         @kotlin.jvm.JvmStatic
@@ -2338,11 +2285,7 @@ public data class Highest(
         writer.writeUnknown(this.unknownFields)
     }
 
-    override fun toByteArray(): kotlin.ByteArray {
-        val writer = com.safetyculture.s12kt.wire.WireWriter(kotlin.ByteArray(getSerializedSize()))
-        writeTo(writer)
-        return writer.toByteArray()
-    }
+    override fun toByteArray(): kotlin.ByteArray = com.safetyculture.s12kt.wire.WireWriter.encode(this)
 
     public companion object : com.safetyculture.s12kt.wire.WireCodec<com.safetyculture.s12kt.kitchen.v1.Highest> {
         @kotlin.jvm.JvmStatic

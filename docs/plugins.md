@@ -94,7 +94,7 @@ protoc \
 
 **Purpose**: Generates C++ client code, mock servers, and Djinni cross-language bindings (ObjC, JNI) from proto service definitions. Targets the CRUX Engine mobile client SDK.
 
-**Generates**: `.crux.api.h`, `.crux.api.cc`, `.mock.h`, `.djinni.yaml`, `.djinni.objc.h`, `.djinni.jni.h`, and `.djinni.swiftxx.h` (only with the `swift_module` option)
+**Generates**: `.crux.api.h`, `.crux.api.cc`, `.mock.h`, `.djinni.yaml`, `.djinni.objc.h`, `.djinni.jni.h`, `.djinni.swiftxx.h` (only with the `swift_module` option), and `.djinni.kotlin.jni.h` (only with the `kotlin_package` option)
 
 **Install** (requires C++17 toolchain, protobuf, and gRPC libraries):
 ```sh
@@ -172,6 +172,7 @@ The plugin writes one `.pb.kt` file for each proto file that has a message or an
 | message | `data class` with `val` parameters and default values. Use the constructor and `copy()`. |
 | plain scalar | Non-null, with the proto default |
 | `optional` scalar, singular message | Nullable, `null` by default |
+| proto2 `required` | Non-null, with the proto default. `parseFrom` throws `InvalidWireException` if a part has no value for it |
 | `repeated` | `List`, empty by default |
 | `map` | `Map`, empty by default |
 | `oneof` | A nullable property of a `sealed class` type, with one subclass for each member |
@@ -183,6 +184,6 @@ The wire format is the same as the format of Java lite. A proto3 enum is open: a
 
 `parseFrom` checks the required fields of a proto2 message once, after it has merged all parts of the message, and throws `InvalidWireException("missing required field <name>")` for the first field that no part has. A message below the top-level message does not throw on its own, because a later part can have the field. A message can have 63 required fields at most. A string field with the feature `utf8_validation = NONE` (proto2 by default) accepts invalid UTF-8 and replaces the bad bytes with U+FFFD, as Java lite does. A proto3 string, an edition string with `utf8_validation = VERIFY`, and every map entry throw `InvalidWireException` for invalid UTF-8.
 
-A parse returns lists and maps that cannot change. A constructor keeps the list or the map that the caller passes, and the serialized size is cached, so a caller must not change that list or map later. An extension (`extend`) is not generated. The bytes of an extension field are kept in `unknownFields` and written again. The codec keeps an unknown field as the bytes that it read. Java lite reads the field and encodes it again, so an unknown field with an overlong varint has other bytes in Java lite. A string with an unpaired surrogate is written with `?` in place of the surrogate, where Java lite throws. The codec throws `InvalidWireException`, a `RuntimeException`, for every wire error. The plugin does not validate the values of its options.
+A parse returns lists and maps that cannot change. A constructor keeps the list or the map that the caller passes, and the serialized size is cached, so a caller must not change that list or map later. If the caller does, `toByteArray()` throws `IllegalStateException`. An extension (`extend`) is not generated. The bytes of an extension field are kept in `unknownFields` and written again. The codec keeps an unknown field as the bytes that it read. Java lite reads the field and encodes it again, so an unknown field with an overlong varint has other bytes in Java lite. A string with an unpaired surrogate is written with `?` in place of the surrogate, where Java lite throws. The codec throws `InvalidWireException`, a `RuntimeException`, for every wire error. A varint of more than ten bytes is a wire error. Java lite accepts an int32 varint of any length when it reads from a byte array. The plugin does not validate the values of its options.
 
 **Test**: `go test ./...` in `protobuf/protoc-gen-cruxclient-go` runs the golden test and the nullability tests. `test/wire_compat.sh` generates Kotlin and Java lite classes from the same proto files, encodes random messages and compares the bytes in both directions. Set `APISCHEMA` to an APISchema checkout to include `s12.assets.v1.Asset`. Set `ROOTS_FILE` to a list of proto files, relative to `APISCHEMA/protos`, to include more files, such as the whole Crux whitelist.

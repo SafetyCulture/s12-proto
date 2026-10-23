@@ -91,7 +91,7 @@ func runPluginOnDisk(t *testing.T, includes []string, parameter string, files ..
 	return out
 }
 
-var kitchenFiles = []string{"s12/kitchen/v1/kitchen.proto", "legacy/legacy.proto", "editions/closed.proto"}
+var kitchenFiles = []string{"s12/kitchen/v1/kitchen.proto", "legacy/legacy.proto", "editions/closed.proto", "editions/utf8.proto", "legacy/strict.proto", "shadow/shadow.proto"}
 
 func kitchenOutput(t *testing.T, parameter string) map[string]string {
 	t.Helper()

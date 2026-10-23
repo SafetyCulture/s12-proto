@@ -41,7 +41,7 @@ if [ -z "${JAVALITE_JAR:-}" ]; then
 fi
 
 includes=(-I"$PLUGIN_DIR/testdata/kotlin/kitchen" -I"$CRUXCLIENT/proto" -I"$CRUXCLIENT" -I"$PLUGIN_DIR/testdata/swiftnames" -I"$PROTOC_INCLUDE")
-roots=(s12/kitchen/v1/kitchen.proto legacy/legacy.proto editions/closed.proto routeguide/v1/message.proto names.proto loose.proto prefixed.proto)
+roots=(s12/kitchen/v1/kitchen.proto legacy/legacy.proto legacy/strict.proto editions/closed.proto editions/utf8.proto routeguide/v1/message.proto names.proto loose.proto prefixed.proto)
 if [ -n "${APISCHEMA:-}" ]; then
   includes+=(-I"$APISCHEMA/protos" -I"$APISCHEMA/third_party" -I"$REPO")
   roots+=(s12/assets/v1/asset.proto)
