@@ -15,4 +15,5 @@ func TestUnknownFieldTypePanicsWithFieldName(t *testing.T) {
 
 	require.PanicsWithValue(t, message, func() { g.swiftType(f) })
 	require.PanicsWithValue(t, message, func() { g.traitsType(f) })
+	require.PanicsWithValue(t, message, func() { f.protoGenericType() })
 }

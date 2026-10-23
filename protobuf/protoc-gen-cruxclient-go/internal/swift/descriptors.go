@@ -549,7 +549,7 @@ func (f *field) protoGenericType() string {
 	case typeSint64:
 		return "SInt64"
 	}
-	panic("unknown field type")
+	panic(fmt.Sprintf("%s: unknown field type %d", f.fullName, f.typ))
 }
 
 // containsRequiredFields reports whether the message holds a required field at any depth.
