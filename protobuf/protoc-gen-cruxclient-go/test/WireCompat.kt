@@ -566,9 +566,9 @@ private fun staleSizeChecks(): Int {
 
 private fun requiredEncodeChecks(): Int {
     val missingMessage = try {
-        RequiredMessage.decode(WireReader(ByteArray(0))).toByteArray()
+        RequiredMessage.parseFrom(ByteArray(0))
         false
-    } catch (e: UninitializedMessageException) {
+    } catch (e: InvalidWireException) {
         true
     }
     val missingScalar = try {
@@ -578,7 +578,7 @@ private fun requiredEncodeChecks(): Int {
         true
     }
     val explicitDefault = Req(name = "").toByteArray().contentEquals(JReq.newBuilder().setName("").build().toByteArray())
-    var failures = check("a required message field that is null is refused on encode", missingMessage)
+    var failures = check("a missing required message field is refused on decode", missingMessage)
     failures += check("a required scalar field that is missing is refused on encode", missingScalar)
     failures += check("a required scalar set to its default is encoded", explicitDefault)
     return failures

@@ -62,16 +62,14 @@ private fun scalar(kind: String, value: Any?): String =
 
 private fun present(f: FieldInfo, value: Any?): Any = checkNotNull(value) { "field #${f.number} has a null ${f.kind} value" }
 
-private fun kotlinEnumValue(value: Any): String =
-    "${call(value, "getNumber")}:${call(value, "getName")}"
+private fun kotlinEnumValue(value: Any): String {
+    val name = call(value, "getName").toString()
+    return if (name == "UNRECOGNIZED") call(value, "getNumber").toString() else name
+}
 
-private fun javaEnumValue(value: Any): String =
-    "${call(value, "getNumber")}:${call(value, "name")}"
-
-private fun javaOpenEnumValue(value: Any): String {
-    val number = call(value, "getNumber") as Int
-    val declared = value.javaClass.getMethod("forNumber", Int::class.javaPrimitiveType).invoke(null, number) as? Enum<*>
-    return "$number:${declared?.name ?: "UNRECOGNIZED"}"
+private fun javaEnumValue(value: Any, number: Int? = null): String {
+    val name = call(value, "name").toString()
+    return if (name == "UNRECOGNIZED") number.toString() else name
 }
 
 private fun kotlinValue(manifest: Map<String, List<FieldInfo>>, f: FieldInfo, value: Any?): String =
@@ -82,10 +80,10 @@ private fun kotlinValue(manifest: Map<String, List<FieldInfo>>, f: FieldInfo, va
         else -> scalar(f.kind, value)
     }
 
-private fun javaValue(manifest: Map<String, List<FieldInfo>>, f: FieldInfo, value: Any?): String =
+private fun javaValue(manifest: Map<String, List<FieldInfo>>, f: FieldInfo, value: Any?, number: Int? = null): String =
     when (f.kind) {
         "bytes" -> hex(call(present(f, value), "toByteArray") as ByteArray)
-        "enum" -> if (f.openEnum) javaOpenEnumValue(present(f, value)) else javaEnumValue(present(f, value))
+        "enum" -> javaEnumValue(present(f, value), number)
         "message" -> dumpJava(manifest, present(f, value), f.messageClass)
         else -> scalar(f.kind, value)
     }
@@ -124,16 +122,24 @@ fun dumpJava(manifest: Map<String, List<FieldInfo>>, message: Any, kotlinClass: 
     val out = StringBuilder("{")
     val oneofDone = mutableSetOf<String>()
     for (f in fields) {
-        val suffix = if (f.kind == "enum" && f.openEnum) "Value" else ""
+        val suffix = ""
         out.append(' ')
         when (f.shape) {
-            "single" -> out.append("#${f.number}=").append(javaValue(manifest, f, javaAccessor(message, "get", f.javaName, suffix)))
+            "single" -> out.append("#${f.number}=").append(javaValue(manifest, f, javaAccessor(message, "get", f.javaName, suffix), if (f.kind == "enum" && f.openEnum) javaAccessor(message, "get", f.javaName, "Value") as Int else null))
             "optional" ->
                 out.append("#${f.number}=").append(
-                    if (javaAccessor(message, "has", f.javaName) == false) "<unset>" else javaValue(manifest, f, javaAccessor(message, "get", f.javaName, suffix)),
+                    if (javaAccessor(message, "has", f.javaName) == false) "<unset>" else javaValue(manifest, f, javaAccessor(message, "get", f.javaName, suffix), if (f.kind == "enum" && f.openEnum) javaAccessor(message, "get", f.javaName, "Value") as Int else null),
                 )
-            "list" -> out.append("#${f.number}=[").append((javaAccessor(message, "get", f.javaName, "${suffix}List") as List<*>).joinToString(",") { javaValue(manifest, f, it) }).append("]")
-            "map" -> out.append("#${f.number}={").append((javaAccessor(message, "get", f.javaName, "${suffix}Map") as Map<*, *>).entries.map { "${it.key}:${javaValue(manifest, f, it.value)}" }.sorted().joinToString(",")).append("}")
+            "list" -> {
+                val values = javaAccessor(message, "get", f.javaName, "${suffix}List") as List<*>
+                val numbers = if (f.kind == "enum" && f.openEnum) javaAccessor(message, "get", f.javaName, "ValueList") as List<Int> else emptyList()
+                out.append("#${f.number}=[").append(values.mapIndexed { index, value -> javaValue(manifest, f, value, numbers.getOrNull(index)) }.joinToString(",")).append("]")
+            }
+            "map" -> {
+                val values = javaAccessor(message, "get", f.javaName, "${suffix}Map") as Map<*, *>
+                val numbers = if (f.kind == "enum" && f.openEnum) javaAccessor(message, "get", f.javaName, "ValueMap") as Map<*, *> else emptyMap<Any?, Any?>()
+                out.append("#${f.number}={").append(values.entries.map { "${it.key}:${javaValue(manifest, f, it.value, numbers[it.key] as? Int)}" }.sorted().joinToString(",")).append("}")
+            }
             else -> {
                 if (!oneofDone.add(f.oneofProperty)) {
                     out.setLength(out.length - 1)
@@ -145,8 +151,9 @@ fun dumpJava(manifest: Map<String, List<FieldInfo>>, message: Any, kotlinClass: 
                     out.append("oneof ${f.oneofProperty}=<none>")
                 } else {
                     val member = fields.first { it.oneofProperty == f.oneofProperty && it.number == number }
-                    val memberSuffix = if (member.kind == "enum" && member.openEnum) "Value" else ""
-                    out.append("oneof ${f.oneofProperty}=$number:").append(javaValue(manifest, member, javaAccessor(message, "get", member.javaName, memberSuffix)))
+                    val memberSuffix = ""
+                    val memberNumber = if (member.kind == "enum" && member.openEnum) javaAccessor(message, "get", member.javaName, "Value") as Int else null
+                    out.append("oneof ${f.oneofProperty}=$number:").append(javaValue(manifest, member, javaAccessor(message, "get", member.javaName, memberSuffix), memberNumber))
                 }
             }
         }
