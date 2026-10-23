@@ -31,7 +31,6 @@ jni:
 swift:
   typename: 'Loose'
   module: 'S12Protos'
-  prefix: ''
   generic: false
   translator: 'ProtobufMarshaller<Loose>'
   translator.module: 'DjinniSupport'
@@ -71,7 +70,6 @@ jni:
 swift:
   typename: 'Loose.Inner'
   module: 'S12Protos'
-  prefix: ''
   generic: false
   translator: 'ProtobufMarshaller<Loose.Inner>'
   translator.module: 'DjinniSupport'

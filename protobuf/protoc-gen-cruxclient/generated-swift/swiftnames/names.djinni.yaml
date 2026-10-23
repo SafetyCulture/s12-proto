@@ -31,7 +31,6 @@ jni:
 swift:
   typename: 'S12_NameTest_V1_Outer'
   module: 'S12Protos'
-  prefix: 'S12_NameTest_V1_'
   generic: false
   translator: 'ProtobufMarshaller<S12_NameTest_V1_Outer>'
   translator.module: 'DjinniSupport'
@@ -71,7 +70,6 @@ jni:
 swift:
   typename: 'S12_NameTest_V1_Outer.DataMessage'
   module: 'S12Protos'
-  prefix: 'S12_NameTest_V1_'
   generic: false
   translator: 'ProtobufMarshaller<S12_NameTest_V1_Outer.DataMessage>'
   translator.module: 'DjinniSupport'
@@ -111,7 +109,6 @@ jni:
 swift:
   typename: 'S12_NameTest_V1_Outer.IntMessage'
   module: 'S12Protos'
-  prefix: 'S12_NameTest_V1_'
   generic: false
   translator: 'ProtobufMarshaller<S12_NameTest_V1_Outer.IntMessage>'
   translator.module: 'DjinniSupport'
@@ -151,7 +148,6 @@ jni:
 swift:
   typename: 'S12_NameTest_V1_Outer.StringMessage'
   module: 'S12Protos'
-  prefix: 'S12_NameTest_V1_'
   generic: false
   translator: 'ProtobufMarshaller<S12_NameTest_V1_Outer.StringMessage>'
   translator.module: 'DjinniSupport'
@@ -191,7 +187,6 @@ jni:
 swift:
   typename: 'S12_NameTest_V1_Outer.TypeMessage'
   module: 'S12Protos'
-  prefix: 'S12_NameTest_V1_'
   generic: false
   translator: 'ProtobufMarshaller<S12_NameTest_V1_Outer.TypeMessage>'
   translator.module: 'DjinniSupport'
@@ -231,7 +226,6 @@ jni:
 swift:
   typename: 'S12_NameTest_V1_Outer.ProtocolMessage'
   module: 'S12Protos'
-  prefix: 'S12_NameTest_V1_'
   generic: false
   translator: 'ProtobufMarshaller<S12_NameTest_V1_Outer.ProtocolMessage>'
   translator.module: 'DjinniSupport'
@@ -271,7 +265,6 @@ jni:
 swift:
   typename: 'S12_NameTest_V1_Outer.AnyMessage'
   module: 'S12Protos'
-  prefix: 'S12_NameTest_V1_'
   generic: false
   translator: 'ProtobufMarshaller<S12_NameTest_V1_Outer.AnyMessage>'
   translator.module: 'DjinniSupport'
@@ -311,7 +304,6 @@ jni:
 swift:
   typename: 'S12_NameTest_V1_Outer.SelfMessage'
   module: 'S12Protos'
-  prefix: 'S12_NameTest_V1_'
   generic: false
   translator: 'ProtobufMarshaller<S12_NameTest_V1_Outer.SelfMessage>'
   translator.module: 'DjinniSupport'
@@ -351,7 +343,6 @@ jni:
 swift:
   typename: 'S12_NameTest_V1_Outer.Message'
   module: 'S12Protos'
-  prefix: 'S12_NameTest_V1_'
   generic: false
   translator: 'ProtobufMarshaller<S12_NameTest_V1_Outer.Message>'
   translator.module: 'DjinniSupport'
@@ -391,7 +382,6 @@ jni:
 swift:
   typename: 'S12_NameTest_V1_Outer.DataMessageMessage'
   module: 'S12Protos'
-  prefix: 'S12_NameTest_V1_'
   generic: false
   translator: 'ProtobufMarshaller<S12_NameTest_V1_Outer.DataMessageMessage>'
   translator.module: 'DjinniSupport'
@@ -431,7 +421,6 @@ jni:
 swift:
   typename: 'S12_NameTest_V1_Outer.Error'
   module: 'S12Protos'
-  prefix: 'S12_NameTest_V1_'
   generic: false
   translator: 'ProtobufMarshaller<S12_NameTest_V1_Outer.Error>'
   translator.module: 'DjinniSupport'
@@ -471,7 +460,6 @@ jni:
 swift:
   typename: 'S12_NameTest_V1_Outer.Date'
   module: 'S12Protos'
-  prefix: 'S12_NameTest_V1_'
   generic: false
   translator: 'ProtobufMarshaller<S12_NameTest_V1_Outer.Date>'
   translator.module: 'DjinniSupport'
@@ -511,7 +499,6 @@ jni:
 swift:
   typename: 'S12_NameTest_V1_Outer.Foo'
   module: 'S12Protos'
-  prefix: 'S12_NameTest_V1_'
   generic: false
   translator: 'ProtobufMarshaller<S12_NameTest_V1_Outer.Foo>'
   translator.module: 'DjinniSupport'
@@ -551,7 +538,6 @@ jni:
 swift:
   typename: 'S12_NameTest_V1_Outer.Foo.TypeMessage'
   module: 'S12Protos'
-  prefix: 'S12_NameTest_V1_'
   generic: false
   translator: 'ProtobufMarshaller<S12_NameTest_V1_Outer.Foo.TypeMessage>'
   translator.module: 'DjinniSupport'
@@ -591,7 +577,6 @@ jni:
 swift:
   typename: 'S12_NameTest_V1_Data'
   module: 'S12Protos'
-  prefix: 'S12_NameTest_V1_'
   generic: false
   translator: 'ProtobufMarshaller<S12_NameTest_V1_Data>'
   translator.module: 'DjinniSupport'

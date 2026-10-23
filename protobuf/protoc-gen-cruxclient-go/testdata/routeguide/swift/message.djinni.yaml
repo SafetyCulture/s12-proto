@@ -31,7 +31,6 @@ jni:
 swift:
   typename: 'Routeguide_V1_Point'
   module: 'RouteGuideProtos'
-  prefix: 'Routeguide_V1_'
   generic: false
   translator: 'ProtobufMarshaller<Routeguide_V1_Point>'
   translator.module: 'DjinniSupport'
@@ -74,7 +73,6 @@ jni:
 swift:
   typename: 'Routeguide_V1_Rectangle'
   module: 'RouteGuideProtos'
-  prefix: 'Routeguide_V1_'
   generic: false
   translator: 'ProtobufMarshaller<Routeguide_V1_Rectangle>'
   translator.module: 'DjinniSupport'
@@ -117,7 +115,6 @@ jni:
 swift:
   typename: 'Routeguide_V1_Feature'
   module: 'RouteGuideProtos'
-  prefix: 'Routeguide_V1_'
   generic: false
   translator: 'ProtobufMarshaller<Routeguide_V1_Feature>'
   translator.module: 'DjinniSupport'
@@ -160,7 +157,6 @@ jni:
 swift:
   typename: 'Routeguide_V1_RouteNote'
   module: 'RouteGuideProtos'
-  prefix: 'Routeguide_V1_'
   generic: false
   translator: 'ProtobufMarshaller<Routeguide_V1_RouteNote>'
   translator.module: 'DjinniSupport'
@@ -203,7 +199,6 @@ jni:
 swift:
   typename: 'Routeguide_V1_RouteSummary'
   module: 'RouteGuideProtos'
-  prefix: 'Routeguide_V1_'
   generic: false
   translator: 'ProtobufMarshaller<Routeguide_V1_RouteSummary>'
   translator.module: 'DjinniSupport'
@@ -246,7 +241,6 @@ jni:
 swift:
   typename: 'Routeguide_V1_RouteSummary.Details'
   module: 'RouteGuideProtos'
-  prefix: 'Routeguide_V1_'
   generic: false
   translator: 'ProtobufMarshaller<Routeguide_V1_RouteSummary.Details>'
   translator.module: 'DjinniSupport'
@@ -289,7 +283,6 @@ jni:
 swift:
   typename: 'Routeguide_V1_RouteSummary.Details.MoreDetails'
   module: 'RouteGuideProtos'
-  prefix: 'Routeguide_V1_'
   generic: false
   translator: 'ProtobufMarshaller<Routeguide_V1_RouteSummary.Details.MoreDetails>'
   translator.module: 'DjinniSupport'

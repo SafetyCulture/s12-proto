@@ -494,7 +494,6 @@ void APIGenerator::PrintDjinniYAML(
 
     if (!swift_module.empty()) {
       vars["swift_module"] = SwiftProtobufModule(file, swift_module);
-      vars["swift_prefix"] = SwiftProtobufPrefix(file);
       vars["swift_type_name"] = SwiftProtobufTypeName(message);
       vars["swiftxx_translator"] = SwiftxxTranslatorName(vars["cpp_type_name"]);
 
@@ -502,7 +501,6 @@ void APIGenerator::PrintDjinniYAML(
       printer->Indent();
       printer->Print(vars, "typename: '$swift_type_name$'\n");
       printer->Print(vars, "module: '$swift_module$'\n");
-      printer->Print(vars, "prefix: '$swift_prefix$'\n");
       printer->Print("generic: false\n");
       printer->Print(vars, "translator: 'ProtobufMarshaller<$swift_type_name$>'\n");
       printer->Print("translator.module: 'DjinniSupport'\n");

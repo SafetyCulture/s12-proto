@@ -418,10 +418,10 @@ func TestSwiftTypeNames(t *testing.T) {
 	require.Contains(t, output["swiftnames/names.djinni.yaml"], "  module: 'S12Protos'\n")
 
 	require.Equal(t, []string{"Loose", "Loose.Inner"}, swiftTypeNames(output["swiftnames/loose.djinni.yaml"]))
-	require.Contains(t, output["swiftnames/loose.djinni.yaml"], "  prefix: ''\n")
+	require.NotContains(t, output["swiftnames/loose.djinni.yaml"], "  prefix:")
 
 	require.Equal(t, []string{"SPWithSwiftPrefix", "SPWithSwiftPrefix.DataMessage"}, swiftTypeNames(output["swiftnames/prefixed.djinni.yaml"]))
-	require.Contains(t, output["swiftnames/prefixed.djinni.yaml"], "  prefix: 'SP'\n")
+	require.NotContains(t, output["swiftnames/prefixed.djinni.yaml"], "  prefix: 'SP'")
 }
 
 // TestSwiftBundledProtoModule checks that the types of a bundled google/protobuf file use the

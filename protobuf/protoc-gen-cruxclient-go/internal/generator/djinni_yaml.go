@@ -67,7 +67,6 @@ func GenerateDjinniYAML(rw protoplugin.ResponseWriter, fileDesc protoreflect.Fil
 		if options.SwiftEnabled() {
 			swift = &swiftYAML{
 				module:        common.SwiftProtobufModule(fileDesc, options.SwiftModule),
-				prefix:        common.SwiftProtobufPrefix(fileDesc),
 				typeName:      common.SwiftProtobufTypeName(msg),
 				translator:    swiftxxTranslatorName(cppTypeName),
 				translatorHdr: baseName + swiftxxHeaderSuffix,
@@ -95,7 +94,6 @@ func GenerateDjinniYAML(rw protoplugin.ResponseWriter, fileDesc protoreflect.Fil
 // swiftYAML holds the values of the swift: and swiftxx: blocks of one record.
 type swiftYAML struct {
 	module        string
-	prefix        string
 	typeName      string
 	translator    string
 	translatorHdr string
@@ -161,7 +159,6 @@ func writeDjinniYAMLRecord(w *codegen.CodeWriter,
 		w.WL("swift:")
 		w.WL("  typename: '%s'", swift.typeName)
 		w.WL("  module: '%s'", swift.module)
-		w.WL("  prefix: '%s'", swift.prefix)
 		w.WL("  generic: false")
 		w.WL("  translator: 'ProtobufMarshaller<%s>'", swift.typeName)
 		w.WL("  translator.module: 'DjinniSupport'")

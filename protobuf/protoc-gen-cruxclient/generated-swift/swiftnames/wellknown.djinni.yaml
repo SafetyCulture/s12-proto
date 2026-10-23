@@ -31,7 +31,6 @@ jni:
 swift:
   typename: 'Google_Protobuf_Timestamp'
   module: 'S12Protos'
-  prefix: 'Google_Protobuf_'
   generic: false
   translator: 'ProtobufMarshaller<Google_Protobuf_Timestamp>'
   translator.module: 'DjinniSupport'

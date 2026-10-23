@@ -31,7 +31,6 @@ jni:
 swift:
   typename: 'SPWithSwiftPrefix'
   module: 'S12Protos'
-  prefix: 'SP'
   generic: false
   translator: 'ProtobufMarshaller<SPWithSwiftPrefix>'
   translator.module: 'DjinniSupport'
@@ -71,7 +70,6 @@ jni:
 swift:
   typename: 'SPWithSwiftPrefix.DataMessage'
   module: 'S12Protos'
-  prefix: 'SP'
   generic: false
   translator: 'ProtobufMarshaller<SPWithSwiftPrefix.DataMessage>'
   translator.module: 'DjinniSupport'
