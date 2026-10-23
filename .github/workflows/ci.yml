@@ -49,3 +49,11 @@ jobs:
         run: protobuf/protoc-gen-cruxclient-go/test/wire_compat.sh
       - name: Check generated C++ glue
         run: protobuf/protoc-gen-cruxclient-go/test/ci/check_glue_headers.sh
+      - name: Install protobuf C++ runtime
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes protobuf-compiler libprotobuf-dev
+      - name: Run required Swift translator
+        env:
+          PROTOC: /usr/bin/protoc
+        run: protobuf/protoc-gen-cruxclient-go/test/ci/run_required_swiftxx_test.sh
