@@ -57,24 +57,31 @@ func (f *field) locationPath() []int32 {
 	return append(f.containing.locationPath(), messagePathField, int32(f.index))
 }
 
-// asSourceComment builds the comment lines of a location. Without a
-// leadingDetachedPrefix the detached comments stay out.
-func asSourceComment(loc *descriptorpb.SourceCodeInfo_Location, commentPrefix string, leadingDetachedPrefix *string) string {
+// leadingOrTrailing returns the leading comment of a location, or the trailing comment when it has none.
+func leadingOrTrailing(loc *descriptorpb.SourceCodeInfo_Location) string {
+	if loc.LeadingComments != nil {
+		return loc.GetLeadingComments()
+	}
+	return loc.GetTrailingComments()
+}
+
+// asSourceComment builds the comment lines of a location.
+func asSourceComment(loc *descriptorpb.SourceCodeInfo_Location, commentPrefix string) string {
+	return prefixLines(leadingOrTrailing(loc), commentPrefix)
+}
+
+// asSourceCommentWithDetached builds the comment lines of a location, with its detached comments before them.
+func asSourceCommentWithDetached(loc *descriptorpb.SourceCodeInfo_Location, commentPrefix, detachedPrefix string) string {
 	var result strings.Builder
-	if leadingDetachedPrefix != nil {
-		for _, detached := range loc.GetLeadingDetachedComments() {
-			comment := prefixLines(detached, *leadingDetachedPrefix)
-			if comment != "" {
-				result.WriteString(comment)
-				result.WriteString("\n")
-			}
+	for _, detached := range loc.GetLeadingDetachedComments() {
+		comment := prefixLines(detached, detachedPrefix)
+		if comment != "" {
+			result.WriteString(comment)
+			// A blank line follows a detached comment.
+			result.WriteString("\n")
 		}
 	}
-	comments := loc.GetTrailingComments()
-	if loc.LeadingComments != nil {
-		comments = loc.GetLeadingComments()
-	}
-	result.WriteString(prefixLines(comments, commentPrefix))
+	result.WriteString(asSourceComment(loc, commentPrefix))
 	return result.String()
 }
 
@@ -87,7 +94,7 @@ func (g *generator) comments(f *file, path []int32) string {
 	if loc == nil {
 		return ""
 	}
-	return asSourceComment(loc, "///", nil)
+	return asSourceComment(loc, "///")
 }
 
 func withDeprecation(comments, deprecation string) string {

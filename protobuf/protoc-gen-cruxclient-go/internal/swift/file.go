@@ -29,8 +29,7 @@ func (g *generator) generateFile(f *file) (string, error) {
 			loc = f.location(filePathSyntax)
 		}
 		if loc != nil {
-			detached := "//"
-			comments := asSourceComment(loc, "///", &detached)
+			comments := asSourceCommentWithDetached(loc, "///", "//")
 			if comments != "" {
 				if strings.HasSuffix(comments, "\n\n") {
 					p.printNoNewline(comments)

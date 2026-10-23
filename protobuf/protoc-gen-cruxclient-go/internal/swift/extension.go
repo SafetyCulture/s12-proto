@@ -198,16 +198,14 @@ func (s *extensionSet) generateProtobufExtensionDeclarations(p *printer) {
 	}
 	visibility := s.g.opts.visibilitySnippet()
 	var currentScope *message
-	hasScope := false
 	addNewline := true
 	for _, e := range s.extensions {
-		if !hasScope || currentScope != e.desc.extScope {
-			if hasScope && currentScope != nil {
+		if currentScope != e.desc.extScope {
+			if currentScope != nil {
 				endScope()
 			}
 			currentScope = e.desc.extScope
-			hasScope = true
-			// A file scope extension has no scope message, which Swift reads as no current scope.
+			// The extensions of the file come first, and they have no scope message.
 			if currentScope != nil {
 				p.print("", fmt.Sprintf("nonisolated extension %s {", s.g.namer.fullNameMessage(currentScope)))
 				p.indent()
