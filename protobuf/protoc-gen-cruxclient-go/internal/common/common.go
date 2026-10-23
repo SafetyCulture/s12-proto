@@ -87,7 +87,7 @@ func FilenameIdentifier(filename string) string {
 		if isAlphaNumeric(c) {
 			b.WriteByte(c)
 		} else {
-			b.WriteString(fmt.Sprintf("_%02x", c))
+			fmt.Fprintf(&b, "_%02x", c)
 		}
 	}
 	return b.String()
@@ -278,10 +278,10 @@ func swiftPackagePrefix(pkg string) string {
 	makeUpper := true
 	for i := 0; i < len(pkg); i++ {
 		c := pkg[i]
-		switch {
-		case c == '_':
+		switch c {
+		case '_':
 			makeUpper = true
-		case c == '.':
+		case '.':
 			makeUpper = true
 			b.WriteByte('_')
 		default:

@@ -10,8 +10,14 @@ description = "Build all packages"
 run = "go build ./..."
 
 [tasks.vet]
-description = "Run go vet"
-run = "go vet ./..."
+description = "Run go vet (root module and the plugin modules)"
+run = """
+set -eu
+go vet ./...
+for d in protobuf/protoc-gen-cruxclient-go; do
+  (cd "$d" && go vet ./...)
+done
+"""
 
 [tasks.generate]
 description = "Generate Go code from proto definitions"
@@ -63,8 +69,16 @@ fi
 """
 
 [tasks.lint]
-description = "Run Go linter"
-run = "golangci-lint run"
+description = "Run Go linter (root module and the plugin modules)"
+run = """
+set -u
+status=0
+golangci-lint run || status=1
+for d in protobuf/protoc-gen-cruxclient-go; do
+  (cd "$d" && golangci-lint run) || status=1
+done
+exit "$status"
+"""
 
 [tasks."fmt:proto"]
 description = "Format proto files with buf"

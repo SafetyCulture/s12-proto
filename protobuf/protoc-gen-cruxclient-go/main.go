@@ -101,29 +101,3 @@ func generateDjinniSupport(rw protoplugin.ResponseWriter, fileDesc protoreflect.
 		generator.GenerateDjinniKotlinJNI(rw, fileDesc, opts)
 	}
 }
-
-// nonClientStreamingMethods returns methods that are not client-streaming.
-// Both client-only and bidirectional streaming methods are excluded because
-// both have IsStreamingClient() == true.
-// This implements PLUG-06, mirroring api_generator.cc line 110:
-//
-//	if (method->client_streaming()) { continue; }
-//
-// Examples from routeguide RouteGuide:
-//   - GetFeature (unary): INCLUDED
-//   - UpdateFeature (unary): INCLUDED
-//   - ListFeatures (server-streaming): INCLUDED
-//   - RecordRoute (client-streaming): SKIPPED
-//   - RouteChat (bidi): SKIPPED (client_streaming=true)
-func nonClientStreamingMethods(service protoreflect.ServiceDescriptor) []protoreflect.MethodDescriptor {
-	var methods []protoreflect.MethodDescriptor
-	allMethods := service.Methods()
-	for i := 0; i < allMethods.Len(); i++ {
-		method := allMethods.Get(i)
-		if method.IsStreamingClient() {
-			continue
-		}
-		methods = append(methods, method)
-	}
-	return methods
-}
