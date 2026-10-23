@@ -90,8 +90,13 @@ public data class Scalars(
     /** The fields that this version of the schema does not know, kept as encoded bytes. */
     public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
 ) : com.safetyculture.s12kt.wire.WireMessage {
+    @kotlin.jvm.Volatile
+    private var memoizedSize: kotlin.Int = -1
+
 
     override fun getSerializedSize(): kotlin.Int {
+        val _cached = this.memoizedSize
+        if (_cached >= 0) return _cached
         var _size = 0
         if (this.fDouble.toRawBits() != 0L) _size += com.safetyculture.s12kt.wire.WireSize.fixed64(1)
         if (this.fFloat.toRawBits() != 0) _size += com.safetyculture.s12kt.wire.WireSize.fixed32(2)
@@ -110,6 +115,7 @@ public data class Scalars(
         if (!this.fBytes.isEmpty()) _size += com.safetyculture.s12kt.wire.WireSize.bytes(15, this.fBytes)
         if (this.fEnum.number != 0) _size += com.safetyculture.s12kt.wire.WireSize.int32(16, this.fEnum.number)
         _size += this.unknownFields.size
+        this.memoizedSize = _size
         return _size
     }
 
@@ -143,24 +149,24 @@ public data class Scalars(
         @kotlin.jvm.JvmStatic
         public fun parseFrom(bytes: kotlin.ByteArray): com.safetyculture.s12kt.kitchen.v1.Scalars = decode(com.safetyculture.s12kt.wire.WireReader(bytes))
 
-        override fun decode(reader: com.safetyculture.s12kt.wire.WireReader): com.safetyculture.s12kt.kitchen.v1.Scalars {
-            var v_fDouble: kotlin.Double = 0.0
-            var v_fFloat: kotlin.Float = 0.0f
-            var v_fInt32: kotlin.Int = 0
-            var v_fInt64: kotlin.Long = 0L
-            var v_fUint32: kotlin.Int = 0
-            var v_fUint64: kotlin.Long = 0L
-            var v_fSint32: kotlin.Int = 0
-            var v_fSint64: kotlin.Long = 0L
-            var v_fFixed32: kotlin.Int = 0
-            var v_fFixed64: kotlin.Long = 0L
-            var v_fSfixed32: kotlin.Int = 0
-            var v_fSfixed64: kotlin.Long = 0L
-            var v_fBool: kotlin.Boolean = false
-            var v_fString: kotlin.String = ""
-            var v_fBytes: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY
-            var v_fEnum: com.safetyculture.s12kt.kitchen.v1.Color = com.safetyculture.s12kt.kitchen.v1.Color.COLOR_UNSPECIFIED
-            val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+        override fun decodeInto(reader: com.safetyculture.s12kt.wire.WireReader, previous: com.safetyculture.s12kt.kitchen.v1.Scalars?): com.safetyculture.s12kt.kitchen.v1.Scalars {
+            var v_fDouble: kotlin.Double = previous?.fDouble ?: 0.0
+            var v_fFloat: kotlin.Float = previous?.fFloat ?: 0.0f
+            var v_fInt32: kotlin.Int = previous?.fInt32 ?: 0
+            var v_fInt64: kotlin.Long = previous?.fInt64 ?: 0L
+            var v_fUint32: kotlin.Int = previous?.fUint32 ?: 0
+            var v_fUint64: kotlin.Long = previous?.fUint64 ?: 0L
+            var v_fSint32: kotlin.Int = previous?.fSint32 ?: 0
+            var v_fSint64: kotlin.Long = previous?.fSint64 ?: 0L
+            var v_fFixed32: kotlin.Int = previous?.fFixed32 ?: 0
+            var v_fFixed64: kotlin.Long = previous?.fFixed64 ?: 0L
+            var v_fSfixed32: kotlin.Int = previous?.fSfixed32 ?: 0
+            var v_fSfixed64: kotlin.Long = previous?.fSfixed64 ?: 0L
+            var v_fBool: kotlin.Boolean = previous?.fBool ?: false
+            var v_fString: kotlin.String = previous?.fString ?: ""
+            var v_fBytes: com.safetyculture.s12kt.wire.ByteString = previous?.fBytes ?: com.safetyculture.s12kt.wire.ByteString.EMPTY
+            var v_fEnum: com.safetyculture.s12kt.kitchen.v1.Color = previous?.fEnum ?: com.safetyculture.s12kt.kitchen.v1.Color.COLOR_UNSPECIFIED
+            val _unknown = com.safetyculture.s12kt.wire.UnknownFields(previous?.unknownFields)
             loop@ while (true) {
                 when (val _tag = reader.readTag()) {
                     0 -> break@loop
@@ -262,6 +268,9 @@ public data class OptionalScalars(
     /** The fields that this version of the schema does not know, kept as encoded bytes. */
     public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
 ) : com.safetyculture.s12kt.wire.WireMessage {
+    @kotlin.jvm.Volatile
+    private var memoizedSize: kotlin.Int = -1
+
     public fun hasFDouble(): kotlin.Boolean = this.fDouble != null
     public fun hasFFloat(): kotlin.Boolean = this.fFloat != null
     public fun hasFInt32(): kotlin.Boolean = this.fInt32 != null
@@ -281,6 +290,8 @@ public data class OptionalScalars(
     public fun hasFMessage(): kotlin.Boolean = this.fMessage != null
 
     override fun getSerializedSize(): kotlin.Int {
+        val _cached = this.memoizedSize
+        if (_cached >= 0) return _cached
         var _size = 0
         if (this.fDouble != null) _size += com.safetyculture.s12kt.wire.WireSize.fixed64(1)
         if (this.fFloat != null) _size += com.safetyculture.s12kt.wire.WireSize.fixed32(2)
@@ -300,6 +311,7 @@ public data class OptionalScalars(
         if (this.fEnum != null) _size += com.safetyculture.s12kt.wire.WireSize.int32(16, this.fEnum.number)
         if (this.fMessage != null) _size += com.safetyculture.s12kt.wire.WireSize.message(17, this.fMessage)
         _size += this.unknownFields.size
+        this.memoizedSize = _size
         return _size
     }
 
@@ -334,25 +346,25 @@ public data class OptionalScalars(
         @kotlin.jvm.JvmStatic
         public fun parseFrom(bytes: kotlin.ByteArray): com.safetyculture.s12kt.kitchen.v1.OptionalScalars = decode(com.safetyculture.s12kt.wire.WireReader(bytes))
 
-        override fun decode(reader: com.safetyculture.s12kt.wire.WireReader): com.safetyculture.s12kt.kitchen.v1.OptionalScalars {
-            var v_fDouble: kotlin.Double? = null
-            var v_fFloat: kotlin.Float? = null
-            var v_fInt32: kotlin.Int? = null
-            var v_fInt64: kotlin.Long? = null
-            var v_fUint32: kotlin.Int? = null
-            var v_fUint64: kotlin.Long? = null
-            var v_fSint32: kotlin.Int? = null
-            var v_fSint64: kotlin.Long? = null
-            var v_fFixed32: kotlin.Int? = null
-            var v_fFixed64: kotlin.Long? = null
-            var v_fSfixed32: kotlin.Int? = null
-            var v_fSfixed64: kotlin.Long? = null
-            var v_fBool: kotlin.Boolean? = null
-            var v_fString: kotlin.String? = null
-            var v_fBytes: com.safetyculture.s12kt.wire.ByteString? = null
-            var v_fEnum: com.safetyculture.s12kt.kitchen.v1.Color? = null
-            var v_fMessage: com.safetyculture.s12kt.kitchen.v1.Scalars? = null
-            val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+        override fun decodeInto(reader: com.safetyculture.s12kt.wire.WireReader, previous: com.safetyculture.s12kt.kitchen.v1.OptionalScalars?): com.safetyculture.s12kt.kitchen.v1.OptionalScalars {
+            var v_fDouble: kotlin.Double? = previous?.fDouble
+            var v_fFloat: kotlin.Float? = previous?.fFloat
+            var v_fInt32: kotlin.Int? = previous?.fInt32
+            var v_fInt64: kotlin.Long? = previous?.fInt64
+            var v_fUint32: kotlin.Int? = previous?.fUint32
+            var v_fUint64: kotlin.Long? = previous?.fUint64
+            var v_fSint32: kotlin.Int? = previous?.fSint32
+            var v_fSint64: kotlin.Long? = previous?.fSint64
+            var v_fFixed32: kotlin.Int? = previous?.fFixed32
+            var v_fFixed64: kotlin.Long? = previous?.fFixed64
+            var v_fSfixed32: kotlin.Int? = previous?.fSfixed32
+            var v_fSfixed64: kotlin.Long? = previous?.fSfixed64
+            var v_fBool: kotlin.Boolean? = previous?.fBool
+            var v_fString: kotlin.String? = previous?.fString
+            var v_fBytes: com.safetyculture.s12kt.wire.ByteString? = previous?.fBytes
+            var v_fEnum: com.safetyculture.s12kt.kitchen.v1.Color? = previous?.fEnum
+            var v_fMessage: com.safetyculture.s12kt.kitchen.v1.Scalars? = previous?.fMessage
+            val _unknown = com.safetyculture.s12kt.wire.UnknownFields(previous?.unknownFields)
             loop@ while (true) {
                 when (val _tag = reader.readTag()) {
                     0 -> break@loop
@@ -461,8 +473,13 @@ public data class Repeated(
     /** The fields that this version of the schema does not know, kept as encoded bytes. */
     public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
 ) : com.safetyculture.s12kt.wire.WireMessage {
+    @kotlin.jvm.Volatile
+    private var memoizedSize: kotlin.Int = -1
+
 
     override fun getSerializedSize(): kotlin.Int {
+        val _cached = this.memoizedSize
+        if (_cached >= 0) return _cached
         var _size = 0
         if (this.fDouble.isNotEmpty()) {
             _size += com.safetyculture.s12kt.wire.WireSize.packed(1, this.fDouble.size * 8)
@@ -522,10 +539,9 @@ public data class Repeated(
         for (_e in this.unpackedEnum) {
             _size += com.safetyculture.s12kt.wire.WireSize.int32(19, _e.number)
         }
-        for (_e in this.unpackedDouble) {
-            _size += com.safetyculture.s12kt.wire.WireSize.fixed64(20)
-        }
+        _size += this.unpackedDouble.size * com.safetyculture.s12kt.wire.WireSize.fixed64(20)
         _size += this.unknownFields.size
+        this.memoizedSize = _size
         return _size
     }
 
@@ -603,28 +619,28 @@ public data class Repeated(
         @kotlin.jvm.JvmStatic
         public fun parseFrom(bytes: kotlin.ByteArray): com.safetyculture.s12kt.kitchen.v1.Repeated = decode(com.safetyculture.s12kt.wire.WireReader(bytes))
 
-        override fun decode(reader: com.safetyculture.s12kt.wire.WireReader): com.safetyculture.s12kt.kitchen.v1.Repeated {
-            val v_fDouble = kotlin.collections.ArrayList<kotlin.Double>()
-            val v_fFloat = kotlin.collections.ArrayList<kotlin.Float>()
-            val v_fInt32 = kotlin.collections.ArrayList<kotlin.Int>()
-            val v_fInt64 = kotlin.collections.ArrayList<kotlin.Long>()
-            val v_fUint32 = kotlin.collections.ArrayList<kotlin.Int>()
-            val v_fUint64 = kotlin.collections.ArrayList<kotlin.Long>()
-            val v_fSint32 = kotlin.collections.ArrayList<kotlin.Int>()
-            val v_fSint64 = kotlin.collections.ArrayList<kotlin.Long>()
-            val v_fFixed32 = kotlin.collections.ArrayList<kotlin.Int>()
-            val v_fFixed64 = kotlin.collections.ArrayList<kotlin.Long>()
-            val v_fSfixed32 = kotlin.collections.ArrayList<kotlin.Int>()
-            val v_fSfixed64 = kotlin.collections.ArrayList<kotlin.Long>()
-            val v_fBool = kotlin.collections.ArrayList<kotlin.Boolean>()
-            val v_fString = kotlin.collections.ArrayList<kotlin.String>()
-            val v_fBytes = kotlin.collections.ArrayList<com.safetyculture.s12kt.wire.ByteString>()
-            val v_fEnum = kotlin.collections.ArrayList<com.safetyculture.s12kt.kitchen.v1.Color>()
-            val v_fMessage = kotlin.collections.ArrayList<com.safetyculture.s12kt.kitchen.v1.Scalars>()
-            val v_unpackedInt32 = kotlin.collections.ArrayList<kotlin.Int>()
-            val v_unpackedEnum = kotlin.collections.ArrayList<com.safetyculture.s12kt.kitchen.v1.Color>()
-            val v_unpackedDouble = kotlin.collections.ArrayList<kotlin.Double>()
-            val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+        override fun decodeInto(reader: com.safetyculture.s12kt.wire.WireReader, previous: com.safetyculture.s12kt.kitchen.v1.Repeated?): com.safetyculture.s12kt.kitchen.v1.Repeated {
+            val v_fDouble = kotlin.collections.ArrayList<kotlin.Double>(previous?.fDouble ?: kotlin.collections.emptyList())
+            val v_fFloat = kotlin.collections.ArrayList<kotlin.Float>(previous?.fFloat ?: kotlin.collections.emptyList())
+            val v_fInt32 = kotlin.collections.ArrayList<kotlin.Int>(previous?.fInt32 ?: kotlin.collections.emptyList())
+            val v_fInt64 = kotlin.collections.ArrayList<kotlin.Long>(previous?.fInt64 ?: kotlin.collections.emptyList())
+            val v_fUint32 = kotlin.collections.ArrayList<kotlin.Int>(previous?.fUint32 ?: kotlin.collections.emptyList())
+            val v_fUint64 = kotlin.collections.ArrayList<kotlin.Long>(previous?.fUint64 ?: kotlin.collections.emptyList())
+            val v_fSint32 = kotlin.collections.ArrayList<kotlin.Int>(previous?.fSint32 ?: kotlin.collections.emptyList())
+            val v_fSint64 = kotlin.collections.ArrayList<kotlin.Long>(previous?.fSint64 ?: kotlin.collections.emptyList())
+            val v_fFixed32 = kotlin.collections.ArrayList<kotlin.Int>(previous?.fFixed32 ?: kotlin.collections.emptyList())
+            val v_fFixed64 = kotlin.collections.ArrayList<kotlin.Long>(previous?.fFixed64 ?: kotlin.collections.emptyList())
+            val v_fSfixed32 = kotlin.collections.ArrayList<kotlin.Int>(previous?.fSfixed32 ?: kotlin.collections.emptyList())
+            val v_fSfixed64 = kotlin.collections.ArrayList<kotlin.Long>(previous?.fSfixed64 ?: kotlin.collections.emptyList())
+            val v_fBool = kotlin.collections.ArrayList<kotlin.Boolean>(previous?.fBool ?: kotlin.collections.emptyList())
+            val v_fString = kotlin.collections.ArrayList<kotlin.String>(previous?.fString ?: kotlin.collections.emptyList())
+            val v_fBytes = kotlin.collections.ArrayList<com.safetyculture.s12kt.wire.ByteString>(previous?.fBytes ?: kotlin.collections.emptyList())
+            val v_fEnum = kotlin.collections.ArrayList<com.safetyculture.s12kt.kitchen.v1.Color>(previous?.fEnum ?: kotlin.collections.emptyList())
+            val v_fMessage = kotlin.collections.ArrayList<com.safetyculture.s12kt.kitchen.v1.Scalars>(previous?.fMessage ?: kotlin.collections.emptyList())
+            val v_unpackedInt32 = kotlin.collections.ArrayList<kotlin.Int>(previous?.unpackedInt32 ?: kotlin.collections.emptyList())
+            val v_unpackedEnum = kotlin.collections.ArrayList<com.safetyculture.s12kt.kitchen.v1.Color>(previous?.unpackedEnum ?: kotlin.collections.emptyList())
+            val v_unpackedDouble = kotlin.collections.ArrayList<kotlin.Double>(previous?.unpackedDouble ?: kotlin.collections.emptyList())
+            val _unknown = com.safetyculture.s12kt.wire.UnknownFields(previous?.unknownFields)
             loop@ while (true) {
                 when (val _tag = reader.readTag()) {
                     0 -> break@loop
@@ -857,8 +873,13 @@ public data class Maps(
     /** The fields that this version of the schema does not know, kept as encoded bytes. */
     public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
 ) : com.safetyculture.s12kt.wire.WireMessage {
+    @kotlin.jvm.Volatile
+    private var memoizedSize: kotlin.Int = -1
+
 
     override fun getSerializedSize(): kotlin.Int {
+        val _cached = this.memoizedSize
+        if (_cached >= 0) return _cached
         var _size = 0
         for ((_k, _v) in this.byString) {
             val _entry = com.safetyculture.s12kt.wire.WireSize.string(1, _k) + com.safetyculture.s12kt.wire.WireSize.string(2, _v)
@@ -868,15 +889,15 @@ public data class Maps(
             val _entry = com.safetyculture.s12kt.wire.WireSize.int32(1, _k) + com.safetyculture.s12kt.wire.WireSize.int64(2, _v)
             _size += com.safetyculture.s12kt.wire.WireSize.tag(2) + com.safetyculture.s12kt.wire.WireSize.varint32(_entry) + _entry
         }
-        for ((_k, _v) in this.byInt64) {
+        for ((_k, _) in this.byInt64) {
             val _entry = com.safetyculture.s12kt.wire.WireSize.int64(1, _k) + com.safetyculture.s12kt.wire.WireSize.bool(2)
             _size += com.safetyculture.s12kt.wire.WireSize.tag(3) + com.safetyculture.s12kt.wire.WireSize.varint32(_entry) + _entry
         }
-        for ((_k, _v) in this.byUint32) {
+        for ((_k, _) in this.byUint32) {
             val _entry = com.safetyculture.s12kt.wire.WireSize.uint32(1, _k) + com.safetyculture.s12kt.wire.WireSize.fixed64(2)
             _size += com.safetyculture.s12kt.wire.WireSize.tag(4) + com.safetyculture.s12kt.wire.WireSize.varint32(_entry) + _entry
         }
-        for ((_k, _v) in this.byUint64) {
+        for ((_k, _) in this.byUint64) {
             val _entry = com.safetyculture.s12kt.wire.WireSize.int64(1, _k) + com.safetyculture.s12kt.wire.WireSize.fixed32(2)
             _size += com.safetyculture.s12kt.wire.WireSize.tag(5) + com.safetyculture.s12kt.wire.WireSize.varint32(_entry) + _entry
         }
@@ -888,23 +909,23 @@ public data class Maps(
             val _entry = com.safetyculture.s12kt.wire.WireSize.sint64(1, _k) + com.safetyculture.s12kt.wire.WireSize.int32(2, _v.number)
             _size += com.safetyculture.s12kt.wire.WireSize.tag(7) + com.safetyculture.s12kt.wire.WireSize.varint32(_entry) + _entry
         }
-        for ((_k, _v) in this.byFixed32) {
+        for ((_, _v) in this.byFixed32) {
             val _entry = com.safetyculture.s12kt.wire.WireSize.fixed32(1) + com.safetyculture.s12kt.wire.WireSize.message(2, _v)
             _size += com.safetyculture.s12kt.wire.WireSize.tag(8) + com.safetyculture.s12kt.wire.WireSize.varint32(_entry) + _entry
         }
-        for ((_k, _v) in this.byFixed64) {
+        for ((_, _v) in this.byFixed64) {
             val _entry = com.safetyculture.s12kt.wire.WireSize.fixed64(1) + com.safetyculture.s12kt.wire.WireSize.string(2, _v)
             _size += com.safetyculture.s12kt.wire.WireSize.tag(9) + com.safetyculture.s12kt.wire.WireSize.varint32(_entry) + _entry
         }
-        for ((_k, _v) in this.bySfixed32) {
+        for ((_, _v) in this.bySfixed32) {
             val _entry = com.safetyculture.s12kt.wire.WireSize.fixed32(1) + com.safetyculture.s12kt.wire.WireSize.string(2, _v)
             _size += com.safetyculture.s12kt.wire.WireSize.tag(10) + com.safetyculture.s12kt.wire.WireSize.varint32(_entry) + _entry
         }
-        for ((_k, _v) in this.bySfixed64) {
+        for ((_, _v) in this.bySfixed64) {
             val _entry = com.safetyculture.s12kt.wire.WireSize.fixed64(1) + com.safetyculture.s12kt.wire.WireSize.string(2, _v)
             _size += com.safetyculture.s12kt.wire.WireSize.tag(11) + com.safetyculture.s12kt.wire.WireSize.varint32(_entry) + _entry
         }
-        for ((_k, _v) in this.byBool) {
+        for ((_, _v) in this.byBool) {
             val _entry = com.safetyculture.s12kt.wire.WireSize.bool(1) + com.safetyculture.s12kt.wire.WireSize.string(2, _v)
             _size += com.safetyculture.s12kt.wire.WireSize.tag(12) + com.safetyculture.s12kt.wire.WireSize.varint32(_entry) + _entry
         }
@@ -913,6 +934,7 @@ public data class Maps(
             _size += com.safetyculture.s12kt.wire.WireSize.tag(13) + com.safetyculture.s12kt.wire.WireSize.varint32(_entry) + _entry
         }
         _size += this.unknownFields.size
+        this.memoizedSize = _size
         return _size
     }
 
@@ -1008,26 +1030,25 @@ public data class Maps(
         @kotlin.jvm.JvmStatic
         public fun parseFrom(bytes: kotlin.ByteArray): com.safetyculture.s12kt.kitchen.v1.Maps = decode(com.safetyculture.s12kt.wire.WireReader(bytes))
 
-        override fun decode(reader: com.safetyculture.s12kt.wire.WireReader): com.safetyculture.s12kt.kitchen.v1.Maps {
-            val v_byString = kotlin.collections.LinkedHashMap<kotlin.String, kotlin.String>()
-            val v_byInt32 = kotlin.collections.LinkedHashMap<kotlin.Int, kotlin.Long>()
-            val v_byInt64 = kotlin.collections.LinkedHashMap<kotlin.Long, kotlin.Boolean>()
-            val v_byUint32 = kotlin.collections.LinkedHashMap<kotlin.Int, kotlin.Double>()
-            val v_byUint64 = kotlin.collections.LinkedHashMap<kotlin.Long, kotlin.Float>()
-            val v_bySint32 = kotlin.collections.LinkedHashMap<kotlin.Int, com.safetyculture.s12kt.wire.ByteString>()
-            val v_bySint64 = kotlin.collections.LinkedHashMap<kotlin.Long, com.safetyculture.s12kt.kitchen.v1.Color>()
-            val v_byFixed32 = kotlin.collections.LinkedHashMap<kotlin.Int, com.safetyculture.s12kt.kitchen.v1.Scalars>()
-            val v_byFixed64 = kotlin.collections.LinkedHashMap<kotlin.Long, kotlin.String>()
-            val v_bySfixed32 = kotlin.collections.LinkedHashMap<kotlin.Int, kotlin.String>()
-            val v_bySfixed64 = kotlin.collections.LinkedHashMap<kotlin.Long, kotlin.String>()
-            val v_byBool = kotlin.collections.LinkedHashMap<kotlin.Boolean, kotlin.String>()
-            val v_nested = kotlin.collections.LinkedHashMap<kotlin.String, com.safetyculture.s12kt.kitchen.v1.Maps>()
-            val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+        override fun decodeInto(reader: com.safetyculture.s12kt.wire.WireReader, previous: com.safetyculture.s12kt.kitchen.v1.Maps?): com.safetyculture.s12kt.kitchen.v1.Maps {
+            val v_byString = kotlin.collections.LinkedHashMap<kotlin.String, kotlin.String>(previous?.byString ?: kotlin.collections.emptyMap())
+            val v_byInt32 = kotlin.collections.LinkedHashMap<kotlin.Int, kotlin.Long>(previous?.byInt32 ?: kotlin.collections.emptyMap())
+            val v_byInt64 = kotlin.collections.LinkedHashMap<kotlin.Long, kotlin.Boolean>(previous?.byInt64 ?: kotlin.collections.emptyMap())
+            val v_byUint32 = kotlin.collections.LinkedHashMap<kotlin.Int, kotlin.Double>(previous?.byUint32 ?: kotlin.collections.emptyMap())
+            val v_byUint64 = kotlin.collections.LinkedHashMap<kotlin.Long, kotlin.Float>(previous?.byUint64 ?: kotlin.collections.emptyMap())
+            val v_bySint32 = kotlin.collections.LinkedHashMap<kotlin.Int, com.safetyculture.s12kt.wire.ByteString>(previous?.bySint32 ?: kotlin.collections.emptyMap())
+            val v_bySint64 = kotlin.collections.LinkedHashMap<kotlin.Long, com.safetyculture.s12kt.kitchen.v1.Color>(previous?.bySint64 ?: kotlin.collections.emptyMap())
+            val v_byFixed32 = kotlin.collections.LinkedHashMap<kotlin.Int, com.safetyculture.s12kt.kitchen.v1.Scalars>(previous?.byFixed32 ?: kotlin.collections.emptyMap())
+            val v_byFixed64 = kotlin.collections.LinkedHashMap<kotlin.Long, kotlin.String>(previous?.byFixed64 ?: kotlin.collections.emptyMap())
+            val v_bySfixed32 = kotlin.collections.LinkedHashMap<kotlin.Int, kotlin.String>(previous?.bySfixed32 ?: kotlin.collections.emptyMap())
+            val v_bySfixed64 = kotlin.collections.LinkedHashMap<kotlin.Long, kotlin.String>(previous?.bySfixed64 ?: kotlin.collections.emptyMap())
+            val v_byBool = kotlin.collections.LinkedHashMap<kotlin.Boolean, kotlin.String>(previous?.byBool ?: kotlin.collections.emptyMap())
+            val v_nested = kotlin.collections.LinkedHashMap<kotlin.String, com.safetyculture.s12kt.kitchen.v1.Maps>(previous?.nested ?: kotlin.collections.emptyMap())
+            val _unknown = com.safetyculture.s12kt.wire.UnknownFields(previous?.unknownFields)
             loop@ while (true) {
                 when (val _tag = reader.readTag()) {
                     0 -> break@loop
                     10 -> {
-                        val _start = reader.fieldStart()
                         val _saved = reader.beginSection()
                         var _key: kotlin.String = ""
                         var _value: kotlin.String = ""
@@ -1036,14 +1057,13 @@ public data class Maps(
                                 0 -> break@entry
                                 10 -> _key = reader.readString()
                                 18 -> _value = reader.readString()
-                                else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
+                                else -> reader.skipField(_t)
                             }
                         }
                         reader.endSection(_saved)
                         v_byString[_key] = _value
                     }
                     18 -> {
-                        val _start = reader.fieldStart()
                         val _saved = reader.beginSection()
                         var _key: kotlin.Int = 0
                         var _value: kotlin.Long = 0L
@@ -1052,14 +1072,13 @@ public data class Maps(
                                 0 -> break@entry
                                 8 -> _key = reader.readInt32()
                                 16 -> _value = reader.readInt64()
-                                else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
+                                else -> reader.skipField(_t)
                             }
                         }
                         reader.endSection(_saved)
                         v_byInt32[_key] = _value
                     }
                     26 -> {
-                        val _start = reader.fieldStart()
                         val _saved = reader.beginSection()
                         var _key: kotlin.Long = 0L
                         var _value: kotlin.Boolean = false
@@ -1068,14 +1087,13 @@ public data class Maps(
                                 0 -> break@entry
                                 8 -> _key = reader.readInt64()
                                 16 -> _value = reader.readBool()
-                                else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
+                                else -> reader.skipField(_t)
                             }
                         }
                         reader.endSection(_saved)
                         v_byInt64[_key] = _value
                     }
                     34 -> {
-                        val _start = reader.fieldStart()
                         val _saved = reader.beginSection()
                         var _key: kotlin.Int = 0
                         var _value: kotlin.Double = 0.0
@@ -1084,14 +1102,13 @@ public data class Maps(
                                 0 -> break@entry
                                 8 -> _key = reader.readInt32()
                                 17 -> _value = reader.readDouble()
-                                else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
+                                else -> reader.skipField(_t)
                             }
                         }
                         reader.endSection(_saved)
                         v_byUint32[_key] = _value
                     }
                     42 -> {
-                        val _start = reader.fieldStart()
                         val _saved = reader.beginSection()
                         var _key: kotlin.Long = 0L
                         var _value: kotlin.Float = 0.0f
@@ -1100,14 +1117,13 @@ public data class Maps(
                                 0 -> break@entry
                                 8 -> _key = reader.readInt64()
                                 21 -> _value = reader.readFloat()
-                                else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
+                                else -> reader.skipField(_t)
                             }
                         }
                         reader.endSection(_saved)
                         v_byUint64[_key] = _value
                     }
                     50 -> {
-                        val _start = reader.fieldStart()
                         val _saved = reader.beginSection()
                         var _key: kotlin.Int = 0
                         var _value: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY
@@ -1116,14 +1132,13 @@ public data class Maps(
                                 0 -> break@entry
                                 8 -> _key = reader.readSInt32()
                                 18 -> _value = reader.readBytes()
-                                else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
+                                else -> reader.skipField(_t)
                             }
                         }
                         reader.endSection(_saved)
                         v_bySint32[_key] = _value
                     }
                     58 -> {
-                        val _start = reader.fieldStart()
                         val _saved = reader.beginSection()
                         var _key: kotlin.Long = 0L
                         var _value: com.safetyculture.s12kt.kitchen.v1.Color = com.safetyculture.s12kt.kitchen.v1.Color.COLOR_UNSPECIFIED
@@ -1132,14 +1147,13 @@ public data class Maps(
                                 0 -> break@entry
                                 8 -> _key = reader.readSInt64()
                                 16 -> _value = com.safetyculture.s12kt.kitchen.v1.Color.fromNumber(reader.readInt32())
-                                else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
+                                else -> reader.skipField(_t)
                             }
                         }
                         reader.endSection(_saved)
                         v_bySint64[_key] = _value
                     }
                     66 -> {
-                        val _start = reader.fieldStart()
                         val _saved = reader.beginSection()
                         var _key: kotlin.Int = 0
                         var _value: com.safetyculture.s12kt.kitchen.v1.Scalars? = null
@@ -1148,14 +1162,13 @@ public data class Maps(
                                 0 -> break@entry
                                 13 -> _key = reader.readFixed32()
                                 18 -> _value = reader.readMessage(com.safetyculture.s12kt.kitchen.v1.Scalars, _value)
-                                else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
+                                else -> reader.skipField(_t)
                             }
                         }
                         reader.endSection(_saved)
                         v_byFixed32[_key] = _value ?: com.safetyculture.s12kt.kitchen.v1.Scalars()
                     }
                     74 -> {
-                        val _start = reader.fieldStart()
                         val _saved = reader.beginSection()
                         var _key: kotlin.Long = 0L
                         var _value: kotlin.String = ""
@@ -1164,14 +1177,13 @@ public data class Maps(
                                 0 -> break@entry
                                 9 -> _key = reader.readFixed64()
                                 18 -> _value = reader.readString()
-                                else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
+                                else -> reader.skipField(_t)
                             }
                         }
                         reader.endSection(_saved)
                         v_byFixed64[_key] = _value
                     }
                     82 -> {
-                        val _start = reader.fieldStart()
                         val _saved = reader.beginSection()
                         var _key: kotlin.Int = 0
                         var _value: kotlin.String = ""
@@ -1180,14 +1192,13 @@ public data class Maps(
                                 0 -> break@entry
                                 13 -> _key = reader.readFixed32()
                                 18 -> _value = reader.readString()
-                                else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
+                                else -> reader.skipField(_t)
                             }
                         }
                         reader.endSection(_saved)
                         v_bySfixed32[_key] = _value
                     }
                     90 -> {
-                        val _start = reader.fieldStart()
                         val _saved = reader.beginSection()
                         var _key: kotlin.Long = 0L
                         var _value: kotlin.String = ""
@@ -1196,14 +1207,13 @@ public data class Maps(
                                 0 -> break@entry
                                 9 -> _key = reader.readFixed64()
                                 18 -> _value = reader.readString()
-                                else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
+                                else -> reader.skipField(_t)
                             }
                         }
                         reader.endSection(_saved)
                         v_bySfixed64[_key] = _value
                     }
                     98 -> {
-                        val _start = reader.fieldStart()
                         val _saved = reader.beginSection()
                         var _key: kotlin.Boolean = false
                         var _value: kotlin.String = ""
@@ -1212,14 +1222,13 @@ public data class Maps(
                                 0 -> break@entry
                                 8 -> _key = reader.readBool()
                                 18 -> _value = reader.readString()
-                                else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
+                                else -> reader.skipField(_t)
                             }
                         }
                         reader.endSection(_saved)
                         v_byBool[_key] = _value
                     }
                     106 -> {
-                        val _start = reader.fieldStart()
                         val _saved = reader.beginSection()
                         var _key: kotlin.String = ""
                         var _value: com.safetyculture.s12kt.kitchen.v1.Maps? = null
@@ -1228,7 +1237,7 @@ public data class Maps(
                                 0 -> break@entry
                                 10 -> _key = reader.readString()
                                 18 -> _value = reader.readMessage(com.safetyculture.s12kt.kitchen.v1.Maps, _value)
-                                else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
+                                else -> reader.skipField(_t)
                             }
                         }
                         reader.endSection(_saved)
@@ -1268,8 +1277,13 @@ public data class Oneofs(
     /** The fields that this version of the schema does not know, kept as encoded bytes. */
     public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
 ) : com.safetyculture.s12kt.wire.WireMessage {
+    @kotlin.jvm.Volatile
+    private var memoizedSize: kotlin.Int = -1
+
 
     override fun getSerializedSize(): kotlin.Int {
+        val _cached = this.memoizedSize
+        if (_cached >= 0) return _cached
         var _size = 0
         if (this.before.isNotEmpty()) _size += com.safetyculture.s12kt.wire.WireSize.string(1, this.before)
         if (this.choice is com.safetyculture.s12kt.kitchen.v1.Oneofs.Choice.Name) _size += com.safetyculture.s12kt.wire.WireSize.string(2, this.choice.value)
@@ -1282,6 +1296,7 @@ public data class Oneofs(
         if (this.other is com.safetyculture.s12kt.kitchen.v1.Oneofs.Other.Child) _size += com.safetyculture.s12kt.wire.WireSize.message(21, this.other.value)
         if (this.after.isNotEmpty()) _size += com.safetyculture.s12kt.wire.WireSize.string(30, this.after)
         _size += this.unknownFields.size
+        this.memoizedSize = _size
         return _size
     }
 
@@ -1329,12 +1344,12 @@ public data class Oneofs(
         @kotlin.jvm.JvmStatic
         public fun parseFrom(bytes: kotlin.ByteArray): com.safetyculture.s12kt.kitchen.v1.Oneofs = decode(com.safetyculture.s12kt.wire.WireReader(bytes))
 
-        override fun decode(reader: com.safetyculture.s12kt.wire.WireReader): com.safetyculture.s12kt.kitchen.v1.Oneofs {
-            var v_before: kotlin.String = ""
-            var v_choice: com.safetyculture.s12kt.kitchen.v1.Oneofs.Choice? = null
-            var v_other: com.safetyculture.s12kt.kitchen.v1.Oneofs.Other? = null
-            var v_after: kotlin.String = ""
-            val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+        override fun decodeInto(reader: com.safetyculture.s12kt.wire.WireReader, previous: com.safetyculture.s12kt.kitchen.v1.Oneofs?): com.safetyculture.s12kt.kitchen.v1.Oneofs {
+            var v_before: kotlin.String = previous?.before ?: ""
+            var v_choice: com.safetyculture.s12kt.kitchen.v1.Oneofs.Choice? = previous?.choice
+            var v_other: com.safetyculture.s12kt.kitchen.v1.Oneofs.Other? = previous?.other
+            var v_after: kotlin.String = previous?.after ?: ""
+            val _unknown = com.safetyculture.s12kt.wire.UnknownFields(previous?.unknownFields)
             loop@ while (true) {
                 when (val _tag = reader.readTag()) {
                     0 -> break@loop
@@ -1400,11 +1415,16 @@ public data class Outer(
     /** The fields that this version of the schema does not know, kept as encoded bytes. */
     public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
 ) : com.safetyculture.s12kt.wire.WireMessage {
+    @kotlin.jvm.Volatile
+    private var memoizedSize: kotlin.Int = -1
+
     public fun hasInner(): kotlin.Boolean = this.inner != null
     public fun hasCompanion(): kotlin.Boolean = this.companion != null
     public fun hasChoiceMessage(): kotlin.Boolean = this.choiceMessage != null
 
     override fun getSerializedSize(): kotlin.Int {
+        val _cached = this.memoizedSize
+        if (_cached >= 0) return _cached
         var _size = 0
         if (this.inner != null) _size += com.safetyculture.s12kt.wire.WireSize.message(1, this.inner)
         if (this.kind.number != 0) _size += com.safetyculture.s12kt.wire.WireSize.int32(2, this.kind.number)
@@ -1419,6 +1439,7 @@ public data class Outer(
         if (this.object_.isNotEmpty()) _size += com.safetyculture.s12kt.wire.WireSize.string(11, this.object_)
         if (this.value != 0) _size += com.safetyculture.s12kt.wire.WireSize.int32(12, this.value)
         _size += this.unknownFields.size
+        this.memoizedSize = _size
         return _size
     }
 
@@ -1483,13 +1504,19 @@ public data class Outer(
         /** The fields that this version of the schema does not know, kept as encoded bytes. */
         public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
     ) : com.safetyculture.s12kt.wire.WireMessage {
+        @kotlin.jvm.Volatile
+        private var memoizedSize: kotlin.Int = -1
+
         public fun hasDeep(): kotlin.Boolean = this.deep != null
 
         override fun getSerializedSize(): kotlin.Int {
+            val _cached = this.memoizedSize
+            if (_cached >= 0) return _cached
             var _size = 0
             if (this.deep != null) _size += com.safetyculture.s12kt.wire.WireSize.message(1, this.deep)
             if (this.kind.number != 0) _size += com.safetyculture.s12kt.wire.WireSize.int32(2, this.kind.number)
             _size += this.unknownFields.size
+            this.memoizedSize = _size
             return _size
         }
 
@@ -1510,11 +1537,17 @@ public data class Outer(
             /** The fields that this version of the schema does not know, kept as encoded bytes. */
             public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
         ) : com.safetyculture.s12kt.wire.WireMessage {
+            @kotlin.jvm.Volatile
+            private var memoizedSize: kotlin.Int = -1
+
 
             override fun getSerializedSize(): kotlin.Int {
+                val _cached = this.memoizedSize
+                if (_cached >= 0) return _cached
                 var _size = 0
                 if (this.value.isNotEmpty()) _size += com.safetyculture.s12kt.wire.WireSize.string(1, this.value)
                 _size += this.unknownFields.size
+                this.memoizedSize = _size
                 return _size
             }
 
@@ -1533,9 +1566,9 @@ public data class Outer(
                 @kotlin.jvm.JvmStatic
                 public fun parseFrom(bytes: kotlin.ByteArray): com.safetyculture.s12kt.kitchen.v1.Outer.Inner.Deep = decode(com.safetyculture.s12kt.wire.WireReader(bytes))
 
-                override fun decode(reader: com.safetyculture.s12kt.wire.WireReader): com.safetyculture.s12kt.kitchen.v1.Outer.Inner.Deep {
-                    var v_value: kotlin.String = ""
-                    val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+                override fun decodeInto(reader: com.safetyculture.s12kt.wire.WireReader, previous: com.safetyculture.s12kt.kitchen.v1.Outer.Inner.Deep?): com.safetyculture.s12kt.kitchen.v1.Outer.Inner.Deep {
+                    var v_value: kotlin.String = previous?.value ?: ""
+                    val _unknown = com.safetyculture.s12kt.wire.UnknownFields(previous?.unknownFields)
                     loop@ while (true) {
                         when (val _tag = reader.readTag()) {
                             0 -> break@loop
@@ -1557,10 +1590,10 @@ public data class Outer(
             @kotlin.jvm.JvmStatic
             public fun parseFrom(bytes: kotlin.ByteArray): com.safetyculture.s12kt.kitchen.v1.Outer.Inner = decode(com.safetyculture.s12kt.wire.WireReader(bytes))
 
-            override fun decode(reader: com.safetyculture.s12kt.wire.WireReader): com.safetyculture.s12kt.kitchen.v1.Outer.Inner {
-                var v_deep: com.safetyculture.s12kt.kitchen.v1.Outer.Inner.Deep? = null
-                var v_kind: com.safetyculture.s12kt.kitchen.v1.Outer.Kind = com.safetyculture.s12kt.kitchen.v1.Outer.Kind.KIND_UNSPECIFIED
-                val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+            override fun decodeInto(reader: com.safetyculture.s12kt.wire.WireReader, previous: com.safetyculture.s12kt.kitchen.v1.Outer.Inner?): com.safetyculture.s12kt.kitchen.v1.Outer.Inner {
+                var v_deep: com.safetyculture.s12kt.kitchen.v1.Outer.Inner.Deep? = previous?.deep
+                var v_kind: com.safetyculture.s12kt.kitchen.v1.Outer.Kind = previous?.kind ?: com.safetyculture.s12kt.kitchen.v1.Outer.Kind.KIND_UNSPECIFIED
+                val _unknown = com.safetyculture.s12kt.wire.UnknownFields(previous?.unknownFields)
                 loop@ while (true) {
                     when (val _tag = reader.readTag()) {
                         0 -> break@loop
@@ -1587,11 +1620,17 @@ public data class Outer(
         /** The fields that this version of the schema does not know, kept as encoded bytes. */
         public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
     ) : com.safetyculture.s12kt.wire.WireMessage {
+        @kotlin.jvm.Volatile
+        private var memoizedSize: kotlin.Int = -1
+
 
         override fun getSerializedSize(): kotlin.Int {
+            val _cached = this.memoizedSize
+            if (_cached >= 0) return _cached
             var _size = 0
             if (this.n != 0) _size += com.safetyculture.s12kt.wire.WireSize.int32(1, this.n)
             _size += this.unknownFields.size
+            this.memoizedSize = _size
             return _size
         }
 
@@ -1610,9 +1649,9 @@ public data class Outer(
             @kotlin.jvm.JvmStatic
             public fun parseFrom(bytes: kotlin.ByteArray): com.safetyculture.s12kt.kitchen.v1.Outer.CompanionMessage = decode(com.safetyculture.s12kt.wire.WireReader(bytes))
 
-            override fun decode(reader: com.safetyculture.s12kt.wire.WireReader): com.safetyculture.s12kt.kitchen.v1.Outer.CompanionMessage {
-                var v_n: kotlin.Int = 0
-                val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+            override fun decodeInto(reader: com.safetyculture.s12kt.wire.WireReader, previous: com.safetyculture.s12kt.kitchen.v1.Outer.CompanionMessage?): com.safetyculture.s12kt.kitchen.v1.Outer.CompanionMessage {
+                var v_n: kotlin.Int = previous?.n ?: 0
+                val _unknown = com.safetyculture.s12kt.wire.UnknownFields(previous?.unknownFields)
                 loop@ while (true) {
                     when (val _tag = reader.readTag()) {
                         0 -> break@loop
@@ -1635,11 +1674,17 @@ public data class Outer(
         /** The fields that this version of the schema does not know, kept as encoded bytes. */
         public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
     ) : com.safetyculture.s12kt.wire.WireMessage {
+        @kotlin.jvm.Volatile
+        private var memoizedSize: kotlin.Int = -1
+
 
         override fun getSerializedSize(): kotlin.Int {
+            val _cached = this.memoizedSize
+            if (_cached >= 0) return _cached
             var _size = 0
             if (this.n != 0) _size += com.safetyculture.s12kt.wire.WireSize.int32(1, this.n)
             _size += this.unknownFields.size
+            this.memoizedSize = _size
             return _size
         }
 
@@ -1658,9 +1703,9 @@ public data class Outer(
             @kotlin.jvm.JvmStatic
             public fun parseFrom(bytes: kotlin.ByteArray): com.safetyculture.s12kt.kitchen.v1.Outer.Choice = decode(com.safetyculture.s12kt.wire.WireReader(bytes))
 
-            override fun decode(reader: com.safetyculture.s12kt.wire.WireReader): com.safetyculture.s12kt.kitchen.v1.Outer.Choice {
-                var v_n: kotlin.Int = 0
-                val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+            override fun decodeInto(reader: com.safetyculture.s12kt.wire.WireReader, previous: com.safetyculture.s12kt.kitchen.v1.Outer.Choice?): com.safetyculture.s12kt.kitchen.v1.Outer.Choice {
+                var v_n: kotlin.Int = previous?.n ?: 0
+                val _unknown = com.safetyculture.s12kt.wire.UnknownFields(previous?.unknownFields)
                 loop@ while (true) {
                     when (val _tag = reader.readTag()) {
                         0 -> break@loop
@@ -1682,19 +1727,19 @@ public data class Outer(
         @kotlin.jvm.JvmStatic
         public fun parseFrom(bytes: kotlin.ByteArray): com.safetyculture.s12kt.kitchen.v1.Outer = decode(com.safetyculture.s12kt.wire.WireReader(bytes))
 
-        override fun decode(reader: com.safetyculture.s12kt.wire.WireReader): com.safetyculture.s12kt.kitchen.v1.Outer {
-            var v_inner: com.safetyculture.s12kt.kitchen.v1.Outer.Inner? = null
-            var v_kind: com.safetyculture.s12kt.kitchen.v1.Outer.Kind = com.safetyculture.s12kt.kitchen.v1.Outer.Kind.KIND_UNSPECIFIED
-            var v_companion: com.safetyculture.s12kt.kitchen.v1.Outer.CompanionMessage? = null
-            var v_choiceMessage: com.safetyculture.s12kt.kitchen.v1.Outer.Choice? = null
-            var v_choice: com.safetyculture.s12kt.kitchen.v1.Outer.ChoiceOneof? = null
-            var v_in_: kotlin.String = ""
-            var v_class_: kotlin.String = ""
-            var v_serializedSize_: kotlin.String = ""
-            var v_unknownFields_: kotlin.String = ""
-            var v_object_: kotlin.String = ""
-            var v_value: kotlin.Int = 0
-            val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+        override fun decodeInto(reader: com.safetyculture.s12kt.wire.WireReader, previous: com.safetyculture.s12kt.kitchen.v1.Outer?): com.safetyculture.s12kt.kitchen.v1.Outer {
+            var v_inner: com.safetyculture.s12kt.kitchen.v1.Outer.Inner? = previous?.inner
+            var v_kind: com.safetyculture.s12kt.kitchen.v1.Outer.Kind = previous?.kind ?: com.safetyculture.s12kt.kitchen.v1.Outer.Kind.KIND_UNSPECIFIED
+            var v_companion: com.safetyculture.s12kt.kitchen.v1.Outer.CompanionMessage? = previous?.companion
+            var v_choiceMessage: com.safetyculture.s12kt.kitchen.v1.Outer.Choice? = previous?.choiceMessage
+            var v_choice: com.safetyculture.s12kt.kitchen.v1.Outer.ChoiceOneof? = previous?.choice
+            var v_in_: kotlin.String = previous?.in_ ?: ""
+            var v_class_: kotlin.String = previous?.class_ ?: ""
+            var v_serializedSize_: kotlin.String = previous?.serializedSize_ ?: ""
+            var v_unknownFields_: kotlin.String = previous?.unknownFields_ ?: ""
+            var v_object_: kotlin.String = previous?.object_ ?: ""
+            var v_value: kotlin.Int = previous?.value ?: 0
+            val _unknown = com.safetyculture.s12kt.wire.UnknownFields(previous?.unknownFields)
             loop@ while (true) {
                 when (val _tag = reader.readTag()) {
                     0 -> break@loop
@@ -1777,6 +1822,9 @@ public data class WellKnown(
     /** The fields that this version of the schema does not know, kept as encoded bytes. */
     public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
 ) : com.safetyculture.s12kt.wire.WireMessage {
+    @kotlin.jvm.Volatile
+    private var memoizedSize: kotlin.Int = -1
+
     public fun hasTs(): kotlin.Boolean = this.ts != null
     public fun hasDur(): kotlin.Boolean = this.dur != null
     public fun hasMask(): kotlin.Boolean = this.mask != null
@@ -1792,6 +1840,8 @@ public data class WellKnown(
     public fun hasList(): kotlin.Boolean = this.list != null
 
     override fun getSerializedSize(): kotlin.Int {
+        val _cached = this.memoizedSize
+        if (_cached >= 0) return _cached
         var _size = 0
         if (this.ts != null) _size += com.safetyculture.s12kt.wire.WireSize.message(1, this.ts)
         if (this.dur != null) _size += com.safetyculture.s12kt.wire.WireSize.message(2, this.dur)
@@ -1814,6 +1864,7 @@ public data class WellKnown(
             _size += com.safetyculture.s12kt.wire.WireSize.tag(15) + com.safetyculture.s12kt.wire.WireSize.varint32(_entry) + _entry
         }
         _size += this.unknownFields.size
+        this.memoizedSize = _size
         return _size
     }
 
@@ -1853,23 +1904,23 @@ public data class WellKnown(
         @kotlin.jvm.JvmStatic
         public fun parseFrom(bytes: kotlin.ByteArray): com.safetyculture.s12kt.kitchen.v1.WellKnown = decode(com.safetyculture.s12kt.wire.WireReader(bytes))
 
-        override fun decode(reader: com.safetyculture.s12kt.wire.WireReader): com.safetyculture.s12kt.kitchen.v1.WellKnown {
-            var v_ts: com.safetyculture.s12kt.google.protobuf.Timestamp? = null
-            var v_dur: com.safetyculture.s12kt.google.protobuf.Duration? = null
-            var v_mask: com.safetyculture.s12kt.google.protobuf.FieldMask? = null
-            var v_str: com.safetyculture.s12kt.google.protobuf.StringValue? = null
-            var v_i32: com.safetyculture.s12kt.google.protobuf.Int32Value? = null
-            var v_i64: com.safetyculture.s12kt.google.protobuf.Int64Value? = null
-            var v_flag: com.safetyculture.s12kt.google.protobuf.BoolValue? = null
-            var v_dbl: com.safetyculture.s12kt.google.protobuf.DoubleValue? = null
-            var v_u32: com.safetyculture.s12kt.google.protobuf.UInt32Value? = null
-            var v_any: com.safetyculture.s12kt.google.protobuf.Any? = null
-            var v_data: com.safetyculture.s12kt.google.protobuf.Struct? = null
-            var v_value: com.safetyculture.s12kt.google.protobuf.Value? = null
-            var v_list: com.safetyculture.s12kt.google.protobuf.ListValue? = null
-            val v_many = kotlin.collections.ArrayList<com.safetyculture.s12kt.google.protobuf.Timestamp>()
-            val v_byName = kotlin.collections.LinkedHashMap<kotlin.String, com.safetyculture.s12kt.google.protobuf.Value>()
-            val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+        override fun decodeInto(reader: com.safetyculture.s12kt.wire.WireReader, previous: com.safetyculture.s12kt.kitchen.v1.WellKnown?): com.safetyculture.s12kt.kitchen.v1.WellKnown {
+            var v_ts: com.safetyculture.s12kt.google.protobuf.Timestamp? = previous?.ts
+            var v_dur: com.safetyculture.s12kt.google.protobuf.Duration? = previous?.dur
+            var v_mask: com.safetyculture.s12kt.google.protobuf.FieldMask? = previous?.mask
+            var v_str: com.safetyculture.s12kt.google.protobuf.StringValue? = previous?.str
+            var v_i32: com.safetyculture.s12kt.google.protobuf.Int32Value? = previous?.i32
+            var v_i64: com.safetyculture.s12kt.google.protobuf.Int64Value? = previous?.i64
+            var v_flag: com.safetyculture.s12kt.google.protobuf.BoolValue? = previous?.flag
+            var v_dbl: com.safetyculture.s12kt.google.protobuf.DoubleValue? = previous?.dbl
+            var v_u32: com.safetyculture.s12kt.google.protobuf.UInt32Value? = previous?.u32
+            var v_any: com.safetyculture.s12kt.google.protobuf.Any? = previous?.any
+            var v_data: com.safetyculture.s12kt.google.protobuf.Struct? = previous?.data
+            var v_value: com.safetyculture.s12kt.google.protobuf.Value? = previous?.value
+            var v_list: com.safetyculture.s12kt.google.protobuf.ListValue? = previous?.list
+            val v_many = kotlin.collections.ArrayList<com.safetyculture.s12kt.google.protobuf.Timestamp>(previous?.many ?: kotlin.collections.emptyList())
+            val v_byName = kotlin.collections.LinkedHashMap<kotlin.String, com.safetyculture.s12kt.google.protobuf.Value>(previous?.byName ?: kotlin.collections.emptyMap())
+            val _unknown = com.safetyculture.s12kt.wire.UnknownFields(previous?.unknownFields)
             loop@ while (true) {
                 when (val _tag = reader.readTag()) {
                     0 -> break@loop
@@ -1916,7 +1967,6 @@ public data class WellKnown(
                         v_many.add(reader.readMessage(com.safetyculture.s12kt.google.protobuf.Timestamp, null))
                     }
                     122 -> {
-                        val _start = reader.fieldStart()
                         val _saved = reader.beginSection()
                         var _key: kotlin.String = ""
                         var _value: com.safetyculture.s12kt.google.protobuf.Value? = null
@@ -1925,7 +1975,7 @@ public data class WellKnown(
                                 0 -> break@entry
                                 10 -> _key = reader.readString()
                                 18 -> _value = reader.readMessage(com.safetyculture.s12kt.google.protobuf.Value, _value)
-                                else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
+                                else -> reader.skipField(_t)
                             }
                         }
                         reader.endSection(_saved)
@@ -1963,9 +2013,15 @@ public data class Empty(
     /** The fields that this version of the schema does not know, kept as encoded bytes. */
     public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
 ) : com.safetyculture.s12kt.wire.WireMessage {
+    @kotlin.jvm.Volatile
+    private var memoizedSize: kotlin.Int = -1
+
     override fun getSerializedSize(): kotlin.Int {
+        val _cached = this.memoizedSize
+        if (_cached >= 0) return _cached
         var _size = 0
         _size += this.unknownFields.size
+        this.memoizedSize = _size
         return _size
     }
 
@@ -1983,8 +2039,8 @@ public data class Empty(
         @kotlin.jvm.JvmStatic
         public fun parseFrom(bytes: kotlin.ByteArray): com.safetyculture.s12kt.kitchen.v1.Empty = decode(com.safetyculture.s12kt.wire.WireReader(bytes))
 
-        override fun decode(reader: com.safetyculture.s12kt.wire.WireReader): com.safetyculture.s12kt.kitchen.v1.Empty {
-            val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+        override fun decodeInto(reader: com.safetyculture.s12kt.wire.WireReader, previous: com.safetyculture.s12kt.kitchen.v1.Empty?): com.safetyculture.s12kt.kitchen.v1.Empty {
+            val _unknown = com.safetyculture.s12kt.wire.UnknownFields(previous?.unknownFields)
             loop@ while (true) {
                 when (val _tag = reader.readTag()) {
                     0 -> break@loop
@@ -2003,11 +2059,17 @@ public data class String(
     /** The fields that this version of the schema does not know, kept as encoded bytes. */
     public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
 ) : com.safetyculture.s12kt.wire.WireMessage {
+    @kotlin.jvm.Volatile
+    private var memoizedSize: kotlin.Int = -1
+
 
     override fun getSerializedSize(): kotlin.Int {
+        val _cached = this.memoizedSize
+        if (_cached >= 0) return _cached
         var _size = 0
         if (this.value.isNotEmpty()) _size += com.safetyculture.s12kt.wire.WireSize.string(1, this.value)
         _size += this.unknownFields.size
+        this.memoizedSize = _size
         return _size
     }
 
@@ -2026,9 +2088,9 @@ public data class String(
         @kotlin.jvm.JvmStatic
         public fun parseFrom(bytes: kotlin.ByteArray): com.safetyculture.s12kt.kitchen.v1.String = decode(com.safetyculture.s12kt.wire.WireReader(bytes))
 
-        override fun decode(reader: com.safetyculture.s12kt.wire.WireReader): com.safetyculture.s12kt.kitchen.v1.String {
-            var v_value: kotlin.String = ""
-            val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+        override fun decodeInto(reader: com.safetyculture.s12kt.wire.WireReader, previous: com.safetyculture.s12kt.kitchen.v1.String?): com.safetyculture.s12kt.kitchen.v1.String {
+            var v_value: kotlin.String = previous?.value ?: ""
+            val _unknown = com.safetyculture.s12kt.wire.UnknownFields(previous?.unknownFields)
             loop@ while (true) {
                 when (val _tag = reader.readTag()) {
                     0 -> break@loop
@@ -2052,8 +2114,13 @@ public data class List(
     /** The fields that this version of the schema does not know, kept as encoded bytes. */
     public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
 ) : com.safetyculture.s12kt.wire.WireMessage {
+    @kotlin.jvm.Volatile
+    private var memoizedSize: kotlin.Int = -1
+
 
     override fun getSerializedSize(): kotlin.Int {
+        val _cached = this.memoizedSize
+        if (_cached >= 0) return _cached
         var _size = 0
         for (_e in this.items) {
             _size += com.safetyculture.s12kt.wire.WireSize.message(1, _e)
@@ -2063,6 +2130,7 @@ public data class List(
             _size += com.safetyculture.s12kt.wire.WireSize.tag(2) + com.safetyculture.s12kt.wire.WireSize.varint32(_entry) + _entry
         }
         _size += this.unknownFields.size
+        this.memoizedSize = _size
         return _size
     }
 
@@ -2089,10 +2157,10 @@ public data class List(
         @kotlin.jvm.JvmStatic
         public fun parseFrom(bytes: kotlin.ByteArray): com.safetyculture.s12kt.kitchen.v1.List = decode(com.safetyculture.s12kt.wire.WireReader(bytes))
 
-        override fun decode(reader: com.safetyculture.s12kt.wire.WireReader): com.safetyculture.s12kt.kitchen.v1.List {
-            val v_items = kotlin.collections.ArrayList<com.safetyculture.s12kt.kitchen.v1.String>()
-            val v_byName = kotlin.collections.LinkedHashMap<kotlin.String, com.safetyculture.s12kt.kitchen.v1.String>()
-            val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+        override fun decodeInto(reader: com.safetyculture.s12kt.wire.WireReader, previous: com.safetyculture.s12kt.kitchen.v1.List?): com.safetyculture.s12kt.kitchen.v1.List {
+            val v_items = kotlin.collections.ArrayList<com.safetyculture.s12kt.kitchen.v1.String>(previous?.items ?: kotlin.collections.emptyList())
+            val v_byName = kotlin.collections.LinkedHashMap<kotlin.String, com.safetyculture.s12kt.kitchen.v1.String>(previous?.byName ?: kotlin.collections.emptyMap())
+            val _unknown = com.safetyculture.s12kt.wire.UnknownFields(previous?.unknownFields)
             loop@ while (true) {
                 when (val _tag = reader.readTag()) {
                     0 -> break@loop
@@ -2100,7 +2168,6 @@ public data class List(
                         v_items.add(reader.readMessage(com.safetyculture.s12kt.kitchen.v1.String, null))
                     }
                     18 -> {
-                        val _start = reader.fieldStart()
                         val _saved = reader.beginSection()
                         var _key: kotlin.String = ""
                         var _value: com.safetyculture.s12kt.kitchen.v1.String? = null
@@ -2109,7 +2176,7 @@ public data class List(
                                 0 -> break@entry
                                 10 -> _key = reader.readString()
                                 18 -> _value = reader.readMessage(com.safetyculture.s12kt.kitchen.v1.String, _value)
-                                else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
+                                else -> reader.skipField(_t)
                             }
                         }
                         reader.endSection(_saved)
@@ -2134,13 +2201,19 @@ public data class Highest(
     /** The fields that this version of the schema does not know, kept as encoded bytes. */
     public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
 ) : com.safetyculture.s12kt.wire.WireMessage {
+    @kotlin.jvm.Volatile
+    private var memoizedSize: kotlin.Int = -1
+
 
     override fun getSerializedSize(): kotlin.Int {
+        val _cached = this.memoizedSize
+        if (_cached >= 0) return _cached
         var _size = 0
         if (this.first != 0) _size += com.safetyculture.s12kt.wire.WireSize.int32(1, this.first)
         if (this.gap != 0) _size += com.safetyculture.s12kt.wire.WireSize.int32(1000, this.gap)
         if (this.last != 0) _size += com.safetyculture.s12kt.wire.WireSize.int32(536870911, this.last)
         _size += this.unknownFields.size
+        this.memoizedSize = _size
         return _size
     }
 
@@ -2161,11 +2234,11 @@ public data class Highest(
         @kotlin.jvm.JvmStatic
         public fun parseFrom(bytes: kotlin.ByteArray): com.safetyculture.s12kt.kitchen.v1.Highest = decode(com.safetyculture.s12kt.wire.WireReader(bytes))
 
-        override fun decode(reader: com.safetyculture.s12kt.wire.WireReader): com.safetyculture.s12kt.kitchen.v1.Highest {
-            var v_first: kotlin.Int = 0
-            var v_last: kotlin.Int = 0
-            var v_gap: kotlin.Int = 0
-            val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+        override fun decodeInto(reader: com.safetyculture.s12kt.wire.WireReader, previous: com.safetyculture.s12kt.kitchen.v1.Highest?): com.safetyculture.s12kt.kitchen.v1.Highest {
+            var v_first: kotlin.Int = previous?.first ?: 0
+            var v_last: kotlin.Int = previous?.last ?: 0
+            var v_gap: kotlin.Int = previous?.gap ?: 0
+            val _unknown = com.safetyculture.s12kt.wire.UnknownFields(previous?.unknownFields)
             loop@ while (true) {
                 when (val _tag = reader.readTag()) {
                     0 -> break@loop

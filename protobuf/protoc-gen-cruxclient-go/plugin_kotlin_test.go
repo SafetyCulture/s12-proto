@@ -124,12 +124,12 @@ func TestKitchenGolden(t *testing.T) {
 
 func TestPackageOption(t *testing.T) {
 	out := kitchenOutput(t, "kotlin_messages=com.example.kt")
-	require.Contains(t, out["s12/kitchen/v1/kitchen.pb.kt"], "\npackage com.example.kt.kitchen.v1\n")
+	require.Contains(t, out["com/example/kt/kitchen/v1/kitchen.pb.kt"], "\npackage com.example.kt.kitchen.v1\n")
 	require.Contains(t, out, "com/example/kt/wire/S12Wire.kt")
 	require.Contains(t, out["com/example/kt/wire/S12Wire.kt"], "\npackage com.example.kt.wire\n")
 
 	out = kitchenOutput(t, "kotlin_messages")
-	require.Contains(t, out["s12/kitchen/v1/kitchen.pb.kt"], "\npackage com.safetyculture.s12kt.kitchen.v1\n")
+	require.Contains(t, out["com/safetyculture/s12kt/kitchen/v1/kitchen.pb.kt"], "\npackage com.safetyculture.s12kt.kitchen.v1\n")
 }
 
 func TestRuntimeHasNoImports(t *testing.T) {
@@ -225,7 +225,7 @@ func TestKitchenNullability(t *testing.T) {
 	out := kitchenOutput(t, "kotlin_messages")
 	compiled := compileOnDisk(t, []string{"testdata/kotlin/kitchen"}, kitchenFiles...)
 	for _, fd := range compiled {
-		source := out[strings.TrimSuffix(fd.Path(), ".proto")+".pb.kt"]
+		source := out[kotlin.FileName(fd, "com.safetyculture.s12kt")]
 		for i := 0; i < fd.Messages().Len(); i++ {
 			checkNullability(t, "\n"+source, fd.Messages().Get(i), 0, 0)
 		}
@@ -264,7 +264,7 @@ func TestAssetNullability(t *testing.T) {
 	require.NoError(t, err)
 	includes := []string{filepath.Join(schema, "protos"), filepath.Join(schema, "third_party"), repo}
 	out := runPluginOnDisk(t, includes, "kotlin_messages", "s12/assets/v1/asset.proto")
-	source := "\n" + out["s12/assets/v1/asset.pb.kt"]
+	source := "\n" + out["com/safetyculture/s12kt/assets/v1/asset.pb.kt"]
 	require.NotEqual(t, "\n", source)
 
 	asset := compileOnDisk(t, includes, "s12/assets/v1/asset.proto")[0].Messages().ByName("Asset")
@@ -278,12 +278,12 @@ func TestAssetNullability(t *testing.T) {
 // in the unknown fields.
 func TestClosedEnum(t *testing.T) {
 	out := kitchenOutput(t, "kotlin_messages")
-	source := out["editions/closed.pb.kt"]
+	source := out["com/safetyculture/s12kt/kitchen/editions/closed.pb.kt"]
 	require.Contains(t, source, "Closed.UNRECOGNIZED) _unknown.addVarint(16,")
 	require.Contains(t, source, "v_open = com.safetyculture.s12kt.kitchen.editions.Open.fromNumber(reader.readInt32())")
 	require.NotContains(t, source, "Open.UNRECOGNIZED) _unknown")
-	require.NotContains(t, out["s12/kitchen/v1/kitchen.pb.kt"], "_unknown.addVarint")
-	require.Contains(t, out["legacy/legacy.pb.kt"], "_unknown.addVarint")
+	require.NotContains(t, out["com/safetyculture/s12kt/kitchen/v1/kitchen.pb.kt"], "_unknown.addVarint")
+	require.Contains(t, out["com/safetyculture/s12kt/kitchen/legacy/legacy.pb.kt"], "_unknown.addVarint")
 }
 
 func TestKotlinMessagesOptionOff(t *testing.T) {
@@ -296,9 +296,9 @@ func TestKotlinMessagesOptionOff(t *testing.T) {
 
 func TestKotlinMessagesPackageFallback(t *testing.T) {
 	out := kitchenOutput(t, "kotlin_messages,kotlin_package=com.example.kt")
-	require.Contains(t, out["s12/kitchen/v1/kitchen.pb.kt"], "\npackage com.example.kt.kitchen.v1\n")
+	require.Contains(t, out["com/example/kt/kitchen/v1/kitchen.pb.kt"], "\npackage com.example.kt.kitchen.v1\n")
 	out = kitchenOutput(t, "kotlin_package=com.example.kt,kotlin_messages=com.example.other")
-	require.Contains(t, out["s12/kitchen/v1/kitchen.pb.kt"], "\npackage com.example.other.kitchen.v1\n")
+	require.Contains(t, out["com/example/other/kitchen/v1/kitchen.pb.kt"], "\npackage com.example.other.kitchen.v1\n")
 	require.Contains(t, out["s12/kitchen/v1/kitchen.djinni.yaml"], "com.example.kt.kitchen.v1.")
 }
 
@@ -309,7 +309,7 @@ func TestMessagesOnly(t *testing.T) {
 		names = append(names, name)
 		require.True(t, strings.HasSuffix(name, ".pb.kt") || strings.HasSuffix(name, "S12Wire.kt"), name)
 	}
-	require.Contains(t, names, "s12/kitchen/v1/kitchen.pb.kt")
+	require.Contains(t, names, "com/safetyculture/s12kt/kitchen/v1/kitchen.pb.kt")
 	require.Contains(t, names, "com/safetyculture/s12kt/wire/S12Wire.kt")
 
 	withOutputs := kitchenOutput(t, "kotlin_messages")

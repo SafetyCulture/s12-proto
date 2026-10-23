@@ -6,6 +6,7 @@ package kotlin
 import (
 	_ "embed"
 	"fmt"
+	"path"
 	"sort"
 	"strings"
 
@@ -28,10 +29,18 @@ func runtimeFor(root string) string {
 	return strings.Replace(runtimeSource, "package "+runtimePackage+"\n", "package "+escapePackage(root)+".wire\n", 1)
 }
 
+// FileName returns the path of the Kotlin file of a proto file: the directory of its Kotlin
+// package, then the name of the proto file.
+func FileName(file protoreflect.FileDescriptor, root string) string {
+	base := strings.TrimSuffix(path.Base(string(file.Path())), ".proto")
+	return strings.ReplaceAll(kotlinPackage(file, root), ".", "/") + "/" + base + ".pb.kt"
+}
+
 // Generate writes one .pb.kt file for each proto file that has a message or an enum,
 // and the runtime file once.
 func Generate(rw protoplugin.ResponseWriter, files []protoreflect.FileDescriptor, root string) error {
 	wrote := false
+	written := map[string]protoreflect.FileDescriptor{}
 	for _, file := range files {
 		if file.Messages().Len() == 0 && file.Enums().Len() == 0 {
 			continue
@@ -40,7 +49,12 @@ func Generate(rw protoplugin.ResponseWriter, files []protoreflect.FileDescriptor
 		if err != nil {
 			return fmt.Errorf("%s: %w", file.Path(), err)
 		}
-		rw.AddFile(strings.TrimSuffix(string(file.Path()), ".proto")+".pb.kt", content)
+		name := FileName(file, root)
+		if other, ok := written[name]; ok {
+			return fmt.Errorf("%s and %s are in the same package and have the same file name", other.Path(), file.Path())
+		}
+		written[name] = file
+		rw.AddFile(name, content)
 		wrote = true
 	}
 	if wrote {
@@ -175,6 +189,63 @@ func (f *fieldInfo) nullable() bool {
 	return fd.HasPresence() && fd.Cardinality() != protoreflect.Required
 }
 
+// oneofClassNames returns the name of the sealed class of each oneof of a message. A oneof class
+// takes a name that no nested declaration, no companion object and no earlier oneof class has.
+func oneofClassNames(msg protoreflect.MessageDescriptor) map[protoreflect.OneofDescriptor]string {
+	used := map[string]bool{"Companion": true}
+	nested := msg.Messages()
+	for i := 0; i < nested.Len(); i++ {
+		used[className(string(nested.Get(i).Name()))] = true
+	}
+	enums := msg.Enums()
+	for i := 0; i < enums.Len(); i++ {
+		used[className(string(enums.Get(i).Name()))] = true
+	}
+	classes := map[protoreflect.OneofDescriptor]string{}
+	fields := msg.Fields()
+	for i := 0; i < fields.Len(); i++ {
+		od := fields.Get(i).ContainingOneof()
+		if od == nil || od.IsSynthetic() {
+			continue
+		}
+		if _, ok := classes[od]; ok {
+			continue
+		}
+		class := upperCamel(string(od.Name()))
+		for used[class] {
+			class += "Oneof"
+		}
+		used[class] = true
+		classes[od] = class
+	}
+	return classes
+}
+
+// oneofMemberName returns the name of the class of a oneof member inside the sealed class.
+func oneofMemberName(fd protoreflect.FieldDescriptor, class string) string {
+	member := upperCamel(string(fd.Name()))
+	if member == class || member == "Companion" {
+		member += "Value"
+	}
+	return member
+}
+
+// OneofClass returns the simple name of the sealed class of a oneof.
+func OneofClass(od protoreflect.OneofDescriptor) string {
+	return oneofClassNames(od.Parent().(protoreflect.MessageDescriptor))[od]
+}
+
+// OneofMember returns the simple name of the class of a oneof member.
+func OneofMember(fd protoreflect.FieldDescriptor) string {
+	return oneofMemberName(fd, OneofClass(fd.ContainingOneof()))
+}
+
+// hasDeclaredDefault reports whether the field tracks presence and the schema declares a default for it.
+// Its property is null when the field is not set, so the default is a constant of the companion object.
+func (f *fieldInfo) hasDeclaredDefault() bool {
+	return f.nullable() && f.fd.Message() == nil && f.fd.HasDefault()
+}
+
 func (g *fileGen) elementType(fd protoreflect.FieldDescriptor) string {
 	switch fd.Kind() {
 	case protoreflect.MessageKind, protoreflect.GroupKind:
@@ -220,16 +291,9 @@ func (g *fileGen) message(msg protoreflect.MessageDescriptor) error {
 	name := escapeIdent(className(string(msg.Name())))
 	qualified := qualifiedName(msg, g.root)
 
-	// Names that the nested declarations use. A oneof class takes a name that is free.
-	used := map[string]bool{}
 	nested := msg.Messages()
-	for i := 0; i < nested.Len(); i++ {
-		used[className(string(nested.Get(i).Name()))] = true
-	}
 	enums := msg.Enums()
-	for i := 0; i < enums.Len(); i++ {
-		used[className(string(enums.Get(i).Name()))] = true
-	}
+	oneofClasses := oneofClassNames(msg)
 
 	var fields, required []*fieldInfo
 	oneofs := map[protoreflect.OneofDescriptor]*oneofInfo{}
@@ -244,19 +308,12 @@ func (g *fileGen) message(msg protoreflect.MessageDescriptor) error {
 		if od := fd.ContainingOneof(); od != nil && !od.IsSynthetic() {
 			oi := oneofs[od]
 			if oi == nil {
-				oi = &oneofInfo{od: od, prop: OneofPropertyName(od), class: upperCamel(string(od.Name()))}
-				for used[oi.class] {
-					oi.class += "Oneof"
-				}
-				used[oi.class] = true
+				oi = &oneofInfo{od: od, prop: OneofPropertyName(od), class: oneofClasses[od]}
 				oneofs[od] = oi
 				oneofOrder = append(oneofOrder, oi)
 			}
 			f.oneof = oi
-			f.member = upperCamel(string(fd.Name()))
-			if f.member == oi.class || f.member == "Companion" {
-				f.member += "Value"
-			}
+			f.member = oneofMemberName(fd, oi.class)
 			oi.fields = append(oi.fields, f)
 		}
 		if fd.Cardinality() == protoreflect.Required {
@@ -271,6 +328,10 @@ func (g *fileGen) message(msg protoreflect.MessageDescriptor) error {
 
 	byNumber := append([]*fieldInfo(nil), fields...)
 	sort.SliceStable(byNumber, func(i, j int) bool { return byNumber[i].number() < byNumber[j].number() })
+
+	if err := checkConstructorSlots(msg, fields); err != nil {
+		return err
+	}
 
 	// The constructor lists a field in declaration order. A oneof takes the place of its first member.
 	g.comment(msg)
@@ -294,6 +355,9 @@ func (g *fileGen) message(msg protoreflect.MessageDescriptor) error {
 	g.w.close(") : %s {", g.rt("WireMessage"))
 	g.w.indent++
 
+	g.w.line("@kotlin.jvm.Volatile")
+	g.w.line("private var memoizedSize: kotlin.Int = -1")
+	g.w.line("")
 	if len(required) > 0 {
 		g.w.line("/** Bit i is set while required field i has not been read. It is zero for a message that code builds. */")
 		g.w.line("internal var missingRequired: kotlin.Long = 0L")
@@ -350,6 +414,40 @@ func (g *fileGen) message(msg protoreflect.MessageDescriptor) error {
 	return nil
 }
 
+// maxJVMSlots is the number of parameter slots that a JVM method can take.
+const maxJVMSlots = 255
+
+// checkConstructorSlots fails for a message whose constructor does not fit in a JVM method. Every
+// field is a parameter with a default, so Kotlin adds one mask parameter for each 32 of them, and a
+// 64-bit value takes two slots.
+func checkConstructorSlots(msg protoreflect.MessageDescriptor, fields []*fieldInfo) error {
+	params, slots := 1, 1 // the unknown fields
+	seen := map[*oneofInfo]bool{}
+	for _, f := range fields {
+		if f.oneof != nil {
+			if seen[f.oneof] {
+				continue
+			}
+			seen[f.oneof] = true
+		}
+		params++
+		slots++
+		if f.oneof == nil && !f.fd.IsList() && !f.fd.IsMap() && !f.nullable() {
+			switch f.fd.Kind() {
+			case protoreflect.Int64Kind, protoreflect.Sint64Kind, protoreflect.Sfixed64Kind,
+				protoreflect.Uint64Kind, protoreflect.Fixed64Kind, protoreflect.DoubleKind:
+				slots++
+			}
+		}
+	}
+	// The receiver or the first parameter, the masks, and the marker of the synthetic constructor.
+	slots += 2 + (params+31)/32
+	if slots > maxJVMSlots {
+		return fmt.Errorf("%s: the constructor needs %d parameter slots and the JVM allows %d", msg.FullName(), slots, maxJVMSlots)
+	}
+	return nil
+}
+
 func upperFirst(s string) string {
 	if s == "" {
 		return s
@@ -398,11 +496,14 @@ func (g *fileGen) presenceCondition(f *fieldInfo, expr string) string {
 
 func (g *fileGen) sizeMethod(byNumber []*fieldInfo, qualified string) {
 	g.w.open("override fun getSerializedSize(): kotlin.Int {")
+	g.w.line("val _cached = this.memoizedSize")
+	g.w.line("if (_cached >= 0) return _cached")
 	g.w.line("var _size = 0")
 	for _, f := range byNumber {
 		g.sizeField(f, qualified)
 	}
 	g.w.line("_size += this.unknownFields.size")
+	g.w.line("this.memoizedSize = _size")
 	g.w.line("return _size")
 	g.w.close("}")
 }
@@ -447,8 +548,24 @@ func (g *fileGen) sizeField(f *fieldInfo, qualified string) {
 	ws := g.rt("WireSize")
 	switch {
 	case fd.IsMap():
-		g.w.open("for ((_k, _v) in %s) {", p)
-		g.w.line("val _entry = %s + %s", g.sizeCall(fd.MapKey().Kind(), 1, "_k"), g.sizeCall(fd.MapValue().Kind(), 2, "_v"))
+		entry := fmt.Sprintf("%s + %s", g.sizeCall(fd.MapKey().Kind(), 1, "_k"), g.sizeCall(fd.MapValue().Kind(), 2, "_v"))
+		keyFixed, valueFixed := fixedSize(fd.MapKey().Kind()), fixedSize(fd.MapValue().Kind())
+		if keyFixed && valueFixed {
+			g.w.open("if (%s.isNotEmpty()) {", p)
+			g.w.line("val _entry = %s", entry)
+			g.w.line("_size += %s.size * (%s.tag(%d) + %s.varint32(_entry) + _entry)", p, ws, n, ws)
+			g.w.close("}")
+			break
+		}
+		key, value := "_k", "_v"
+		if keyFixed {
+			key = "_"
+		}
+		if valueFixed {
+			value = "_"
+		}
+		g.w.open("for ((%s, %s) in %s) {", key, value, p)
+		g.w.line("val _entry = %s", entry)
 		g.w.line("_size += %s.tag(%d) + %s.varint32(_entry) + _entry", ws, n, ws)
 		g.w.close("}")
 	case fd.IsList() && fd.IsPacked():
@@ -460,6 +577,8 @@ func (g *fileGen) sizeField(f *fieldInfo, qualified string) {
 			g.w.line("_size += %s.packed(%d, %s)", ws, n, g.packedPayload(fd.Kind(), p))
 		}
 		g.w.close("}")
+	case fd.IsList() && fixedSize(fd.Kind()):
+		g.w.line("_size += %s.size * %s", p, g.sizeCall(fd.Kind(), n, ""))
 	case fd.IsList():
 		g.w.open("for (_e in %s) {", p)
 		g.w.line("_size += %s", g.sizeCall(fd.Kind(), n, "_e"))
@@ -566,6 +685,12 @@ func validatesUTF8(fd protoreflect.FieldDescriptor) bool {
 func (g *fileGen) companion(msg protoreflect.MessageDescriptor, qualified string, fields, required []*fieldInfo) {
 	codec := g.rt("WireCodec")
 	g.w.open("public companion object : %s<%s> {", codec, qualified)
+	for _, f := range fields {
+		if f.hasDeclaredDefault() {
+			g.w.line("public val DEFAULT_%s: %s = %s", strings.ToUpper(string(f.fd.Name())), g.elementType(f.fd), g.defaultLiteral(f.fd))
+			g.w.line("")
+		}
+	}
 	g.w.line("@kotlin.jvm.JvmStatic")
 	if g.needsRequiredCheck(msg) {
 		g.w.open("public fun parseFrom(bytes: kotlin.ByteArray): %s {", qualified)
@@ -577,7 +702,7 @@ func (g *fileGen) companion(msg protoreflect.MessageDescriptor, qualified string
 		g.w.line("public fun parseFrom(bytes: kotlin.ByteArray): %s = decode(%s(bytes))", qualified, g.rt("WireReader"))
 	}
 	g.w.line("")
-	g.w.open("override fun decode(reader: %s): %s {", g.rt("WireReader"), qualified)
+	g.w.open("override fun decodeInto(reader: %s, previous: %s?): %s {", g.rt("WireReader"), qualified, qualified)
 
 	oneofSeen := map[*oneofInfo]bool{}
 	var args []string
@@ -587,24 +712,28 @@ func (g *fileGen) companion(msg protoreflect.MessageDescriptor, qualified string
 		case f.oneof != nil:
 			if !oneofSeen[f.oneof] {
 				oneofSeen[f.oneof] = true
-				g.w.line("var v_%s: %s.%s? = null", f.oneof.prop, qualified, f.oneof.class)
+				g.w.line("var v_%s: %s.%s? = previous?.%s", f.oneof.prop, qualified, f.oneof.class, f.oneof.prop)
 				args = append(args, fmt.Sprintf("%s = v_%s", f.oneof.prop, f.oneof.prop))
 			}
 		case fd.IsMap():
-			g.w.line("val v_%s = kotlin.collections.LinkedHashMap<%s, %s>()", f.prop, g.elementType(fd.MapKey()), g.elementType(fd.MapValue()))
+			g.w.line("val v_%s = kotlin.collections.LinkedHashMap<%s, %s>(previous?.%s ?: kotlin.collections.emptyMap())", f.prop, g.elementType(fd.MapKey()), g.elementType(fd.MapValue()), f.prop)
 			args = append(args, fmt.Sprintf("%s = v_%s", f.prop, f.prop))
 		case fd.IsList():
-			g.w.line("val v_%s = kotlin.collections.ArrayList<%s>()", f.prop, g.elementType(fd))
+			g.w.line("val v_%s = kotlin.collections.ArrayList<%s>(previous?.%s ?: kotlin.collections.emptyList())", f.prop, g.elementType(fd), f.prop)
 			args = append(args, fmt.Sprintf("%s = v_%s", f.prop, f.prop))
 		default:
-			g.w.line("var v_%s: %s = %s", f.prop, g.propertyType(f), g.propertyDefault(f))
+			if f.nullable() {
+				g.w.line("var v_%s: %s = previous?.%s", f.prop, g.propertyType(f), f.prop)
+			} else {
+				g.w.line("var v_%s: %s = previous?.%s ?: %s", f.prop, g.propertyType(f), f.prop, g.propertyDefault(f))
+			}
 			args = append(args, fmt.Sprintf("%s = v_%s", f.prop, f.prop))
 		}
 	}
 	if len(required) > 0 {
-		g.w.line("var _missing = %dL", int64(1)<<len(required)-1)
+		g.w.line("var _missing = previous?.missingRequired ?: %dL", int64(1)<<len(required)-1)
 	}
-	g.w.line("val _unknown = %s()", g.rt("UnknownFields"))
+	g.w.line("val _unknown = %s(previous?.unknownFields)", g.rt("UnknownFields"))
 	g.w.open("loop@ while (true) {")
 	g.w.open("when (val _tag = reader.readTag()) {")
 	g.w.line("0 -> break@loop")
@@ -687,7 +816,9 @@ func (g *fileGen) decodeMap(f *fieldInfo) {
 	key, val := fd.MapKey(), fd.MapValue()
 	n := fd.Number()
 	g.w.open("%d -> {", tagOf(n, wireLength))
-	g.w.line("val _start = reader.fieldStart()")
+	if closedEnum(val) {
+		g.w.line("val _start = reader.fieldStart()")
+	}
 	g.w.line("val _saved = reader.beginSection()")
 	g.w.line("var _key: %s = %s", g.elementType(key), g.defaultLiteral(key))
 	if val.Kind() == protoreflect.MessageKind {
@@ -707,7 +838,7 @@ func (g *fileGen) decodeMap(f *fieldInfo) {
 		_, valExpr := g.readValue(val, "null", false)
 		g.w.line("%d -> _value = %s", tagOf(2, wireTypeOf(val.Kind())), valExpr)
 	}
-	g.w.line("else -> reader.readUnknown(_t, %s())", g.rt("UnknownFields"))
+	g.w.line("else -> reader.skipField(_t)")
 	g.w.close("}")
 	g.w.close("}")
 	g.w.line("reader.endSection(_saved)")

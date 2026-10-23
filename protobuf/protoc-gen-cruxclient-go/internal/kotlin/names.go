@@ -17,13 +17,15 @@ var hardKeywords = map[string]bool{}
 var reservedProperties = map[string]bool{
 	"class": true, "serializedSize": true, "unknownFields": true,
 	"missingRequired": true, "findMissingRequired": true,
+	// The generated code names library types with their package, so a property called kotlin or com would hide them.
+	"kotlin": true, "com": true,
 }
 
 // reservedEntries are enum entry names that clash with a member of a Kotlin enum class
 // or with a member that the generator adds.
 var reservedEntries = map[string]bool{
 	"name": true, "ordinal": true, "number": true, "entries": true, "values": true,
-	"valueOf": true, "fromNumber": true, "Companion": true,
+	"valueOf": true, "fromNumber": true, "Companion": true, "UNRECOGNIZED": true,
 }
 
 func init() {
@@ -103,7 +105,7 @@ func upperCamel(s string) string {
 }
 
 func entryName(name string) string {
-	if reservedEntries[name] {
+	if reservedEntries[name] || hardKeywords[name] {
 		return name + "_"
 	}
 	return name
@@ -146,12 +148,6 @@ func typeName(d protoreflect.Descriptor) string {
 // code uses it everywhere, so a message named String or List cannot shadow a library type.
 func qualifiedName(d protoreflect.Descriptor, root string) string {
 	return escapePackage(kotlinPackage(d.ParentFile(), root)) + "." + typeName(d)
-}
-
-// QualifiedClassName returns the fully qualified Kotlin class name of a message without
-// escapes. It is the name that the JVM and the djinni yaml use.
-func QualifiedClassName(d protoreflect.Descriptor, root string) string {
-	return kotlinPackage(d.ParentFile(), root) + "." + strings.ReplaceAll(typeName(d), "`", "")
 }
 
 // BinaryClassName returns the JVM binary name of the Kotlin class of a message or enum,

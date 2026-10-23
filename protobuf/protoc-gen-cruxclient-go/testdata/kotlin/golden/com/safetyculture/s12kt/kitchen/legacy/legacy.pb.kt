@@ -46,6 +46,9 @@ public data class Legacy(
     /** The fields that this version of the schema does not know, kept as encoded bytes. */
     public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
 ) : com.safetyculture.s12kt.wire.WireMessage {
+    @kotlin.jvm.Volatile
+    private var memoizedSize: kotlin.Int = -1
+
     /** Bit i is set while required field i has not been read. It is zero for a message that code builds. */
     internal var missingRequired: kotlin.Long = 0L
         private set
@@ -57,6 +60,8 @@ public data class Legacy(
     public fun hasParent(): kotlin.Boolean = this.parent != null
 
     override fun getSerializedSize(): kotlin.Int {
+        val _cached = this.memoizedSize
+        if (_cached >= 0) return _cached
         var _size = 0
         if ((this.missingRequired and 1L) == 0L) _size += com.safetyculture.s12kt.wire.WireSize.string(1, this.id)
         if (this.count != null) _size += com.safetyculture.s12kt.wire.WireSize.int32(2, this.count)
@@ -74,6 +79,7 @@ public data class Legacy(
         if (this.pick is com.safetyculture.s12kt.kitchen.legacy.Legacy.Pick.A) _size += com.safetyculture.s12kt.wire.WireSize.string(10, this.pick.value)
         if (this.pick is com.safetyculture.s12kt.kitchen.legacy.Legacy.Pick.B) _size += com.safetyculture.s12kt.wire.WireSize.int64(11, this.pick.value)
         _size += this.unknownFields.size
+        this.memoizedSize = _size
         return _size
     }
 
@@ -116,6 +122,10 @@ public data class Legacy(
     }
 
     public companion object : com.safetyculture.s12kt.wire.WireCodec<com.safetyculture.s12kt.kitchen.legacy.Legacy> {
+        public val DEFAULT_LABEL: kotlin.String = "none"
+
+        public val DEFAULT_LEVEL: com.safetyculture.s12kt.kitchen.legacy.Level = com.safetyculture.s12kt.kitchen.legacy.Level.LEVEL_HIGH
+
         @kotlin.jvm.JvmStatic
         public fun parseFrom(bytes: kotlin.ByteArray): com.safetyculture.s12kt.kitchen.legacy.Legacy {
             val _message = decode(com.safetyculture.s12kt.wire.WireReader(bytes))
@@ -123,19 +133,19 @@ public data class Legacy(
             return _message
         }
 
-        override fun decode(reader: com.safetyculture.s12kt.wire.WireReader): com.safetyculture.s12kt.kitchen.legacy.Legacy {
-            var v_id: kotlin.String = ""
-            var v_count: kotlin.Int? = null
-            var v_label: kotlin.String? = null
-            var v_level: com.safetyculture.s12kt.kitchen.legacy.Level? = null
-            val v_numbers = kotlin.collections.ArrayList<kotlin.Int>()
-            val v_packedNumbers = kotlin.collections.ArrayList<kotlin.Int>()
-            var v_blob: com.safetyculture.s12kt.wire.ByteString? = null
-            var v_parent: com.safetyculture.s12kt.kitchen.legacy.Legacy? = null
-            var v_score: kotlin.Double = 1.5
-            var v_pick: com.safetyculture.s12kt.kitchen.legacy.Legacy.Pick? = null
-            var _missing = 3L
-            val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+        override fun decodeInto(reader: com.safetyculture.s12kt.wire.WireReader, previous: com.safetyculture.s12kt.kitchen.legacy.Legacy?): com.safetyculture.s12kt.kitchen.legacy.Legacy {
+            var v_id: kotlin.String = previous?.id ?: ""
+            var v_count: kotlin.Int? = previous?.count
+            var v_label: kotlin.String? = previous?.label
+            var v_level: com.safetyculture.s12kt.kitchen.legacy.Level? = previous?.level
+            val v_numbers = kotlin.collections.ArrayList<kotlin.Int>(previous?.numbers ?: kotlin.collections.emptyList())
+            val v_packedNumbers = kotlin.collections.ArrayList<kotlin.Int>(previous?.packedNumbers ?: kotlin.collections.emptyList())
+            var v_blob: com.safetyculture.s12kt.wire.ByteString? = previous?.blob
+            var v_parent: com.safetyculture.s12kt.kitchen.legacy.Legacy? = previous?.parent
+            var v_score: kotlin.Double = previous?.score ?: 1.5
+            var v_pick: com.safetyculture.s12kt.kitchen.legacy.Legacy.Pick? = previous?.pick
+            var _missing = previous?.missingRequired ?: 3L
+            val _unknown = com.safetyculture.s12kt.wire.UnknownFields(previous?.unknownFields)
             loop@ while (true) {
                 when (val _tag = reader.readTag()) {
                     0 -> break@loop
@@ -218,6 +228,9 @@ public data class Req(
     /** The fields that this version of the schema does not know, kept as encoded bytes. */
     public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
 ) : com.safetyculture.s12kt.wire.WireMessage {
+    @kotlin.jvm.Volatile
+    private var memoizedSize: kotlin.Int = -1
+
     /** Bit i is set while required field i has not been read. It is zero for a message that code builds. */
     internal var missingRequired: kotlin.Long = 0L
         private set
@@ -225,10 +238,13 @@ public data class Req(
     public fun hasCount(): kotlin.Boolean = this.count != null
 
     override fun getSerializedSize(): kotlin.Int {
+        val _cached = this.memoizedSize
+        if (_cached >= 0) return _cached
         var _size = 0
         if ((this.missingRequired and 1L) == 0L) _size += com.safetyculture.s12kt.wire.WireSize.string(1, this.name)
         if (this.count != null) _size += com.safetyculture.s12kt.wire.WireSize.int32(2, this.count)
         _size += this.unknownFields.size
+        this.memoizedSize = _size
         return _size
     }
 
@@ -257,11 +273,11 @@ public data class Req(
             return _message
         }
 
-        override fun decode(reader: com.safetyculture.s12kt.wire.WireReader): com.safetyculture.s12kt.kitchen.legacy.Req {
-            var v_name: kotlin.String = ""
-            var v_count: kotlin.Int? = null
-            var _missing = 1L
-            val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+        override fun decodeInto(reader: com.safetyculture.s12kt.wire.WireReader, previous: com.safetyculture.s12kt.kitchen.legacy.Req?): com.safetyculture.s12kt.kitchen.legacy.Req {
+            var v_name: kotlin.String = previous?.name ?: ""
+            var v_count: kotlin.Int? = previous?.count
+            var _missing = previous?.missingRequired ?: 1L
+            val _unknown = com.safetyculture.s12kt.wire.UnknownFields(previous?.unknownFields)
             loop@ while (true) {
                 when (val _tag = reader.readTag()) {
                     0 -> break@loop
@@ -294,9 +310,14 @@ public data class ReqHolder(
     /** The fields that this version of the schema does not know, kept as encoded bytes. */
     public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
 ) : com.safetyculture.s12kt.wire.WireMessage {
+    @kotlin.jvm.Volatile
+    private var memoizedSize: kotlin.Int = -1
+
     public fun hasOne(): kotlin.Boolean = this.one != null
 
     override fun getSerializedSize(): kotlin.Int {
+        val _cached = this.memoizedSize
+        if (_cached >= 0) return _cached
         var _size = 0
         if (this.one != null) _size += com.safetyculture.s12kt.wire.WireSize.message(1, this.one)
         for (_e in this.many) {
@@ -311,6 +332,7 @@ public data class ReqHolder(
             _size += com.safetyculture.s12kt.wire.WireSize.tag(4) + com.safetyculture.s12kt.wire.WireSize.varint32(_entry) + _entry
         }
         _size += this.unknownFields.size
+        this.memoizedSize = _size
         return _size
     }
 
@@ -359,12 +381,12 @@ public data class ReqHolder(
             return _message
         }
 
-        override fun decode(reader: com.safetyculture.s12kt.wire.WireReader): com.safetyculture.s12kt.kitchen.legacy.ReqHolder {
-            var v_one: com.safetyculture.s12kt.kitchen.legacy.Req? = null
-            val v_many = kotlin.collections.ArrayList<com.safetyculture.s12kt.kitchen.legacy.Req>()
-            val v_byName = kotlin.collections.LinkedHashMap<kotlin.String, com.safetyculture.s12kt.kitchen.legacy.Req>()
-            val v_tags = kotlin.collections.LinkedHashMap<kotlin.String, kotlin.String>()
-            val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+        override fun decodeInto(reader: com.safetyculture.s12kt.wire.WireReader, previous: com.safetyculture.s12kt.kitchen.legacy.ReqHolder?): com.safetyculture.s12kt.kitchen.legacy.ReqHolder {
+            var v_one: com.safetyculture.s12kt.kitchen.legacy.Req? = previous?.one
+            val v_many = kotlin.collections.ArrayList<com.safetyculture.s12kt.kitchen.legacy.Req>(previous?.many ?: kotlin.collections.emptyList())
+            val v_byName = kotlin.collections.LinkedHashMap<kotlin.String, com.safetyculture.s12kt.kitchen.legacy.Req>(previous?.byName ?: kotlin.collections.emptyMap())
+            val v_tags = kotlin.collections.LinkedHashMap<kotlin.String, kotlin.String>(previous?.tags ?: kotlin.collections.emptyMap())
+            val _unknown = com.safetyculture.s12kt.wire.UnknownFields(previous?.unknownFields)
             loop@ while (true) {
                 when (val _tag = reader.readTag()) {
                     0 -> break@loop
@@ -375,7 +397,6 @@ public data class ReqHolder(
                         v_many.add(reader.readMessage(com.safetyculture.s12kt.kitchen.legacy.Req, null))
                     }
                     26 -> {
-                        val _start = reader.fieldStart()
                         val _saved = reader.beginSection()
                         var _key: kotlin.String = ""
                         var _value: com.safetyculture.s12kt.kitchen.legacy.Req? = null
@@ -384,14 +405,13 @@ public data class ReqHolder(
                                 0 -> break@entry
                                 10 -> _key = reader.readString()
                                 18 -> _value = reader.readMessage(com.safetyculture.s12kt.kitchen.legacy.Req, _value)
-                                else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
+                                else -> reader.skipField(_t)
                             }
                         }
                         reader.endSection(_saved)
                         v_byName[_key] = _value ?: com.safetyculture.s12kt.kitchen.legacy.Req.decode(com.safetyculture.s12kt.wire.WireReader(kotlin.ByteArray(0)))
                     }
                     34 -> {
-                        val _start = reader.fieldStart()
                         val _saved = reader.beginSection()
                         var _key: kotlin.String = ""
                         var _value: kotlin.String = ""
@@ -400,7 +420,7 @@ public data class ReqHolder(
                                 0 -> break@entry
                                 10 -> _key = reader.readString()
                                 18 -> _value = reader.readString()
-                                else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
+                                else -> reader.skipField(_t)
                             }
                         }
                         reader.endSection(_saved)
@@ -425,15 +445,21 @@ public data class ReqEnum(
     /** The fields that this version of the schema does not know, kept as encoded bytes. */
     public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
 ) : com.safetyculture.s12kt.wire.WireMessage {
+    @kotlin.jvm.Volatile
+    private var memoizedSize: kotlin.Int = -1
+
     /** Bit i is set while required field i has not been read. It is zero for a message that code builds. */
     internal var missingRequired: kotlin.Long = 0L
         private set
 
 
     override fun getSerializedSize(): kotlin.Int {
+        val _cached = this.memoizedSize
+        if (_cached >= 0) return _cached
         var _size = 0
         if ((this.missingRequired and 1L) == 0L) _size += com.safetyculture.s12kt.wire.WireSize.int32(1, this.level.number)
         _size += this.unknownFields.size
+        this.memoizedSize = _size
         return _size
     }
 
@@ -461,10 +487,10 @@ public data class ReqEnum(
             return _message
         }
 
-        override fun decode(reader: com.safetyculture.s12kt.wire.WireReader): com.safetyculture.s12kt.kitchen.legacy.ReqEnum {
-            var v_level: com.safetyculture.s12kt.kitchen.legacy.Level = com.safetyculture.s12kt.kitchen.legacy.Level.LEVEL_LOW
-            var _missing = 1L
-            val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+        override fun decodeInto(reader: com.safetyculture.s12kt.wire.WireReader, previous: com.safetyculture.s12kt.kitchen.legacy.ReqEnum?): com.safetyculture.s12kt.kitchen.legacy.ReqEnum {
+            var v_level: com.safetyculture.s12kt.kitchen.legacy.Level = previous?.level ?: com.safetyculture.s12kt.kitchen.legacy.Level.LEVEL_LOW
+            var _missing = previous?.missingRequired ?: 1L
+            val _unknown = com.safetyculture.s12kt.wire.UnknownFields(previous?.unknownFields)
             loop@ while (true) {
                 when (val _tag = reader.readTag()) {
                     0 -> break@loop

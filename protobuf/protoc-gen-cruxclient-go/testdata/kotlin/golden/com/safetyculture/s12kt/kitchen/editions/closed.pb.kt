@@ -66,10 +66,15 @@ public data class Holder(
     /** The fields that this version of the schema does not know, kept as encoded bytes. */
     public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
 ) : com.safetyculture.s12kt.wire.WireMessage {
+    @kotlin.jvm.Volatile
+    private var memoizedSize: kotlin.Int = -1
+
     public fun hasOpen(): kotlin.Boolean = this.open != null
     public fun hasClosed(): kotlin.Boolean = this.closed != null
 
     override fun getSerializedSize(): kotlin.Int {
+        val _cached = this.memoizedSize
+        if (_cached >= 0) return _cached
         var _size = 0
         if (this.open != null) _size += com.safetyculture.s12kt.wire.WireSize.int32(1, this.open.number)
         if (this.closed != null) _size += com.safetyculture.s12kt.wire.WireSize.int32(2, this.closed.number)
@@ -78,6 +83,7 @@ public data class Holder(
             _size += com.safetyculture.s12kt.wire.WireSize.packed(3, com.safetyculture.s12kt.wire.WireSize.packedInt32Payload(_nums))
         }
         _size += this.unknownFields.size
+        this.memoizedSize = _size
         return _size
     }
 
@@ -100,11 +106,11 @@ public data class Holder(
         @kotlin.jvm.JvmStatic
         public fun parseFrom(bytes: kotlin.ByteArray): com.safetyculture.s12kt.kitchen.editions.Holder = decode(com.safetyculture.s12kt.wire.WireReader(bytes))
 
-        override fun decode(reader: com.safetyculture.s12kt.wire.WireReader): com.safetyculture.s12kt.kitchen.editions.Holder {
-            var v_open: com.safetyculture.s12kt.kitchen.editions.Open? = null
-            var v_closed: com.safetyculture.s12kt.kitchen.editions.Closed? = null
-            val v_closedList = kotlin.collections.ArrayList<com.safetyculture.s12kt.kitchen.editions.Closed>()
-            val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+        override fun decodeInto(reader: com.safetyculture.s12kt.wire.WireReader, previous: com.safetyculture.s12kt.kitchen.editions.Holder?): com.safetyculture.s12kt.kitchen.editions.Holder {
+            var v_open: com.safetyculture.s12kt.kitchen.editions.Open? = previous?.open
+            var v_closed: com.safetyculture.s12kt.kitchen.editions.Closed? = previous?.closed
+            val v_closedList = kotlin.collections.ArrayList<com.safetyculture.s12kt.kitchen.editions.Closed>(previous?.closedList ?: kotlin.collections.emptyList())
+            val _unknown = com.safetyculture.s12kt.wire.UnknownFields(previous?.unknownFields)
             loop@ while (true) {
                 when (val _tag = reader.readTag()) {
                     0 -> break@loop

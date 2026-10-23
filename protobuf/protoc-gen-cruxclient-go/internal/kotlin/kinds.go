@@ -169,6 +169,16 @@ func (g *fileGen) packedPayload(k protoreflect.Kind, list string) string {
 	return list + ".size"
 }
 
+// fixedSize reports whether an encoded value of the kind has the same size for every value.
+func fixedSize(k protoreflect.Kind) bool {
+	switch k {
+	case protoreflect.Fixed32Kind, protoreflect.Sfixed32Kind, protoreflect.FloatKind,
+		protoreflect.Fixed64Kind, protoreflect.Sfixed64Kind, protoreflect.DoubleKind, protoreflect.BoolKind:
+		return true
+	}
+	return false
+}
+
 // sizeCall returns the Kotlin expression of the encoded size of one value with its tag.
 func (g *fileGen) sizeCall(k protoreflect.Kind, number protoreflect.FieldNumber, expr string) string {
 	ws := g.rt("WireSize")
@@ -297,15 +307,8 @@ func floatLiteral(v float64, typ string, bits int, suffix string) string {
 	return s + suffix
 }
 
-// defaultEnumValue returns the default value of an enum field: the declared default,
-// else the entry with the number 0, else the first entry.
+// defaultEnumValue returns the default value of an enum field: the declared default, else
+// the first entry that the enum declares.
 func defaultEnumValue(fd protoreflect.FieldDescriptor) protoreflect.EnumValueDescriptor {
-	if v := fd.DefaultEnumValue(); v != nil {
-		return v
-	}
-	values := fd.Enum().Values()
-	if v := values.ByNumber(0); v != nil {
-		return v
-	}
-	return values.Get(0)
+	return fd.Enum().Values().ByNumber(fd.Default().Enum())
 }
