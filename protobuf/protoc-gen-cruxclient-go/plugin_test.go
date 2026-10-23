@@ -507,6 +507,17 @@ func requireSameFiles(t *testing.T, a, b map[string]string, aName, bName string)
 	require.Empty(t, problems, "%s and %s are not the same files", aName, bName)
 }
 
+// optionOffOutputs are the files that the plugin writes with no option for the routeguide protos.
+// The golden directory also holds the output of other plugins, so the test selects the goldens by name.
+var optionOffOutputs = map[string]bool{
+	"message.djinni.jni.h":    true,
+	"message.djinni.objc.h":   true,
+	"message.djinni.yaml":     true,
+	"route_guide.crux.api.cc": true,
+	"route_guide.crux.api.h":  true,
+	"route_guide.mock.h":      true,
+}
+
 // TestOptionOffMatchesCommittedGoldens checks that, with no option, the Go plugin writes the same
 // bytes as the goldens that the repository has committed under protoc-gen-cruxclient/generated.
 func TestOptionOffMatchesCommittedGoldens(t *testing.T) {
@@ -519,9 +530,9 @@ func TestOptionOffMatchesCommittedGoldens(t *testing.T) {
 		got[strings.TrimPrefix(name, "routeguide/v1/")] = content
 	}
 	goldens := readTree(t, "../protoc-gen-cruxclient/generated/routeguide/v1", false, func(name string) bool {
-		_, written := got[name]
-		return written
+		return optionOffOutputs[name]
 	})
+	require.Len(t, goldens, len(optionOffOutputs), "a file of optionOffOutputs has no committed golden")
 	requireSameFiles(t, goldens, got, "committed goldens", "Go plugin output")
 }
 
