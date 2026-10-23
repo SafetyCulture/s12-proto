@@ -12,8 +12,8 @@ public sealed class Color(public val number: kotlin.Int, public val name: kotlin
     public object COLOR_BLUE : Color(3, "COLOR_BLUE")
     public object COLOR_NEGATIVE : Color(-1, "COLOR_NEGATIVE")
 
-    /** A number that this version of the schema does not know. */
-    public class UNRECOGNIZED(number: kotlin.Int) : Color(number, "UNRECOGNIZED") {
+    /** A number that this version of the schema does not know. Get it from fromNumber. */
+    public class UNRECOGNIZED internal constructor(number: kotlin.Int) : Color(number, "UNRECOGNIZED") {
         override fun equals(other: kotlin.Any?): kotlin.Boolean = other is UNRECOGNIZED && other.number == number
 
         override fun hashCode(): kotlin.Int = number
@@ -42,8 +42,8 @@ public sealed class Alias(public val number: kotlin.Int, public val name: kotlin
     public object ALIAS_UNSPECIFIED : Alias(0, "ALIAS_UNSPECIFIED")
     public object ALIAS_FIRST : Alias(1, "ALIAS_FIRST")
 
-    /** A number that this version of the schema does not know. */
-    public class UNRECOGNIZED(number: kotlin.Int) : Alias(number, "UNRECOGNIZED") {
+    /** A number that this version of the schema does not know. Get it from fromNumber. */
+    public class UNRECOGNIZED internal constructor(number: kotlin.Int) : Alias(number, "UNRECOGNIZED") {
         override fun equals(other: kotlin.Any?): kotlin.Boolean = other is UNRECOGNIZED && other.number == number
 
         override fun hashCode(): kotlin.Int = number
@@ -1454,8 +1454,8 @@ public data class Outer(
         public object KIND_UNSPECIFIED : Kind(0, "KIND_UNSPECIFIED")
         public object KIND_A : Kind(1, "KIND_A")
 
-        /** A number that this version of the schema does not know. */
-        public class UNRECOGNIZED(number: kotlin.Int) : Kind(number, "UNRECOGNIZED") {
+        /** A number that this version of the schema does not know. Get it from fromNumber. */
+        public class UNRECOGNIZED internal constructor(number: kotlin.Int) : Kind(number, "UNRECOGNIZED") {
             override fun equals(other: kotlin.Any?): kotlin.Boolean = other is UNRECOGNIZED && other.number == number
 
             override fun hashCode(): kotlin.Int = number

@@ -79,7 +79,7 @@ func runPlugin(t *testing.T, includes []string, parameter string, files ...strin
 	return out
 }
 
-var kitchenFiles = []string{"s12/kitchen/v1/kitchen.proto", "legacy/legacy.proto"}
+var kitchenFiles = []string{"s12/kitchen/v1/kitchen.proto", "legacy/legacy.proto", "editions/closed.proto"}
 
 func kitchenOutput(t *testing.T, parameter string) map[string]string {
 	t.Helper()
@@ -173,9 +173,9 @@ func expectedKind(fd protoreflect.FieldDescriptor) string {
 		return "List"
 	case fd.ContainingOneof() != nil && !fd.ContainingOneof().IsSynthetic():
 		return "oneof"
-	case fd.HasOptionalKeyword() && fd.Message() == nil:
-		return "nullable"
 	case fd.Message() != nil:
+		return "nullable"
+	case fd.HasPresence() && fd.Cardinality() != protoreflect.Required:
 		return "nullable"
 	}
 	return "plain"
@@ -290,4 +290,16 @@ func TestAssetNullability(t *testing.T) {
 
 	asset := compile(t, includes, "s12/assets/v1/asset.proto")[0].Messages().ByName("Asset")
 	checkNullability(t, source, asset, 0, 0)
+}
+
+// TestClosedEnum checks that only an enum that the schema marks as closed keeps an unknown number
+// in the unknown fields.
+func TestClosedEnum(t *testing.T) {
+	out := kitchenOutput(t, "")
+	source := out["editions/closed.pb.kt"]
+	require.Contains(t, source, "Closed.UNRECOGNIZED) _unknown.addVarint(16,")
+	require.Contains(t, source, "v_open = com.safetyculture.s12kt.kitchen.editions.Open.fromNumber(reader.readInt32())")
+	require.NotContains(t, source, "Open.UNRECOGNIZED) _unknown")
+	require.NotContains(t, out["s12/kitchen/v1/kitchen.pb.kt"], "_unknown.addVarint")
+	require.Contains(t, out["legacy/legacy.pb.kt"], "_unknown.addVarint")
 }

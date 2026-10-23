@@ -112,8 +112,8 @@ func (g *fileGen) enum(e protoreflect.EnumDescriptor) {
 		g.w.line("public object %s : %s(%d, %s)", entry, name, v.Number(), kotlinString(string(v.Name())))
 	}
 	g.w.line("")
-	g.w.line("/** A number that this version of the schema does not know. */")
-	g.w.open("public class UNRECOGNIZED(number: kotlin.Int) : %s(number, \"UNRECOGNIZED\") {", name)
+	g.w.line("/** A number that this version of the schema does not know. Get it from fromNumber. */")
+	g.w.open("public class UNRECOGNIZED internal constructor(number: kotlin.Int) : %s(number, \"UNRECOGNIZED\") {", name)
 	g.w.line("override fun equals(other: kotlin.Any?): kotlin.Boolean = other is UNRECOGNIZED && other.number == number")
 	g.w.line("")
 	g.w.line("override fun hashCode(): kotlin.Int = number")
@@ -394,7 +394,7 @@ func (g *fileGen) unrecognized(fd protoreflect.FieldDescriptor) string {
 // closedEnum reports whether a field has an enum that drops a number it does not declare. Such a
 // number goes to the unknown fields. The number of an open enum stays in the property.
 func closedEnum(fd protoreflect.FieldDescriptor) bool {
-	return fd.Kind() == protoreflect.EnumKind && fd.Enum().ParentFile().Syntax() == protoreflect.Proto2
+	return fd.Kind() == protoreflect.EnumKind && fd.Enum().IsClosed()
 }
 
 // store returns the statement that stores the value of a field that readValue read. For a closed

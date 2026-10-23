@@ -1,0 +1,22 @@
+edition = "2023";
+
+package kitchen.editions;
+
+option java_multiple_files = true;
+
+enum Open {
+  OPEN_ZERO = 0;
+  OPEN_ONE = 1;
+}
+
+enum Closed {
+  option features.enum_type = CLOSED;
+  CLOSED_ZERO = 0;
+  CLOSED_ONE = 1;
+}
+
+message Holder {
+  Open open = 1;
+  Closed closed = 2;
+  repeated Closed closed_list = 3;
+}

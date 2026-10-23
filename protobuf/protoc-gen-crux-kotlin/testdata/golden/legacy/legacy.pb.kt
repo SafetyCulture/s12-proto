@@ -9,8 +9,8 @@ public sealed class Level(public val number: kotlin.Int, public val name: kotlin
     public object LEVEL_LOW : Level(1, "LEVEL_LOW")
     public object LEVEL_HIGH : Level(2, "LEVEL_HIGH")
 
-    /** A number that this version of the schema does not know. */
-    public class UNRECOGNIZED(number: kotlin.Int) : Level(number, "UNRECOGNIZED") {
+    /** A number that this version of the schema does not know. Get it from fromNumber. */
+    public class UNRECOGNIZED internal constructor(number: kotlin.Int) : Level(number, "UNRECOGNIZED") {
         override fun equals(other: kotlin.Any?): kotlin.Boolean = other is UNRECOGNIZED && other.number == number
 
         override fun hashCode(): kotlin.Int = number
