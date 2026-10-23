@@ -117,7 +117,12 @@ func writeDjinniYAMLRecord(w *codegen.CodeWriter,
 
 	w.WL("---")
 	w.WL("name: pb_%s_%s_%s", domainName, fileNameCamel, messageName)
-	w.WL("typedef: 'record deriving(eq, ord, parcelable)'")
+	if kotlin != nil {
+		// A Kotlin message class does not implement Comparable, so a Djinni ord over it does not compile.
+		w.WL("typedef: 'record deriving(eq, parcelable)'")
+	} else {
+		w.WL("typedef: 'record deriving(eq, ord, parcelable)'")
+	}
 	w.WL("params: []")
 	w.WL("prefix: 'pb'")
 

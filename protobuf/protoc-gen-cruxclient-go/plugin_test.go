@@ -351,7 +351,6 @@ func TestMessageDjinniSwiftGolden(t *testing.T) {
 		"routeguide/v1/message.djinni.yaml",
 	}, mapKeys(output))
 
-
 	for _, name := range []string{"message.djinni.yaml", "message.djinni.swiftxx.h"} {
 		require.Contains(t, output, "routeguide/v1/"+name,
 			"plugin output missing %s; got keys: %v", name, mapKeys(output))
@@ -398,8 +397,6 @@ func TestMessageDjinniKotlinGolden(t *testing.T) {
 		"routeguide/v1/message.djinni.objc.h",
 		"routeguide/v1/message.djinni.yaml",
 	}, mapKeys(output))
-
-
 
 	for _, name := range []string{"message.djinni.yaml", "message.djinni.kotlin.jni.h"} {
 		require.Contains(t, output, "routeguide/v1/"+name,
@@ -731,4 +728,20 @@ func mapKeys(m map[string]string) []string {
 	}
 	sort.Strings(keys)
 	return keys
+}
+
+// TestKotlinYAMLRecordsHaveNoOrd checks that a record bound to a Kotlin message class has no
+// ord, and that a record without the Kotlin option keeps the typedef of master.
+func TestKotlinYAMLRecordsHaveNoOrd(t *testing.T) {
+	const withOrd = "typedef: 'record deriving(eq, ord, parcelable)'"
+	const withoutOrd = "typedef: 'record deriving(eq, parcelable)'"
+	files := []string{"routeguide/v1/message.proto"}
+
+	off := runPluginWithParameter(t, messageProtoSources(t), files, "")["routeguide/v1/message.djinni.yaml"]
+	require.Equal(t, 7, strings.Count(off, withOrd))
+	require.NotContains(t, off, withoutOrd)
+
+	on := runPluginWithParameter(t, messageProtoSources(t), files, "kotlin_package")["routeguide/v1/message.djinni.yaml"]
+	require.Equal(t, 7, strings.Count(on, withoutOrd))
+	require.NotContains(t, on, withOrd)
 }
