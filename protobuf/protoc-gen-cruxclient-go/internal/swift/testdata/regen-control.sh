@@ -23,7 +23,7 @@ trap 'rm -rf "$WORK"' EXIT
 BUF="$(find_buf)"
 PLUGIN="$(find_protoc_gen_swift)"
 export BUF_CACHE_DIR="$WORK/bufcache"
-echo "protoc-gen-swift: $("$PLUGIN" --version); buf: $("$BUF" --version); APISchema: $(git -C "$APISCHEMA" rev-parse HEAD)"
+echo "protoc-gen-swift: $("$PLUGIN" --version); buf: $("$BUF" --version); APISchema: $(git -C "$APISCHEMA" rev-parse HEAD 2>/dev/null || echo unknown)"
 
 cat > "$WORK/swift.yaml" <<YAML
 version: v1
