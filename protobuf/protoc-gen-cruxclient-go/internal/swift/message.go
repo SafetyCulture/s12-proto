@@ -201,7 +201,7 @@ func (mg *messageGen) generateProtoNameProviding(p *printer) {
 		w.writeReservedNumbers(r[0], r[1])
 	}
 	if w.err != nil {
-		mg.g.err = w.err
+		mg.g.err = fmt.Errorf("%s: %w", mg.desc.fullName, w.err)
 		return
 	}
 	if w.shouldUseEmptyNameMapInitializer() {

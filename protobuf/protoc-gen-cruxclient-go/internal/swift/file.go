@@ -108,10 +108,17 @@ func (g *generator) generateFile(f *file) (string, error) {
 			m.generateRuntimeSupport(p, nil)
 		}
 	}
-	if g.err != nil {
-		return "", g.err
+	if err := g.fileError(f); err != nil {
+		return "", err
 	}
 	return p.String(), nil
+}
+
+func (g *generator) fileError(f *file) error {
+	if g.err == nil {
+		return nil
+	}
+	return &internalError{text: fmt.Sprintf("internal error of the Swift generator on %s: %v", f.name, g.err)}
 }
 
 func (g *generator) generateVersionCheck(p *printer, rt string) {
