@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bumped Go minimum version from 1.18 to 1.24 in root module and `protoc-gen-s12perm/example`
 
 ### Fixed
+- `protoc-gen-cruxclient-go`: Kotlin output rejects class names that collide in a declaration scope.
 - `protoc-gen-cruxclient-go`: Kotlin decoders reject a missing required message field without recursive fallback decoding.
 - `protoc-gen-govalidator`: a message with two non-optional `simple_string` fields carrying `min_len`/`max_len` generated a `Validate` func declaring `length` twice, so the package did not compile. The length variable is now named per field (FG-6837). Generated code only, validation behaviour is unchanged.
 

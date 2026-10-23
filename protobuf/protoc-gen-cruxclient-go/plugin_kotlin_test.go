@@ -438,6 +438,27 @@ func TestKotlinNameCollisions(t *testing.T) {
 	}
 }
 
+func TestKotlinClassNameCollisions(t *testing.T) {
+	cases := []struct {
+		name string
+		root string
+		body string
+		want string
+	}{
+		{"root segment", "io.acme", "message io {} message ioMessage {}", `io and ioMessage map to the same Kotlin name "ioMessage"`},
+		{"reserved root", "com.safetyculture.s12kt", "message kotlin {} message kotlinMessage {}", `kotlin and kotlinMessage map to the same Kotlin name "kotlinMessage"`},
+		{"nested", "io.acme", "message Outer { message io {} message ioMessage {} }", `io and ioMessage map to the same Kotlin name "ioMessage"`},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			dir := t.TempDir()
+			source := "syntax = \"proto3\";\npackage collision.v1;\n" + tc.body + "\n"
+			require.NoError(t, os.WriteFile(filepath.Join(dir, "collision.proto"), []byte(source), 0o644))
+			requirePluginResponseError(t, []string{dir}, "kotlin_messages="+tc.root, tc.want, "collision.proto")
+		})
+	}
+}
+
 func TestRequiredMessageCyclesRejectMissingFields(t *testing.T) {
 	cases := []struct {
 		name string
