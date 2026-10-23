@@ -28,7 +28,7 @@ func main() {
 //   - services > 0:  generate all 6 file types
 func handle(
 	_ context.Context,
-	env protoplugin.PluginEnv,
+	_ protoplugin.PluginEnv,
 	responseWriter protoplugin.ResponseWriter,
 	request protoplugin.Request,
 ) error {
@@ -39,6 +39,7 @@ func handle(
 		responseWriter.AddError(err.Error())
 		return nil
 	}
+	// The Swift messages read raw descriptors, which runtime descriptors cannot hold for a message set.
 	var fileDescriptors []protoreflect.FileDescriptor
 	if !opts.MessagesOnly || opts.KotlinMessagesEnabled() {
 		fileDescriptors, err = request.FileDescriptorsToGenerate()
@@ -77,9 +78,6 @@ func handle(
 		if err := swift.Generate(responseWriter, request, generator.IsOptionKey); err != nil {
 			return fmt.Errorf("cruxclient-go: swift.Generate: %w", err)
 		}
-	}
-	if opts.MessagesOnly && !opts.KotlinMessagesEnabled() && !opts.SwiftMessagesEnabled() {
-		_, _ = fmt.Fprintln(env.Stderr, "warning: messages_only writes no file without a messages option such as swift_messages or kotlin_messages")
 	}
 	return nil
 }

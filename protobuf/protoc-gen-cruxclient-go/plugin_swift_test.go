@@ -18,9 +18,9 @@ import (
 	"google.golang.org/protobuf/types/pluginpb"
 )
 
-// runPluginWithComments is runPluginWithParameter with the comments of the proto
-// files in the request, and it returns what the plugin writes to stderr.
-func runPluginWithComments(t *testing.T, protoSources map[string]string, filesToGenerate []string, parameter string) (map[string]string, string) {
+// runPluginRequest compiles the proto files with their comments and runs the plugin handler on them.
+// It returns the files that the plugin writes, what it writes to stderr, and its error.
+func runPluginRequest(t *testing.T, protoSources map[string]string, filesToGenerate []string, parameter string) (map[string]string, string, error) {
 	t.Helper()
 	compiler := protocompile.Compiler{
 		Resolver: protocompile.WithStandardImports(&protocompile.SourceResolver{
@@ -50,8 +50,9 @@ func runPluginWithComments(t *testing.T, protoSources map[string]string, filesTo
 	var stdout bytes.Buffer
 	var stderr strings.Builder
 	env := protoplugin.Env{Args: []string{}, Stdin: bytes.NewReader(reqBytes), Stdout: &stdout, Stderr: &stderr}
-	require.NoError(t, protoplugin.Run(context.Background(), env, protoplugin.HandlerFunc(handle)), stderr.String())
-
+	if err := protoplugin.Run(context.Background(), env, protoplugin.HandlerFunc(handle)); err != nil {
+		return nil, stderr.String(), err
+	}
 	resp := &pluginpb.CodeGeneratorResponse{}
 	require.NoError(t, proto.Unmarshal(stdout.Bytes(), resp))
 	require.Empty(t, resp.GetError())
@@ -59,7 +60,15 @@ func runPluginWithComments(t *testing.T, protoSources map[string]string, filesTo
 	for _, f := range resp.GetFile() {
 		output[f.GetName()] = f.GetContent()
 	}
-	return output, stderr.String()
+	return output, stderr.String(), nil
+}
+
+// runPluginWithComments is runPluginRequest for a run that must succeed.
+func runPluginWithComments(t *testing.T, protoSources map[string]string, filesToGenerate []string, parameter string) (map[string]string, string) {
+	t.Helper()
+	output, stderr, err := runPluginRequest(t, protoSources, filesToGenerate, parameter)
+	require.NoError(t, err, stderr)
+	return output, stderr
 }
 
 func sortedKeys(m map[string]string) []string {
@@ -96,38 +105,18 @@ func TestSwiftMessagesOnly(t *testing.T) {
 	require.Equal(t, string(golden), output["routeguide_v1_message.pb.swift"])
 }
 
-// TestMessagesOnlyWithoutMessagesWritesNothing checks that messages_only with no
-// messages option writes no file and says so on stderr.
-func TestMessagesOnlyWithoutMessagesWritesNothing(t *testing.T) {
-	output, stderr := runPluginWithComments(t, messageProtoSources(t), []string{"routeguide/v1/message.proto"}, "messages_only")
+// TestMessagesOnlyWithoutMessagesFails checks that messages_only with no messages option is an error.
+func TestMessagesOnlyWithoutMessagesFails(t *testing.T) {
+	_, _, err := runPluginRequest(t, messageProtoSources(t), []string{"routeguide/v1/message.proto"}, "messages_only")
 
-	require.Empty(t, output)
-	require.Contains(t, stderr, "messages_only")
+	require.ErrorContains(t, err, "messages_only requires swift_messages or kotlin_messages")
 }
 
 // TestSwiftMessagesRejectsUnknownOption checks that a mistyped option of the Swift output fails the run.
 func TestSwiftMessagesRejectsUnknownOption(t *testing.T) {
-	compiler := protocompile.Compiler{Resolver: protocompile.WithStandardImports(&protocompile.SourceResolver{
-		Accessor: protocompile.SourceAccessorFromMap(messageProtoSources(t)),
-	})}
-	compiled, err := compiler.Compile(context.Background(), "routeguide/v1/message.proto", "wire_options.proto")
-	require.NoError(t, err)
-	seen := map[string]struct{}{}
-	var protoFiles []*descriptorpb.FileDescriptorProto
-	for i := range compiled {
-		collectTransitiveDeps(compiled[i], seen, &protoFiles)
-	}
-	reqBytes, err := proto.Marshal(&pluginpb.CodeGeneratorRequest{
-		FileToGenerate: []string{"routeguide/v1/message.proto"},
-		ProtoFile:      protoFiles,
-		Parameter:      proto.String("swift_messages,Visibilty=Public"),
-	})
-	require.NoError(t, err)
+	_, _, err := runPluginRequest(t, messageProtoSources(t), []string{"routeguide/v1/message.proto"}, "swift_messages,Visibilty=Public")
 
-	var stdout bytes.Buffer
-	var stderr strings.Builder
-	env := protoplugin.Env{Args: []string{}, Stdin: bytes.NewReader(reqBytes), Stdout: &stdout, Stderr: &stderr}
-	err = protoplugin.Run(context.Background(), env, protoplugin.HandlerFunc(handle))
+	require.ErrorContains(t, err, "cruxclient-go: swift.Generate: ")
 	require.ErrorContains(t, err, "Visibilty")
 }
 

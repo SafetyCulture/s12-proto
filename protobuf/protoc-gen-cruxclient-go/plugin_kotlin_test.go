@@ -415,7 +415,7 @@ func TestMessagesOnly(t *testing.T) {
 	for name := range expected {
 		require.Equal(t, withOutputs[name], out[name], name)
 	}
-	requirePluginResponseError(t, []string{"testdata/kotlin/kitchen"}, "messages_only", "messages_only requires kotlin_messages", kitchenFiles...)
+	requirePluginResponseError(t, []string{"testdata/kotlin/kitchen"}, "messages_only", "messages_only requires", kitchenFiles...)
 }
 
 func TestKotlinNameCollisions(t *testing.T) {
