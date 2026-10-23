@@ -5,8 +5,11 @@ package main
 import (
 	"bytes"
 	"context"
+	"io/fs"
 	"os"
+	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 	"testing"
 
@@ -439,57 +442,128 @@ func TestSwiftBundledProtoModule(t *testing.T) {
 	require.Equal(t, string(mustReadFile(t, "testdata/google/protobuf/timestamp.djinni.yaml")), yaml)
 }
 
+// goldenDir is a directory of golden files of one plugin and the directory of the same files in the
+// other plugin. Only the files whose name ends with one of the suffixes are compared.
+type goldenDir struct {
+	goDir, cppDir string
+	suffixes      []string
+}
+
+func (d goldenDir) keep(name string) bool {
+	for _, suffix := range d.suffixes {
+		if strings.HasSuffix(name, suffix) {
+			return true
+		}
+	}
+	return false
+}
+
+// requireCppMatchesGo checks that, for each pair of directories, both plugins have the same files
+// with the same bytes. It names every file that one side lacks and every file that differs.
+func requireCppMatchesGo(t *testing.T, dirs []goldenDir) {
+	t.Helper()
+	goFiles, cppFiles := map[string]string{}, map[string]string{}
+	for _, d := range dirs {
+		for name, content := range readTree(t, d.goDir, false, d.keep) {
+			goFiles[filepath.Join(d.cppDir, name)] = content
+		}
+		for name, content := range readTree(t, d.cppDir, false, d.keep) {
+			cppFiles[filepath.Join(d.cppDir, name)] = content
+		}
+	}
+	requireSameFiles(t, goFiles, cppFiles, "Go golden files", "C++ golden files")
+}
+
+// readTree returns the files in dir that keep accepts, keyed by their path relative to dir. It
+// reads the directories below dir only if recursive is true.
+func readTree(t *testing.T, dir string, recursive bool, keep func(name string) bool) map[string]string {
+	t.Helper()
+	files := map[string]string{}
+	require.NoError(t, filepath.WalkDir(dir, func(path string, entry fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if entry.IsDir() {
+			if !recursive && path != dir {
+				return fs.SkipDir
+			}
+			return nil
+		}
+		if !keep(entry.Name()) {
+			return nil
+		}
+		rel, err := filepath.Rel(dir, path)
+		if err != nil {
+			return err
+		}
+		content, err := os.ReadFile(path)
+		files[rel] = string(content)
+		return err
+	}))
+	return files
+}
+
+// requireSameFiles fails with the path of every file that only one side has and of every file whose bytes differ.
+func requireSameFiles(t *testing.T, a, b map[string]string, aName, bName string) {
+	t.Helper()
+	var problems []string
+	for name, content := range a {
+		other, ok := b[name]
+		switch {
+		case !ok:
+			problems = append(problems, "missing in the "+bName+": "+name)
+		case other != content:
+			problems = append(problems, "differs: "+name)
+		}
+	}
+	for name := range b {
+		if _, ok := a[name]; !ok {
+			problems = append(problems, "missing in the "+aName+": "+name)
+		}
+	}
+	sort.Strings(problems)
+	require.Empty(t, problems, "%s and %s are not the same files", aName, bName)
+}
+
 // TestCppSwiftGoldenMatchesGo checks that the golden files of the C++ plugin and of
 // the Go plugin are the same bytes.
 func TestCppSwiftGoldenMatchesGo(t *testing.T) {
-	for _, name := range []string{"message.djinni.yaml", "message.djinni.swiftxx.h"} {
-		goGolden := mustReadFile(t, "testdata/routeguide/swift/"+name)
-		cppGolden := mustReadFile(t, "../protoc-gen-cruxclient/generated-swift/routeguide/v1/"+name)
-		require.Equal(t, string(goGolden), string(cppGolden), "%s differs between the C++ and the Go golden files", name)
-	}
-	for _, name := range []string{"names", "loose", "prefixed", "wellknown"} {
-		goGolden := mustReadFile(t, "testdata/swiftnames/"+name+".djinni.yaml")
-		cppGolden := mustReadFile(t, "../protoc-gen-cruxclient/generated-swift/swiftnames/"+name+".djinni.yaml")
-		require.Equal(t, string(goGolden), string(cppGolden), "%s differs between the C++ and the Go golden files", name)
-	}
-	goGolden := mustReadFile(t, "testdata/google/protobuf/timestamp.djinni.yaml")
-	cppGolden := mustReadFile(t, "../protoc-gen-cruxclient/generated-swift/google/protobuf/timestamp.djinni.yaml")
-	require.Equal(t, string(goGolden), string(cppGolden), "timestamp.djinni.yaml differs between the C++ and the Go golden files")
+	requireCppMatchesGo(t, []goldenDir{
+		{"testdata/routeguide/swift", "../protoc-gen-cruxclient/generated-swift/routeguide/v1", []string{".djinni.yaml", ".djinni.swiftxx.h"}},
+		{"testdata/swiftnames", "../protoc-gen-cruxclient/generated-swift/swiftnames", []string{".djinni.yaml"}},
+		{"testdata/google/protobuf", "../protoc-gen-cruxclient/generated-swift/google/protobuf", []string{".djinni.yaml"}},
+	})
 }
 
 // TestKotlinSwiftnamesGolden checks the Kotlin output for a package with the leading s12
 // segment, nested classes, and a file without a package.
 func TestKotlinSwiftnamesGolden(t *testing.T) {
 	sources := map[string]string{}
+	var files []string
 	for _, name := range []string{"names", "loose"} {
 		sources["swiftnames/"+name+".proto"] = string(mustReadFile(t, "testdata/swiftnames/"+name+".proto"))
+		files = append(files, "swiftnames/"+name+".proto")
 	}
-	output := runPluginWithParameter(t, sources, []string{"swiftnames/names.proto", "swiftnames/loose.proto"}, "kotlin_package")
+	output := runPluginWithParameter(t, sources, files, "kotlin_package")
 
-	for _, name := range []string{"names", "loose"} {
-		for _, suffix := range []string{".djinni.yaml", ".djinni.kotlin.jni.h"} {
-			golden := mustReadFile(t, "testdata/swiftnames/kotlin/"+name+suffix)
-			require.Equal(t, string(golden), output["swiftnames/"+name+suffix],
-				"mismatch — diff output against testdata/swiftnames/kotlin/%s%s", name, suffix)
+	got := map[string]string{}
+	for name, content := range output {
+		if strings.HasSuffix(name, ".djinni.yaml") || strings.HasSuffix(name, ".djinni.kotlin.jni.h") {
+			got[strings.TrimPrefix(name, "swiftnames/")] = content
 		}
 	}
+	golden := readTree(t, "testdata/swiftnames/kotlin", true, func(string) bool { return true })
+	requireSameFiles(t, golden, got, "golden files", "plugin output")
 }
 
 // TestCppKotlinGoldenMatchesGo checks that the golden files of the C++ plugin and of
 // the Go plugin are the same bytes.
 func TestCppKotlinGoldenMatchesGo(t *testing.T) {
-	for _, name := range []string{"message.djinni.yaml", "message.djinni.kotlin.jni.h"} {
-		goGolden := mustReadFile(t, "testdata/routeguide/kotlin/"+name)
-		cppGolden := mustReadFile(t, "../protoc-gen-cruxclient/generated-kotlin/routeguide/v1/"+name)
-		require.Equal(t, string(goGolden), string(cppGolden), "%s differs between the C++ and the Go golden files", name)
-	}
-	for _, name := range []string{"names", "loose"} {
-		for _, suffix := range []string{".djinni.yaml", ".djinni.kotlin.jni.h"} {
-			goGolden := mustReadFile(t, "testdata/swiftnames/kotlin/"+name+suffix)
-			cppGolden := mustReadFile(t, "../protoc-gen-cruxclient/generated-kotlin/swiftnames/"+name+suffix)
-			require.Equal(t, string(goGolden), string(cppGolden), "%s%s differs between the C++ and the Go golden files", name, suffix)
-		}
-	}
+	suffixes := []string{".djinni.yaml", ".djinni.kotlin.jni.h"}
+	requireCppMatchesGo(t, []goldenDir{
+		{"testdata/routeguide/kotlin", "../protoc-gen-cruxclient/generated-kotlin/routeguide/v1", suffixes},
+		{"testdata/swiftnames/kotlin", "../protoc-gen-cruxclient/generated-kotlin/swiftnames", suffixes},
+	})
 }
 
 // collectTransitiveDeps recursively walks a FileDescriptor's transitive import

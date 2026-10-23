@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"sort"
 	"strings"
 	"testing"
 
@@ -90,36 +89,26 @@ func kitchenOutput(t *testing.T, parameter string) map[string]string {
 
 func TestKitchenGolden(t *testing.T) {
 	out := kitchenOutput(t, "kotlin_messages")
-	names := make([]string, 0, len(out))
-	for name := range out {
-		// TestRuntimeHasNoImports covers the runtime file, which is a copy of its source. The other
-		// generated files are not Kotlin messages.
+	// TestRuntimeHasNoImports covers the runtime file, which is a copy of its source. The other
+	// generated files are not Kotlin messages.
+	got := map[string]string{}
+	for name, content := range out {
 		if strings.HasSuffix(name, ".pb.kt") {
-			names = append(names, name)
+			got[name] = content
 		}
 	}
-	sort.Strings(names)
-	for _, name := range names {
-		golden := filepath.Join("testdata", "kotlin", "golden", name)
-		if *update {
+	goldenDir := filepath.Join("testdata", "kotlin", "golden")
+	if *update {
+		require.NoError(t, os.RemoveAll(goldenDir))
+		for name, content := range got {
+			golden := filepath.Join(goldenDir, name)
 			require.NoError(t, os.MkdirAll(filepath.Dir(golden), 0o755))
-			require.NoError(t, os.WriteFile(golden, []byte(out[name]), 0o644))
-			continue
+			require.NoError(t, os.WriteFile(golden, []byte(content), 0o644))
 		}
-		want, err := os.ReadFile(golden)
-		require.NoError(t, err, "missing golden file; run go test -update")
-		require.Equal(t, string(want), out[name], "output differs from %s; run go test -update to accept", golden)
+		return
 	}
-	if !*update {
-		var goldens []string
-		require.NoError(t, filepath.Walk(filepath.Join("testdata", "kotlin", "golden"), func(path string, info os.FileInfo, err error) error {
-			if err == nil && !info.IsDir() {
-				goldens = append(goldens, path)
-			}
-			return err
-		}))
-		require.Len(t, goldens, len(names), "a golden file has no output")
-	}
+	goldens := readTree(t, goldenDir, true, func(string) bool { return true })
+	requireSameFiles(t, goldens, got, "golden files", "plugin output; run go test -update to accept")
 }
 
 func TestPackageOption(t *testing.T) {
