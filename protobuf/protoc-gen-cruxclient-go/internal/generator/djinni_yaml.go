@@ -150,21 +150,21 @@ func writeDjinniYAMLRecord(w *codegen.CodeWriter,
 	w.WL("  typename: jobject")
 	w.WL("  typeSignature: 'L%s/%s;'", javaPackageSlashes, javaMessageName)
 	if kotlin != nil {
-		w.WL("  kotlinTranslator: '%s'", kotlin.translator)
-		w.WL("  kotlinHeader: '\"%s\"'", kotlin.translatorHdr)
-		w.WL("  kotlinTypeSignature: '%s'", kotlin.typeSignature)
+		w.WL("  kotlinTranslator: '%s'", yamlValue(kotlin.translator))
+		w.WL("  kotlinHeader: '%s'", yamlValue("\""+kotlin.translatorHdr+"\""))
+		w.WL("  kotlinTypeSignature: '%s'", yamlValue(kotlin.typeSignature))
 	}
 
 	if swift != nil {
 		w.WL("swift:")
-		w.WL("  typename: '%s'", swift.typeName)
-		w.WL("  module: '%s'", swift.module)
+		w.WL("  typename: '%s'", yamlValue(swift.typeName))
+		w.WL("  module: '%s'", yamlValue(swift.module))
 		w.WL("  generic: false")
-		w.WL("  translator: 'ProtobufMarshaller<%s>'", swift.typeName)
-		w.WL("  translator.module: 'DjinniSupport'")
+		w.WL("  translator: '%s'", yamlValue("ProtobufMarshaller<"+swift.typeName+">"))
+		w.WL("  translator.module: '%s'", yamlValue("DjinniSupport"))
 		w.WL("swiftxx:")
-		w.WL("  translator: '%s'", swift.translator)
-		w.WL("  header: '\"%s\"'", swift.translatorHdr)
+		w.WL("  translator: '%s'", yamlValue(swift.translator))
+		w.WL("  header: '%s'", yamlValue("\""+swift.translatorHdr+"\""))
 	}
 
 	if wirePackage != "" || kotlin != nil {
@@ -174,8 +174,12 @@ func writeDjinniYAMLRecord(w *codegen.CodeWriter,
 			w.WL("  isProtobufMessage: true")
 		}
 		if kotlin != nil {
-			w.WL("  jniTypename: '%s'", kotlin.typename)
+			w.WL("  jniTypename: '%s'", yamlValue(kotlin.typename))
 		}
 	}
 	w.WL()
+}
+
+func yamlValue(value string) string {
+	return strings.ReplaceAll(value, "'", "''")
 }
