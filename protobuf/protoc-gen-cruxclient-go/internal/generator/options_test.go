@@ -125,14 +125,14 @@ func TestParseOptionsRejectsInvalidInput(t *testing.T) {
 func TestParseSwiftMessages(t *testing.T) {
 	tests := []struct {
 		parameter string
-		module    string
+		enabled   bool
 	}{
-		{"", ""},
-		{"swift_module", ""},
-		{"swift_messages", DefaultSwiftModule},
-		{"swift_messages=", DefaultSwiftModule},
-		{"swift_messages=Custom", "Custom"},
-		{"Visibility=Public, swift_messages = Mod ", "Mod"},
+		{"", false},
+		{"swift_module", false},
+		{"swift_messages", true},
+		{"swift_messages=", true},
+		{"swift_messages=Custom", true},
+		{"Visibility=Public, swift_messages ", true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.parameter, func(t *testing.T) {
@@ -140,11 +140,8 @@ func TestParseSwiftMessages(t *testing.T) {
 			if err != nil {
 				t.Fatalf("ParseOptions(%q) returned %v", tt.parameter, err)
 			}
-			if opts.SwiftMessages != tt.module {
-				t.Errorf("ParseOptions(%q).SwiftMessages = %q, want %q", tt.parameter, opts.SwiftMessages, tt.module)
-			}
-			if opts.SwiftMessagesEnabled() != (tt.module != "") {
-				t.Errorf("ParseOptions(%q).SwiftMessagesEnabled() = %v", tt.parameter, opts.SwiftMessagesEnabled())
+			if opts.SwiftMessagesEnabled() != tt.enabled {
+				t.Errorf("ParseOptions(%q).SwiftMessagesEnabled() = %v, want %v", tt.parameter, opts.SwiftMessagesEnabled(), tt.enabled)
 			}
 		})
 	}
