@@ -39,6 +39,7 @@ plugins:
     path: $WORK/plugin-$version
     out: ./out
     opt: "$opt"
+    strategy: all
 YAML
     rm -rf "$WORK/out-$version"
     mkdir "$WORK/out-$version"
