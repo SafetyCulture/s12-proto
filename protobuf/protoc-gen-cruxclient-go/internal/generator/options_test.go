@@ -167,7 +167,12 @@ func TestParseOptionsNamesAnEmptyKey(t *testing.T) {
 
 func TestOptionKeysAreParsed(t *testing.T) {
 	for key := range optionSetters {
-		opts, err := ParseOptions(key)
+		parameter := key
+		if key == "messages_only" {
+			// messages_only needs a messages option; the rejected rows cover it alone.
+			parameter = "messages_only,kotlin_messages"
+		}
+		opts, err := ParseOptions(parameter)
 		if err != nil {
 			t.Fatalf("ParseOptions(%q) returned %v", key, err)
 		}
