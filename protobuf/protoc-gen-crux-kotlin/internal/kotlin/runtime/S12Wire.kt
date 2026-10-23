@@ -93,7 +93,12 @@ public object WireType {
 }
 
 /** Reads the protobuf wire format from a byte array. */
-public class WireReader(private val buffer: ByteArray, private var position: Int = 0, private var limit: Int = buffer.size) {
+public class WireReader(
+    private val buffer: ByteArray,
+    private var position: Int = 0,
+    private var limit: Int = buffer.size,
+    private var depth: Int = 1,
+) {
     private var tagStart = 0
 
     public fun isAtEnd(): Boolean = position >= limit
@@ -185,17 +190,33 @@ public class WireReader(private val buffer: ByteArray, private var position: Int
         return length
     }
 
-    /** Starts a length-delimited section. Pass the returned value to [endMessage]. */
-    public fun beginMessage(): Int {
+    /** Starts a length-delimited section that is not a nested message. Pass the returned value to [endSection]. */
+    public fun beginSection(): Int {
         val length = readLength()
         val previous = limit
         limit = position + length
         return previous
     }
 
-    public fun endMessage(previous: Int) {
+    public fun endSection(previous: Int) {
         if (position != limit) throw InvalidWireException("message section not fully read")
         limit = previous
+    }
+
+    /** Starts a nested message. Pass the returned value to [endMessage]. */
+    public fun beginMessage(): Int {
+        enter()
+        return beginSection()
+    }
+
+    public fun endMessage(previous: Int) {
+        endSection(previous)
+        depth--
+    }
+
+    private fun enter() {
+        if (depth >= MAX_DEPTH) throw InvalidWireException("too many levels of nesting")
+        depth++
     }
 
     /**
@@ -214,7 +235,10 @@ public class WireReader(private val buffer: ByteArray, private var position: Int
         val merged = head.copyOf(head.size + length)
         buffer.copyInto(merged, head.size, position, position + length)
         position += length
-        return codec.decode(WireReader(merged))
+        enter()
+        val value = codec.decode(WireReader(merged, 0, merged.size, depth))
+        depth--
+        return value
     }
 
     /** Returns the position of the tag that was just read. */
@@ -238,6 +262,7 @@ public class WireReader(private val buffer: ByteArray, private var position: Int
             WireType.FIXED64 -> skip(8)
             WireType.LENGTH_DELIMITED -> skip(readLength())
             WireType.START_GROUP -> {
+                enter()
                 while (true) {
                     val inner = readTag()
                     if (inner == 0) throw InvalidWireException("truncated message")
@@ -247,10 +272,16 @@ public class WireReader(private val buffer: ByteArray, private var position: Int
                     }
                     skipField(inner)
                 }
+                depth--
             }
             WireType.FIXED32 -> skip(4)
             else -> throw InvalidWireException("invalid wire type")
         }
+    }
+
+    private companion object {
+        /** The nesting limit of the Java lite reader. The outer message is the first level. */
+        const val MAX_DEPTH = 100
     }
 
     private fun skip(count: Int) {
