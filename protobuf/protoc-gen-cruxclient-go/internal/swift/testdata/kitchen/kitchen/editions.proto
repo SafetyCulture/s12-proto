@@ -13,8 +13,9 @@ message Ed {
   Open open = 8;
   oneof pick {
     string a = 9;
-    int32 b = 10;
+    int32 b = 11;
   }
+  string non_validated = 12 [features.utf8_validation = NONE];
 
   message Delim {
     int32 inner = 1;
