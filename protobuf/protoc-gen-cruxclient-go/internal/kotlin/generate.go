@@ -24,6 +24,20 @@ func RuntimeFileName(root string) string {
 	return strings.ReplaceAll(root, ".", "/") + "/wire/S12Wire.kt"
 }
 
+// KeepRulesFileName returns the path of the shrinker keep rules for a root package.
+func KeepRulesFileName(root string) string {
+	return strings.ReplaceAll(root, ".", "/") + "/s12kt.pro"
+}
+
+// keepRulesFor returns the shrinker rules that keep the methods the JNI translator calls by name.
+func keepRulesFor(root string) string {
+	return "-keep class " + root + ".** {\n" +
+		"    public static ** parseFrom(byte[]);\n" +
+		"    public byte[] toByteArray();\n" +
+		"    public int getSerializedSize();\n" +
+		"}\n"
+}
+
 // runtimeFor returns the runtime source for a root package.
 func runtimeFor(root string) string {
 	return strings.Replace(runtimeSource, "package "+runtimePackage+"\n", "package "+escapePackage(root)+".wire\n", 1)
@@ -37,7 +51,7 @@ func FileName(file protoreflect.FileDescriptor, root string) string {
 }
 
 // Generate writes one .pb.kt file for each proto file that has a message or an enum,
-// and the runtime file once.
+// the runtime file once, and the keep rules once.
 func Generate(rw protoplugin.ResponseWriter, files []protoreflect.FileDescriptor, root string) error {
 	wrote := false
 	written := map[string]protoreflect.FileDescriptor{}
@@ -59,6 +73,7 @@ func Generate(rw protoplugin.ResponseWriter, files []protoreflect.FileDescriptor
 	}
 	if wrote {
 		rw.AddFile(RuntimeFileName(root), runtimeFor(root))
+		rw.AddFile(KeepRulesFileName(root), keepRulesFor(root))
 	}
 	return nil
 }

@@ -93,7 +93,7 @@ func TestKitchenGolden(t *testing.T) {
 	// generated files are not Kotlin messages.
 	got := map[string]string{}
 	for name, content := range out {
-		if strings.HasSuffix(name, ".pb.kt") {
+		if strings.HasSuffix(name, ".pb.kt") || strings.HasSuffix(name, ".pro") {
 			got[name] = content
 		}
 	}
@@ -116,6 +116,7 @@ func TestPackageOption(t *testing.T) {
 	require.Contains(t, out["com/example/kt/kitchen/v1/kitchen.pb.kt"], "\npackage com.example.kt.kitchen.v1\n")
 	require.Contains(t, out, "com/example/kt/wire/S12Wire.kt")
 	require.Contains(t, out["com/example/kt/wire/S12Wire.kt"], "\npackage com.example.kt.wire\n")
+	require.Contains(t, out["com/example/kt/s12kt.pro"], "-keep class com.example.kt.** {\n")
 
 	out = kitchenOutput(t, "kotlin_messages")
 	require.Contains(t, out["com/safetyculture/s12kt/kitchen/v1/kitchen.pb.kt"], "\npackage com.safetyculture.s12kt.kitchen.v1\n")
@@ -296,10 +297,11 @@ func TestMessagesOnly(t *testing.T) {
 	names := make([]string, 0, len(out))
 	for name := range out {
 		names = append(names, name)
-		require.True(t, strings.HasSuffix(name, ".pb.kt") || strings.HasSuffix(name, "S12Wire.kt"), name)
+		require.True(t, strings.HasSuffix(name, ".pb.kt") || strings.HasSuffix(name, "S12Wire.kt") || strings.HasSuffix(name, "s12kt.pro"), name)
 	}
 	require.Contains(t, names, "com/safetyculture/s12kt/kitchen/v1/kitchen.pb.kt")
 	require.Contains(t, names, "com/safetyculture/s12kt/wire/S12Wire.kt")
+	require.Contains(t, names, "com/safetyculture/s12kt/s12kt.pro")
 
 	withOutputs := kitchenOutput(t, "kotlin_messages")
 	for _, name := range names {
