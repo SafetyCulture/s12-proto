@@ -1,0 +1,10 @@
+# One line for each golden directory of the kitchen protos: <directory>|<options of protoc-gen-swift>
+default|
+public|Visibility=Public,FileNaming=PathToUnderscores
+dropped-path|FileNaming=DropPath
+nonexhaustive|EnumGeneration=nonexhaustive,Visibility=Public
+hidden-names|ExperimentalHiddenNames=All
+stripped|experimental_strip_nonfunctional_codegen
+renamed-runtime|SwiftProtobufModuleName=SPB,Visibility=Public
+implementation-only|ImplementationOnlyImports=true
+package-access|Visibility=Package,UseAccessLevelOnImports=true
