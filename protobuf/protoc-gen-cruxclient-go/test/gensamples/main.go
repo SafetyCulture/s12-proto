@@ -259,7 +259,8 @@ func randomValue(r *rand.Rand, newMessage func() protoreflect.Value, fd protoref
 		}
 		return v
 	}
-	panic("unsupported kind " + fd.Kind().String())
+	check(fmt.Errorf("%s: a field of kind %s is not supported", fd.FullName(), fd.Kind()))
+	return protoreflect.Value{}
 }
 
 func randInt32(r *rand.Rand) int32 {

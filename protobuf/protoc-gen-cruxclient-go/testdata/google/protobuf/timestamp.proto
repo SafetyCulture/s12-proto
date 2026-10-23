@@ -1,3 +1,6 @@
+// A stand-in for the bundled well-known file. It has no java_package or objc_class_prefix, as the
+// file of protoc has none, so a test must not compare class names that come from those options.
+
 syntax = "proto3";
 
 package google.protobuf;
