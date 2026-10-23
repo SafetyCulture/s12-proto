@@ -480,6 +480,14 @@ func TestRequiredMessageCyclesRejectMissingFields(t *testing.T) {
 	}
 }
 
+func TestMissingRequiredIsNotConstructorArgument(t *testing.T) {
+	source := kitchenOutput(t, "kotlin_messages")["com/safetyculture/s12kt/kitchen/legacy/legacy.pb.kt"]
+	require.Contains(t, source, "internal var missingRequired: kotlin.Long = 0L")
+	require.NotContains(t, source, "internal val missingRequired")
+	require.NotContains(t, source, "missingRequired = _missing,")
+	require.Contains(t, source, "_result.missingRequired = _missing")
+}
+
 func TestKotlinKeywordNameCollisions(t *testing.T) {
 	cases := []struct {
 		name string

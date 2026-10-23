@@ -453,11 +453,12 @@ func (g *fileGen) message(msg protoreflect.MessageDescriptor) error {
 	}
 	g.w.line("/** The fields that this version of the schema does not know, kept as encoded bytes. */")
 	g.w.line("public val unknownFields: %s = %s.EMPTY,", g.rt("ByteString"), g.rt("ByteString"))
-	if len(required) > 0 {
-		g.w.line("internal val missingRequired: kotlin.Long = 0L,")
-	}
 	g.w.close(") : %s {", g.rt("WireMessage"))
 	g.w.indent++
+	if len(required) > 0 {
+		g.w.line("internal var missingRequired: kotlin.Long = 0L")
+		g.w.line("")
+	}
 	hasMethods := false
 	for _, f := range fields {
 		if f.nullable() {
@@ -904,13 +905,20 @@ func (g *fileGen) companion(msg protoreflect.MessageDescriptor, qualified string
 	}
 	args = append(args, "unknownFields = _unknown.toByteString()")
 	if len(required) > 0 {
-		args = append(args, "missingRequired = _missing")
+		g.w.open("val _result = %s(", qualified)
+		for _, a := range args {
+			g.w.line("%s,", a)
+		}
+		g.w.close(")")
+		g.w.line("_result.missingRequired = _missing")
+		g.w.line("return _result")
+	} else {
+		g.w.open("return %s(", qualified)
+		for _, a := range args {
+			g.w.line("%s,", a)
+		}
+		g.w.close(")")
 	}
-	g.w.open("return %s(", qualified)
-	for _, a := range args {
-		g.w.line("%s,", a)
-	}
-	g.w.close(")")
 	g.w.close("}")
 	g.w.close("}")
 }

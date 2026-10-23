@@ -149,8 +149,9 @@ public data class Features(
     public val expandedNumbers: kotlin.collections.List<kotlin.Int> = kotlin.collections.emptyList(),
     /** The fields that this version of the schema does not know, kept as encoded bytes. */
     public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
-    internal val missingRequired: kotlin.Long = 0L,
 ) : com.safetyculture.s12kt.wire.WireMessage {
+    internal var missingRequired: kotlin.Long = 0L
+
     public fun hasExplicitText(): kotlin.Boolean = this.explicitText != null
 
     override fun getSerializedSize(): kotlin.Int {
@@ -246,15 +247,16 @@ public data class Features(
                     }
                 }
             }
-            return com.safetyculture.s12kt.kitchen.editions.Features(
+            val _result = com.safetyculture.s12kt.kitchen.editions.Features(
                 explicitText = v_explicitText,
                 implicitText = v_implicitText,
                 requiredText = v_requiredText ?: "",
                 packedNumbers = java.util.Collections.unmodifiableList(v_packedNumbers),
                 expandedNumbers = java.util.Collections.unmodifiableList(v_expandedNumbers),
                 unknownFields = _unknown.toByteString(),
-                missingRequired = _missing,
             )
+            _result.missingRequired = _missing
+            return _result
         }
     }
 }

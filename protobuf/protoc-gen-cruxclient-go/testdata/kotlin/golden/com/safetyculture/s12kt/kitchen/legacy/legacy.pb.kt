@@ -72,8 +72,9 @@ public data class Legacy(
     public val pick: com.safetyculture.s12kt.kitchen.legacy.Legacy.Pick? = null,
     /** The fields that this version of the schema does not know, kept as encoded bytes. */
     public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
-    internal val missingRequired: kotlin.Long = 0L,
 ) : com.safetyculture.s12kt.wire.WireMessage {
+    internal var missingRequired: kotlin.Long = 0L
+
     public fun hasCount(): kotlin.Boolean = this.count != null
     public fun hasLabel(): kotlin.Boolean = this.label != null
     public fun hasLevel(): kotlin.Boolean = this.level != null
@@ -225,7 +226,7 @@ public data class Legacy(
                 }
             }
             if (s_parent != null) v_parent = reader.readSections(com.safetyculture.s12kt.kitchen.legacy.Legacy, s_parent)
-            return com.safetyculture.s12kt.kitchen.legacy.Legacy(
+            val _result = com.safetyculture.s12kt.kitchen.legacy.Legacy(
                 id = v_id ?: "",
                 count = v_count,
                 label = v_label,
@@ -237,8 +238,9 @@ public data class Legacy(
                 score = v_score ?: 1.5,
                 pick = v_pick,
                 unknownFields = _unknown.toByteString(),
-                missingRequired = _missing,
             )
+            _result.missingRequired = _missing
+            return _result
         }
     }
 }
@@ -248,8 +250,9 @@ public data class Req(
     public val count: kotlin.Int? = null,
     /** The fields that this version of the schema does not know, kept as encoded bytes. */
     public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
-    internal val missingRequired: kotlin.Long = 0L,
 ) : com.safetyculture.s12kt.wire.WireMessage {
+    internal var missingRequired: kotlin.Long = 0L
+
     public fun hasCount(): kotlin.Boolean = this.count != null
 
     override fun getSerializedSize(): kotlin.Int {
@@ -305,12 +308,13 @@ public data class Req(
                     }
                 }
             }
-            return com.safetyculture.s12kt.kitchen.legacy.Req(
+            val _result = com.safetyculture.s12kt.kitchen.legacy.Req(
                 name = v_name ?: "",
                 count = v_count,
                 unknownFields = _unknown.toByteString(),
-                missingRequired = _missing,
             )
+            _result.missingRequired = _missing
+            return _result
         }
     }
 }
@@ -319,8 +323,9 @@ public data class RequiredMessage(
     public val child: com.safetyculture.s12kt.kitchen.legacy.Req,
     /** The fields that this version of the schema does not know, kept as encoded bytes. */
     public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
-    internal val missingRequired: kotlin.Long = 0L,
 ) : com.safetyculture.s12kt.wire.WireMessage {
+    internal var missingRequired: kotlin.Long = 0L
+
     override fun getSerializedSize(): kotlin.Int {
         var _size = 0
         if ((this.missingRequired and 1L) == 0L) _size += com.safetyculture.s12kt.wire.WireSize.message(1, this.child)
@@ -371,11 +376,12 @@ public data class RequiredMessage(
                 }
             }
             if (s_child != null) v_child = reader.readSections(com.safetyculture.s12kt.kitchen.legacy.Req, s_child)
-            return com.safetyculture.s12kt.kitchen.legacy.RequiredMessage(
+            val _result = com.safetyculture.s12kt.kitchen.legacy.RequiredMessage(
                 child = v_child ?: throw com.safetyculture.s12kt.wire.InvalidWireException("missing required field child"),
                 unknownFields = _unknown.toByteString(),
-                missingRequired = _missing,
             )
+            _result.missingRequired = _missing
+            return _result
         }
     }
 }
@@ -525,8 +531,9 @@ public data class ReqEnum(
     public val level: com.safetyculture.s12kt.kitchen.legacy.Level,
     /** The fields that this version of the schema does not know, kept as encoded bytes. */
     public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
-    internal val missingRequired: kotlin.Long = 0L,
 ) : com.safetyculture.s12kt.wire.WireMessage {
+    internal var missingRequired: kotlin.Long = 0L
+
     override fun getSerializedSize(): kotlin.Int {
         var _size = 0
         if ((this.missingRequired and 1L) == 0L) _size += com.safetyculture.s12kt.wire.WireSize.int32(1, this.level.number)
@@ -578,11 +585,12 @@ public data class ReqEnum(
                     }
                 }
             }
-            return com.safetyculture.s12kt.kitchen.legacy.ReqEnum(
+            val _result = com.safetyculture.s12kt.kitchen.legacy.ReqEnum(
                 level = v_level ?: com.safetyculture.s12kt.kitchen.legacy.Level.LEVEL_LOW,
                 unknownFields = _unknown.toByteString(),
-                missingRequired = _missing,
             )
+            _result.missingRequired = _missing
+            return _result
         }
     }
 }
