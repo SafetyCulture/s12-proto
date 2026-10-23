@@ -1108,7 +1108,11 @@ func (g *fileGen) findMissingRequired(fields, required []*fieldInfo, qualified s
 			o := "this." + f.oneof.prop
 			g.w.line("if (%s is %s) %s.value.findMissingRequired()?.let { return %q + it }", o, f.variant(qualified), o, name+".")
 		default:
-			g.w.line("%s?.findMissingRequired()?.let { return %q + it }", p, name+".")
+			if f.reqBit >= 0 {
+				g.w.line("%s.findMissingRequired()?.let { return %q + it }", p, name+".")
+			} else {
+				g.w.line("%s?.findMissingRequired()?.let { return %q + it }", p, name+".")
+			}
 		}
 	}
 	g.w.line("return null")

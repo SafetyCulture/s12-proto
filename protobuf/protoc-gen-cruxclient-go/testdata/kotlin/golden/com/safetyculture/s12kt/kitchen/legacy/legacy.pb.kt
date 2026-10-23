@@ -345,7 +345,7 @@ public data class RequiredMessage(
 
     internal fun findMissingRequired(): kotlin.String? {
         if ((this.missingRequired and 1L) != 0L) return "child"
-        this.child?.findMissingRequired()?.let { return "child." + it }
+        this.child.findMissingRequired()?.let { return "child." + it }
         return null
     }
 

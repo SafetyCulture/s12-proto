@@ -29,5 +29,5 @@ while IFS= read -r -d '' source; do
   sources+=("$source")
 done < <(find "$PLUGIN_DIR/testdata/kotlin/golden" "$WORK/well-known" -name '*.kt' ! -name S12Wire.kt -print0)
 
-"$KOTLINC" -nowarn -d "$WORK/classes" "${sources[@]}"
+"$KOTLINC" -Werror -d "$WORK/classes" "${sources[@]}"
 echo "compiled ${#sources[@]} Kotlin source files"
