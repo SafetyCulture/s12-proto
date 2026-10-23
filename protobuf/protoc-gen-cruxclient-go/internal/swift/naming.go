@@ -232,7 +232,7 @@ func uppercaseFirstCharacter(s string) string {
 }
 
 func trimBackticks(s string) string {
-	if strings.HasPrefix(s, "`") {
+	if len(s) >= 2 && strings.HasPrefix(s, "`") && strings.HasSuffix(s, "`") {
 		return s[1 : len(s)-1]
 	}
 	return s
