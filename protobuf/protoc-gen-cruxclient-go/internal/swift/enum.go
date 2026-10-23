@@ -151,11 +151,7 @@ func (e *enumGen) generateInitRawValue(p *printer) {
 		for _, v := range e.mainSorted {
 			p.print(fmt.Sprintf("case %d: self = %s", v.number, e.g.namer.dottedRelativeNameEnumValue(v)))
 		}
-		if !e.desc.isClosed() {
-			p.print("default: self = ." + unrecognizedCaseName + "(rawValue)")
-		} else {
-			p.print("default: return nil")
-		}
+		p.print("default: self = ." + unrecognizedCaseName + "(rawValue)")
 		p.print("}")
 	})
 	p.print("}")
@@ -163,10 +159,7 @@ func (e *enumGen) generateInitRawValue(p *printer) {
 
 func (e *enumGen) generateRawValueProperty(p *printer) {
 	visibility := e.g.opts.visibilitySnippet()
-	neededCases := len(e.mainSorted)
-	if !e.desc.isClosed() {
-		neededCases++
-	}
+	neededCases := len(e.mainSorted) + 1
 	useMultipleSwitches := neededCases > maxCasesInSwitch
 	p.print(visibility + "var rawValue: Int {")
 	p.withIndentation(func() {
@@ -180,9 +173,7 @@ func (e *enumGen) generateRawValueProperty(p *printer) {
 				}
 				p.print(fmt.Sprintf("case %s: return %d", e.g.namer.dottedRelativeNameEnumValue(v), v.number))
 			}
-			if !e.desc.isClosed() {
-				p.print("case ." + unrecognizedCaseName + "(let i): return i")
-			}
+			p.print("case ." + unrecognizedCaseName + "(let i): return i")
 			p.print("default: break\n}\n\n// Can't get here, all the cases are listed in the above switches.\n// See https://github.com/apple/swift-protobuf/issues/904 for more details.\nfatalError()")
 			return
 		}
@@ -190,9 +181,7 @@ func (e *enumGen) generateRawValueProperty(p *printer) {
 		for _, v := range e.mainSorted {
 			p.print(fmt.Sprintf("case %s: return %d", e.g.namer.dottedRelativeNameEnumValue(v), v.number))
 		}
-		if !e.desc.isClosed() {
-			p.print("case ." + unrecognizedCaseName + "(let i): return i")
-		}
+		p.print("case ." + unrecognizedCaseName + "(let i): return i")
 		p.print("}")
 	})
 	p.print("}")
