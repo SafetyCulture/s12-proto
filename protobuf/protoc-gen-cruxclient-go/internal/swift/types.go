@@ -34,6 +34,8 @@ func (g *generator) swiftType(f *field) string {
 		result = "Data"
 	case typeEnum:
 		result = g.namer.fullNameEnum(f.enumType)
+	default:
+		panic(fmt.Sprintf("%s: unknown field type %d", f.fullName, f.typ))
 	}
 	if f.isRepeated() {
 		return "[" + result + "]"
