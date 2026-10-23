@@ -109,7 +109,7 @@ make install-cruxclient
 
 **Purpose**: Go port of `protoc-gen-cruxclient`. Generates identical output using the `bufbuild/protoplugin` framework — no C++ toolchain required. With no option, the output is the output of `protoc-gen-cruxclient` on `master`. The options below are only in this plugin.
 
-**Generates**: `.crux.api.h`, `.crux.api.cc`, `.mock.h`, `.djinni.yaml`, `.djinni.objc.h`, `.djinni.jni.h`, and `.djinni.swiftxx.h` (only with the `swift_module` option), `.djinni.kotlin.jni.h` (only with the `kotlin_package` option), and one `.pb.kt` file for each proto file with a message or an enum, with the runtime file `<root>/wire/S12Wire.kt` (only with the `kotlin_messages` option)
+**Generates**: `.crux.api.h`, `.crux.api.cc`, `.mock.h`, `.djinni.yaml`, `.djinni.objc.h`, `.djinni.jni.h`, and `.djinni.swiftxx.h` (only with the `swift_module` option), `.djinni.kotlin.jni.h` (only with the `kotlin_package` option), and one `.pb.kt` file for each proto file with a message or an enum, with the runtime file `<root>/wire/S12Wire.kt` and the shrinker keep rules `<root>/s12kt.pro` (only with the `kotlin_messages` option)
 
 **Install**:
 ```sh
@@ -147,9 +147,9 @@ protoc \
   --cruxclient-go_out=kotlin_messages:. \
   path/to/*.proto
 ```
-The plugin writes one `.pb.kt` file for each proto file that has a message or an enum, and one runtime file `<root>/wire/S12Wire.kt` for each run. The proto package follows the root, with the leading `s12.` removed, as the Java lite package does. The Kotlin classes and the Java lite classes can be in one app, because their packages are different. The plugin must get all files of a run in one request, because it writes the runtime file once. With `buf`, set `strategy: all`.
+The plugin writes one `.pb.kt` file for each proto file that has a message or an enum, and one runtime file `<root>/wire/S12Wire.kt` and one keep rules file `<root>/s12kt.pro` for each run. The keep rules stop a shrinker from removing `parseFrom`, `toByteArray` and `getSerializedSize`, which the JNI translator calls by name. The proto package follows the root, with the leading `s12.` removed, as the Java lite package does. The Kotlin classes and the Java lite classes can be in one app, because their packages are different. The plugin must get all files of a run in one request, because it writes the runtime file once. With `buf`, set `strategy: all`.
 
-**Option `messages_only`**: Turns off all cruxclient output in the run: the API, mock and Djinni files, and the files of `swift_module` and `kotlin_package`. A run with `kotlin_messages,messages_only` writes only the `.pb.kt` files and the runtime file. The option does not take a value. The output of the other options does not change when `messages_only` is absent.
+**Option `messages_only`**: Turns off all cruxclient output in the run: the API, mock and Djinni files, and the files of `swift_module` and `kotlin_package`. A run with `kotlin_messages,messages_only` writes only the `.pb.kt` files, the runtime file and the keep rules file. The option does not take a value. The output of the other options does not change when `messages_only` is absent.
 
 **Rules**:
 
