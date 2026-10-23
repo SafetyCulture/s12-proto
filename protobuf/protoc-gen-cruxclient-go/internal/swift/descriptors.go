@@ -234,7 +234,7 @@ func (r *registry) addFile(fp *descriptorpb.FileDescriptorProto) (*file, error) 
 		}
 	}
 	for _, x := range f.extensions {
-		if err := r.bindField(x, nil); err != nil {
+		if err := r.bindField(x); err != nil {
 			return nil, err
 		}
 	}
@@ -358,19 +358,19 @@ func (r *registry) bindMessage(m *message) error {
 		}
 	}
 	for _, f := range m.fields {
-		if err := r.bindField(f, m); err != nil {
+		if err := r.bindField(f); err != nil {
 			return fmt.Errorf("bind field %s: %w", f.fullName, err)
 		}
 	}
 	for _, x := range m.extensions {
-		if err := r.bindField(x, m); err != nil {
+		if err := r.bindField(x); err != nil {
 			return fmt.Errorf("bind extension %s: %w", x.fullName, err)
 		}
 	}
 	return nil
 }
 
-func (r *registry) bindField(f *field, scope *message) error {
+func (r *registry) bindField(f *field) error {
 	if f.isExtension {
 		extendee, ok := r.messages[trimDot(f.proto.GetExtendee())]
 		if !ok {
