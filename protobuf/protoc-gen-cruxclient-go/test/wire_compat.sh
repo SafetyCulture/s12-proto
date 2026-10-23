@@ -71,6 +71,8 @@ while IFS= read -r f; do
   closure+=("$f")
   case $f in google/protobuf/*) ;; *) java_files+=("$f") ;; esac
 done <"$WORK/samples/closure.txt"
+closure+=(legacy/cycle.proto)
+java_files+=(legacy/cycle.proto)
 
 mkdir -p "$WORK/kt" "$WORK/java" "$WORK/java-classes"
 protoc "${includes[@]}" --experimental_allow_proto3_optional --plugin=protoc-gen-cruxclient-go="$WORK/protoc-gen-cruxclient-go" --cruxclient-go_out=kotlin_messages:"$WORK/kt" "${closure[@]}"

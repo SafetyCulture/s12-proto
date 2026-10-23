@@ -17,6 +17,9 @@ import com.safetyculture.s12kt.kitchen.legacy.ReqEnum
 import com.safetyculture.s12kt.kitchen.legacy.ReqHolder
 import com.safetyculture.s12kt.kitchen.legacy.RequiredMessage
 import com.safetyculture.s12kt.kitchen.legacy.PartialHolder
+import com.safetyculture.s12kt.kitchen.cycle.A as CycleA
+import com.safetyculture.s12kt.kitchen.cycle.HolderA as CycleHolderA
+import com.safetyculture.s12kt.kitchen.cycle.ListA as CycleListA
 import com.safetyculture.s12kt.kitchen.v1.Color
 import com.safetyculture.s12kt.kitchen.v1.Maps
 import com.safetyculture.s12kt.kitchen.v1.OptionalScalars
@@ -146,6 +149,8 @@ private typealias JReqHolder = com.safetyculture.kitchen.legacy.ReqHolder
 private typealias JLevelMaps = com.safetyculture.kitchen.legacy.LevelMaps
 private typealias JStrict = com.safetyculture.kitchen.legacy.Strict
 private typealias JPartialHolder = com.safetyculture.kitchen.legacy.PartialHolder
+private typealias JCycleHolderA = com.safetyculture.kitchen.cycle.HolderA
+private typealias JCycleListA = com.safetyculture.kitchen.cycle.ListA
 private typealias JClosedMaps = kitchen.editions.ClosedMaps
 private typealias JUtf8Modes = kitchen.editions.Utf8Modes
 
@@ -317,6 +322,29 @@ private fun partialRequiredMessageChecks(): Int {
         { JPartialHolder.parseFrom(it) },
         map,
         true,
+    )
+    return failures
+}
+
+private fun cycleChecks(): Int {
+    val cycle = delimited(1, ByteArray(0))
+    var failures = same(
+        "HolderA a partial required cycle",
+        { CycleHolderA.parseFrom(it) },
+        { JCycleHolderA.parseFrom(it) },
+        cycle,
+        false,
+    )
+    failures += same(
+        "ListA a partial required cycle",
+        { CycleListA.parseFrom(it) },
+        { JCycleListA.parseFrom(it) },
+        cycle,
+        false,
+    )
+    failures += check(
+        "A partial decode rejects a required cycle",
+        accepts({ CycleA.decode(WireReader(it)) }, ByteArray(0)) == false,
     )
     return failures
 }
@@ -613,6 +641,7 @@ private fun requiredEncodeChecks(): Int {
     failures += check("a copy writes the default for a missing required field", copiedMissing)
     failures += check("Java lite rejects a copy of a partial message", javaCopiedMissing)
     failures += partialRequiredMessageChecks()
+    failures += cycleChecks()
     failures += check("a required scalar set to its default is encoded", explicitDefault)
     return failures
 }
