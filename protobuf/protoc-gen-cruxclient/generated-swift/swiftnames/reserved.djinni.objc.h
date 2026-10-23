@@ -189,10 +189,10 @@ struct Translator {
 #include "swiftnames/reserved.pb.h"
 #import "swiftnames_Reserved.pbobjc.h"
 
-namespace djinni::s12::reserved_test::v1::class {
+namespace djinni::s12::reserved_test::v1::let {
 struct Translator {
-  using CppType = ::s12::reserved_test::v1::class;
-  using ObjcType = class*;
+  using CppType = ::s12::reserved_test::v1::let;
+  using ObjcType = let*;
   using Boxed = Translator;
 
   static CppType toCpp(ObjcType message) {
@@ -212,10 +212,10 @@ struct Translator {
     NSData *data = [NSData dataWithBytes: bytes length: (int)byte_size];
     free(bytes);
     NSError *error;
-    return [class parseFromData:data error:&error];
+    return [let parseFromData:data error:&error];
   }
 };
-}  //namespace djinni::s12::reserved_test::v1::class
+}  //namespace djinni::s12::reserved_test::v1::let
 
 #include "swiftnames/reserved.pb.h"
 #import "swiftnames_Reserved.pbobjc.h"

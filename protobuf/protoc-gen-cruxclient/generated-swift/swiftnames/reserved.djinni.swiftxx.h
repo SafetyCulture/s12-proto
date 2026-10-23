@@ -174,9 +174,9 @@ struct Translator {
 };
 }  //namespace djinni::swift::s12::reserved_test::v1::Extensions
 
-namespace djinni::swift::s12::reserved_test::v1::class {
+namespace djinni::swift::s12::reserved_test::v1::let {
 struct Translator {
-  using CppType = ::s12::reserved_test::v1::class;
+  using CppType = ::s12::reserved_test::v1::let;
 
   static CppType toCpp(const ::djinni::swift::AnyValue& value) {
     const auto& bytes = std::get<::djinni::swift::BinaryValue>(value);
@@ -200,7 +200,7 @@ struct Translator {
     return {std::move(bytes)};
   }
 };
-}  //namespace djinni::swift::s12::reserved_test::v1::class
+}  //namespace djinni::swift::s12::reserved_test::v1::let
 
 namespace djinni::swift::s12::reserved_test::v1::self {
 struct Translator {

@@ -12,7 +12,7 @@ message Hashable {}
 message Swift {}
 message SwiftProtobuf {}
 message Extensions {}
-message class {}
+message let {}
 message self {}
 message func {}
 message _ {}

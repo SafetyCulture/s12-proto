@@ -234,42 +234,42 @@ swiftxx:
   header: '"swiftnames/reserved.djinni.swiftxx.h"'
 
 ---
-name: pb_swiftnames_Reserved_class
+name: pb_swiftnames_Reserved_let
 typedef: 'record deriving(eq, ord, parcelable)'
 params: []
 prefix: 'pb'
 cpp:
-  typename: 's12::reserved_test::v1::class'
+  typename: 's12::reserved_test::v1::let'
   header: '"swiftnames/reserved.pb.h"'
   byValue: false
 objc:
-  typename: 'class'
+  typename: 'let'
   header: '"swiftnames_Reserved.pbobjc.h"'
-  boxed: 'class'
+  boxed: 'let'
   pointer: true
   hash: '%s.hash()'
 objcpp:
-  translator: 'djinni::s12::reserved_test::v1::class::Translator'
+  translator: 'djinni::s12::reserved_test::v1::let::Translator'
   header: '"swiftnames/reserved.djinni.objc.h"'
 java:
-  typename: '.class'
-  boxed: '.class'
+  typename: '.let'
+  boxed: '.let'
   reference: true
   generic: false
   hash: '%s.hashCode()'
 jni:
-  translator: 'djinni::s12::reserved_test::v1::class::Translator'
+  translator: 'djinni::s12::reserved_test::v1::let::Translator'
   header: '"swiftnames/reserved.djinni.jni.h"'
   typename: jobject
-  typeSignature: 'L/class;'
+  typeSignature: 'L/let;'
 swift:
-  typename: 'classMessage'
+  typename: 'letMessage'
   module: 'S12Protos'
   generic: false
-  translator: 'ProtobufMarshaller<classMessage>'
+  translator: 'ProtobufMarshaller<letMessage>'
   translator.module: 'DjinniSupport'
 swiftxx:
-  translator: 'djinni::swift::s12::reserved_test::v1::class::Translator'
+  translator: 'djinni::swift::s12::reserved_test::v1::let::Translator'
   header: '"swiftnames/reserved.djinni.swiftxx.h"'
 
 ---

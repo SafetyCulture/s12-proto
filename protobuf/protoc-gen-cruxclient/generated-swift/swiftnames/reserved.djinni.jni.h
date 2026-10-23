@@ -260,16 +260,16 @@ struct Translator {
 }  //namespace djinni::s12::reserved_test::v1::Extensions
 
 #include "swiftnames/reserved.pb.h"
-namespace djinni::s12::reserved_test::v1::class {
+namespace djinni::s12::reserved_test::v1::let {
 struct JNIInfo {
-  const GlobalRef<jclass> clazz { jniFindClass("/class")  };
+  const GlobalRef<jclass> clazz { jniFindClass("/let")  };
   const jmethodID method_toBytes { jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
   const jmethodID method_byteSize { jniGetMethodID(clazz.get(), "getSerializedSize", "()I") };
-  const jmethodID method_fromBytes { jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)L/class;") };
+  const jmethodID method_fromBytes { jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)L/let;") };
 };
 
 struct Translator {
-  using CppType = ::s12::reserved_test::v1::class;
+  using CppType = ::s12::reserved_test::v1::let;
   using JniType = jobject;
   using Boxed = Translator;
 
@@ -300,7 +300,7 @@ struct Translator {
     return j;
   }
 };
-}  //namespace djinni::s12::reserved_test::v1::class
+}  //namespace djinni::s12::reserved_test::v1::let
 
 #include "swiftnames/reserved.pb.h"
 namespace djinni::s12::reserved_test::v1::self {
