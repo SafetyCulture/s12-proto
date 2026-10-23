@@ -121,11 +121,14 @@ func TestWhitelistGolden(t *testing.T) {
 // prefixes, against the output of protoc-gen-swift for that image. The image
 // and the output are too big to keep in the repository, so
 // testdata/regen-control.sh makes them. The test skips unless the variables
-// CRUX_SWIFT_CONTROL_IMAGE and CRUX_SWIFT_CONTROL_DIR name them.
+// CRUX_SWIFT_CONTROL_IMAGE and CRUX_SWIFT_CONTROL_DIR name them. It fails if only one is set.
 func TestControlGolden(t *testing.T) {
 	image, dir := os.Getenv("CRUX_SWIFT_CONTROL_IMAGE"), os.Getenv("CRUX_SWIFT_CONTROL_DIR")
-	if image == "" || dir == "" {
+	if image == "" && dir == "" {
 		t.Skip("CRUX_SWIFT_CONTROL_IMAGE and CRUX_SWIFT_CONTROL_DIR are not set")
+	}
+	if image == "" || dir == "" {
+		t.Fatal("set both CRUX_SWIFT_CONTROL_IMAGE and CRUX_SWIFT_CONTROL_DIR, or neither")
 	}
 	protos := readImage(t, image)
 	var names []string

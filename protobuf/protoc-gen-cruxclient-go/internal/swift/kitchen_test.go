@@ -7,6 +7,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	cruxgen "github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-cruxclient-go/internal/generator"
@@ -18,18 +19,16 @@ import (
 	"google.golang.org/protobuf/types/descriptorpb"
 )
 
-var kitchenFiles = []string{"kitchen/editions.proto", "kitchen/proto2.proto", "kitchen/proto3.proto"}
-
-// compileKitchen compiles the kitchen protos with their comments and returns the descriptors, imports first.
-func compileKitchen(t *testing.T) []*descriptorpb.FileDescriptorProto {
+// compileProtos compiles proto files of a directory with their comments and returns the descriptors, imports first.
+func compileProtos(t *testing.T, dir string, files []string) []*descriptorpb.FileDescriptorProto {
 	t.Helper()
 	compiler := protocompile.Compiler{
 		Resolver: protocompile.WithStandardImports(&protocompile.SourceResolver{
-			ImportPaths: []string{filepath.Join("testdata", "kitchen")},
+			ImportPaths: []string{dir},
 		}),
 		SourceInfoMode: protocompile.SourceInfoStandard,
 	}
-	compiled, err := compiler.Compile(context.Background(), kitchenFiles...)
+	compiled, err := compiler.Compile(context.Background(), files...)
 	require.NoError(t, err)
 
 	seen := map[string]bool{}
@@ -51,41 +50,111 @@ func compileKitchen(t *testing.T) []*descriptorpb.FileDescriptorProto {
 	return protos
 }
 
-// TestKitchenGolden compares the output for protos of every construct that the
-// whitelist does not use with the output of protoc-gen-swift 1.38.1. The
-// golden files come from the command in testdata/regen.sh.
+// protoFiles lists the proto files under dir, as the import paths of the files.
+func protoFiles(t *testing.T, dir string) []string {
+	t.Helper()
+	var files []string
+	require.NoError(t, filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
+		if err == nil && !d.IsDir() && filepath.Ext(path) == ".proto" {
+			rel, relErr := filepath.Rel(dir, path)
+			require.NoError(t, relErr)
+			files = append(files, filepath.ToSlash(rel))
+		}
+		return err
+	}))
+	return files
+}
+
+// requireGoldenDir compares the output with the golden files of a directory. Each output file has a
+// golden file, and each golden file has an output file.
+func requireGoldenDir(t *testing.T, out []outputFile, goldenDir string) {
+	t.Helper()
+	var goldenFiles []string
+	require.NoError(t, filepath.WalkDir(goldenDir, func(path string, d fs.DirEntry, err error) error {
+		if err == nil && !d.IsDir() {
+			rel, relErr := filepath.Rel(goldenDir, path)
+			require.NoError(t, relErr)
+			goldenFiles = append(goldenFiles, filepath.ToSlash(rel))
+		}
+		return err
+	}))
+	var rendered []string
+	for _, f := range out {
+		rendered = append(rendered, f.Name)
+		golden, err := os.ReadFile(filepath.Join(goldenDir, filepath.FromSlash(f.Name)))
+		require.NoError(t, err, "missing golden file for %s", f.Name)
+		require.Equal(t, string(golden), f.Content, "output differs from the golden file %s", f.Name)
+	}
+	require.ElementsMatch(t, rendered, goldenFiles, "a golden file has no output")
+}
+
+// TestKitchenGolden compares the output for protos of every construct that the whitelist does not
+// use with the output of protoc-gen-swift 1.38.1, once for each line of kitchen/variants.txt.
+// The golden files come from testdata/regen.sh.
 func TestKitchenGolden(t *testing.T) {
-	protos := compileKitchen(t)
-	for _, tt := range []struct{ dir, parameter string }{
-		{"default", ""},
-		{"public", "Visibility=Public,FileNaming=PathToUnderscores"},
-	} {
-		t.Run(tt.dir, func(t *testing.T) {
-			opts, err := parseOptions(tt.parameter, nil)
+	dir := filepath.Join("testdata", "kitchen")
+	files := protoFiles(t, filepath.Join(dir, "kitchen"))
+	require.Len(t, files, 3)
+	for i := range files {
+		files[i] = "kitchen/" + filepath.Base(files[i])
+	}
+	protos := compileProtos(t, dir, files)
+	variants := readLines(t, filepath.Join(dir, "variants.txt"))
+	tested := 0
+	for _, line := range variants {
+		if strings.HasPrefix(line, "#") {
+			continue
+		}
+		name, parameter, _ := strings.Cut(line, "|")
+		tested++
+		t.Run(name, func(t *testing.T) {
+			opts, err := parseOptions(parameter, nil)
 			require.NoError(t, err)
-			out, err := render(protos, kitchenFiles, opts)
+			out, err := render(protos, files, opts)
 			require.NoError(t, err)
-			require.Len(t, out, len(kitchenFiles))
-			goldenDir := filepath.Join("testdata", "kitchen", "golden", tt.dir)
-			var goldenFiles []string
-			require.NoError(t, filepath.WalkDir(goldenDir, func(path string, d fs.DirEntry, err error) error {
-				if err == nil && !d.IsDir() {
-					rel, relErr := filepath.Rel(goldenDir, path)
-					require.NoError(t, relErr)
-					goldenFiles = append(goldenFiles, filepath.ToSlash(rel))
-				}
-				return err
-			}))
-			var rendered []string
-			for _, f := range out {
-				rendered = append(rendered, f.Name)
-				golden, err := os.ReadFile(filepath.Join(goldenDir, filepath.FromSlash(f.Name)))
-				require.NoError(t, err, "missing golden file for %s", f.Name)
-				require.Equal(t, string(golden), f.Content, "output differs from the golden file %s", f.Name)
-			}
-			require.ElementsMatch(t, rendered, goldenFiles, "a golden file has no output")
+			require.Len(t, out, len(files))
+			requireGoldenDir(t, out, filepath.Join(dir, "golden", name))
 		})
 	}
+	golden, err := os.ReadDir(filepath.Join(dir, "golden"))
+	require.NoError(t, err)
+	require.Len(t, golden, tested, "a golden directory has no line in variants.txt")
+}
+
+// TestLargeGolden checks the code for an enum and a oneof with more cases than the limit of one switch statement.
+func TestLargeGolden(t *testing.T) {
+	dir := filepath.Join("testdata", "large")
+	protos := compileProtos(t, dir, []string{"large.proto"})
+	opts, err := parseOptions(goldenParameter, nil)
+	require.NoError(t, err)
+	out, err := render(protos, []string{"large.proto"}, opts)
+	require.NoError(t, err)
+	require.Contains(t, out[0].Content, "// Can't get here, all the cases are listed in the above switches.")
+	require.Contains(t, out[0].Content, "    default: break\n    }\n    switch self.pick {\n    case .f501?: try {")
+	require.Contains(t, out[0].Content, "    default: break\n    }\n    switch self {\n    case .v500: return 500")
+	requireGoldenDir(t, out, filepath.Join(dir, "golden"))
+}
+
+// TestUpstreamGolden compares the output for protos of swift-protobuf, which test the naming of
+// types, fields and cases, reserved words, deprecation and groups, with the output of
+// protoc-gen-swift 1.38.1 with the default options.
+func TestUpstreamGolden(t *testing.T) {
+	dir := filepath.Join("testdata", "upstream")
+	files := protoFiles(t, dir)
+	require.NotEmpty(t, files)
+	protos := compileProtos(t, dir, files)
+	opts, err := parseOptions("", nil)
+	require.NoError(t, err)
+	out, err := render(protos, files, opts)
+	require.NoError(t, err)
+	requireGoldenDir(t, out, filepath.Join(dir, "golden"))
+}
+
+// TestGoldenVersion checks that the golden files come from the version of protoc-gen-swift that the tests name.
+func TestGoldenVersion(t *testing.T) {
+	version, err := os.ReadFile(filepath.Join("testdata", "GOLDEN_VERSION"))
+	require.NoError(t, err)
+	require.Equal(t, "protoc-gen-swift 1.38.1", strings.TrimSpace(string(version)))
 }
 
 func TestParseOptions(t *testing.T) {

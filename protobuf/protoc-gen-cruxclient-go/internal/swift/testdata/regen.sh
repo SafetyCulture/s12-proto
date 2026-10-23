@@ -4,7 +4,10 @@
 #   whitelist.binpb.gz   the s12 schema image of the Crux whitelist, with the message prefixes of Crux
 #   whitelist.txt        the proto files of the whitelist, which the test generates
 #   golden/              the output of protoc-gen-swift 1.38.1 for those files
-#   kitchen/golden/      the output of protoc-gen-swift 1.38.1 for the protos in kitchen/
+#   kitchen/golden/      the output of protoc-gen-swift 1.38.1 for the protos in kitchen/, one directory for each line of kitchen/variants.txt
+#   large/               the proto with an enum and a oneof over the limit of one switch statement, and its golden file
+#   upstream/golden/     the output of protoc-gen-swift 1.38.1 for the protos of swift-protobuf in upstream/
+#   GOLDEN_VERSION       the version line of the protoc-gen-swift that wrote all golden files
 #   ../../../testdata/swiftmessages/  the output of protoc-gen-swift 1.38.1 for the route guide message proto,
 #                        which the test of the plugin handler compares
 #
@@ -59,11 +62,43 @@ mkdir -p "$HERE/golden"
 cp "$WORK/out/swift/"*.pb.swift "$HERE/golden/"
 echo "$(ls "$HERE/golden" | wc -l) golden files for $(wc -l < "$HERE/whitelist.txt" | tr -d ' ') proto files"
 
+# The version line that the tests check, so that a golden file cannot come from another program.
+"$PLUGIN" --version > "$HERE/GOLDEN_VERSION"
+
 cd "$HERE/kitchen"
 rm -rf golden
-mkdir -p golden/default golden/public
-protoc -I . --plugin=protoc-gen-swift="$PLUGIN" --swift_out=golden/default kitchen/*.proto
-protoc -I . --plugin=protoc-gen-swift="$PLUGIN" --swift_out=Visibility=Public,FileNaming=PathToUnderscores:golden/public kitchen/*.proto
+while IFS='|' read -r name options; do
+  case "$name" in ''|'#'*) continue ;; esac
+  mkdir -p "golden/$name"
+  protoc -I . --plugin=protoc-gen-swift="$PLUGIN" --swift_out="$options":"golden/$name" kitchen/*.proto
+done < variants.txt
+
+cd "$HERE/large"
+{
+  echo '// Written by regen.sh. An enum and a oneof with more cases than the limit of one switch statement.'
+  echo 'syntax = "proto3";'
+  echo
+  echo 'package kitchen.large;'
+  echo
+  echo 'enum Big {'
+  echo '  BIG_UNSPECIFIED = 0;'
+  for i in $(seq 1 519); do echo "  BIG_V$i = $i;"; done
+  echo '}'
+  echo
+  echo 'message Wide {'
+  echo '  oneof pick {'
+  for i in $(seq 1 510); do echo "    string f$i = $i;"; done
+  echo '  }'
+  echo '}'
+} > large.proto
+rm -rf golden
+mkdir golden
+protoc -I . --plugin=protoc-gen-swift="$PLUGIN" --swift_out=Visibility=Public,FileNaming=PathToUnderscores:golden large.proto
+
+cd "$HERE/upstream"
+rm -rf golden
+mkdir golden
+protoc -I . --plugin=protoc-gen-swift="$PLUGIN" --swift_out=golden *.proto
 
 # The route guide proto of the test of the plugin handler.
 MODULE_TESTDATA="$HERE/../../../testdata"

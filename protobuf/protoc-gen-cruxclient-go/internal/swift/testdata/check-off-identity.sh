@@ -7,6 +7,8 @@
 # Usage:
 #   testdata/check-off-identity.sh <base-ref>
 #
+# The option strings with kotlin_messages exist in the plugin from the Kotlin commits on. A base without
+# them ignores the key, so the comparison holds for it too.
 # Needs git, go and buf on PATH, or BUF set to a buf binary.
 set -euo pipefail
 
@@ -28,7 +30,7 @@ git -C "$REPO" archive "$BASE" "${MODULE#"$REPO"/}" | tar -x -C "$WORK/base"
 (cd "$MODULE" && go build -o "$WORK/plugin-new" .)
 
 status=0
-for opt in "" "swift_module=S12Protos" "swift_module,kotlin_package"; do
+for opt in "" "swift_module=S12Protos" "swift_module,kotlin_package" "kotlin_messages" "kotlin_messages,messages_only"; do
   for version in base new; do
     cat > "$WORK/template-$version.yaml" <<YAML
 version: v1
