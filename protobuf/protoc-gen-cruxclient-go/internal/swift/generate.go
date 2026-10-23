@@ -7,6 +7,7 @@ package swift
 
 import (
 	"fmt"
+	"runtime/debug"
 
 	"github.com/bufbuild/protoplugin"
 	"google.golang.org/protobuf/types/descriptorpb"
@@ -52,24 +53,19 @@ type outputFile struct {
 
 // render generates the Swift files of the named proto files. The descriptors
 // hold every file after the files it imports.
-func render(protos []*descriptorpb.FileDescriptorProto, names []string, opts *options) (out []outputFile, err error) {
-	// A descriptor that protoc would have refused can break an assumption of the generator.
-	defer func() {
-		if r := recover(); r != nil {
-			out, err = nil, fmt.Errorf("the Swift generator stopped on an invalid descriptor: %v", r)
-		}
-	}()
+func render(protos []*descriptorpb.FileDescriptorProto, names []string, opts *options) ([]outputFile, error) {
 	reg, err := buildFiles(protos)
 	if err != nil {
 		return nil, err
 	}
 	g := &generator{opts: opts, storage: newStorageAnalyzer()}
+	var out []outputFile
 	for _, name := range names {
 		f, ok := reg.files[name]
 		if !ok {
 			return nil, fmt.Errorf("a file to generate has no descriptor: %s", name)
 		}
-		content, err := g.generateFile(f)
+		content, err := g.generateFileRecovering(f)
 		if err != nil {
 			if len(names) > 1 {
 				err = fmt.Errorf("%s: %w", name, err)
@@ -79,4 +75,14 @@ func render(protos []*descriptorpb.FileDescriptorProto, names []string, opts *op
 		out = append(out, outputFile{Name: opts.outputFilename(f.name), Content: content})
 	}
 	return out, nil
+}
+
+// generateFileRecovering turns a panic of the generator into an error with the file name and the stack.
+func (g *generator) generateFileRecovering(f *file) (content string, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			content, err = "", fmt.Errorf("internal error of the Swift generator on %s: %v\n%s", f.name, r, debug.Stack())
+		}
+	}()
+	return g.generateFile(f)
 }

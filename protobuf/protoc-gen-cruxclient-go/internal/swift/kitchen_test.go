@@ -4,6 +4,7 @@ package swift
 
 import (
 	"context"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"testing"
@@ -11,6 +12,7 @@ import (
 	"github.com/bufbuild/protocompile"
 	"github.com/bufbuild/protocompile/protoutil"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/descriptorpb"
 )
@@ -63,11 +65,24 @@ func TestKitchenGolden(t *testing.T) {
 			out, err := render(protos, kitchenFiles, opts)
 			require.NoError(t, err)
 			require.Len(t, out, len(kitchenFiles))
+			goldenDir := filepath.Join("testdata", "kitchen", "golden", tt.dir)
+			var goldenFiles []string
+			require.NoError(t, filepath.WalkDir(goldenDir, func(path string, d fs.DirEntry, err error) error {
+				if err == nil && !d.IsDir() {
+					rel, relErr := filepath.Rel(goldenDir, path)
+					require.NoError(t, relErr)
+					goldenFiles = append(goldenFiles, filepath.ToSlash(rel))
+				}
+				return err
+			}))
+			var rendered []string
 			for _, f := range out {
-				golden, err := os.ReadFile(filepath.Join("testdata", "kitchen", "golden", tt.dir, filepath.FromSlash(f.Name)))
+				rendered = append(rendered, f.Name)
+				golden, err := os.ReadFile(filepath.Join(goldenDir, filepath.FromSlash(f.Name)))
 				require.NoError(t, err, "missing golden file for %s", f.Name)
 				require.Equal(t, string(golden), f.Content, "output differs from the golden file %s", f.Name)
 			}
+			require.ElementsMatch(t, rendered, goldenFiles, "a golden file has no output")
 		})
 	}
 }
@@ -130,4 +145,18 @@ func TestPrintSwiftLiterals(t *testing.T) {
 	require.Equal(t, "String()", stringToEscapedStringLiteral(""))
 	require.Equal(t, "Data([0, 1, 97, 255, 10])", escapedToDataLiteral(`\000\001a\377\n`))
 	require.Equal(t, "Data()", escapedToDataLiteral(""))
+}
+
+// TestInternalErrorNamesFile checks that a descriptor that breaks the generator gives an error with the file name and the stack.
+func TestInternalErrorNamesFile(t *testing.T) {
+	broken := &descriptorpb.FileDescriptorProto{
+		Name:     proto.String("broken.proto"),
+		Syntax:   proto.String("proto3"),
+		EnumType: []*descriptorpb.EnumDescriptorProto{{Name: proto.String("Empty")}},
+	}
+	opts, err := parseOptions("")
+	require.NoError(t, err)
+	_, err = render([]*descriptorpb.FileDescriptorProto{broken}, []string{"broken.proto"}, opts)
+	require.ErrorContains(t, err, "internal error of the Swift generator on broken.proto")
+	require.ErrorContains(t, err, "goroutine")
 }
