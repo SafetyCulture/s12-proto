@@ -43,7 +43,7 @@ func handle(
 	if !opts.MessagesOnly || opts.KotlinMessagesEnabled() {
 		fileDescriptors, err = request.FileDescriptorsToGenerate()
 		if err != nil {
-			responseWriter.AddError(err.Error())
+			responseWriter.AddError(fmt.Sprintf("cruxclient-go: request.FileDescriptorsToGenerate: %v", err))
 			return nil
 		}
 	}
