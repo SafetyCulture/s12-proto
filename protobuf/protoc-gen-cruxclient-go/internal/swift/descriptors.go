@@ -715,6 +715,8 @@ func readJSONOption(options *descriptorpb.EnumValueOptions, number protowire.Num
 
 // jsonOptionFromUnknown finds the option in the wire bytes of the unknown fields.
 func jsonOptionFromUnknown(raw []byte, number protowire.Number) (string, bool) {
+	var value string
+	found := false
 	for len(raw) > 0 {
 		num, typ, n := protowire.ConsumeTag(raw)
 		if n < 0 {
@@ -733,6 +735,8 @@ func jsonOptionFromUnknown(raw []byte, number protowire.Number) (string, bool) {
 		if m < 0 {
 			return "", false
 		}
+		raw = raw[m:]
+		found = true
 		for len(body) > 0 {
 			inner, innerType, k := protowire.ConsumeTag(body)
 			if k < 0 {
@@ -744,7 +748,9 @@ func jsonOptionFromUnknown(raw []byte, number protowire.Number) (string, bool) {
 				if l < 0 {
 					return "", false
 				}
-				return string(s), true
+				value = string(s)
+				body = body[l:]
+				continue
 			}
 			l := protowire.ConsumeFieldValue(inner, innerType, body)
 			if l < 0 {
@@ -752,7 +758,6 @@ func jsonOptionFromUnknown(raw []byte, number protowire.Number) (string, bool) {
 			}
 			body = body[l:]
 		}
-		return "", true
 	}
-	return "", false
+	return value, found
 }

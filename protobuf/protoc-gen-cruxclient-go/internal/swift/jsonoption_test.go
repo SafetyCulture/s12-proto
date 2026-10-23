@@ -49,6 +49,11 @@ func TestJSONOption(t *testing.T) {
 	require.True(t, ok)
 	require.Empty(t, name)
 
+	repeated := append(jsonOptionWire("first"), jsonOptionWire("last")...)
+	name, ok = readJSONOption(optionsFromWire(t, repeated, proto.UnmarshalOptions{Resolver: empty}), testOptionNumber, empty)
+	require.True(t, ok)
+	require.Equal(t, "last", name)
+
 	_, ok = readJSONOption(&descriptorpb.EnumValueOptions{Deprecated: proto.Bool(true)}, testOptionNumber, empty)
 	require.False(t, ok)
 
