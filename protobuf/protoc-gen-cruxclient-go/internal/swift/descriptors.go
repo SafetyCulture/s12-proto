@@ -8,6 +8,8 @@ import (
 	"strings"
 
 	"google.golang.org/protobuf/encoding/protowire"
+	"google.golang.org/protobuf/reflect/protoreflect"
+	"google.golang.org/protobuf/reflect/protoregistry"
 	"google.golang.org/protobuf/types/descriptorpb"
 )
 
@@ -661,16 +663,49 @@ func (m *message) ambitiousExtensionRanges() [][2]int32 {
 	return merged
 }
 
-// jsonOption reads the pb.enumvalue.json option, extension 998 of the enum value options, from the unknown fields.
+// jsonOptionNumber is the field number of the pb.enumvalue.json option, an extension of the enum value options.
+const jsonOptionNumber = 998
+
+// jsonOption reads the pb.enumvalue.json option. It reports false when the value has no option.
 func (v *enumValue) jsonOption() (string, bool) {
-	raw := v.proto.GetOptions().ProtoReflect().GetUnknown()
+	return readJSONOption(v.proto.GetOptions(), jsonOptionNumber, protoregistry.GlobalTypes)
+}
+
+// readJSONOption reads the string of the option from the extension with the given number. The
+// option is an extension that a program can register, so the registered type comes first, and the
+// unknown fields of the options are the other source.
+func readJSONOption(options *descriptorpb.EnumValueOptions, number protowire.Number, types interface {
+	FindExtensionByNumber(message protoreflect.FullName, field protoreflect.FieldNumber) (protoreflect.ExtensionType, error)
+}) (string, bool) {
+	if options == nil {
+		return "", false
+	}
+	if xt, err := types.FindExtensionByNumber(options.ProtoReflect().Descriptor().FullName(), number); err == nil {
+		xd := xt.TypeDescriptor()
+		if !options.ProtoReflect().Has(xd) {
+			return "", false
+		}
+		if xd.Message() == nil {
+			return "", true
+		}
+		message := options.ProtoReflect().Get(xd).Message()
+		if field := message.Descriptor().Fields().ByNumber(1); field != nil && field.Kind() == protoreflect.StringKind {
+			return message.Get(field).String(), true
+		}
+		return "", true
+	}
+	return jsonOptionFromUnknown(options.ProtoReflect().GetUnknown(), number)
+}
+
+// jsonOptionFromUnknown finds the option in the wire bytes of the unknown fields.
+func jsonOptionFromUnknown(raw []byte, number protowire.Number) (string, bool) {
 	for len(raw) > 0 {
 		num, typ, n := protowire.ConsumeTag(raw)
 		if n < 0 {
 			return "", false
 		}
 		raw = raw[n:]
-		if num != 998 || typ != protowire.BytesType {
+		if num != number || typ != protowire.BytesType {
 			m := protowire.ConsumeFieldValue(num, typ, raw)
 			if m < 0 {
 				return "", false
