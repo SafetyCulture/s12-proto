@@ -22,7 +22,7 @@ description = "Run tests (root module and the plugin modules)"
 run = """
 set -eu
 go test ./...
-for d in protobuf/protoc-gen-cruxclient-go protobuf/protoc-gen-crux-kotlin; do
+for d in protobuf/protoc-gen-cruxclient-go; do
   (cd "$d" && go test ./...)
 done
 """

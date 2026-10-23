@@ -109,7 +109,7 @@ protoc \
   path/to/*.proto
 ```
 
-**Option `kotlin_package`**: Turns on the Kotlin output for the pure Kotlin messages of `protoc-gen-crux-kotlin`. A bare `kotlin_package` uses the root package `com.safetyculture.s12kt`. `kotlin_package=<Root>` sets the root package. With the option on, each `.djinni.yaml` record gets `kotlinTranslator`, `kotlinHeader` and `kotlinTypeSignature` keys in its `jni:` block and a `jniTypename` key in its `kotlin:` block, and the plugin writes `.djinni.kotlin.jni.h`. The Kotlin translator moves a message as serialized bytes between C++ and the Kotlin class, with `toByteArray()`, `getSerializedSize()` and `parseFrom(ByteArray)`. With the option off, the output does not change.
+**Option `kotlin_package`**: Turns on the Kotlin output for the Djinni bindings of the pure Kotlin messages. The C++ plugin cannot write the Kotlin messages. Use the option `kotlin_messages` of `protoc-gen-cruxclient-go` for them. A bare `kotlin_package` uses the root package `com.safetyculture.s12kt`. `kotlin_package=<Root>` sets the root package. With the option on, each `.djinni.yaml` record gets `kotlinTranslator`, `kotlinHeader` and `kotlinTypeSignature` keys in its `jni:` block and a `jniTypename` key in its `kotlin:` block, and the plugin writes `.djinni.kotlin.jni.h`. The Kotlin translator moves a message as serialized bytes between C++ and the Kotlin class, with `toByteArray()`, `getSerializedSize()` and `parseFrom(ByteArray)`. With the option off, the output does not change.
 ```sh
 protoc \
   -I. \
@@ -123,7 +123,7 @@ protoc \
 
 **Purpose**: Go port of `protoc-gen-cruxclient`. Generates identical output using the `bufbuild/protoplugin` framework — no C++ toolchain required.
 
-**Generates**: `.crux.api.h`, `.crux.api.cc`, `.mock.h`, `.djinni.yaml`, `.djinni.objc.h`, `.djinni.jni.h`, and `.djinni.swiftxx.h` (only with the `swift_module` option)
+**Generates**: `.crux.api.h`, `.crux.api.cc`, `.mock.h`, `.djinni.yaml`, `.djinni.objc.h`, `.djinni.jni.h`, and `.djinni.swiftxx.h` (only with the `swift_module` option), `.djinni.kotlin.jni.h` (only with the `kotlin_package` option), and one `.pb.kt` file for each proto file with a message or an enum, with the runtime file `<root>/wire/S12Wire.kt` (only with the `kotlin_messages` option)
 
 **Install**:
 ```sh
@@ -146,7 +146,7 @@ protoc \
   path/to/*.proto
 ```
 
-**Option `kotlin_package`**: Turns on the Kotlin output for the pure Kotlin messages of `protoc-gen-crux-kotlin`. A bare `kotlin_package` uses the root package `com.safetyculture.s12kt`. `kotlin_package=<Root>` sets the root package. With the option on, each `.djinni.yaml` record gets `kotlinTranslator`, `kotlinHeader` and `kotlinTypeSignature` keys in its `jni:` block and a `jniTypename` key in its `kotlin:` block, and the plugin writes `.djinni.kotlin.jni.h`. The Kotlin translator moves a message as serialized bytes between C++ and the Kotlin class, with `toByteArray()`, `getSerializedSize()` and `parseFrom(ByteArray)`. With the option off, the output does not change.
+**Option `kotlin_package`**: Turns on the Kotlin output for the Djinni bindings of the pure Kotlin messages. The C++ plugin cannot write the Kotlin messages. Use the option `kotlin_messages` of `protoc-gen-cruxclient-go` for them. A bare `kotlin_package` uses the root package `com.safetyculture.s12kt`. `kotlin_package=<Root>` sets the root package. With the option on, each `.djinni.yaml` record gets `kotlinTranslator`, `kotlinHeader` and `kotlinTypeSignature` keys in its `jni:` block and a `jniTypename` key in its `kotlin:` block, and the plugin writes `.djinni.kotlin.jni.h`. The Kotlin translator moves a message as serialized bytes between C++ and the Kotlin class, with `toByteArray()`, `getSerializedSize()` and `parseFrom(ByteArray)`. With the option off, the output does not change.
 ```sh
 protoc \
   -I. \
@@ -154,28 +154,14 @@ protoc \
   path/to/*.proto
 ```
 
----
-
-## protoc-gen-crux-kotlin
-
-**Purpose**: Generates pure Kotlin message classes with a wire codec. The classes replace the Java lite classes in Kotlin code. They have no dependency except the Kotlin standard library.
-
-**Generates**: one `.pb.kt` file for each proto file, and one runtime file `<root>/wire/S12Wire.kt` for each run.
-
-**Install**:
-```sh
-make install-crux-kotlin
-```
-
-**Usage**:
+**Option `kotlin_messages`**: Writes pure Kotlin message classes with a wire codec. The classes replace the Java lite classes in Kotlin code. They have no dependency except the Kotlin standard library. A bare `kotlin_messages` uses the root package from `kotlin_package`, or `com.safetyculture.s12kt` if `kotlin_package` is absent. `kotlin_messages=<Root>` sets the root package. The option is independent of `kotlin_package`. Give both options the same root package, so that the `jniTypename` keys name the generated classes. With the option off, the output does not change. Only this plugin has the option. The C++ plugin cannot write Kotlin.
 ```sh
 protoc \
   -I. \
-  --crux-kotlin_out=kotlin_package:. \
+  --cruxclient-go_out=kotlin_messages:. \
   path/to/*.proto
 ```
-
-**Option `kotlin_package`**: Sets the root package. The default is `com.safetyculture.s12kt`. The proto package follows the root, with the leading `s12.` removed, as the Java lite package does. The Kotlin classes and the Java lite classes can be in one app, because their packages are different.
+The plugin writes one `.pb.kt` file for each proto file that has a message or an enum, and one runtime file `<root>/wire/S12Wire.kt` for each run. The proto package follows the root, with the leading `s12.` removed, as the Java lite package does. The Kotlin classes and the Java lite classes can be in one app, because their packages are different. The plugin must get all files of a run in one request, because it writes the runtime file once. With `buf`, set `strategy: all`.
 
 **Rules**:
 
@@ -193,4 +179,4 @@ Each message has `toByteArray()`, `getSerializedSize()` and `companion object { 
 
 The wire format is the same as the format of Java lite. A proto3 enum is open: a number that the enum does not declare becomes `UNRECOGNIZED(number)` in the property, and the codec writes the number in the same place. A closed enum (proto2, or an edition enum with `enum_type = CLOSED`) does not reject such a number: the codec keeps it in `unknownFields` and writes it again, as Java lite does. `UNRECOGNIZED` has an `internal` constructor. Get it from `fromNumber`, so that `UNRECOGNIZED(-1)` cannot be made for a declared number. The reader stops at a nesting depth of 100 and throws `InvalidWireException`, as Java lite does.
 
-**Test**: `go test ./...` in the plugin directory runs the golden test and the nullability tests. `test/wire_compat.sh` generates Kotlin and Java lite classes from the same proto files, encodes random messages and compares the bytes in both directions. Set `APISCHEMA` to an APISchema checkout to include `s12.assets.v1.Asset`. Set `ROOTS_FILE` to a list of proto files, relative to `APISCHEMA/protos`, to include more files, such as the whole Crux whitelist.
+**Test**: `go test ./...` in `protobuf/protoc-gen-cruxclient-go` runs the golden test and the nullability tests. `test/wire_compat.sh` generates Kotlin and Java lite classes from the same proto files, encodes random messages and compares the bytes in both directions. Set `APISCHEMA` to an APISchema checkout to include `s12.assets.v1.Asset`. Set `ROOTS_FILE` to a list of proto files, relative to `APISCHEMA/protos`, to include more files, such as the whole Crux whitelist.
