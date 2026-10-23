@@ -40,7 +40,7 @@ func readLines(t *testing.T, path string) []string {
 	t.Helper()
 	f, err := os.Open(path)
 	require.NoError(t, err)
-	defer f.Close()
+	t.Cleanup(func() { require.NoError(t, f.Close()) })
 	var lines []string
 	sc := bufio.NewScanner(f)
 	for sc.Scan() {
