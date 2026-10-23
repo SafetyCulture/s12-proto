@@ -7,20 +7,20 @@ import (
 	"strings"
 )
 
-type outputNaming int
+type outputNaming string
 
 const (
-	fullPath outputNaming = iota
-	pathToUnderscores
-	dropPath
+	fullPath          outputNaming = "FullPath"
+	pathToUnderscores outputNaming = "PathToUnderscores"
+	dropPath          outputNaming = "DropPath"
 )
 
-type enumGeneration int
+type enumGeneration string
 
 const (
-	enumGenerationNone enumGeneration = iota
-	enumGenerationNonexhaustive
-	enumGenerationNonexhaustiveWarn
+	enumGenerationNone              enumGeneration = "None"
+	enumGenerationNonexhaustive     enumGeneration = "Nonexhaustive"
+	enumGenerationNonexhaustiveWarn enumGeneration = "NonexhaustiveWarn"
 )
 
 const maxCasesInSwitch = 500
@@ -88,7 +88,12 @@ func parseBool(value string) (bool, bool) {
 // parseOptions reads the comma-separated parameter of a request. The options of the
 // other outputs of the plugin pass through: isPluginKey names them, and nil names none.
 func parseOptions(parameter string, isPluginKey func(key string) bool) (*options, error) {
-	opts := &options{visibility: "internal", swiftProtobufModule: "SwiftProtobuf"}
+	opts := &options{
+		outputNaming:        fullPath,
+		enumGeneration:      enumGenerationNone,
+		visibility:          "internal",
+		swiftProtobufModule: "SwiftProtobuf",
+	}
 	implementationOnly := false
 	if parameter != "" {
 		for _, part := range strings.Split(parameter, ",") {
