@@ -26,7 +26,7 @@ func Generate(rw protoplugin.ResponseWriter, request protoplugin.Request) error 
 	if err != nil {
 		return err
 	}
-	files, err := Render(request.AllFileDescriptorProtos(), toGenerate(request.FileDescriptorProtosToGenerate()), opts)
+	files, err := render(request.AllFileDescriptorProtos(), toGenerate(request.FileDescriptorProtosToGenerate()), opts)
 	if err != nil {
 		return err
 	}
@@ -44,21 +44,26 @@ func toGenerate(protos []*descriptorpb.FileDescriptorProto) []string {
 	return names
 }
 
-// OutputFile is one generated file.
-type OutputFile struct {
+// outputFile is one generated file.
+type outputFile struct {
 	Name    string
 	Content string
 }
 
-// Render generates the Swift files of the named proto files. The descriptors
+// render generates the Swift files of the named proto files. The descriptors
 // hold every file after the files it imports.
-func Render(protos []*descriptorpb.FileDescriptorProto, names []string, opts *options) ([]OutputFile, error) {
+func render(protos []*descriptorpb.FileDescriptorProto, names []string, opts *options) (out []outputFile, err error) {
+	// A descriptor that protoc would have refused can break an assumption of the generator.
+	defer func() {
+		if r := recover(); r != nil {
+			out, err = nil, fmt.Errorf("the Swift generator stopped on an invalid descriptor: %v", r)
+		}
+	}()
 	reg, err := buildFiles(protos)
 	if err != nil {
 		return nil, err
 	}
 	g := &generator{opts: opts, storage: newStorageAnalyzer()}
-	var out []OutputFile
 	for _, name := range names {
 		f, ok := reg.files[name]
 		if !ok {
@@ -71,10 +76,7 @@ func Render(protos []*descriptorpb.FileDescriptorProto, names []string, opts *op
 			}
 			return nil, err
 		}
-		out = append(out, OutputFile{Name: opts.outputFilename(f.name), Content: content})
+		out = append(out, outputFile{Name: opts.outputFilename(f.name), Content: content})
 	}
 	return out, nil
 }
-
-// ParseParameter reads the options of a request parameter.
-func ParseParameter(parameter string) (*options, error) { return parseOptions(parameter) }

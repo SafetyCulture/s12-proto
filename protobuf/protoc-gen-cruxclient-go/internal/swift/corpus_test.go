@@ -58,7 +58,7 @@ func compareCorpus(t *testing.T, protos []*descriptorpb.FileDescriptorProto, nam
 	t.Helper()
 	opts, err := parseOptions(goldenParameter)
 	require.NoError(t, err)
-	out, err := Render(protos, names, opts)
+	out, err := render(protos, names, opts)
 	require.NoError(t, err)
 
 	rendered := map[string]string{}

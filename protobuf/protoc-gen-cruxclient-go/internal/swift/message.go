@@ -74,17 +74,17 @@ func (mg *messageGen) generateMainStruct(p *printer) error {
 	g := mg.g
 	m := mg.desc
 	if m.useMessageSetWireFormat() && len(mg.fields) > 0 {
-		return fmt.Errorf("%s has the option message_set_wire_format but it also has fields.", m.fullName)
+		return fmt.Errorf("%s has the option message_set_wire_format but it also has fields", m.fullName)
 	}
 	for _, e := range m.extensions {
 		if !e.containing.useMessageSetWireFormat() {
 			continue
 		}
 		if e.typ != typeMessage {
-			return fmt.Errorf("%s has the option message_set_wire_format but %s is a non message extension field.", e.containing.fullName, e.fullName)
+			return fmt.Errorf("%s has the option message_set_wire_format but %s is a non message extension field", e.containing.fullName, e.fullName)
 		}
 		if e.isRequired() || e.isRepeated() {
-			return fmt.Errorf("%s has the option message_set_wire_format but %s cannot be required nor repeated extension field.", e.containing.fullName, e.fullName)
+			return fmt.Errorf("%s has the option message_set_wire_format but %s cannot be required nor repeated extension field", e.containing.fullName, e.fullName)
 		}
 	}
 

@@ -75,7 +75,7 @@ func handle(
 		}
 	}
 	if opts.MessagesOnly && !opts.KotlinMessagesEnabled() && !opts.SwiftMessagesEnabled() {
-		fmt.Fprintln(env.Stderr, "warning: messages_only writes no file without a messages option such as swift_messages or kotlin_messages")
+		_, _ = fmt.Fprintln(env.Stderr, "warning: messages_only writes no file without a messages option such as swift_messages or kotlin_messages")
 	}
 	return nil
 }

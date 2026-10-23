@@ -60,7 +60,7 @@ func TestKitchenGolden(t *testing.T) {
 		t.Run(tt.dir, func(t *testing.T) {
 			opts, err := parseOptions(tt.parameter)
 			require.NoError(t, err)
-			out, err := Render(protos, kitchenFiles, opts)
+			out, err := render(protos, kitchenFiles, opts)
 			require.NoError(t, err)
 			require.Len(t, out, len(kitchenFiles))
 			for _, f := range out {
