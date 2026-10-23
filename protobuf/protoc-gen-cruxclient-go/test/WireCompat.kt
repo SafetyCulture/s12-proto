@@ -5,6 +5,7 @@
 // must be equal in both directions. The kitchen checks at the end cover edits and nesting limits.
 import com.safetyculture.s12kt.kitchen.legacy.Legacy
 import com.safetyculture.s12kt.kitchen.legacy.Req
+import com.safetyculture.s12kt.kitchen.legacy.ReqEnum
 import com.safetyculture.s12kt.kitchen.legacy.ReqHolder
 import com.safetyculture.s12kt.kitchen.v1.Color
 import com.safetyculture.s12kt.kitchen.v1.Oneofs
@@ -13,10 +14,15 @@ import com.safetyculture.s12kt.kitchen.v1.Scalars
 import com.safetyculture.s12kt.wire.InvalidWireException
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.lang.reflect.InvocationTargetException
 import kotlin.system.exitProcess
 
 private fun parse(cls: Class<*>, bytes: ByteArray): Any =
-    cls.getMethod("parseFrom", ByteArray::class.java).invoke(null, bytes)
+    try {
+        cls.getMethod("parseFrom", ByteArray::class.java).invoke(null, bytes)
+    } catch (e: InvocationTargetException) {
+        throw e.targetException
+    }
 
 private fun bytesOf(message: Any): ByteArray = message.javaClass.getMethod("toByteArray").invoke(message) as ByteArray
 
@@ -26,6 +32,7 @@ private fun compareSamples(dir: File): Int {
     var failures = 0
     var samples = 0
     var identical = 0
+    var rejected = 0
     val covered = sortedSetOf<String>()
     for (line in File(dir, "index.tsv").readLines()) {
         val (kotlinName, javaName, file, fullName) = line.split('\t')
@@ -37,6 +44,13 @@ private fun compareSamples(dir: File): Int {
         try {
             val kotlinClass = Class.forName(kotlinName)
             val javaClass = Class.forName(javaName)
+            val kAccepted = accepts({ parse(kotlinClass, it) }, input)
+            val jAccepted = accepts({ parse(javaClass, it) }, input)
+            if (kAccepted != jAccepted) fail("Kotlin accepted=$kAccepted, Java lite accepted=$jAccepted")
+            if (kAccepted != true || jAccepted != true) {
+                rejected++
+                continue
+            }
             val k = parse(kotlinClass, input)
             val j = parse(javaClass, input)
             val kBytes = bytesOf(k)
@@ -55,7 +69,7 @@ private fun compareSamples(dir: File): Int {
             fail(e.toString())
         }
     }
-    println("samples=$samples messages=${covered.size} identicalToInput=$identical failures=$failures")
+    println("samples=$samples messages=${covered.size} identicalToInput=$identical rejectedByBoth=$rejected failures=$failures")
     return failures + if (samples == 0) 1 else 0
 }
 
@@ -64,6 +78,7 @@ private typealias JOneofs = com.safetyculture.s12.kitchen.v1.Oneofs
 private typealias JRepeated = com.safetyculture.s12.kitchen.v1.Repeated
 private typealias JLegacy = com.safetyculture.kitchen.legacy.Legacy
 private typealias JReq = com.safetyculture.kitchen.legacy.Req
+private typealias JReqEnum = com.safetyculture.kitchen.legacy.ReqEnum
 private typealias JReqHolder = com.safetyculture.kitchen.legacy.ReqHolder
 
 private fun check(name: String, ok: Boolean): Int {
@@ -189,6 +204,9 @@ private fun requiredChecks(): Int {
     holder("a repeated element without the required field", delimited(2, reqWithName) + delimited(2, reqNoName), false)
     holder("a map value without the required field", delimited(3, delimited(1, "k".toByteArray()) + delimited(2, reqNoName)), false)
     holder("a map value with the required field", delimited(3, delimited(1, "k".toByteArray()) + delimited(2, reqWithName)), true)
+    holder("a map value that is missing, with a required field", delimited(3, delimited(1, "k".toByteArray())), false)
+    failures += same("ReqEnum with a declared number", { ReqEnum.parseFrom(it) }, { JReqEnum.parseFrom(it) }, field(1, 0, varint(2)), true)
+    failures += same("ReqEnum with an undeclared number", { ReqEnum.parseFrom(it) }, { JReqEnum.parseFrom(it) }, field(1, 0, varint(99)), false)
     failures += same("Legacy without id", { Legacy.parseFrom(it) }, { JLegacy.parseFrom(it) }, legacyScore, false)
     failures += same("Legacy without score", { Legacy.parseFrom(it) }, { JLegacy.parseFrom(it) }, legacyId, false)
     failures += same("Legacy with both", { Legacy.parseFrom(it) }, { JLegacy.parseFrom(it) }, legacyId + legacyScore, true)

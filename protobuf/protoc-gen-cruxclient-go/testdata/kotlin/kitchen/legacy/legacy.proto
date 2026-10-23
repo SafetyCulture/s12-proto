@@ -38,3 +38,7 @@ message ReqHolder {
   map<string, Req> by_name = 3;
   map<string, string> tags = 4;
 }
+
+message ReqEnum {
+  required Level level = 1;
+}

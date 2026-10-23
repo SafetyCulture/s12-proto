@@ -388,7 +388,7 @@ public data class ReqHolder(
                             }
                         }
                         reader.endSection(_saved)
-                        v_byName[_key] = _value ?: com.safetyculture.s12kt.kitchen.legacy.Req()
+                        v_byName[_key] = _value ?: com.safetyculture.s12kt.kitchen.legacy.Req.decode(com.safetyculture.s12kt.wire.WireReader(kotlin.ByteArray(0)))
                     }
                     34 -> {
                         val _start = reader.fieldStart()
@@ -416,6 +416,75 @@ public data class ReqHolder(
                 tags = v_tags,
                 unknownFields = _unknown.toByteString(),
             )
+        }
+    }
+}
+
+public data class ReqEnum(
+    public val level: com.safetyculture.s12kt.kitchen.legacy.Level = com.safetyculture.s12kt.kitchen.legacy.Level.LEVEL_LOW,
+    /** The fields that this version of the schema does not know, kept as encoded bytes. */
+    public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
+) : com.safetyculture.s12kt.wire.WireMessage {
+    /** Bit i is set while required field i has not been read. It is zero for a message that code builds. */
+    internal var missingRequired: kotlin.Long = 0L
+        private set
+
+
+    override fun getSerializedSize(): kotlin.Int {
+        var _size = 0
+        if ((this.missingRequired and 1L) == 0L) _size += com.safetyculture.s12kt.wire.WireSize.int32(1, this.level.number)
+        _size += this.unknownFields.size
+        return _size
+    }
+
+    override fun writeTo(writer: com.safetyculture.s12kt.wire.WireWriter) {
+        if ((this.missingRequired and 1L) == 0L) writer.writeInt32(1, this.level.number)
+        writer.writeUnknown(this.unknownFields)
+    }
+
+    override fun toByteArray(): kotlin.ByteArray {
+        val writer = com.safetyculture.s12kt.wire.WireWriter(kotlin.ByteArray(getSerializedSize()))
+        writeTo(writer)
+        return writer.toByteArray()
+    }
+
+    internal fun findMissingRequired(): kotlin.String? {
+        if ((this.missingRequired and 1L) != 0L) return "level"
+        return null
+    }
+
+    public companion object : com.safetyculture.s12kt.wire.WireCodec<com.safetyculture.s12kt.kitchen.legacy.ReqEnum> {
+        @kotlin.jvm.JvmStatic
+        public fun parseFrom(bytes: kotlin.ByteArray): com.safetyculture.s12kt.kitchen.legacy.ReqEnum {
+            val _message = decode(com.safetyculture.s12kt.wire.WireReader(bytes))
+            _message.findMissingRequired()?.let { throw com.safetyculture.s12kt.wire.InvalidWireException("missing required field " + it) }
+            return _message
+        }
+
+        override fun decode(reader: com.safetyculture.s12kt.wire.WireReader): com.safetyculture.s12kt.kitchen.legacy.ReqEnum {
+            var v_level: com.safetyculture.s12kt.kitchen.legacy.Level = com.safetyculture.s12kt.kitchen.legacy.Level.LEVEL_LOW
+            var _missing = 1L
+            val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+            loop@ while (true) {
+                when (val _tag = reader.readTag()) {
+                    0 -> break@loop
+                    8 -> {
+                        val _n = reader.readInt32()
+                        val _e = com.safetyculture.s12kt.kitchen.legacy.Level.fromNumber(_n)
+                        if (_e is com.safetyculture.s12kt.kitchen.legacy.Level.UNRECOGNIZED) _unknown.addVarint(8, _n.toLong()) else {
+                            v_level = _e
+                            _missing = _missing and -2L
+                        }
+                    }
+                    else -> reader.readUnknown(_tag, _unknown)
+                }
+            }
+            val _result = com.safetyculture.s12kt.kitchen.legacy.ReqEnum(
+                level = v_level,
+                unknownFields = _unknown.toByteString(),
+            )
+            _result.missingRequired = _missing
+            return _result
         }
     }
 }

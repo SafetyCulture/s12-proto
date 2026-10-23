@@ -7,6 +7,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/bufbuild/protoplugin"
 	"google.golang.org/protobuf/reflect/protoreflect"
@@ -55,7 +56,7 @@ func handle(
 	}
 	if opts.KotlinMessagesEnabled() {
 		if err := kotlin.Generate(responseWriter, fileDescriptors, opts.KotlinMessages); err != nil {
-			return err
+			return fmt.Errorf("cruxclient-go: kotlin.Generate: %w", err)
 		}
 	}
 	return nil

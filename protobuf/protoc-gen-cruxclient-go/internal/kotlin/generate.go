@@ -418,13 +418,26 @@ func closedEnum(fd protoreflect.FieldDescriptor) bool {
 	return fd.Kind() == protoreflect.EnumKind && fd.Enum().IsClosed()
 }
 
-// store returns the statement that stores the value of a field that readValue read. For a closed
-// enum, a number that the enum does not declare goes to the unknown fields instead.
-func (g *fileGen) store(fd protoreflect.FieldDescriptor, stmt string) string {
+// writeStore writes the statement that stores the value of a field that readValue read, then the
+// statement after, which marks the field as read. For a closed enum, a number that the enum does
+// not declare goes to the unknown fields instead, and the field stays unread.
+func (g *fileGen) writeStore(fd protoreflect.FieldDescriptor, stmt, after string) {
 	if !closedEnum(fd) {
-		return stmt
+		g.w.text(stmt)
+		if after != "" {
+			g.w.text(after)
+		}
+		return
 	}
-	return fmt.Sprintf("if (_e is %s) _unknown.addVarint(%d, _n.toLong()) else %s", g.unrecognized(fd), tagOf(fd.Number(), wireVarint), stmt)
+	keep := fmt.Sprintf("if (_e is %s) _unknown.addVarint(%d, _n.toLong()) else", g.unrecognized(fd), tagOf(fd.Number(), wireVarint))
+	if after == "" {
+		g.w.text(keep + " " + stmt)
+		return
+	}
+	g.w.open("%s {", keep)
+	g.w.text(stmt)
+	g.w.text(after)
+	g.w.close("}")
 }
 
 func (g *fileGen) sizeField(f *fieldInfo, qualified string) {
@@ -631,7 +644,7 @@ func (g *fileGen) decodeCase(f *fieldInfo, qualified string) {
 		for _, l := range pre {
 			g.w.text(l)
 		}
-		g.w.line("%s", g.store(fd, fmt.Sprintf("v_%s.add(%s)", f.prop, expr)))
+		g.writeStore(fd, fmt.Sprintf("v_%s.add(%s)", f.prop, expr), "")
 		g.w.close("}")
 		if isPackable(fd.Kind()) {
 			g.w.open("%d -> {", tagOf(n, wireLength))
@@ -640,7 +653,7 @@ func (g *fileGen) decodeCase(f *fieldInfo, qualified string) {
 			for _, l := range pre {
 				g.w.text(l)
 			}
-			g.w.line("%s", g.store(fd, fmt.Sprintf("v_%s.add(%s)", f.prop, expr)))
+			g.writeStore(fd, fmt.Sprintf("v_%s.add(%s)", f.prop, expr), "")
 			g.w.close("}")
 			g.w.line("reader.endSection(_saved)")
 			g.w.close("}")
@@ -652,7 +665,7 @@ func (g *fileGen) decodeCase(f *fieldInfo, qualified string) {
 		for _, l := range pre {
 			g.w.text(l)
 		}
-		g.w.line("%s", g.store(fd, fmt.Sprintf("v_%s = %s(%s)", f.oneof.prop, variant, expr)))
+		g.writeStore(fd, fmt.Sprintf("v_%s = %s(%s)", f.oneof.prop, variant, expr), "")
 		g.w.close("}")
 	default:
 		pre, expr := g.readValue(fd, "v_"+f.prop, true)
@@ -660,10 +673,11 @@ func (g *fileGen) decodeCase(f *fieldInfo, qualified string) {
 		for _, l := range pre {
 			g.w.text(l)
 		}
-		g.w.line("%s", g.store(fd, fmt.Sprintf("v_%s = %s", f.prop, expr)))
+		after := ""
 		if f.reqBit >= 0 {
-			g.w.line("_missing = _missing and %dL", ^(int64(1) << f.reqBit))
+			after = fmt.Sprintf("_missing = _missing and %dL", ^(int64(1) << f.reqBit))
 		}
+		g.writeStore(fd, fmt.Sprintf("v_%s = %s", f.prop, expr), after)
 		g.w.close("}")
 	}
 }
@@ -698,6 +712,8 @@ func (g *fileGen) decodeMap(f *fieldInfo) {
 	g.w.close("}")
 	g.w.line("reader.endSection(_saved)")
 	switch {
+	case val.Kind() == protoreflect.MessageKind && g.needsRequiredCheck(val.Message()):
+		g.w.line("v_%s[_key] = _value ?: %s.decode(%s(kotlin.ByteArray(0)))", f.prop, g.elementType(val), g.rt("WireReader"))
 	case val.Kind() == protoreflect.MessageKind:
 		g.w.line("v_%s[_key] = _value ?: %s()", f.prop, g.elementType(val))
 	case closedEnum(val):
