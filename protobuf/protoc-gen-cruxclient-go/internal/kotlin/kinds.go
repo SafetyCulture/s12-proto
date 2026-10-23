@@ -297,7 +297,7 @@ func (g *fileGen) defaultLiteral(fd protoreflect.FieldDescriptor) string {
 		}
 		return g.rt("ByteString") + ".copyFrom(kotlin.byteArrayOf(" + strings.Join(parts, ", ") + "))"
 	case protoreflect.EnumKind:
-		return qualifiedName(fd.Enum(), g.root) + "." + entryName(string(defaultEnumValue(fd).Name()))
+		return QualifiedClassName(fd.Enum(), g.root) + "." + entryName(string(defaultEnumValue(fd).Name()))
 	}
 	return "null"
 }

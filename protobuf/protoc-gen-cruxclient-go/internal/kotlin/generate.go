@@ -275,9 +275,9 @@ func (f *fieldInfo) hasDeclaredDefault() bool {
 func (g *fileGen) elementType(fd protoreflect.FieldDescriptor) string {
 	switch fd.Kind() {
 	case protoreflect.MessageKind, protoreflect.GroupKind:
-		return qualifiedName(fd.Message(), g.root)
+		return QualifiedClassName(fd.Message(), g.root)
 	case protoreflect.EnumKind:
-		return qualifiedName(fd.Enum(), g.root)
+		return QualifiedClassName(fd.Enum(), g.root)
 	case protoreflect.BytesKind:
 		return g.rt("ByteString")
 	}
@@ -315,7 +315,7 @@ func (g *fileGen) message(msg protoreflect.MessageDescriptor) error {
 		return nil
 	}
 	name := escapeIdent(className(string(msg.Name())))
-	qualified := qualifiedName(msg, g.root)
+	qualified := QualifiedClassName(msg, g.root)
 
 	nested := msg.Messages()
 	enums := msg.Enums()
@@ -534,7 +534,7 @@ func (g *fileGen) sizeMethod(byNumber []*fieldInfo, qualified string) {
 
 // unrecognized returns the Kotlin type of the UNRECOGNIZED class of the enum of a field.
 func (g *fileGen) unrecognized(fd protoreflect.FieldDescriptor) string {
-	return qualifiedName(fd.Enum(), g.root) + ".UNRECOGNIZED"
+	return QualifiedClassName(fd.Enum(), g.root) + ".UNRECOGNIZED"
 }
 
 // closedEnum reports whether a field has an enum that drops a number it does not declare. Such a
@@ -666,9 +666,9 @@ func (f *fieldInfo) variant(qualified string) string {
 func (g *fileGen) readValue(fd protoreflect.FieldDescriptor, retain bool) ([]string, string) {
 	switch fd.Kind() {
 	case protoreflect.MessageKind:
-		return nil, fmt.Sprintf("reader.readMessage(%s)", qualifiedName(fd.Message(), g.root))
+		return nil, fmt.Sprintf("reader.readMessage(%s)", QualifiedClassName(fd.Message(), g.root))
 	case protoreflect.EnumKind:
-		enum := qualifiedName(fd.Enum(), g.root)
+		enum := QualifiedClassName(fd.Enum(), g.root)
 		if !retain || !closedEnum(fd) {
 			return nil, fmt.Sprintf("%s.fromNumber(reader.readInt32())", enum)
 		}
@@ -778,11 +778,11 @@ func (g *fileGen) companion(msg protoreflect.MessageDescriptor, qualified string
 				if m.fd.Message() == nil {
 					continue
 				}
-				g.w.line("%d -> if (s_%s != null) v_%s = %s(reader.readSections(%s, s_%s))", m.fd.Number(), oi.prop, oi.prop, m.variant(qualified), qualifiedName(m.fd.Message(), g.root), oi.prop)
+				g.w.line("%d -> if (s_%s != null) v_%s = %s(reader.readSections(%s, s_%s))", m.fd.Number(), oi.prop, oi.prop, m.variant(qualified), QualifiedClassName(m.fd.Message(), g.root), oi.prop)
 			}
 			g.w.close("}")
 		case !f.fd.IsMap() && !f.fd.IsList() && f.fd.Message() != nil:
-			g.w.line("if (s_%s != null) v_%s = reader.readSections(%s, s_%s)", f.prop, f.prop, qualifiedName(f.fd.Message(), g.root), f.prop)
+			g.w.line("if (s_%s != null) v_%s = reader.readSections(%s, s_%s)", f.prop, f.prop, QualifiedClassName(f.fd.Message(), g.root), f.prop)
 		}
 	}
 	args = append(args, "unknownFields = _unknown.toByteString()")
@@ -948,7 +948,7 @@ func (g *fileGen) dropUnknownMapEnums(fields []*fieldInfo) {
 
 // qualifiedValue returns the codec expression of a message.
 func (g *fileGen) qualifiedValue(fd protoreflect.FieldDescriptor) string {
-	return qualifiedName(fd.Message(), g.root)
+	return QualifiedClassName(fd.Message(), g.root)
 }
 
 // maxRequired is the number of required fields of one message that the missing-required mask holds.

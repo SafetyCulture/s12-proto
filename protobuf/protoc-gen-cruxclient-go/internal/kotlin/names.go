@@ -3,6 +3,7 @@
 package kotlin
 
 import (
+	"fmt"
 	"strings"
 	"unicode"
 
@@ -148,9 +149,10 @@ func typeName(d protoreflect.Descriptor) string {
 	return escapeIdent(className(string(d.Name())))
 }
 
-// qualifiedName returns the fully qualified Kotlin name of a message or enum. Generated
-// code uses it everywhere, so a message named String or List cannot shadow a library type.
-func qualifiedName(d protoreflect.Descriptor, root string) string {
+// QualifiedClassName returns the fully qualified Kotlin source name of a message or enum, with
+// the backticks that a hard keyword needs. Generated code uses it everywhere, so a message named
+// String or List cannot shadow a library type.
+func QualifiedClassName(d protoreflect.Descriptor, root string) string {
 	return escapePackage(kotlinPackage(d.ParentFile(), root)) + "." + typeName(d)
 }
 
@@ -158,4 +160,28 @@ func qualifiedName(d protoreflect.Descriptor, root string) string {
 // with "." between the package parts and "$" before a nested class.
 func BinaryClassName(d protoreflect.Descriptor, root string) string {
 	return kotlinPackage(d.ParentFile(), root) + "." + strings.ReplaceAll(strings.ReplaceAll(typeName(d), "`", ""), ".", "$")
+}
+
+// ValidateRoot reports an error if a root package cannot name a Kotlin package: each segment
+// must be a Kotlin identifier that is not a hard keyword.
+func ValidateRoot(root string) error {
+	for _, segment := range strings.Split(root, ".") {
+		if !isIdentifier(segment) || hardKeywords[segment] {
+			return fmt.Errorf("the root package %q is not a Kotlin package name: %q is not an identifier", root, segment)
+		}
+	}
+	return nil
+}
+
+func isIdentifier(s string) bool {
+	if s == "" {
+		return false
+	}
+	for i, r := range s {
+		if r == '_' || unicode.IsLetter(r) || (i > 0 && unicode.IsDigit(r)) {
+			continue
+		}
+		return false
+	}
+	return true
 }
