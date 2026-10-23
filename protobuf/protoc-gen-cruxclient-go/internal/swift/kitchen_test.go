@@ -202,6 +202,21 @@ func TestNames(t *testing.T) {
 	require.Equal(t, "TypeMessage", sanitizeMessageName("Type", nil))
 }
 
+func TestTrimBackticks(t *testing.T) {
+	tests := map[string]string{
+		"`":   "`",
+		"`a":  "`a",
+		"a`":  "a`",
+		"`a`": "a",
+		"a":   "a",
+	}
+	for input, want := range tests {
+		t.Run(input, func(t *testing.T) {
+			require.Equal(t, want, trimBackticks(input))
+		})
+	}
+}
+
 func TestBytecode(t *testing.T) {
 	w := newNameInstructionWriter()
 	require.True(t, w.shouldUseEmptyNameMapInitializer())
