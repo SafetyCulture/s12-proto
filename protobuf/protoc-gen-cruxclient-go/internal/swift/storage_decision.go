@@ -124,6 +124,7 @@ func (a *storageAnalyzer) containsRecursiveSingularField(m *message) bool {
 				break
 			}
 		}
+		// Keep the upstream cache overwrite behavior.
 		a.recursiveCache[d.fullName] = result
 		return result
 	}
