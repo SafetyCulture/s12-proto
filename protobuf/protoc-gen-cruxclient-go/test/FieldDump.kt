@@ -68,10 +68,16 @@ private fun kotlinEnumValue(value: Any): String =
 private fun javaEnumValue(value: Any): String =
     "${call(value, "getNumber")}:${call(value, "name")}"
 
+private fun javaOpenEnumValue(value: Any): String {
+    val number = call(value, "getNumber") as Int
+    val declared = value.javaClass.getMethod("forNumber", Int::class.javaPrimitiveType).invoke(null, number) as? Enum<*>
+    return "$number:${declared?.name ?: "UNRECOGNIZED"}"
+}
+
 private fun kotlinValue(manifest: Map<String, List<FieldInfo>>, f: FieldInfo, value: Any?): String =
     when (f.kind) {
         "bytes" -> hex(call(present(f, value), "toByteArray") as ByteArray)
-        "enum" -> if (f.openEnum) "${call(present(f, value), "getNumber")}:<number>" else kotlinEnumValue(present(f, value))
+        "enum" -> kotlinEnumValue(present(f, value))
         "message" -> dumpKotlin(manifest, present(f, value))
         else -> scalar(f.kind, value)
     }
@@ -79,7 +85,7 @@ private fun kotlinValue(manifest: Map<String, List<FieldInfo>>, f: FieldInfo, va
 private fun javaValue(manifest: Map<String, List<FieldInfo>>, f: FieldInfo, value: Any?): String =
     when (f.kind) {
         "bytes" -> hex(call(present(f, value), "toByteArray") as ByteArray)
-        "enum" -> if (f.openEnum) "${present(f, value)}:<number>" else javaEnumValue(present(f, value))
+        "enum" -> if (f.openEnum) javaOpenEnumValue(present(f, value)) else javaEnumValue(present(f, value))
         "message" -> dumpJava(manifest, present(f, value), f.messageClass)
         else -> scalar(f.kind, value)
     }

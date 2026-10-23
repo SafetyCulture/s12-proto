@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bumped Go minimum version from 1.18 to 1.24 in root module and `protoc-gen-s12perm/example`
 
 ### Fixed
+- `protoc-gen-cruxclient-go`: Kotlin wire checks compare declared names for open enum values.
 - `protoc-gen-cruxclient-go`: Kotlin collision tests cover enum entries through generated enum output.
 - `protoc-gen-cruxclient-go`: Kotlin goldens compile with warnings treated as errors.
 - `protoc-gen-cruxclient-go`: Kotlin required-field decode state is not a constructor or `copy()` argument.
