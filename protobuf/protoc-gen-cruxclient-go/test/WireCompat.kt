@@ -2,8 +2,11 @@
 
 // Compares the Kotlin message classes with the Java lite classes of the same proto files. For
 // each sample from gensamples, both classes parse the sample, every field must have the same
-// value, and both classes write it again to equal bytes in both directions. The kitchen checks at
-// the end cover edits, nesting limits, merges, encodings and required fields.
+// value, and both classes write it again to equal bytes in both directions. Two consecutive samples
+// of one message are also joined, in both orders: the join is a merge in which a singular field
+// takes the last value, a oneof takes the last member, a repeated field appends and a message field
+// merges. The kitchen checks at the end cover edits, nesting limits, merges, encodings and required
+// fields.
 import com.safetyculture.s12kt.kitchen.legacy.Legacy
 import com.safetyculture.s12kt.kitchen.legacy.Req
 import com.safetyculture.s12kt.kitchen.legacy.ReqEnum
@@ -36,7 +39,9 @@ private fun compareSamples(dir: File): Int {
     var samples = 0
     var identical = 0
     var rejected = 0
+    var merges = 0
     val covered = sortedSetOf<String>()
+    var previous: Pair<String, ByteArray>? = null
     for (line in File(dir, "index.tsv").readLines()) {
         val (kotlinName, javaName, file, fullName) = line.split('\t')
         val input = File(dir, file).readBytes()
@@ -74,12 +79,44 @@ private fun compareSamples(dir: File): Int {
             if (kBytes.contentEquals(input)) identical++
             covered += fullName
             samples++
+            val before = previous
+            previous = Pair(kotlinName, input)
+            if (before != null && before.first == kotlinName) {
+                merges += mergeChecks(kotlinClass, javaClass, before.second, input, "$fullName $file", ::fail)
+            }
         } catch (e: Throwable) {
             fail(e.toString())
         }
     }
-    println("samples=$samples messages=${covered.size} identicalToInput=$identical rejectedByBoth=$rejected failures=$failures")
+    println("samples=$samples messages=${covered.size} identicalToInput=$identical rejectedByBoth=$rejected merges=$merges failures=$failures")
     return failures + if (samples == 0) 1 else 0
+}
+
+/**
+ * Joins two encoded messages in both orders and compares the parse of the join in Kotlin and in
+ * Java lite: the same acceptance, the same value in every field and the same bytes. Returns the
+ * number of joins that it compared.
+ */
+private fun mergeChecks(kotlin: Class<*>, java: Class<*>, a: ByteArray, b: ByteArray, label: String, fail: (String) -> Unit): Int {
+    var compared = 0
+    for ((first, second, order) in listOf(Triple(a, b, "a+b"), Triple(b, a, "b+a"))) {
+        val joined = first + second
+        val k = accepts({ parse(kotlin, it) }, joined)
+        val j = accepts({ parse(java, it) }, joined)
+        if (k == null || j == null || k != j) {
+            fail("join $order: Kotlin accepted=$k, Java lite accepted=$j")
+            continue
+        }
+        if (!k) continue
+        val kMessage = parse(kotlin, joined)
+        val jMessage = parse(java, joined)
+        val kDump = dumpKotlin(manifest, kMessage)
+        val jDump = dumpJava(manifest, jMessage, kotlin.name)
+        if (kDump != jDump) fail("join $order of $label: values differ: ${firstDifference(kDump, jDump)}")
+        if (!bytesOf(kMessage).contentEquals(bytesOf(jMessage))) fail("join $order of $label: written bytes differ")
+        compared++
+    }
+    return compared
 }
 
 private typealias JScalars = com.safetyculture.s12.kitchen.v1.Scalars
