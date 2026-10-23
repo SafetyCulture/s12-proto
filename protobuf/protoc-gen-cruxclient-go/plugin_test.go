@@ -114,6 +114,17 @@ func TestInvalidOptionAddsResponseError(t *testing.T) {
 	require.Empty(t, resp.GetFile())
 }
 
+func TestSwiftGenerationErrorAddsResponseError(t *testing.T) {
+	resp, err := runPluginResponse(
+		t,
+		messageProtoSources(t),
+		[]string{"routeguide/v1/message.proto"},
+		"swift_messages,Visibility=Bogus",
+	)
+	require.NoError(t, err)
+	require.Equal(t, `cruxclient-go: swift.Generate: swift: parseOptions: unknown value "Bogus" for the option Visibility`, resp.GetError())
+}
+
 func TestDjinniYAMLEscapesNewValues(t *testing.T) {
 	output := runPluginWithParameter(t, messageProtoSources(t),
 		[]string{"routeguide/v1/message.proto"}, "swift_module=Route'Guide")
