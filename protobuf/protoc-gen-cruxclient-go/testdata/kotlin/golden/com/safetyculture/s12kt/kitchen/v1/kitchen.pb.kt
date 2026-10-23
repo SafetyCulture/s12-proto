@@ -1412,6 +1412,7 @@ public data class Outer(
     public val unknownFields_: kotlin.String = "",
     public val object_: kotlin.String = "",
     public val value: kotlin.Int = 0,
+    public val memoizedSize_: kotlin.String = "",
     /** The fields that this version of the schema does not know, kept as encoded bytes. */
     public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
 ) : com.safetyculture.s12kt.wire.WireMessage {
@@ -1438,6 +1439,7 @@ public data class Outer(
         if (this.unknownFields_.isNotEmpty()) _size += com.safetyculture.s12kt.wire.WireSize.string(10, this.unknownFields_)
         if (this.object_.isNotEmpty()) _size += com.safetyculture.s12kt.wire.WireSize.string(11, this.object_)
         if (this.value != 0) _size += com.safetyculture.s12kt.wire.WireSize.int32(12, this.value)
+        if (this.memoizedSize_.isNotEmpty()) _size += com.safetyculture.s12kt.wire.WireSize.string(13, this.memoizedSize_)
         _size += this.unknownFields.size
         this.memoizedSize = _size
         return _size
@@ -1456,6 +1458,7 @@ public data class Outer(
         if (this.unknownFields_.isNotEmpty()) writer.writeString(10, this.unknownFields_)
         if (this.object_.isNotEmpty()) writer.writeString(11, this.object_)
         if (this.value != 0) writer.writeInt32(12, this.value)
+        if (this.memoizedSize_.isNotEmpty()) writer.writeString(13, this.memoizedSize_)
         writer.writeUnknown(this.unknownFields)
     }
 
@@ -1739,6 +1742,7 @@ public data class Outer(
             var v_unknownFields_: kotlin.String = previous?.unknownFields_ ?: ""
             var v_object_: kotlin.String = previous?.object_ ?: ""
             var v_value: kotlin.Int = previous?.value ?: 0
+            var v_memoizedSize_: kotlin.String = previous?.memoizedSize_ ?: ""
             val _unknown = com.safetyculture.s12kt.wire.UnknownFields(previous?.unknownFields)
             loop@ while (true) {
                 when (val _tag = reader.readTag()) {
@@ -1779,6 +1783,9 @@ public data class Outer(
                     96 -> {
                         v_value = reader.readInt32()
                     }
+                    106 -> {
+                        v_memoizedSize_ = reader.readString()
+                    }
                     else -> reader.readUnknown(_tag, _unknown)
                 }
             }
@@ -1794,6 +1801,7 @@ public data class Outer(
                 unknownFields_ = v_unknownFields_,
                 object_ = v_object_,
                 value = v_value,
+                memoizedSize_ = v_memoizedSize_,
                 unknownFields = _unknown.toByteString(),
             )
         }

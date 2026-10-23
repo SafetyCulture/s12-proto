@@ -15,7 +15,7 @@ var hardKeywords = map[string]bool{}
 // reservedProperties are property names that clash with a member of the generated class
 // or with a method of java.lang.Object.
 var reservedProperties = map[string]bool{
-	"class": true, "serializedSize": true, "unknownFields": true,
+	"class": true, "serializedSize": true, "memoizedSize": true, "unknownFields": true,
 	"missingRequired": true, "findMissingRequired": true,
 	// The generated code names library types with their package, so a property called kotlin or com would hide them.
 	"kotlin": true, "com": true,

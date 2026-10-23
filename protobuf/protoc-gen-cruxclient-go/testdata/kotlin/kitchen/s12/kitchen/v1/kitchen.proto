@@ -160,6 +160,7 @@ message Outer {
   string unknown_fields = 10;
   string object = 11;
   int32 value = 12;
+  string memoized_size = 13;
 }
 
 // Well-known types.
