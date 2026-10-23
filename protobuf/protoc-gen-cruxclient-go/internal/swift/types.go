@@ -165,5 +165,5 @@ func (g *generator) traitsType(f *field) string {
 	case typeSint64:
 		return rt + "ProtobufSInt64"
 	}
-	panic("unknown field type")
+	panic(fmt.Sprintf("%s: unknown field type %d", f.fullName, f.typ))
 }
