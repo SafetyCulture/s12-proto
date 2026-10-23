@@ -140,14 +140,14 @@ public data class Legacy(
                 when (val _tag = reader.readTag()) {
                     0 -> break@loop
                     10 -> {
-                        v_id = reader.readString()
+                        v_id = reader.readStringLenient()
                         _missing = _missing and -2L
                     }
                     16 -> {
                         v_count = reader.readInt32()
                     }
                     26 -> {
-                        v_label = reader.readString()
+                        v_label = reader.readStringLenient()
                     }
                     32 -> {
                         val _n = reader.readInt32()
@@ -185,7 +185,7 @@ public data class Legacy(
                         _missing = _missing and -3L
                     }
                     82 -> {
-                        v_pick = com.safetyculture.s12kt.kitchen.legacy.Legacy.Pick.A(reader.readString())
+                        v_pick = com.safetyculture.s12kt.kitchen.legacy.Legacy.Pick.A(reader.readStringLenient())
                     }
                     88 -> {
                         v_pick = com.safetyculture.s12kt.kitchen.legacy.Legacy.Pick.B(reader.readInt64())
@@ -266,7 +266,7 @@ public data class Req(
                 when (val _tag = reader.readTag()) {
                     0 -> break@loop
                     10 -> {
-                        v_name = reader.readString()
+                        v_name = reader.readStringLenient()
                         _missing = _missing and -2L
                     }
                     16 -> {

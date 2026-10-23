@@ -196,10 +196,23 @@ private fun requiredChecks(): Int {
     return failures
 }
 
+/** Java lite checks the UTF-8 of a proto3 string and of a map entry. A proto2 string may hold invalid bytes. */
+private fun utf8Checks(): Int {
+    var failures = 0
+    val invalid = byteArrayOf(0x61, 0xFF.toByte(), 0xC3.toByte(), 0x62)
+    failures += same("proto2 string", { Legacy.parseFrom(it) }, { JLegacy.parseFrom(it) }, legacyId + legacyScore + delimited(3, invalid), true)
+    failures += same("proto3 string", { Scalars.parseFrom(it) }, { JScalars.parseFrom(it) }, delimited(14, invalid), false)
+    failures += same("proto3 string with valid bytes", { Scalars.parseFrom(it) }, { JScalars.parseFrom(it) }, delimited(14, "\u00e9".toByteArray()), true)
+    failures += same("proto2 map key", { ReqHolder.parseFrom(it) }, { JReqHolder.parseFrom(it) }, delimited(4, delimited(1, invalid) + delimited(2, "x".toByteArray())), false)
+    failures += same("proto2 map value", { ReqHolder.parseFrom(it) }, { JReqHolder.parseFrom(it) }, delimited(4, delimited(1, "k".toByteArray()) + delimited(2, invalid)), false)
+    return failures
+}
+
 fun main(args: Array<String>) {
     var failures = compareSamples(File(args[0]))
     failures += editChecks()
     failures += nestingChecks()
     failures += requiredChecks()
+    failures += utf8Checks()
     exitProcess(if (failures == 0) 0 else 1)
 }

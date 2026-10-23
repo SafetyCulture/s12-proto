@@ -177,6 +177,14 @@ public class WireReader(
         }
     }
 
+    /** Reads a string without a check of its UTF-8. Invalid bytes become U+FFFD, as in Java lite. */
+    public fun readStringLenient(): String {
+        val length = readLength()
+        val start = position
+        position += length
+        return buffer.decodeToString(start, start + length)
+    }
+
     public fun readBytes(): ByteString {
         val length = readLength()
         val start = position

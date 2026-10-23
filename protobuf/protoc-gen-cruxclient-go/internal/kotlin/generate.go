@@ -531,7 +531,23 @@ func (g *fileGen) readValue(fd protoreflect.FieldDescriptor, previous string, re
 			fmt.Sprintf("val _e = %s.fromNumber(_n)", enum),
 		}, "_e"
 	}
+	if fd.Kind() == protoreflect.StringKind && !validatesUTF8(fd) {
+		return nil, "reader.readStringLenient()"
+	}
 	return nil, "reader." + readMethod(fd.Kind()) + "()"
+}
+
+// validatesUTF8 reports whether a parse rejects a string field with invalid UTF-8. A map entry
+// always does. Other fields follow the resolved feature utf8_validation: proto3 verifies, proto2
+// does not.
+func validatesUTF8(fd protoreflect.FieldDescriptor) bool {
+	if fd.ContainingMessage().IsMapEntry() {
+		return true
+	}
+	if f, ok := fd.(interface{ EnforceUTF8() bool }); ok {
+		return f.EnforceUTF8()
+	}
+	return fd.Syntax() != protoreflect.Proto2
 }
 
 func (g *fileGen) companion(msg protoreflect.MessageDescriptor, qualified string, fields, required []*fieldInfo) {
