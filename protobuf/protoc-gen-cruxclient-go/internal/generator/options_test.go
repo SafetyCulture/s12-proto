@@ -166,7 +166,7 @@ func TestParseOptionsNamesAnEmptyKey(t *testing.T) {
 }
 
 func TestOptionKeysAreParsed(t *testing.T) {
-	for key := range optionKeys {
+	for key := range optionSetters {
 		opts, err := ParseOptions(key)
 		if err != nil {
 			t.Fatalf("ParseOptions(%q) returned %v", key, err)
