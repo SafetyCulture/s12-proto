@@ -250,10 +250,10 @@ func typePrefix(protoPackage string, swiftPrefix *string) string {
 	var prefix []rune
 	makeUpper := true
 	for _, c := range protoPackage {
-		switch {
-		case c == '_':
+		switch c {
+		case '_':
 			makeUpper = true
-		case c == '.':
+		case '.':
 			makeUpper = true
 			prefix = append(prefix, '_')
 		default:
