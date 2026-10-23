@@ -34,18 +34,23 @@ type parsedOptions struct {
 	kotlinMessages bool
 }
 
-var optionSetters = map[string]func(p *parsedOptions, value string){
-	"swift_module":   func(p *parsedOptions, value string) { p.SwiftModule = valueOr(value, DefaultSwiftModule) },
-	"swift_messages": func(p *parsedOptions, _ string) { p.SwiftMessages = true },
-	"kotlin_package": func(p *parsedOptions, value string) { p.KotlinPackage = valueOr(value, DefaultKotlinPackage) },
-	"kotlin_messages": func(p *parsedOptions, value string) {
-		p.KotlinMessages = value
-		p.kotlinMessages = true
-	},
-	"messages_only": func(p *parsedOptions, _ string) { p.MessagesOnly = true },
+type optionSetter struct {
+	set          func(p *parsedOptions, value string)
+	acceptsValue bool
 }
 
-var swiftOptionKeys = map[string]bool{
+var optionSetters = map[string]optionSetter{
+	"swift_module":   {set: func(p *parsedOptions, value string) { p.SwiftModule = valueOr(value, DefaultSwiftModule) }, acceptsValue: true},
+	"swift_messages": {set: func(p *parsedOptions, _ string) { p.SwiftMessages = true }},
+	"kotlin_package": {set: func(p *parsedOptions, value string) { p.KotlinPackage = valueOr(value, DefaultKotlinPackage) }, acceptsValue: true},
+	"kotlin_messages": {set: func(p *parsedOptions, value string) {
+		p.KotlinMessages = value
+		p.kotlinMessages = true
+	}, acceptsValue: true},
+	"messages_only": {set: func(p *parsedOptions, _ string) { p.MessagesOnly = true }},
+}
+
+var SwiftOptionKeys = map[string]bool{
 	"EnumGeneration":                           true,
 	"ExperimentalHiddenNames":                  true,
 	"FileNaming":                               true,
@@ -59,7 +64,8 @@ var swiftOptionKeys = map[string]bool{
 
 // IsOptionKey reports whether key is a plugin option.
 func IsOptionKey(key string) bool {
-	return optionSetters[key] != nil || key == "paths"
+	_, ok := optionSetters[key]
+	return ok || key == "paths"
 }
 
 // ParseOptions reads a comma-separated protoc parameter string.
@@ -76,17 +82,17 @@ func ParseOptions(parameter string) (Options, error) {
 			}
 			return Options{}, fmt.Errorf("cruxclient-go: empty option key in %q", item)
 		}
-		if set := optionSetters[key]; set != nil {
-			if hasValue && (key == "swift_messages" || key == "messages_only") {
+		if setter, ok := optionSetters[key]; ok {
+			if hasValue && !setter.acceptsValue {
 				return Options{}, fmt.Errorf("cruxclient-go: option %q does not accept a value", key)
 			}
-			set(&parsed, value)
+			setter.set(&parsed, value)
 			continue
 		}
 		if key == "paths" {
 			continue
 		}
-		if swiftOptionKeys[key] {
+		if SwiftOptionKeys[key] {
 			if firstSwiftOption == "" {
 				firstSwiftOption = key
 			}

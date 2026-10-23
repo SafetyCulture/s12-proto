@@ -186,6 +186,26 @@ func TestParseOptions(t *testing.T) {
 	}
 }
 
+func TestGeneratorSwiftOptionKeysParse(t *testing.T) {
+	values := map[string]string{
+		"EnumGeneration":                           "None",
+		"ExperimentalHiddenNames":                  "Fields",
+		"FileNaming":                               "FullPath",
+		"ImplementationOnlyImports":                "false",
+		"ProtoPathModuleMappings":                  "",
+		"SwiftProtobufModuleName":                  "SPB",
+		"UseAccessLevelOnImports":                  "false",
+		"Visibility":                               "internal",
+		"experimental_strip_nonfunctional_codegen": "",
+	}
+	for key := range cruxgen.SwiftOptionKeys {
+		t.Run(key, func(t *testing.T) {
+			_, err := parseOptions("swift_messages,"+key+"="+values[key], cruxgen.IsOptionKey)
+			require.NoError(t, err)
+		})
+	}
+}
+
 func TestNames(t *testing.T) {
 	require.Equal(t, "S12ASSETSAsset", sanitizeMessageName("S12ASSETS"+"Asset", map[string]bool{"SwiftProtobuf": true}))
 	require.Equal(t, "assetID", toLowerCamelCase("asset_id"))
