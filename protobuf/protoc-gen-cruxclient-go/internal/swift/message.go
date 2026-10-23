@@ -94,6 +94,7 @@ func (mg *messageGen) generateMainStruct(p *printer) error {
 		conformances = append(conformances, rt+"ExtensibleMessage")
 	}
 	if mg.storage != nil {
+		// Storage classes use copy-on-write semantics, so this Sendable conformance is safe.
 		conformances = append(conformances, "@unchecked Sendable")
 	} else {
 		conformances = append(conformances, "Sendable")

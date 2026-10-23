@@ -238,6 +238,7 @@ func (mf *messageFieldGen) generateTraverse(p *printer) {
 		case typeString, typeBytes:
 			conditional = "!" + varName + ".isEmpty"
 		case typeFloat, typeDouble:
+			// bitPattern preserves the wire form of -0.0.
 			conditional = varName + ".bitPattern != 0"
 		default:
 			conditional = varName + " != " + mf.swiftDefaultValue

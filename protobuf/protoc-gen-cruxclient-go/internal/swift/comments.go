@@ -133,6 +133,7 @@ func (g *generator) enumComments(e *enum) string {
 func (g *generator) enumValueComments(v *enumValue) string {
 	deprecation := ""
 	if v.proto.GetOptions().GetDeprecated() {
+		// The missing period matches upstream output.
 		deprecation = "/// NOTE: This enum value was marked as deprecated in the .proto file\n"
 	}
 	return g.commentsWithDeprecation(v.enum.file, v.locationPath(), deprecation)
