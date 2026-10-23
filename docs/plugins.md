@@ -109,7 +109,7 @@ make install-cruxclient
 
 **Purpose**: Go port of `protoc-gen-cruxclient`. Generates identical output using the `bufbuild/protoplugin` framework — no C++ toolchain required. With no option, the output is the output of `protoc-gen-cruxclient` on `master`. The options below are only in this plugin.
 
-**Generates**: `.crux.api.h`, `.crux.api.cc`, `.mock.h`, `.djinni.yaml`, `.djinni.objc.h`, `.djinni.jni.h`, and `.djinni.swiftxx.h` (only with the `swift_module` option), `.djinni.kotlin.jni.h` (only with the `kotlin_package` option), and one `.pb.kt` file for each proto file with a message or an enum, with the runtime file `<root>/wire/S12Wire.kt` and the shrinker keep rules `<root>/s12kt.pro` (only with the `kotlin_messages` option)
+**Generates**: `.crux.api.h`, `.crux.api.cc`, `.mock.h`, `.djinni.yaml`, `.djinni.objc.h`, `.djinni.jni.h`, and `.djinni.swiftxx.h` (only with the `swift_module` option), `.djinni.kotlin.jni.h` (only with the `kotlin_package` option), and one `.pb.kt` file for each proto file with a message or an enum, with the runtime file `<root>/wire/S12Wire.kt` and the shrinker keep rules `<root>/s12kt.pro` (only with the `kotlin_messages` option), and one `.pb.swift` file for each proto file (only with the `swift_messages` option)
 
 **Install**:
 ```sh
@@ -133,6 +133,17 @@ protoc \
   --cruxclient-go_out=swift_module=S12Protos:. \
   path/to/*.proto
 ```
+
+**Option `swift_messages`**: Writes the Swift messages, one `.pb.swift` file for each proto file in the request. The output is the output of `protoc-gen-swift` 1.38.1, byte for byte, for the same descriptors. It has declarations only. The SwiftProtobuf library is the runtime that encodes and decodes the messages, so the iOS app links the same SwiftProtobuf version, 1.38.1. A bare `swift_messages` uses the module name `S12Protos`. `swift_messages=<Name>` sets the module name that compiles the files. The plugin does not use the name in the files, because `protoc-gen-swift` does not. The option is independent of `swift_module`, which writes the Djinni blocks. With the option off, the output does not change.
+```sh
+protoc \
+  -I. \
+  --cruxclient-go_out=swift_messages,messages_only,Visibility=Public,FileNaming=PathToUnderscores:. \
+  path/to/*.proto
+```
+The options `Visibility`, `FileNaming`, `EnumGeneration`, `SwiftProtobufModuleName`, `ImplementationOnlyImports`, `UseAccessLevelOnImports`, `ExperimentalHiddenNames` and `experimental_strip_nonfunctional_codegen` have the meaning that they have in `protoc-gen-swift`. The plugin stops with an error for an unknown option of that list, as `protoc-gen-swift` does, and for `ProtoPathModuleMappings`, because all files of a run belong to one Swift module. The type names come from the file option `swift_prefix`, or from the proto package if the option is absent. The Crux codegen sets `swift_prefix` to the `objc_class_prefix` of the file, so the Swift name of a message (`S12ASSETSAsset`) is the Objective-C name. The plugin must get the descriptors with the source info, to write the comments of the proto files. `buf` and `protoc` do this. Proto2, proto3 and editions 2023 files are supported.
+
+**Test of `swift_messages`**: `go test ./internal/swift` compares the output with golden files of `protoc-gen-swift` 1.38.1: the 530 files of the Crux whitelist (`internal/swift/testdata/golden`) and a set of protos with groups, extensions, message sets, defaults, oneofs and editions (`internal/swift/testdata/kitchen`). The test lists each file that differs. `internal/swift/testdata/regen.sh` writes the golden files again, and `README.md` in that directory has the versions of the inputs. `regen-control.sh` and the variables `CRUX_SWIFT_CONTROL_IMAGE` and `CRUX_SWIFT_CONTROL_DIR` add the same comparison for the 1490 files of the whole schema without prefixes. `check-off-identity.sh <ref>` shows that the output with the option off is the output of an earlier version.
 
 **Option `kotlin_package`**: Turns on the Kotlin output for the Djinni bindings of the pure Kotlin messages. Use the option `kotlin_messages` for the Kotlin messages. A bare `kotlin_package` uses the root package `com.safetyculture.s12kt`. `kotlin_package=<Root>` sets the root package. With the option on, each `.djinni.yaml` record gets `kotlinTranslator`, `kotlinHeader` and `kotlinTypeSignature` keys in its `jni:` block and a `jniTypename` key in its `kotlin:` block, and the plugin writes `.djinni.kotlin.jni.h`. The Kotlin translator moves a message as serialized bytes between C++ and the Kotlin class, with `toByteArray()` and `parseFrom(ByteArray)`. A parse or serialize failure, a null or wrong-type Kotlin object, and a message with a missing required field throw `std::runtime_error`, which djinni converts to a Java exception. With the option on, each record has `deriving(eq, parcelable)` without `ord`, because a Kotlin message class does not implement `Comparable`. A Djinni record that derives `ord` and has a field of a protobuf type does not generate. With the option off, the output does not change.
 
