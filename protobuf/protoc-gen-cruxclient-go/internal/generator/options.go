@@ -59,6 +59,9 @@ func ParseOptions(parameter string) (Options, error) {
 			return Options{}, fmt.Errorf("cruxclient-go: unknown option %q", key)
 		}
 	}
+	if opts.MessagesOnly && !kotlinMessages {
+		return Options{}, fmt.Errorf("cruxclient-go: messages_only requires kotlin_messages")
+	}
 	if opts.KotlinPackage != "" {
 		if err := kotlin.ValidateRoot(opts.KotlinPackage); err != nil {
 			return Options{}, err

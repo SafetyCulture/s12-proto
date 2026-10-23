@@ -81,7 +81,6 @@ func TestParseKotlinMessages(t *testing.T) {
 		{"kotlin_messages=a.b,kotlin_messages=c.d", "c.d", false},
 		{"kotlin_messages=a.b,kotlin_messages", DefaultKotlinPackage, false},
 		{"kotlin_messages, messages_only", DefaultKotlinPackage, true},
-		{"messages_only", "", true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.parameter, func(t *testing.T) {
@@ -105,6 +104,9 @@ func TestParseOptionsRejectsInvalidInput(t *testing.T) {
 		"unknown=value",
 		"messages_only=",
 		"messages_only=false",
+		"messages_only",
+		"kotlin_package,messages_only",
+		"swift_module,messages_only",
 		"kotlin_package=com/example",
 		"kotlin_package=com..example",
 		"kotlin_package=class",

@@ -407,7 +407,7 @@ func TestMessagesOnly(t *testing.T) {
 	for _, name := range names {
 		require.Equal(t, withOutputs[name], out[name], name)
 	}
-	require.Empty(t, kitchenOutput(t, "messages_only"))
+	requirePluginResponseError(t, []string{"testdata/kotlin/kitchen"}, "messages_only", "messages_only requires kotlin_messages", kitchenFiles...)
 }
 
 // wideMessage writes a proto file whose only message has count fields of the given type.

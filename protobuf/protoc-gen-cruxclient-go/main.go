@@ -42,14 +42,13 @@ func handle(
 		responseWriter.AddError(err.Error())
 		return nil
 	}
-	if err := generator.ValidateDjinniNames(fileDescriptors, opts); err != nil {
-		responseWriter.AddError(err.Error())
-		return nil
-	}
-
 	cruxclientFiles := fileDescriptors
 	if opts.MessagesOnly {
 		cruxclientFiles = nil
+	}
+	if err := generator.ValidateDjinniNames(cruxclientFiles, opts); err != nil {
+		responseWriter.AddError(err.Error())
+		return nil
 	}
 	for _, fileDesc := range cruxclientFiles {
 		if fileDesc.Services().Len() == 0 {

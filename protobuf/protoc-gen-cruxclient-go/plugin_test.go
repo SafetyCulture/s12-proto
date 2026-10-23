@@ -745,3 +745,13 @@ func TestKotlinYAMLRecordsHaveNoOrd(t *testing.T) {
 	require.Equal(t, 7, strings.Count(on, withoutOrd))
 	require.NotContains(t, on, withOrd)
 }
+
+// TestMessagesOnlySkipsDjinniNameRules checks that a run without glue output does not apply the
+// name rules of the glue.
+func TestMessagesOnlySkipsDjinniNameRules(t *testing.T) {
+	resp, err := runPluginResponse(t,
+		map[string]string{"test.proto": "syntax = \"proto3\";\npackage std.v1;\nmessage Message {}\n"},
+		[]string{"test.proto"}, "kotlin_package,kotlin_messages,messages_only")
+	require.NoError(t, err)
+	require.Empty(t, resp.GetError())
+}
