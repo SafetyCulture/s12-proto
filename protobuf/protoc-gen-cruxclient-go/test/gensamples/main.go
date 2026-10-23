@@ -64,7 +64,7 @@ func main() {
 					fill(r, m, 0)
 				}
 				if proto.CheckInitialized(m) != nil {
-					continue
+					check(fmt.Errorf("cannot initialize sample for %s", md.FullName()))
 				}
 				if i%4 == 3 {
 					m.SetUnknown(unknownBytes(r))
@@ -79,6 +79,7 @@ func main() {
 		})
 	}
 	check(os.WriteFile(filepath.Join(*out, "index.tsv"), []byte(index.String()), 0o644))
+	check(os.WriteFile(filepath.Join(*out, "sample-count.txt"), []byte(fmt.Sprintf("%d\n", count)), 0o644))
 
 	var closure []string
 	for path := range reach {

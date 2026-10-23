@@ -42,6 +42,7 @@ func (w *writer) close(format string, args ...any) {
 
 // doc writes a KDoc comment. The comment text of a proto uses "//" markers already removed.
 func (w *writer) doc(comment string) {
+	comment = strings.ReplaceAll(comment, "\r", "")
 	comment = strings.TrimRight(comment, "\n ")
 	if strings.TrimSpace(comment) == "" {
 		return

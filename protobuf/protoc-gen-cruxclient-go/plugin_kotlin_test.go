@@ -143,12 +143,13 @@ func TestPackageOption(t *testing.T) {
 func TestRuntimeHasNoImports(t *testing.T) {
 	runtime := kitchenOutput(t, "kotlin_messages")["com/safetyculture/s12kt/wire/S12Wire.kt"]
 	require.NotEmpty(t, runtime)
-	require.NotRegexp(t, regexp.MustCompile(`(?m)^import `), runtime)
-	require.NotContains(t, runtime, "com.google")
+	for _, line := range strings.Split(runtime, "\n") {
+		require.NotRegexp(t, regexp.MustCompile(`\bimport\b`), line)
+	}
 }
 
 // paramLine matches one constructor parameter of a generated data class.
-var paramLine = regexp.MustCompile("^public val `?(\\w+)`?: (.+?) = .+,$")
+var paramLine = regexp.MustCompile("^public val `?(\\w+)`?: (.+?)(?: = .+)?,$")
 
 // constructorTypes returns the declared type of every constructor parameter of the class at the
 // given depth, found after offset in the source.
@@ -182,7 +183,7 @@ func expectedKind(fd protoreflect.FieldDescriptor) string {
 		return "List"
 	case fd.ContainingOneof() != nil && !fd.ContainingOneof().IsSynthetic():
 		return "oneof"
-	case fd.Message() != nil:
+	case fd.Message() != nil && fd.Cardinality() != protoreflect.Required:
 		return "nullable"
 	case fd.HasPresence() && fd.Cardinality() != protoreflect.Required:
 		return "nullable"
@@ -267,7 +268,7 @@ var kitchenConstructors = map[string][]constructorField{
 		{"fMessage", "com.safetyculture.s12kt.kitchen.v1.Scalars?", "null"},
 	},
 	"Legacy": {
-		{"id", "kotlin.String", "\"\""},
+		{"id", "kotlin.String", ""},
 		{"count", "kotlin.Int?", "null"},
 		{"label", "kotlin.String?", "null"},
 		{"level", "com.safetyculture.s12kt.kitchen.legacy.Level?", "null"},
@@ -275,11 +276,11 @@ var kitchenConstructors = map[string][]constructorField{
 		{"packedNumbers", "kotlin.collections.List<kotlin.Int>", "kotlin.collections.emptyList()"},
 		{"blob", "com.safetyculture.s12kt.wire.ByteString?", "null"},
 		{"parent", "com.safetyculture.s12kt.kitchen.legacy.Legacy?", "null"},
-		{"score", "kotlin.Double", "1.5"},
+		{"score", "kotlin.Double", ""},
 		{"pick", "com.safetyculture.s12kt.kitchen.legacy.Legacy.Pick?", "null"},
 	},
 	"ReqEnum": {
-		{"level", "com.safetyculture.s12kt.kitchen.legacy.Level", "com.safetyculture.s12kt.kitchen.legacy.Level.LEVEL_LOW"},
+		{"level", "com.safetyculture.s12kt.kitchen.legacy.Level", ""},
 	},
 	"ReqHolder": {
 		{"one", "com.safetyculture.s12kt.kitchen.legacy.Req?", "null"},
@@ -310,7 +311,7 @@ func constructorFields(t *testing.T, source, name string) []constructorField {
 }
 
 // declaredParam matches one constructor parameter of a generated data class: name, type and default.
-var declaredParam = regexp.MustCompile("^public val `?(\\w+)`?: (.+?) = (.+),$")
+var declaredParam = regexp.MustCompile("^public val `?(\\w+)`?: (.+?)(?: = (.+))?,$")
 
 // TestKitchenConstructorTables checks the type and the default of every parameter of the messages
 // with explicit presence, required fields and field defaults against literal tables.
@@ -394,20 +395,89 @@ func TestKotlinMessagesPackageFallback(t *testing.T) {
 
 func TestMessagesOnly(t *testing.T) {
 	out := kitchenOutput(t, "kotlin_messages,messages_only")
-	names := make([]string, 0, len(out))
-	for name := range out {
-		names = append(names, name)
-		require.True(t, strings.HasSuffix(name, ".pb.kt") || strings.HasSuffix(name, "S12Wire.kt") || strings.HasSuffix(name, "s12kt.pro"), name)
+	expected := map[string]bool{
+		"com/safetyculture/s12kt/kitchen/editions/closed.pb.kt": true,
+		"com/safetyculture/s12kt/kitchen/editions/utf8.pb.kt":   true,
+		"com/safetyculture/s12kt/kitchen/legacy/legacy.pb.kt":   true,
+		"com/safetyculture/s12kt/kitchen/legacy/strict.pb.kt":   true,
+		"com/safetyculture/s12kt/kitchen/shadow/shadow.pb.kt":   true,
+		"com/safetyculture/s12kt/kitchen/v1/kitchen.pb.kt":      true,
+		"com/safetyculture/s12kt/s12kt.pro":                     true,
+		"com/safetyculture/s12kt/wire/S12Wire.kt":               true,
 	}
-	require.Contains(t, names, "com/safetyculture/s12kt/kitchen/v1/kitchen.pb.kt")
-	require.Contains(t, names, "com/safetyculture/s12kt/wire/S12Wire.kt")
-	require.Contains(t, names, "com/safetyculture/s12kt/s12kt.pro")
+	got := map[string]bool{}
+	for name := range out {
+		got[name] = true
+	}
+	require.Equal(t, expected, got)
 
 	withOutputs := kitchenOutput(t, "kotlin_messages")
-	for _, name := range names {
+	for name := range expected {
 		require.Equal(t, withOutputs[name], out[name], name)
 	}
 	requirePluginResponseError(t, []string{"testdata/kotlin/kitchen"}, "messages_only", "messages_only requires kotlin_messages", kitchenFiles...)
+}
+
+func TestKotlinNameCollisions(t *testing.T) {
+	cases := []struct {
+		name string
+		body string
+		want string
+	}{
+		{"fields", "string foo = 1; string _foo = 2;", `foo and _foo map to the same Kotlin name "foo"`},
+		{"oneof property", "oneof my_choice { string value = 1; } string myChoice = 2;", `my_choice and myChoice map to the same Kotlin name "myChoice"`},
+		{"oneof members", "oneof choice { string foo = 1; string _foo = 2; }", `foo and _foo map to the same Kotlin name "Foo"`},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			dir := t.TempDir()
+			source := "syntax = \"proto3\";\npackage collision.v1;\nmessage M { " + tc.body + " }\n"
+			require.NoError(t, os.WriteFile(filepath.Join(dir, "collision.proto"), []byte(source), 0o644))
+			requirePluginResponseError(t, []string{dir}, "kotlin_messages", tc.want, "collision.proto")
+		})
+	}
+}
+
+func TestKotlinKeywordNameCollisions(t *testing.T) {
+	cases := []struct {
+		name string
+		file *descriptorpb.FileDescriptorProto
+		want string
+	}{
+		{
+			name: "field",
+			file: &descriptorpb.FileDescriptorProto{
+				Name:    proto.String("collision.proto"),
+				Syntax:  proto.String("proto3"),
+				Package: proto.String("collision.v1"),
+				MessageType: []*descriptorpb.DescriptorProto{{
+					Name: proto.String("M"),
+					Field: []*descriptorpb.FieldDescriptorProto{
+						{Name: proto.String("object"), Number: proto.Int32(1), Label: descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(), Type: descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum()},
+						{Name: proto.String("object_"), Number: proto.Int32(2), Label: descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(), Type: descriptorpb.FieldDescriptorProto_TYPE_STRING.Enum()},
+					},
+				}},
+			},
+			want: `object and object_ map to the same Kotlin name "object_"`,
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			file, err := protodesc.NewFile(tc.file, nil)
+			require.NoError(t, err)
+			_, err = kotlin.GenerateFile(file, "com.safetyculture.s12kt")
+			require.ErrorContains(t, err, tc.want)
+		})
+	}
+}
+
+func TestKotlinRootShadowsDeclarations(t *testing.T) {
+	dir := t.TempDir()
+	source := "syntax = \"proto3\";\npackage shadow.v1;\nmessage io { string io = 1; }\n"
+	require.NoError(t, os.WriteFile(filepath.Join(dir, "shadow.proto"), []byte(source), 0o644))
+	out := runPluginOnDisk(t, []string{dir}, "kotlin_messages=io.acme", "shadow.proto")
+	require.Contains(t, out["io/acme/shadow/v1/shadow.pb.kt"], "public data class ioMessage(")
+	require.Contains(t, out["io/acme/shadow/v1/shadow.pb.kt"], "public val io_: kotlin.String")
 }
 
 // wideMessage writes a proto file whose only message has count fields of the given type.

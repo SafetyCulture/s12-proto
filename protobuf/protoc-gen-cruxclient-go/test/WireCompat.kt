@@ -15,6 +15,7 @@ import com.safetyculture.s12kt.kitchen.legacy.Strict
 import com.safetyculture.s12kt.kitchen.legacy.Req
 import com.safetyculture.s12kt.kitchen.legacy.ReqEnum
 import com.safetyculture.s12kt.kitchen.legacy.ReqHolder
+import com.safetyculture.s12kt.kitchen.legacy.RequiredMessage
 import com.safetyculture.s12kt.kitchen.v1.Color
 import com.safetyculture.s12kt.kitchen.v1.Maps
 import com.safetyculture.s12kt.kitchen.v1.OptionalScalars
@@ -22,6 +23,8 @@ import com.safetyculture.s12kt.kitchen.v1.Oneofs
 import com.safetyculture.s12kt.kitchen.v1.Repeated
 import com.safetyculture.s12kt.kitchen.v1.Scalars
 import com.safetyculture.s12kt.wire.InvalidWireException
+import com.safetyculture.s12kt.wire.UninitializedMessageException
+import com.safetyculture.s12kt.wire.WireReader
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.lang.reflect.InvocationTargetException
@@ -45,8 +48,11 @@ private fun compareSamples(dir: File): Int {
     var rejected = 0
     var merges = 0
     val covered = sortedSetOf<String>()
+    val expected = File(dir, "sample-count.txt").readText().trim().toInt()
+    var records = 0
     var previous: Pair<String, ByteArray>? = null
     for (line in File(dir, "index.tsv").readLines()) {
+        records++
         val (kotlinName, javaName, file, fullName) = line.split('\t')
         val input = File(dir, file).readBytes()
         fun fail(what: String) {
@@ -92,7 +98,11 @@ private fun compareSamples(dir: File): Int {
             fail(e.toString())
         }
     }
-    println("samples=$samples messages=${covered.size} identicalToInput=$identical rejectedByBoth=$rejected merges=$merges failures=$failures")
+    if (records != expected) {
+        failures++
+        println("FAIL sample index has $records records, gensamples wrote $expected")
+    }
+    println("samples=$records expected=$expected accepted=$samples messages=${covered.size} identicalToInput=$identical rejectedByBoth=$rejected merges=$merges failures=$failures")
     return failures + if (samples == 0) 1 else 0
 }
 
@@ -364,6 +374,13 @@ private fun valueChecks(): Int {
     oneofs("a oneof message merged with itself", delimited(4, scalarsPart1) + delimited(4, scalarsPart2))
     oneofs("a oneof message replaced and then set again", delimited(4, scalarsPart1) + vint(3, 1) + delimited(4, scalarsPart2))
     oneofs("a oneof message with unknown fields in both parts", delimited(4, scalarsPart1 + vint(100, 1)) + delimited(4, scalarsPart2 + vint(101, 2)))
+    failures += same(
+        "oneof malformed message member then another member",
+        { Oneofs.parseFrom(it) },
+        { JOneofs.parseFrom(it) },
+        delimited(4, delimited(14, byteArrayOf(0xFF.toByte()))) + delimited(2, "x".toByteArray()),
+        false,
+    )
     oneofs("two oneofs set", delimited(2, "a".toByteArray()) + vint(20, 1))
     optional("a message field merged with itself", delimited(17, scalarsPart1) + delimited(17, scalarsPart2))
     optional("a message field set to an empty message after a value", delimited(17, scalarsPart1) + delimited(17, ByteArray(0)))
@@ -387,6 +404,13 @@ private fun valueChecks(): Int {
         Maps::class.java,
         JMaps::class.java,
         delimited(8, vint(1, 1) + delimited(2, scalarsPart1)) + delimited(8, vint(1, 1) + delimited(2, scalarsPart2)),
+        true,
+    )
+    failures += sameValues(
+        "Maps an entry with two value messages",
+        Maps::class.java,
+        JMaps::class.java,
+        byteArrayOf(0x42, 0x0D, 0x0D, 1, 0, 0, 0, 0x12, 2, 0x18, 1, 0x12, 2, 0x20, 2),
         true,
     )
     return failures
@@ -512,19 +536,36 @@ private fun malformedChecks(): Int {
     return failures
 }
 
-/** A caller that changes a list after the message cached its size gets an IllegalStateException, not a corrupt array. */
+/** A caller can change a list after a size read without corrupting a later encode. */
 private fun staleSizeChecks(): Int {
     val values = mutableListOf(1, 2, 3)
     val message = Repeated(fInt32 = values)
     message.getSerializedSize()
     values.addAll(listOf(300, 400, 500))
-    val refused = try {
-        message.toByteArray()
+    return check(
+        "a list changed after a size read writes the current list",
+        JRepeated.parseFrom(message.toByteArray()).fInt32List == values,
+    )
+}
+
+private fun requiredEncodeChecks(): Int {
+    val missingMessage = try {
+        RequiredMessage.decode(WireReader(ByteArray(0))).toByteArray()
         false
-    } catch (e: IllegalStateException) {
+    } catch (e: UninitializedMessageException) {
         true
     }
-    return check("a list changed after the size was cached throws IllegalStateException", refused)
+    val missingScalar = try {
+        Req.decode(WireReader(reqNoName)).toByteArray()
+        false
+    } catch (e: UninitializedMessageException) {
+        true
+    }
+    val explicitDefault = Req(name = "").toByteArray().contentEquals(JReq.newBuilder().setName("").build().toByteArray())
+    var failures = check("a required message field that is null is refused on encode", missingMessage)
+    failures += check("a required scalar field that is missing is refused on encode", missingScalar)
+    failures += check("a required scalar set to its default is encoded", explicitDefault)
+    return failures
 }
 
 fun main(args: Array<String>) {
@@ -537,6 +578,7 @@ fun main(args: Array<String>) {
     failures += valueChecks()
     failures += mapEnumChecks()
     failures += javaUtf8Checks()
+    failures += requiredEncodeChecks()
     failures += malformedChecks()
     failures += staleSizeChecks()
     exitProcess(if (failures == 0) 0 else 1)

@@ -57,6 +57,13 @@ func className(name string) string {
 	return name
 }
 
+func classNameForRoot(name, root string) string {
+	if name == rootFirstSegment(root) {
+		return name + "Message"
+	}
+	return className(name)
+}
+
 // SimpleClassName returns the name that a message or enum has as a class declaration, with the
 // backticks that a hard keyword needs.
 func SimpleClassName(d protoreflect.Descriptor) string {
@@ -142,24 +149,24 @@ func escapePackage(pkg string) string {
 }
 
 // typeName returns the name of a message or enum inside its package, "Outer.Inner" for a nested one.
-func typeName(d protoreflect.Descriptor) string {
+func typeName(d protoreflect.Descriptor, root string) string {
 	if parent, ok := d.Parent().(protoreflect.MessageDescriptor); ok {
-		return typeName(parent) + "." + escapeIdent(className(string(d.Name())))
+		return typeName(parent, root) + "." + escapeIdent(classNameForRoot(string(d.Name()), root))
 	}
-	return escapeIdent(className(string(d.Name())))
+	return escapeIdent(classNameForRoot(string(d.Name()), root))
 }
 
 // QualifiedClassName returns the fully qualified Kotlin source name of a message or enum, with
 // the backticks that a hard keyword needs. Generated code uses it everywhere, so a message named
 // String or List cannot shadow a library type.
 func QualifiedClassName(d protoreflect.Descriptor, root string) string {
-	return escapePackage(kotlinPackage(d.ParentFile(), root)) + "." + typeName(d)
+	return escapePackage(kotlinPackage(d.ParentFile(), root)) + "." + typeName(d, root)
 }
 
 // BinaryClassName returns the JVM binary name of the Kotlin class of a message or enum,
 // with "." between the package parts and "$" before a nested class.
 func BinaryClassName(d protoreflect.Descriptor, root string) string {
-	return kotlinPackage(d.ParentFile(), root) + "." + strings.ReplaceAll(strings.ReplaceAll(typeName(d), "`", ""), ".", "$")
+	return kotlinPackage(d.ParentFile(), root) + "." + strings.ReplaceAll(strings.ReplaceAll(typeName(d, root), "`", ""), ".", "$")
 }
 
 // ValidateRoot reports an error if a root package cannot name a Kotlin package: each segment

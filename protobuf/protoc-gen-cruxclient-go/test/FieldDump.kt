@@ -62,10 +62,16 @@ private fun scalar(kind: String, value: Any?): String =
 
 private fun present(f: FieldInfo, value: Any?): Any = checkNotNull(value) { "field #${f.number} has a null ${f.kind} value" }
 
+private fun kotlinEnumValue(value: Any): String =
+    "${call(value, "getNumber")}:${call(value, "getName")}"
+
+private fun javaEnumValue(value: Any): String =
+    "${call(value, "getNumber")}:${call(value, "name")}"
+
 private fun kotlinValue(manifest: Map<String, List<FieldInfo>>, f: FieldInfo, value: Any?): String =
     when (f.kind) {
         "bytes" -> hex(call(present(f, value), "toByteArray") as ByteArray)
-        "enum" -> (call(present(f, value), "getNumber") as Int).toString()
+        "enum" -> if (f.openEnum) "${call(present(f, value), "getNumber")}:<number>" else kotlinEnumValue(present(f, value))
         "message" -> dumpKotlin(manifest, present(f, value))
         else -> scalar(f.kind, value)
     }
@@ -73,7 +79,7 @@ private fun kotlinValue(manifest: Map<String, List<FieldInfo>>, f: FieldInfo, va
 private fun javaValue(manifest: Map<String, List<FieldInfo>>, f: FieldInfo, value: Any?): String =
     when (f.kind) {
         "bytes" -> hex(call(present(f, value), "toByteArray") as ByteArray)
-        "enum" -> if (f.openEnum) value.toString() else (call(present(f, value), "getNumber") as Int).toString()
+        "enum" -> if (f.openEnum) "${present(f, value)}:<number>" else javaEnumValue(present(f, value))
         "message" -> dumpJava(manifest, present(f, value), f.messageClass)
         else -> scalar(f.kind, value)
     }
