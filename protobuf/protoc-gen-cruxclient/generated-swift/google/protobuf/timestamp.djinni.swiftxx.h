@@ -2,26 +2,34 @@
 #pragma once
 #include "djinni_support.hpp"
 #include "google/protobuf/timestamp.pb.h"
+#include <climits>
+#include <string>
+#include <utility>
 
 namespace djinni::swift::google::protobuf::Timestamp {
 struct Translator {
   using CppType = ::google::protobuf::Timestamp;
 
-  static CppType toCpp(const AnyValue& value) {
-    const auto& bytes = std::get<BinaryValue>(value);
+  static CppType toCpp(const ::djinni::swift::AnyValue& value) {
+    const auto& bytes = std::get<::djinni::swift::BinaryValue>(value);
     CppType cpp_message;
-    if (!cpp_message.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()))) {
-      throw ErrorValue(std::string("failed to parse protobuf type ") + std::string(cpp_message.GetTypeName()));
+    if (bytes.size() > static_cast<size_t>(INT_MAX) ||
+        !cpp_message.ParseFromArray(bytes.data(), static_cast<int>(bytes.size()))) {
+      throw ::djinni::swift::ErrorValue(std::string("failed to parse protobuf type ") + std::string(cpp_message.GetTypeName()));
     }
     return cpp_message;
   }
 
-  static AnyValue fromCpp(const CppType& message) {
-    BinaryValue bytes(message.ByteSizeLong());
-    if (!message.SerializeToArray(bytes.data(), static_cast<int>(bytes.size()))) {
-      return ErrorValue(std::string("failed to serialize protobuf type ") + std::string(message.GetTypeName()));
+  static ::djinni::swift::AnyValue fromCpp(const CppType& message) {
+    const size_t size = message.ByteSizeLong();
+    if (size > static_cast<size_t>(INT_MAX)) {
+      throw ::djinni::swift::ErrorValue(std::string("failed to serialize protobuf type ") + std::string(message.GetTypeName()));
     }
-    return {bytes};
+    ::djinni::swift::BinaryValue bytes(size);
+    if (!message.SerializeToArray(bytes.data(), static_cast<int>(size))) {
+      throw ::djinni::swift::ErrorValue(std::string("failed to serialize protobuf type ") + std::string(message.GetTypeName()));
+    }
+    return {std::move(bytes)};
   }
 };
 }  //namespace djinni::swift::google::protobuf::Timestamp
