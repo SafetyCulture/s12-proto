@@ -260,6 +260,9 @@ func TestEscapedDataLiteralNamesNonOctalByte(t *testing.T) {
 	require.PanicsWithValue(t, "non-octal byte 'x' in an octal escape", func() {
 		escapedToDataLiteral(`\00x`)
 	})
+	require.PanicsWithValue(t, "truncated escape", func() {
+		escapedToDataLiteral(`\0`)
+	})
 
 	broken := &descriptorpb.FileDescriptorProto{
 		Name:   proto.String("broken.proto"),

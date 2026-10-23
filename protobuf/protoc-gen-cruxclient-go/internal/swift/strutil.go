@@ -79,6 +79,9 @@ func escapedToDataLiteral(s string) string {
 			emit(int(c))
 		}
 	}
+	if escape || octal > 0 {
+		panic("truncated escape")
+	}
 	out.WriteString("])")
 	return out.String()
 }
