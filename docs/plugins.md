@@ -92,36 +92,22 @@ protoc \
 
 ## protoc-gen-cruxclient (C++)
 
+**Status**: Frozen. This plugin does not get new options. The options `swift_module`, `kotlin_package` and `kotlin_messages` are in `protoc-gen-cruxclient-go` only.
+
 **Purpose**: Generates C++ client code, mock servers, and Djinni cross-language bindings (ObjC, JNI) from proto service definitions. Targets the CRUX Engine mobile client SDK.
 
-**Generates**: `.crux.api.h`, `.crux.api.cc`, `.mock.h`, `.djinni.yaml`, `.djinni.objc.h`, `.djinni.jni.h`, `.djinni.swiftxx.h` (only with the `swift_module` option), and `.djinni.kotlin.jni.h` (only with the `kotlin_package` option)
+**Generates**: `.crux.api.h`, `.crux.api.cc`, `.mock.h`, `.djinni.yaml`, `.djinni.objc.h`, `.djinni.jni.h`
 
 **Install** (requires C++17 toolchain, protobuf, and gRPC libraries):
 ```sh
 make install-cruxclient
 ```
 
-**Option `swift_module`**: Turns on the Swift output. A bare `swift_module` uses the module name `S12Protos`. `swift_module=<Name>` sets the module name. With the option on, each `.djinni.yaml` record gets a `swift:` and a `swiftxx:` block, and the plugin writes `.djinni.swiftxx.h`. With the option off, the output does not change. This plugin is the one in the `ghcr.io/safetyculture/protoc-cpp` image. The Go port writes the same bytes.
-```sh
-protoc \
-  -I. \
-  --cruxclient_out=swift_module=S12Protos:. \
-  path/to/*.proto
-```
-
-**Option `kotlin_package`**: Turns on the Kotlin output for the Djinni bindings of the pure Kotlin messages. The C++ plugin cannot write the Kotlin messages. Use the option `kotlin_messages` of `protoc-gen-cruxclient-go` for them. A bare `kotlin_package` uses the root package `com.safetyculture.s12kt`. `kotlin_package=<Root>` sets the root package. With the option on, each `.djinni.yaml` record gets `kotlinTranslator`, `kotlinHeader` and `kotlinTypeSignature` keys in its `jni:` block and a `jniTypename` key in its `kotlin:` block, and the plugin writes `.djinni.kotlin.jni.h`. The Kotlin translator moves a message as serialized bytes between C++ and the Kotlin class, with `toByteArray()` and `parseFrom(ByteArray)`. A parse or serialize failure throws `std::runtime_error`, which djinni converts to a Java exception. With the option off, the output does not change.
-```sh
-protoc \
-  -I. \
-  --cruxclient_out=kotlin_package:. \
-  path/to/*.proto
-```
-
 ---
 
 ## protoc-gen-cruxclient-go
 
-**Purpose**: Go port of `protoc-gen-cruxclient`. Generates identical output using the `bufbuild/protoplugin` framework — no C++ toolchain required.
+**Purpose**: Go port of `protoc-gen-cruxclient`. Generates identical output using the `bufbuild/protoplugin` framework — no C++ toolchain required. With no option, the output is the output of `protoc-gen-cruxclient` on `master`. The options below are only in this plugin.
 
 **Generates**: `.crux.api.h`, `.crux.api.cc`, `.mock.h`, `.djinni.yaml`, `.djinni.objc.h`, `.djinni.jni.h`, and `.djinni.swiftxx.h` (only with the `swift_module` option), `.djinni.kotlin.jni.h` (only with the `kotlin_package` option), and one `.pb.kt` file for each proto file with a message or an enum, with the runtime file `<root>/wire/S12Wire.kt` (only with the `kotlin_messages` option)
 
@@ -146,7 +132,7 @@ protoc \
   path/to/*.proto
 ```
 
-**Option `kotlin_package`**: Turns on the Kotlin output for the Djinni bindings of the pure Kotlin messages. The C++ plugin cannot write the Kotlin messages. Use the option `kotlin_messages` of `protoc-gen-cruxclient-go` for them. A bare `kotlin_package` uses the root package `com.safetyculture.s12kt`. `kotlin_package=<Root>` sets the root package. With the option on, each `.djinni.yaml` record gets `kotlinTranslator`, `kotlinHeader` and `kotlinTypeSignature` keys in its `jni:` block and a `jniTypename` key in its `kotlin:` block, and the plugin writes `.djinni.kotlin.jni.h`. The Kotlin translator moves a message as serialized bytes between C++ and the Kotlin class, with `toByteArray()` and `parseFrom(ByteArray)`. A parse or serialize failure throws `std::runtime_error`, which djinni converts to a Java exception. With the option off, the output does not change.
+**Option `kotlin_package`**: Turns on the Kotlin output for the Djinni bindings of the pure Kotlin messages. Use the option `kotlin_messages` for the Kotlin messages. A bare `kotlin_package` uses the root package `com.safetyculture.s12kt`. `kotlin_package=<Root>` sets the root package. With the option on, each `.djinni.yaml` record gets `kotlinTranslator`, `kotlinHeader` and `kotlinTypeSignature` keys in its `jni:` block and a `jniTypename` key in its `kotlin:` block, and the plugin writes `.djinni.kotlin.jni.h`. The Kotlin translator moves a message as serialized bytes between C++ and the Kotlin class, with `toByteArray()` and `parseFrom(ByteArray)`. A parse or serialize failure throws `std::runtime_error`, which djinni converts to a Java exception. With the option off, the output does not change.
 ```sh
 protoc \
   -I. \

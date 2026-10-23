@@ -507,59 +507,22 @@ func requireSameFiles(t *testing.T, a, b map[string]string, aName, bName string)
 	require.Empty(t, problems, "%s and %s are not the same files", aName, bName)
 }
 
-// cppOutputCase is one run of the C++ plugin that has its output in a directory of the repository.
-type cppOutputCase struct {
-	cppDir    string   // the directory of the C++ output
-	sources   []string // proto paths below testdata or, for routeguide, the cruxclient proto directory
-	parameter string
-	prefix    string // the output path of the files of the run
-}
+// TestOptionOffMatchesCommittedGoldens checks that, with no option, the Go plugin writes the same
+// bytes as the goldens that the repository has committed under protoc-gen-cruxclient/generated.
+func TestOptionOffMatchesCommittedGoldens(t *testing.T) {
+	sources := messageProtoSources(t)
+	sources["routeguide/v1/route_guide.proto"] = string(mustReadFile(t, "testdata/routeguide/route_guide.proto"))
+	output := runPlugin(t, sources, []string{"routeguide/v1/message.proto", "routeguide/v1/route_guide.proto"})
 
-// requireGoMatchesCpp runs the Go plugin for each case and compares every file that it writes with
-// the files of the C++ plugin in the directory of the case: the yaml, the swiftxx, jni, objc and
-// Kotlin jni headers, in both directions.
-func requireGoMatchesCpp(t *testing.T, cases []cppOutputCase) {
-	t.Helper()
-	goFiles, cppFiles := map[string]string{}, map[string]string{}
-	for _, c := range cases {
-		sources := map[string]string{}
-		for _, path := range c.sources {
-			sources[path] = string(mustReadFile(t, sourcePath(path)))
-		}
-		if _, ok := sources["routeguide/v1/message.proto"]; ok {
-			sources["wire_options.proto"] = string(mustReadFile(t, "testdata/routeguide/wire_options.proto"))
-		}
-		for name, content := range runPluginWithParameter(t, sources, c.sources, c.parameter) {
-			if strings.HasPrefix(name, c.prefix) && strings.Contains(name, ".djinni.") {
-				goFiles[filepath.Join(c.cppDir, strings.TrimPrefix(name, c.prefix))] = content
-			}
-		}
-		for name, content := range readTree(t, c.cppDir, false, func(string) bool { return true }) {
-			cppFiles[filepath.Join(c.cppDir, name)] = content
-		}
+	got := map[string]string{}
+	for name, content := range output {
+		got[strings.TrimPrefix(name, "routeguide/v1/")] = content
 	}
-	requireSameFiles(t, goFiles, cppFiles, "Go plugin output", "C++ plugin output")
-}
-
-// sourcePath returns the file that holds the proto source of a path in a test request.
-func sourcePath(path string) string {
-	if path == "routeguide/v1/message.proto" {
-		return "testdata/routeguide/message.proto"
-	}
-	return filepath.Join("testdata", path)
-}
-
-// TestCppSwiftOutputMatchesGo checks that the Go plugin and the C++ plugin write the same bytes with
-// the Swift option, for every file that the C++ plugin wrote into the repository.
-func TestCppSwiftOutputMatchesGo(t *testing.T) {
-	const swift = "../protoc-gen-cruxclient/generated-swift/"
-	// A request cannot hold wellknown.proto and timestamp.proto: both declare google.protobuf.Timestamp.
-	requireGoMatchesCpp(t, []cppOutputCase{
-		{swift + "routeguide/v1", []string{"routeguide/v1/message.proto"}, "swift_module=RouteGuideProtos", "routeguide/v1/"},
-		{swift + "swiftnames", []string{"swiftnames/names.proto", "swiftnames/loose.proto", "swiftnames/prefixed.proto", "swiftnames/reserved.proto"}, "swift_module", "swiftnames/"},
-		{swift + "swiftnames", []string{"swiftnames/wellknown.proto"}, "swift_module", "swiftnames/"},
-		{swift + "google/protobuf", []string{"google/protobuf/timestamp.proto"}, "swift_module", "google/protobuf/"},
+	goldens := readTree(t, "../protoc-gen-cruxclient/generated/routeguide/v1", false, func(name string) bool {
+		_, written := got[name]
+		return written
 	})
+	requireSameFiles(t, goldens, got, "committed goldens", "Go plugin output")
 }
 
 // TestKotlinSwiftnamesGolden checks the Kotlin output for a package with the leading s12
@@ -581,18 +544,6 @@ func TestKotlinSwiftnamesGolden(t *testing.T) {
 	}
 	golden := readTree(t, "testdata/swiftnames/kotlin", true, func(string) bool { return true })
 	requireSameFiles(t, golden, got, "golden files", "plugin output")
-}
-
-// TestCppKotlinOutputMatchesGo checks that the Go plugin and the C++ plugin write the same bytes with
-// the Kotlin option, for every file that the C++ plugin wrote into the repository.
-func TestCppKotlinOutputMatchesGo(t *testing.T) {
-	const kotlin = "../protoc-gen-cruxclient/generated-kotlin/"
-	requireGoMatchesCpp(t, []cppOutputCase{
-		{kotlin + "routeguide/v1", []string{"routeguide/v1/message.proto"}, "kotlin_package", "routeguide/v1/"},
-	})
-	requireGoMatchesCpp(t, []cppOutputCase{
-		{kotlin + "swiftnames", []string{"swiftnames/names.proto", "swiftnames/loose.proto"}, "kotlin_package", "swiftnames/"},
-	})
 }
 
 // collectTransitiveDeps recursively walks a FileDescriptor's transitive import
