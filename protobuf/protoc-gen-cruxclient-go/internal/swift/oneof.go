@@ -98,7 +98,7 @@ func (g *generator) newOneofGen(o *oneof, usesHeapStorage bool) *oneofGen {
 			}
 			for !hasNext || nextParentNumber != number {
 				if !hasNext {
-					panic(fmt.Sprintf("oneof %s has no parent field %d", o.fullName, number))
+					panic(fmt.Sprintf("oneof %s has no parent field %d", o.name, number))
 				}
 				nextParentNumber, hasNext = nextParent()
 			}
