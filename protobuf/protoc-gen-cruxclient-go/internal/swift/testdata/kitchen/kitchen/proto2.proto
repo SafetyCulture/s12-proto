@@ -1,0 +1,147 @@
+// Constructs of proto2 that the Swift output handles in its own way.
+syntax = "proto2";
+
+package kitchen.proto2;
+
+import "kitchen/proto3.proto";
+
+option swift_prefix = "KT";
+
+// A message with every kind of field.
+message Everything {
+  required int32 id = 1;
+  optional string name = 2 [default = "Ada \"the\" first\n"];
+  optional bytes blob = 3 [default = "\000\001abc\xff"];
+  optional double ratio = 4 [default = inf];
+  optional float tiny = 5 [default = -inf];
+  optional float nothing = 6 [default = nan];
+  optional bool flag = 7 [default = true];
+  optional Color color = 8 [default = GREEN];
+  optional int64 big = 9 [default = -9000000000];
+  optional uint32 small = 10 [default = 4294967295];
+  optional sfixed32 fixed = 11 [default = -7];
+  repeated int32 plain = 12;
+  repeated int32 packed = 13 [packed = true];
+  repeated Color colors = 14;
+  repeated Inner inners = 15;
+  map<string, Inner> by_name = 16;
+  map<int32, string> by_number = 17;
+  map<bool, Color> by_flag = 18;
+  optional Inner inner = 19;
+  optional string json_url = 20 [json_name = "customName"];
+  optional string http_id_url = 21;
+  optional string in = 22;
+  optional string self = 23;
+  optional string has_thing = 24;
+  optional string clear_thing = 25;
+  optional string description = 26;
+  optional kitchen.proto3.Greeting greeting = 27;
+  repeated group Item = 30 {
+    optional string label = 31;
+  }
+  optional group Single = 32 {
+    optional int32 value = 33;
+  }
+  oneof choices {
+    string text = 40;
+    int32 number = 41;
+    Inner nested = 42;
+    group Choice = 43 {
+      optional string detail = 44;
+    }
+  }
+  oneof required_choice {
+    Needs needs = 50;
+    string other = 51;
+  }
+  reserved 100, 102 to 104;
+  reserved "old", "older";
+  extensions 200 to 299, 300 to 399, 1000 to max;
+
+  message Inner {
+    optional string value = 1;
+  }
+
+  message Needs {
+    required string must = 1;
+  }
+
+  enum Color {
+    option allow_alias = true;
+    RED = 0;
+    GREEN = 1;
+    BLUE = 2;
+    COLOR_CYAN = 3;
+    VIOLET = 4 [deprecated = true];
+    PURPLE = 4;
+    EVERYTHING_ODD = 5;
+    ODD = 6;
+  }
+
+  extend Everything {
+    optional string scoped_text = 200;
+    repeated int32 scoped_numbers = 201 [packed = true];
+  }
+}
+
+message Inner {
+  optional Everything parent = 1;
+  optional Inner again = 2;
+  optional Third third = 3;
+}
+
+message Third {
+  optional Inner back = 1;
+}
+
+message Huge {
+  optional int32 f1 = 1;
+  optional int32 f2 = 2;
+  optional int32 f3 = 3;
+  optional int32 f4 = 4;
+  optional int32 f5 = 5;
+  optional int32 f6 = 6;
+  optional int32 f7 = 7;
+  optional int32 f8 = 8;
+  optional int32 f9 = 9;
+  optional int32 f10 = 10;
+  optional int32 f11 = 11;
+  optional int32 f12 = 12;
+  optional int32 f13 = 13;
+  optional int32 f14 = 14;
+  optional int32 f15 = 15;
+  optional int32 f16 = 16;
+  optional int32 f17 = 17;
+  optional int32 f18 = 18;
+}
+
+message ExtendOnly {
+  extensions 1 to 10, 20 to 30, 50 to 60, 70 to 80, 90 to 100;
+}
+
+message Set {
+  option message_set_wire_format = true;
+  extensions 4 to max;
+}
+
+message SetMember {
+  extend Set {
+    optional SetMember set_member = 1000;
+  }
+  optional string payload = 1;
+}
+
+enum Closed {
+  CLOSED_ONE = 1;
+  CLOSED_TWO = 2;
+}
+
+extend Everything {
+  optional int32 file_number = 301;
+  optional bytes file_bytes = 302 [default = "xyz"];
+  repeated Inner file_inners = 303;
+  optional Closed file_closed = 304;
+  optional group FileGroup = 305 {
+    optional int32 inside = 306;
+  }
+}

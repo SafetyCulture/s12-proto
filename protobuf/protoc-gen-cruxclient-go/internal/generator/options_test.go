@@ -108,6 +108,8 @@ func TestParseOptionsRejectsInvalidInput(t *testing.T) {
 		"messages_only",
 		"kotlin_package,messages_only",
 		"swift_module,messages_only",
+		"swift_messages=false",
+		"Visibility=Public",
 		"kotlin_package=com/example",
 		"kotlin_package=com..example",
 		"kotlin_package=class",
@@ -117,6 +119,29 @@ func TestParseOptionsRejectsInvalidInput(t *testing.T) {
 			_, err := ParseOptions(parameter)
 			if err == nil {
 				t.Fatalf("ParseOptions(%q) returned nil error", parameter)
+			}
+		})
+	}
+}
+
+func TestParseSwiftMessages(t *testing.T) {
+	tests := []struct {
+		parameter string
+		enabled   bool
+	}{
+		{"", false},
+		{"swift_module", false},
+		{"swift_messages", true},
+		{"Visibility=Public, swift_messages", true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.parameter, func(t *testing.T) {
+			opts, err := ParseOptions(tt.parameter)
+			if err != nil {
+				t.Fatalf("ParseOptions(%q) returned %v", tt.parameter, err)
+			}
+			if opts.SwiftMessagesEnabled() != tt.enabled {
+				t.Errorf("ParseOptions(%q).SwiftMessagesEnabled() = %v, want %v", tt.parameter, opts.SwiftMessagesEnabled(), tt.enabled)
 			}
 		})
 	}
@@ -137,5 +162,25 @@ func TestParseOptionsNamesAnEmptyKey(t *testing.T) {
 	_, err := ParseOptions("kotlin_package,=x")
 	if err == nil || err.Error() != `cruxclient-go: empty option key in "=x"` {
 		t.Fatalf("ParseOptions returned %v", err)
+	}
+}
+
+func TestOptionKeysAreParsed(t *testing.T) {
+	for key := range optionSetters {
+		parameter := key
+		if key == "messages_only" {
+			// messages_only needs a messages option; the rejected rows cover it alone.
+			parameter = "messages_only,kotlin_messages"
+		}
+		opts, err := ParseOptions(parameter)
+		if err != nil {
+			t.Fatalf("ParseOptions(%q) returned %v", key, err)
+		}
+		if opts == (Options{}) {
+			t.Errorf("ParseOptions(%q) ignores the key", key)
+		}
+	}
+	if IsOptionKey("Visibility") || !IsOptionKey("messages_only") {
+		t.Error("IsOptionKey does not match the plugin options")
 	}
 }

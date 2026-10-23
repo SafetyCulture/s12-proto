@@ -1,0 +1,8 @@
+inheritance: true
+reviews:
+  auto_review:
+    enabled: true
+  path_filters:
+    - "!**/testdata/**/golden/**"
+    - "!**/testdata/golden/**"
+    - "!**/testdata/swiftmessages/**"

@@ -15,6 +15,7 @@ import (
 
 	"github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-cruxclient-go/internal/generator"
 	"github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-cruxclient-go/internal/kotlin"
+	"github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-cruxclient-go/internal/swift"
 )
 
 func main() {
@@ -33,14 +34,19 @@ func handle(
 ) error {
 	responseWriter.SetFeatureProto3Optional()
 	responseWriter.SetFeatureSupportsEditions(descriptorpb.Edition_EDITION_PROTO2, descriptorpb.Edition_EDITION_2023)
-	fileDescriptors, err := request.FileDescriptorsToGenerate()
-	if err != nil {
-		return err
-	}
 	opts, err := generator.ParseOptions(request.Parameter())
 	if err != nil {
 		responseWriter.AddError(err.Error())
 		return nil
+	}
+	// The Swift messages read raw descriptors, which runtime descriptors cannot hold for a message set.
+	var fileDescriptors []protoreflect.FileDescriptor
+	if !opts.MessagesOnly || opts.KotlinMessagesEnabled() {
+		fileDescriptors, err = request.FileDescriptorsToGenerate()
+		if err != nil {
+			responseWriter.AddError(fmt.Sprintf("cruxclient-go: request.FileDescriptorsToGenerate: %v", err))
+			return nil
+		}
 	}
 	cruxclientFiles := fileDescriptors
 	if opts.MessagesOnly {
@@ -65,6 +71,12 @@ func handle(
 	if opts.KotlinMessagesEnabled() {
 		if err := kotlin.Generate(responseWriter, fileDescriptors, opts.KotlinMessages); err != nil {
 			responseWriter.AddError(fmt.Sprintf("cruxclient-go: kotlin.Generate: %v", err))
+			return nil
+		}
+	}
+	if opts.SwiftMessagesEnabled() {
+		if err := swift.Generate(responseWriter, request, generator.IsOptionKey); err != nil {
+			responseWriter.AddError(fmt.Sprintf("cruxclient-go: swift.Generate: %v", err))
 			return nil
 		}
 	}

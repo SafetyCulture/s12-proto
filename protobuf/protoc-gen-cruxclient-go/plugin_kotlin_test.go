@@ -415,7 +415,7 @@ func TestMessagesOnly(t *testing.T) {
 	for name := range expected {
 		require.Equal(t, withOutputs[name], out[name], name)
 	}
-	requirePluginResponseError(t, []string{"testdata/kotlin/kitchen"}, "messages_only", "messages_only requires kotlin_messages", kitchenFiles...)
+	requirePluginResponseError(t, []string{"testdata/kotlin/kitchen"}, "messages_only", "messages_only requires", kitchenFiles...)
 }
 
 func TestKotlinNameCollisions(t *testing.T) {
@@ -492,6 +492,19 @@ func TestKotlinOneofCallbackDoesNotShadowRoot(t *testing.T) {
 	require.NoError(t, os.WriteFile(filepath.Join(dir, "callback.proto"), []byte(source), 0o644))
 	out := runPluginOnDisk(t, []string{dir}, "kotlin_messages=n.acme", "callback.proto")
 	require.Contains(t, out["n/acme/rq/v1/callback.pb.kt"], "fun c_k(reader: n.acme.wire.WireReader, s_k: n.acme.wire.Sections?, n_k: kotlin.Int)")
+	out = runPluginOnDisk(t, []string{dir}, "kotlin_messages=s.acme", "callback.proto")
+	require.Contains(t, out["s/acme/rq/v1/callback.pb.kt"], "fun c_k(reader: s.acme.wire.WireReader, s_k: s.acme.wire.Sections?, n_k: kotlin.Int)")
+}
+
+// TestKotlinRootRejectsCodecLocals checks that a root cannot start with a name that the generated
+// code declares as a parameter, a local or a member.
+func TestKotlinRootRejectsCodecLocals(t *testing.T) {
+	dir := t.TempDir()
+	source := "syntax = \"proto3\";\npackage rq.v1;\nmessage Leaf {}\n"
+	require.NoError(t, os.WriteFile(filepath.Join(dir, "root.proto"), []byte(source), 0o644))
+	for _, root := range []string{"reader.acme", "writer.acme", "value.acme", "sections.acme", "missingRequired.acme", "n_k.acme", "s_k.acme", "_x.acme"} {
+		requirePluginResponseError(t, []string{dir}, "kotlin_messages="+root, "which is a name in the generated code", "root.proto")
+	}
 }
 
 func TestMissingRequiredIsNotConstructorArgument(t *testing.T) {
