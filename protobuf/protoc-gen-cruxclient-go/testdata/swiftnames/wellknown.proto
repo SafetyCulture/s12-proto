@@ -1,0 +1,11 @@
+// A stand-in for the bundled well-known file. It has no java_package or objc_class_prefix, unlike
+// the real file, so a test must not compare class names that come from those options.
+
+syntax = "proto3";
+
+package google.protobuf;
+
+message Timestamp {
+  int64 seconds = 1;
+  int32 nanos = 2;
+}

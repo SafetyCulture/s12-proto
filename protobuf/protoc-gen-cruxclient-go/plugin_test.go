@@ -5,7 +5,11 @@ package main
 import (
 	"bytes"
 	"context"
+	"io/fs"
 	"os"
+	"path/filepath"
+	"regexp"
+	"sort"
 	"strings"
 	"testing"
 
@@ -17,6 +21,8 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/descriptorpb"
 	"google.golang.org/protobuf/types/pluginpb"
+
+	"github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-cruxclient-go/internal/kotlin"
 )
 
 // runPlugin compiles the given proto sources in-process and runs the plugin
@@ -27,9 +33,33 @@ import (
 // filesToGenerate is the subset of protoSources that should produce output.
 func runPlugin(t *testing.T, protoSources map[string]string, filesToGenerate []string) map[string]string {
 	t.Helper()
+	return runPluginWithParameter(t, protoSources, filesToGenerate, "")
+}
+
+// runPluginWithParameter runs the plugin with a protoc parameter string.
+func runPluginWithParameter(t *testing.T, protoSources map[string]string, filesToGenerate []string, parameter string) map[string]string {
+	t.Helper()
+	resp, err := runPluginResponse(t, protoSources, filesToGenerate, parameter)
+	require.NoError(t, err)
+	require.Empty(t, resp.GetError())
+
+	output := make(map[string]string, len(resp.GetFile()))
+	for _, f := range resp.GetFile() {
+		output[f.GetName()] = f.GetContent()
+	}
+	return output
+}
+
+// runPluginResponse runs the plugin and returns its protocol response.
+func runPluginResponse(
+	t *testing.T,
+	protoSources map[string]string,
+	filesToGenerate []string,
+	parameter string,
+) (*pluginpb.CodeGeneratorResponse, error) {
+	t.Helper()
 	ctx := context.Background()
 
-	// Build resolver: custom source map + standard imports (google/protobuf/*)
 	sourceResolver := &protocompile.SourceResolver{
 		Accessor: protocompile.SourceAccessorFromMap(protoSources),
 	}
@@ -37,34 +67,28 @@ func runPlugin(t *testing.T, protoSources map[string]string, filesToGenerate []s
 		Resolver: protocompile.WithStandardImports(sourceResolver),
 	}
 
-	// Compile ALL files in the source map so that transitive dependencies are
-	// included in the ProtoFile list of the CodeGeneratorRequest. protoplugin
-	// needs the full closure to resolve imports when unmarshaling the request.
 	allFiles := make([]string, 0, len(protoSources))
 	for path := range protoSources {
 		allFiles = append(allFiles, path)
 	}
+	// protoplugin needs the full import closure in the request to resolve imports.
 	compiled, err := compiler.Compile(ctx, allFiles...)
 	require.NoError(t, err, "protocompile.Compile failed")
 
-	// Collect all compiled file descriptor protos, including transitive imports
-	// (standard well-known types like google/protobuf/descriptor.proto) so that
-	// protoplugin can resolve them when unmarshaling the CodeGeneratorRequest.
 	seen := make(map[string]struct{})
 	var protoFiles []*descriptorpb.FileDescriptorProto
-	for i := 0; i < len(compiled); i++ {
+	for i := range compiled {
 		collectTransitiveDeps(compiled[i], seen, &protoFiles)
 	}
 
-	// Build the CodeGeneratorRequest.
 	req := &pluginpb.CodeGeneratorRequest{
 		FileToGenerate: filesToGenerate,
 		ProtoFile:      protoFiles,
+		Parameter:      proto.String(parameter),
 	}
 	reqBytes, err := proto.Marshal(req)
 	require.NoError(t, err, "proto.Marshal(CodeGeneratorRequest) failed")
 
-	// Run the plugin handler via stdin/stdout.
 	var stdout bytes.Buffer
 	var stderr strings.Builder
 	env := protoplugin.Env{
@@ -73,20 +97,82 @@ func runPlugin(t *testing.T, protoSources map[string]string, filesToGenerate []s
 		Stdout: &stdout,
 		Stderr: &stderr,
 	}
-	err = protoplugin.Run(ctx, env, protoplugin.HandlerFunc(handle))
-	require.NoError(t, err, "protoplugin.Run failed; stderr: %s", stderr.String())
+	if err := protoplugin.Run(ctx, env, protoplugin.HandlerFunc(handle)); err != nil {
+		return nil, err
+	}
 
-	// Unmarshal the response.
 	resp := &pluginpb.CodeGeneratorResponse{}
 	err = proto.Unmarshal(stdout.Bytes(), resp)
 	require.NoError(t, err, "proto.Unmarshal(CodeGeneratorResponse) failed")
+	return resp, nil
+}
 
-	// Collect output files into a map.
-	output := make(map[string]string, len(resp.GetFile()))
-	for _, f := range resp.GetFile() {
-		output[f.GetName()] = f.GetContent()
+func TestInvalidOptionAddsResponseError(t *testing.T) {
+	resp, err := runPluginResponse(t, messageProtoSources(t), []string{"routeguide/v1/message.proto"}, "unknown")
+	require.NoError(t, err)
+	require.Equal(t, `cruxclient-go: unknown option "unknown"`, resp.GetError())
+	require.Empty(t, resp.GetFile())
+}
+
+func TestDjinniYAMLEscapesNewValues(t *testing.T) {
+	output := runPluginWithParameter(t, messageProtoSources(t),
+		[]string{"routeguide/v1/message.proto"}, "swift_module=Route'Guide")
+	require.Contains(t, output["routeguide/v1/message.djinni.yaml"], "  module: 'Route''Guide'\n")
+}
+
+func TestUnsupportedDjinniNamesAddResponseError(t *testing.T) {
+	tests := []struct {
+		name      string
+		source    string
+		parameter string
+		want      string
+	}{
+		{
+			name:      "nested translator",
+			source:    "syntax = \"proto3\";\npackage test.v1;\nmessage Outer { message Translator {} }\n",
+			parameter: "swift_module",
+			want:      `cruxclient-go: nested message "test.v1.Outer.Translator" has unsupported name "Translator"`,
+		},
+		{
+			name:      "nested JNIInfo",
+			source:    "syntax = \"proto3\";\npackage test.v1;\nmessage Outer { message JNIInfo {} }\n",
+			parameter: "kotlin_package",
+			want:      `cruxclient-go: nested message "test.v1.Outer.JNIInfo" has unsupported name "JNIInfo"`,
+		},
+		{
+			name:      "std package",
+			source:    "syntax = \"proto3\";\npackage std.v1;\nmessage Message {}\n",
+			parameter: "kotlin_package",
+			want:      `cruxclient-go: proto package "std.v1" has unsupported segment "std"`,
+		},
+		{
+			name:      "std message",
+			source:    "syntax = \"proto3\";\npackage test.v1;\nmessage std {}\n",
+			parameter: "kotlin_package",
+			want:      `cruxclient-go: message "test.v1.std" has unsupported segment "std"`,
+		},
+		{
+			name:      "swift package",
+			source:    "syntax = \"proto3\";\npackage swift.v1;\nmessage Message {}\n",
+			parameter: "swift_module",
+			want:      `cruxclient-go: proto package "swift.v1" starts with unsupported segment "swift"`,
+		},
+		{
+			name:      "kotlin package",
+			source:    "syntax = \"proto3\";\npackage kotlin.v1;\nmessage Message {}\n",
+			parameter: "kotlin_package",
+			want:      `cruxclient-go: proto package "kotlin.v1" starts with unsupported segment "kotlin"`,
+		},
 	}
-	return output
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			resp, err := runPluginResponse(t, map[string]string{"test.proto": tt.source},
+				[]string{"test.proto"}, tt.parameter)
+			require.NoError(t, err)
+			require.Equal(t, tt.want, resp.GetError())
+			require.Empty(t, resp.GetFile())
+		})
+	}
 }
 
 // mustReadFile reads a file relative to the test's working directory.
@@ -240,6 +326,395 @@ func TestMessageDjinniJNIGolden(t *testing.T) {
 		"JNI mismatch — diff output against testdata/routeguide/message.djinni.jni.h")
 }
 
+// messageProtoSources returns the sources that the message.proto golden tests compile.
+func messageProtoSources(t *testing.T) map[string]string {
+	t.Helper()
+	return map[string]string{
+		"routeguide/v1/message.proto": string(mustReadFile(t, "testdata/routeguide/message.proto")),
+		"wire_options.proto":          string(mustReadFile(t, "testdata/routeguide/wire_options.proto")),
+	}
+}
+
+// TestSwiftOptionOffKeepsOutput checks that a request without the Swift option
+// produces no Swift output and the same djinni files as a request with paths.
+func TestSwiftOptionOffKeepsOutput(t *testing.T) {
+	files := []string{"routeguide/v1/message.proto"}
+	plain := runPlugin(t, messageProtoSources(t), files)
+	other := runPluginWithParameter(t, messageProtoSources(t), files, "paths=source_relative")
+
+	require.Equal(t, plain, other)
+	require.NotContains(t, plain, "routeguide/v1/message.djinni.swiftxx.h")
+	require.NotContains(t, plain["routeguide/v1/message.djinni.yaml"], "swift")
+}
+
+// TestMessageDjinniSwiftGolden is a golden file test for the swift: and swiftxx:
+// yaml blocks and the .djinni.swiftxx.h output, with the module name option.
+func TestMessageDjinniSwiftGolden(t *testing.T) {
+	output := runPluginWithParameter(t, messageProtoSources(t),
+		[]string{"routeguide/v1/message.proto"}, "swift_module=RouteGuideProtos")
+	require.Equal(t, []string{
+		"routeguide/v1/message.djinni.jni.h",
+		"routeguide/v1/message.djinni.objc.h",
+		"routeguide/v1/message.djinni.swiftxx.h",
+		"routeguide/v1/message.djinni.yaml",
+	}, mapKeys(output))
+
+	for _, name := range []string{"message.djinni.yaml", "message.djinni.swiftxx.h"} {
+		require.Contains(t, output, "routeguide/v1/"+name,
+			"plugin output missing %s; got keys: %v", name, mapKeys(output))
+		golden := mustReadFile(t, "testdata/routeguide/swift/"+name)
+		require.Equal(t, string(golden), output["routeguide/v1/"+name],
+			"mismatch — diff output against testdata/routeguide/swift/%s", name)
+	}
+
+	// The djinni files of the other languages do not change.
+	plain := runPlugin(t, messageProtoSources(t), []string{"routeguide/v1/message.proto"})
+	for _, name := range []string{"message.djinni.objc.h", "message.djinni.jni.h"} {
+		require.Equal(t, plain["routeguide/v1/"+name], output["routeguide/v1/"+name])
+	}
+}
+
+// TestSwiftOptionDefaultModule checks that a bare swift_module option selects S12Protos.
+func TestSwiftOptionDefaultModule(t *testing.T) {
+	output := runPluginWithParameter(t, messageProtoSources(t),
+		[]string{"routeguide/v1/message.proto"}, "swift_module")
+
+	require.Contains(t, output["routeguide/v1/message.djinni.yaml"], "  module: 'S12Protos'\n")
+	require.Contains(t, output, "routeguide/v1/message.djinni.swiftxx.h")
+}
+
+// TestKotlinOptionOffKeepsOutput checks that a request without the Kotlin option
+// produces no Kotlin output.
+func TestKotlinOptionOffKeepsOutput(t *testing.T) {
+	output := runPlugin(t, messageProtoSources(t), []string{"routeguide/v1/message.proto"})
+
+	require.NotContains(t, output, "routeguide/v1/message.djinni.kotlin.jni.h")
+	for _, key := range []string{"jniTypename", "kotlinTranslator", "kotlinHeader", "kotlinTypeSignature"} {
+		require.NotContains(t, output["routeguide/v1/message.djinni.yaml"], key)
+	}
+}
+
+// TestMessageDjinniKotlinGolden is a golden file test for the Kotlin keys of the
+// yaml output and the .djinni.kotlin.jni.h output.
+func TestMessageDjinniKotlinGolden(t *testing.T) {
+	output := runPluginWithParameter(t, messageProtoSources(t),
+		[]string{"routeguide/v1/message.proto"}, "kotlin_package")
+	require.Equal(t, []string{
+		"routeguide/v1/message.djinni.jni.h",
+		"routeguide/v1/message.djinni.kotlin.jni.h",
+		"routeguide/v1/message.djinni.objc.h",
+		"routeguide/v1/message.djinni.yaml",
+	}, mapKeys(output))
+
+	for _, name := range []string{"message.djinni.yaml", "message.djinni.kotlin.jni.h"} {
+		require.Contains(t, output, "routeguide/v1/"+name,
+			"plugin output missing %s; got keys: %v", name, mapKeys(output))
+		golden := mustReadFile(t, "testdata/routeguide/kotlin/"+name)
+		require.Equal(t, string(golden), output["routeguide/v1/"+name],
+			"mismatch — diff output against testdata/routeguide/kotlin/%s", name)
+	}
+
+	// The djinni files of the other languages do not change.
+	plain := runPlugin(t, messageProtoSources(t), []string{"routeguide/v1/message.proto"})
+	for _, name := range []string{"message.djinni.objc.h", "message.djinni.jni.h"} {
+		require.Equal(t, plain["routeguide/v1/"+name], output["routeguide/v1/"+name])
+	}
+}
+func TestRequiredMessageDjinniHeaders(t *testing.T) {
+	sources := map[string]string{
+		"required/required.proto": string(mustReadFile(t, "testdata/required/required.proto")),
+	}
+	tests := []struct {
+		name      string
+		parameter string
+		suffix    string
+	}{
+		{"swift", "swift_module", ".djinni.swiftxx.h"},
+		{"kotlin", "kotlin_package", ".djinni.kotlin.jni.h"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			output := runPluginWithParameter(t, sources, []string{"required/required.proto"}, tt.parameter)
+			name := "required/required" + tt.suffix
+			golden := mustReadFile(t, "testdata/required/"+tt.name+"/required"+tt.suffix)
+			require.Equal(t, string(golden), output[name])
+			isInitialized := strings.Index(output[name], "IsInitialized()")
+			require.Positive(t, isInitialized)
+			for _, use := range []string{"ByteSizeLong()", "message.Serialize"} {
+				if at := strings.Index(output[name], use); at >= 0 {
+					require.Less(t, isInitialized, at, use)
+				}
+			}
+		})
+	}
+}
+
+func TestKotlinShadowDjinniGoldens(t *testing.T) {
+	output := runPluginOnDisk(t, []string{"testdata/kotlin/kitchen"},
+		"kotlin_package,kotlin_messages", "shadow/shadow.proto")
+	got := map[string]string{
+		"shadow.djinni.yaml":         output["shadow/shadow.djinni.yaml"],
+		"shadow.djinni.kotlin.jni.h": output["shadow/shadow.djinni.kotlin.jni.h"],
+	}
+	golden := readTree(t, "testdata/shadow", false, func(name string) bool {
+		return strings.HasSuffix(name, ".djinni.yaml") || strings.HasSuffix(name, ".djinni.kotlin.jni.h")
+	})
+	requireSameFiles(t, golden, got, "golden files", "plugin output")
+
+	files := compileOnDisk(t, []string{"testdata/kotlin/kitchen"}, "shadow/shadow.proto")
+	file := files.FindFileByPath("shadow/shadow.proto")
+	require.NotNil(t, file)
+	messages := file.Messages().ByName("Shadows").Messages()
+	yaml := got["shadow.djinni.yaml"]
+	header := got["shadow.djinni.kotlin.jni.h"]
+	for _, name := range []protoreflect.Name{"com", "kotlin", "java"} {
+		message := messages.ByName(name)
+		qualified := kotlin.QualifiedClassName(message, "com.safetyculture.s12kt")
+		binary := kotlin.BinaryClassName(message, "com.safetyculture.s12kt")
+		jniName := strings.ReplaceAll(binary, ".", "/")
+		require.Contains(t, yaml, "jniTypename: '"+qualified+"'")
+		require.Contains(t, yaml, "kotlinTypeSignature: 'L"+jniName+";'")
+		require.Contains(t, header, `jniFindClass("`+jniName+`")`)
+	}
+	require.Contains(t, header, `Shadows$javaMessage`)
+}
+
+func TestKotlinDjinniYAMLUsesEscapedKeywordNames(t *testing.T) {
+	sources := map[string]string{
+		"keyword.proto": "syntax = \"proto3\";\npackage test.v1;\nmessage object {}\n",
+	}
+	output := runPluginWithParameter(t, sources, []string{"keyword.proto"}, "kotlin_package")
+	yaml := output["keyword.djinni.yaml"]
+	require.Contains(t, yaml, "jniTypename: 'com.safetyculture.s12kt.test.v1.`object`'\n")
+	require.Contains(t, yaml, "kotlinTypeSignature: 'Lcom/safetyculture/s12kt/test/v1/object;'\n")
+}
+
+// TestKotlinPackageOption checks the package root of the Kotlin class names.
+func TestKotlinPackageOption(t *testing.T) {
+	output := runPluginWithParameter(t, messageProtoSources(t),
+		[]string{"routeguide/v1/message.proto"}, "kotlin_package=com.example.kt")
+
+	yaml := output["routeguide/v1/message.djinni.yaml"]
+	require.Contains(t, yaml, "  jniTypename: 'com.example.kt.routeguide.v1.Point'\n")
+	require.Contains(t, yaml, "  jniTypename: 'com.example.kt.routeguide.v1.RouteSummary.Details.MoreDetails'\n")
+	require.Contains(t, yaml, "  kotlinTypeSignature: 'Lcom/example/kt/routeguide/v1/RouteSummary$Details$MoreDetails;'\n")
+	require.Contains(t, output["routeguide/v1/message.djinni.kotlin.jni.h"],
+		`jniFindClass("com/example/kt/routeguide/v1/RouteSummary$Details")`)
+}
+
+// TestKotlinBlockWithoutWirePackage checks that a file without the wire_package option gets a
+// kotlin: block with only jniTypename.
+func TestKotlinBlockWithoutWirePackage(t *testing.T) {
+	sources := map[string]string{
+		"swiftnames/loose.proto": string(mustReadFile(t, "testdata/swiftnames/loose.proto")),
+	}
+	plain := runPlugin(t, sources, []string{"swiftnames/loose.proto"})
+	require.NotContains(t, plain["swiftnames/loose.djinni.yaml"], "kotlin:")
+
+	output := runPluginWithParameter(t, sources, []string{"swiftnames/loose.proto"}, "kotlin_package")
+	require.Contains(t, output["swiftnames/loose.djinni.yaml"], "kotlin:\n  jniTypename: 'com.safetyculture.s12kt.Loose'\n")
+}
+
+// TestKotlinPackageDropsLeadingS12 checks that the package s12.name_test.v1 maps to the
+// Kotlin package com.safetyculture.s12kt.name_test.v1, and a nested class has a "$" in its signature.
+func TestKotlinPackageDropsLeadingS12(t *testing.T) {
+	sources := map[string]string{
+		"swiftnames/names.proto": string(mustReadFile(t, "testdata/swiftnames/names.proto")),
+	}
+	output := runPluginWithParameter(t, sources, []string{"swiftnames/names.proto"}, "kotlin_package")
+
+	yaml := output["swiftnames/names.djinni.yaml"]
+	require.Contains(t, yaml, "  jniTypename: 'com.safetyculture.s12kt.name_test.v1.Outer'\n")
+	require.Contains(t, yaml, "  jniTypename: 'com.safetyculture.s12kt.name_test.v1.Outer.Foo.Type'\n")
+	require.Contains(t, yaml, "  kotlinTypeSignature: 'Lcom/safetyculture/s12kt/name_test/v1/Outer$Foo$Type;'\n")
+}
+
+// swiftTypeNames returns the swift: typename values of a yaml output, in file order.
+func swiftTypeNames(yaml string) []string {
+	var names []string
+	for _, match := range regexp.MustCompile(`(?m)^swift:\n  typename: '([^']+)'`).FindAllStringSubmatch(yaml, -1) {
+		names = append(names, match[1])
+	}
+	return names
+}
+
+// TestSwiftTypeNames checks the type names against the output of protoc-gen-swift for the same
+// protos: reserved nested names, no package, swift_prefix. reserved.djinni.yaml keeps the
+// malformed legacy Java and JNI names of master for names with "_"; byte identity needs them. The names of reserved.proto are the
+// output of protoc-gen-swift 1.38.1 and 1.39.0, and the other names are the output of 1.26.0.
+func TestSwiftTypeNames(t *testing.T) {
+	sources := map[string]string{}
+	var files []string
+	for _, name := range []string{"names", "loose", "prefixed", "wellknown", "reserved"} {
+		sources["swiftnames/"+name+".proto"] = string(mustReadFile(t, "testdata/swiftnames/"+name+".proto"))
+		files = append(files, "swiftnames/"+name+".proto")
+	}
+	output := runPluginWithParameter(t, sources, files, "swift_module")
+
+	require.Equal(t, []string{
+		"S12_NameTest_V1_Outer",
+		"S12_NameTest_V1_Outer.DataMessage",
+		"S12_NameTest_V1_Outer.IntMessage",
+		"S12_NameTest_V1_Outer.StringMessage",
+		"S12_NameTest_V1_Outer.TypeMessage",
+		"S12_NameTest_V1_Outer.ProtocolMessage",
+		"S12_NameTest_V1_Outer.AnyMessage",
+		"S12_NameTest_V1_Outer.SelfMessage",
+		"S12_NameTest_V1_Outer.Message",
+		"S12_NameTest_V1_Outer.DataMessageMessage",
+		"S12_NameTest_V1_Outer.Error",
+		"S12_NameTest_V1_Outer.SendableMessage",
+		"S12_NameTest_V1_Outer.EquatableMessage",
+		"S12_NameTest_V1_Outer.HashableMessage",
+		"S12_NameTest_V1_Outer.SwiftMessage",
+		"S12_NameTest_V1_Outer.Date",
+		"S12_NameTest_V1_Outer.Foo",
+		"S12_NameTest_V1_Outer.Foo.TypeMessage",
+		"S12_NameTest_V1_Data",
+	}, swiftTypeNames(output["swiftnames/names.djinni.yaml"]))
+
+	require.Equal(t, []string{
+		"SendableMessage", "EquatableMessage", "HashableMessage", "SwiftMessage", "SwiftProtobufMessage",
+		"ExtensionsMessage", "letMessage", "selfMessage", "funcMessage", "_Message", "__Message",
+		"SendableMessageMessage", "Outer", "Outer.SendableMessage", "Outer.SwiftMessage", "Outer.inMessage",
+		"Outer._Message",
+	}, swiftTypeNames(output["swiftnames/reserved.djinni.yaml"]))
+
+	for _, name := range []string{"names", "loose", "prefixed", "wellknown", "reserved"} {
+		golden := mustReadFile(t, "testdata/swiftnames/"+name+".djinni.yaml")
+		require.Equal(t, string(golden), output["swiftnames/"+name+".djinni.yaml"])
+	}
+
+	// A file outside the bundled google/protobuf files keeps the module of the option, even in package google.protobuf.
+	require.Equal(t, []string{"Google_Protobuf_Timestamp"}, swiftTypeNames(output["swiftnames/wellknown.djinni.yaml"]))
+	require.Contains(t, output["swiftnames/wellknown.djinni.yaml"], "  module: 'S12Protos'\n")
+	require.Contains(t, output["swiftnames/names.djinni.yaml"], "  module: 'S12Protos'\n")
+
+	require.Equal(t, []string{"Loose", "Loose.Inner"}, swiftTypeNames(output["swiftnames/loose.djinni.yaml"]))
+	require.NotContains(t, output["swiftnames/loose.djinni.yaml"], "  prefix:")
+
+	require.Equal(t, []string{"SPWithSwiftPrefix", "SPWithSwiftPrefix.DataMessage"}, swiftTypeNames(output["swiftnames/prefixed.djinni.yaml"]))
+	require.NotContains(t, output["swiftnames/prefixed.djinni.yaml"], "  prefix: 'SP'")
+}
+
+// TestSwiftBundledProtoModule checks that the types of a bundled google/protobuf file use the
+// SwiftProtobuf module, as protoc-gen-swift does.
+// TestSwiftBundledProtoModule also pins timestamp.djinni.yaml, whose legacy Java and JNI names are
+// malformed as on master; byte identity with master needs them.
+func TestSwiftBundledProtoModule(t *testing.T) {
+	sources := map[string]string{
+		"google/protobuf/timestamp.proto": string(mustReadFile(t, "testdata/google/protobuf/timestamp.proto")),
+	}
+	output := runPluginWithParameter(t, sources, []string{"google/protobuf/timestamp.proto"}, "swift_module")
+
+	yaml := output["google/protobuf/timestamp.djinni.yaml"]
+	require.Equal(t, []string{"Google_Protobuf_Timestamp"}, swiftTypeNames(yaml))
+	require.Contains(t, yaml, "  module: 'SwiftProtobuf'\n")
+	require.NotContains(t, yaml, "S12Protos")
+	require.Equal(t, string(mustReadFile(t, "testdata/google/protobuf/timestamp.djinni.yaml")), yaml)
+}
+
+// readTree returns the files in dir that keep accepts, keyed by their path relative to dir. It
+// reads the directories below dir only if recursive is true.
+func readTree(t *testing.T, dir string, recursive bool, keep func(name string) bool) map[string]string {
+	t.Helper()
+	files := map[string]string{}
+	require.NoError(t, filepath.WalkDir(dir, func(path string, entry fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if entry.IsDir() {
+			if !recursive && path != dir {
+				return fs.SkipDir
+			}
+			return nil
+		}
+		if !keep(entry.Name()) {
+			return nil
+		}
+		rel, err := filepath.Rel(dir, path)
+		if err != nil {
+			return err
+		}
+		content, err := os.ReadFile(path)
+		files[rel] = string(content)
+		return err
+	}))
+	return files
+}
+
+// requireSameFiles fails with the path of every file that only one side has and of every file whose bytes differ.
+func requireSameFiles(t *testing.T, a, b map[string]string, aName, bName string) {
+	t.Helper()
+	var problems []string
+	for name, content := range a {
+		other, ok := b[name]
+		switch {
+		case !ok:
+			problems = append(problems, "missing in the "+bName+": "+name)
+		case other != content:
+			problems = append(problems, "differs: "+name)
+		}
+	}
+	for name := range b {
+		if _, ok := a[name]; !ok {
+			problems = append(problems, "missing in the "+aName+": "+name)
+		}
+	}
+	sort.Strings(problems)
+	require.Empty(t, problems, "%s and %s are not the same files", aName, bName)
+}
+
+// optionOffOutputs are the files that the plugin writes with no option for the routeguide protos.
+// The golden directory also holds the output of other plugins, so the test selects the goldens by name.
+var optionOffOutputs = map[string]bool{
+	"message.djinni.jni.h":    true,
+	"message.djinni.objc.h":   true,
+	"message.djinni.yaml":     true,
+	"route_guide.crux.api.cc": true,
+	"route_guide.crux.api.h":  true,
+	"route_guide.mock.h":      true,
+}
+
+// TestOptionOffMatchesCommittedGoldens checks that, with no option, the Go plugin writes the same
+// bytes as the goldens that the repository has committed under protoc-gen-cruxclient/generated.
+func TestOptionOffMatchesCommittedGoldens(t *testing.T) {
+	sources := messageProtoSources(t)
+	sources["routeguide/v1/route_guide.proto"] = string(mustReadFile(t, "testdata/routeguide/route_guide.proto"))
+	output := runPlugin(t, sources, []string{"routeguide/v1/message.proto", "routeguide/v1/route_guide.proto"})
+
+	got := map[string]string{}
+	for name, content := range output {
+		got[strings.TrimPrefix(name, "routeguide/v1/")] = content
+	}
+	goldens := readTree(t, "../protoc-gen-cruxclient/generated/routeguide/v1", false, func(name string) bool {
+		return optionOffOutputs[name]
+	})
+	require.Len(t, goldens, len(optionOffOutputs), "a file of optionOffOutputs has no committed golden")
+	requireSameFiles(t, goldens, got, "committed goldens", "Go plugin output")
+}
+
+// TestKotlinSwiftnamesGolden checks the Kotlin output for a package with the leading s12
+// segment, nested classes, and a file without a package.
+func TestKotlinSwiftnamesGolden(t *testing.T) {
+	sources := map[string]string{}
+	var files []string
+	for _, name := range []string{"names", "loose"} {
+		sources["swiftnames/"+name+".proto"] = string(mustReadFile(t, "testdata/swiftnames/"+name+".proto"))
+		files = append(files, "swiftnames/"+name+".proto")
+	}
+	output := runPluginWithParameter(t, sources, files, "kotlin_package")
+
+	got := map[string]string{}
+	for name, content := range output {
+		if strings.HasSuffix(name, ".djinni.yaml") || strings.HasSuffix(name, ".djinni.kotlin.jni.h") {
+			got[strings.TrimPrefix(name, "swiftnames/")] = content
+		}
+	}
+	golden := readTree(t, "testdata/swiftnames/kotlin", true, func(string) bool { return true })
+	requireSameFiles(t, golden, got, "golden files", "plugin output")
+}
+
 // collectTransitiveDeps recursively walks a FileDescriptor's transitive import
 // closure and appends each unique FileDescriptorProto to out. seen tracks
 // already-visited paths to avoid duplicates.
@@ -252,7 +727,7 @@ func collectTransitiveDeps(fd protoreflect.FileDescriptor, seen map[string]struc
 
 	// First recurse into imports so dependencies come before dependants.
 	imports := fd.Imports()
-	for i := 0; i < imports.Len(); i++ {
+	for i := range imports.Len() {
 		imp := imports.Get(i)
 		collectTransitiveDeps(imp.FileDescriptor, seen, out)
 	}
@@ -265,5 +740,61 @@ func mapKeys(m map[string]string) []string {
 	for k := range m {
 		keys = append(keys, k)
 	}
+	sort.Strings(keys)
 	return keys
+}
+
+// TestKotlinYAMLRecordsHaveNoOrd checks that a record bound to a Kotlin message class has no
+// ord, and that a record without the Kotlin option keeps the typedef of master.
+func TestKotlinYAMLRecordsHaveNoOrd(t *testing.T) {
+	const withOrd = "typedef: 'record deriving(eq, ord, parcelable)'"
+	const withoutOrd = "typedef: 'record deriving(eq, parcelable)'"
+	files := []string{"routeguide/v1/message.proto"}
+
+	off := runPluginWithParameter(t, messageProtoSources(t), files, "")["routeguide/v1/message.djinni.yaml"]
+	require.Equal(t, 7, strings.Count(off, withOrd))
+	require.NotContains(t, off, withoutOrd)
+
+	on := runPluginWithParameter(t, messageProtoSources(t), files, "kotlin_package")["routeguide/v1/message.djinni.yaml"]
+	require.Equal(t, 7, strings.Count(on, withoutOrd))
+	require.NotContains(t, on, withOrd)
+}
+
+// TestMessagesOnlySkipsDjinniNameRules checks that a run without glue output does not apply the
+// name rules of the glue.
+func TestMessagesOnlySkipsDjinniNameRules(t *testing.T) {
+	resp, err := runPluginResponse(t,
+		map[string]string{"test.proto": "syntax = \"proto3\";\npackage std.v1;\nmessage Message {}\n"},
+		[]string{"test.proto"}, "kotlin_package,kotlin_messages,messages_only")
+	require.NoError(t, err)
+	require.Empty(t, resp.GetError())
+}
+
+// TestKeywordDjinniGoldens checks that the glue names a C++ keyword in a package or a message
+// as protoc does, with a trailing underscore.
+func TestKeywordDjinniGoldens(t *testing.T) {
+	sources := map[string]string{"keyword/keyword.proto": string(mustReadFile(t, "testdata/keyword/keyword.proto"))}
+	output := runPluginWithParameter(t, sources, []string{"keyword/keyword.proto"}, "swift_module,kotlin_package")
+	for _, name := range []string{"keyword.djinni.swiftxx.h", "keyword.djinni.kotlin.jni.h", "keyword.djinni.yaml"} {
+		if *update {
+			require.NoError(t, os.WriteFile("testdata/keyword/"+name, []byte(output["keyword/"+name]), 0o644))
+		}
+		require.Equal(t, string(mustReadFile(t, "testdata/keyword/"+name)), output["keyword/"+name], name)
+	}
+	require.Contains(t, output["keyword/keyword.djinni.swiftxx.h"], "using CppType = ::keyword::private_::v1::Holder::class_;")
+	require.Contains(t, output["keyword/keyword.djinni.kotlin.jni.h"], "using CppType = ::keyword::private_::v1::NULL_;")
+	require.Contains(t, output["keyword/keyword.djinni.swiftxx.h"], "using CppType = ::keyword::private_::v1::Holder::New_;")
+	require.Contains(t, output["keyword/keyword.djinni.yaml"], "cpp:\n  typename: 'keyword::private_::v1::Holder::New_'\n")
+	require.Contains(t, output["keyword/keyword.djinni.kotlin.jni.h"], "using CppType = ::keyword::private_::v1::Clear_;")
+}
+
+// TestDjinniYAMLEscapesLegacyValues checks that a quote in a file path is doubled in the values
+// that the plugin writes without an option.
+func TestDjinniYAMLEscapesLegacyValues(t *testing.T) {
+	output := runPlugin(t, map[string]string{"q/it's.proto": "syntax = \"proto3\";\npackage q.v1;\nmessage M {}\n"},
+		[]string{"q/it's.proto"})
+	yaml := output["q/it's.djinni.yaml"]
+	require.Contains(t, yaml, "  header: '\"q/it''s.pb.h\"'\n")
+	require.Contains(t, yaml, "  header: '\"q/it''s.djinni.objc.h\"'\n")
+	require.Contains(t, yaml, "  header: '\"q/it''s.djinni.jni.h\"'\n")
 }

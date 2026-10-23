@@ -1,0 +1,37 @@
+edition = "2023";
+
+package kitchen.editions;
+
+option java_multiple_files = true;
+
+enum Open {
+  OPEN_ZERO = 0;
+  OPEN_ONE = 1;
+}
+
+enum Closed {
+  option features.enum_type = CLOSED;
+  CLOSED_ZERO = 0;
+  CLOSED_ONE = 1;
+}
+
+message Holder {
+  Open open = 1;
+  Closed closed = 2;
+  repeated Closed closed_list = 3;
+}
+
+message Features {
+  string explicit_text = 1;
+  string implicit_text = 2 [features.field_presence = IMPLICIT];
+  string required_text = 3 [features.field_presence = LEGACY_REQUIRED];
+  repeated int32 packed_numbers = 4;
+  repeated int32 expanded_numbers = 5 [features.repeated_field_encoding = EXPANDED];
+}
+
+message ClosedMaps {
+  map<string, Closed> by_name = 1;
+  map<int32, Closed> by_id = 2;
+  map<string, Open> open_by_name = 3;
+  string tail = 4;
+}

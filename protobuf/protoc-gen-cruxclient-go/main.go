@@ -7,11 +7,14 @@ package main
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/bufbuild/protoplugin"
 	"google.golang.org/protobuf/reflect/protoreflect"
+	"google.golang.org/protobuf/types/descriptorpb"
 
 	"github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-cruxclient-go/internal/generator"
+	"github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-cruxclient-go/internal/kotlin"
 )
 
 func main() {
@@ -28,21 +31,42 @@ func handle(
 	responseWriter protoplugin.ResponseWriter,
 	request protoplugin.Request,
 ) error {
+	responseWriter.SetFeatureProto3Optional()
+	responseWriter.SetFeatureSupportsEditions(descriptorpb.Edition_EDITION_PROTO2, descriptorpb.Edition_EDITION_2023)
 	fileDescriptors, err := request.FileDescriptorsToGenerate()
 	if err != nil {
 		return err
 	}
-	for _, fileDesc := range fileDescriptors {
+	opts, err := generator.ParseOptions(request.Parameter())
+	if err != nil {
+		responseWriter.AddError(err.Error())
+		return nil
+	}
+	cruxclientFiles := fileDescriptors
+	if opts.MessagesOnly {
+		cruxclientFiles = nil
+	}
+	if err := generator.ValidateDjinniNames(cruxclientFiles, opts); err != nil {
+		responseWriter.AddError(err.Error())
+		return nil
+	}
+	for _, fileDesc := range cruxclientFiles {
 		if fileDesc.Services().Len() == 0 {
 			// PLUG-05: No services — generate djinni support files only
-			generateDjinniSupport(responseWriter, fileDesc)
+			generateDjinniSupport(responseWriter, fileDesc, opts)
 			continue
 		}
 		// PLUG-04: Has services — generate all 6 file types
 		generateAPIHeader(responseWriter, fileDesc)
 		generateAPISource(responseWriter, fileDesc)
 		generateMock(responseWriter, fileDesc)
-		generateDjinniSupport(responseWriter, fileDesc)
+		generateDjinniSupport(responseWriter, fileDesc, opts)
+	}
+	if opts.KotlinMessagesEnabled() {
+		if err := kotlin.Generate(responseWriter, fileDescriptors, opts.KotlinMessages); err != nil {
+			responseWriter.AddError(fmt.Sprintf("cruxclient-go: kotlin.Generate: %v", err))
+			return nil
+		}
 	}
 	return nil
 }
@@ -66,43 +90,23 @@ func generateMock(rw protoplugin.ResponseWriter, fileDesc protoreflect.FileDescr
 }
 
 // generateDjinniSupport generates the three djinni support files:
-// .djinni.yaml, .djinni.objc.h, .djinni.jni.h.
-// Mirrors api_generator.cc GenerateDjinniSupport (line 672): guards on
+// .djinni.yaml, .djinni.objc.h, .djinni.jni.h. The Swift option adds .djinni.swiftxx.h. The Kotlin option adds .djinni.kotlin.jni.h.
+// Mirrors api_generator.cc GenerateDjinniSupport: guards on
 // top-level message count using fileDesc.Messages().Len() to match the C++
 // file->message_type_count() check (which counts only top-level messages,
 // NOT nested/recursive messages).
-func generateDjinniSupport(rw protoplugin.ResponseWriter, fileDesc protoreflect.FileDescriptor) {
+func generateDjinniSupport(rw protoplugin.ResponseWriter, fileDesc protoreflect.FileDescriptor, opts generator.Options) {
 	// Match C++ behavior: no djinni files if no top-level messages
 	if fileDesc.Messages().Len() == 0 {
 		return
 	}
-	generator.GenerateDjinniYAML(rw, fileDesc)
+	generator.GenerateDjinniYAML(rw, fileDesc, opts)
 	generator.GenerateDjinniObjC(rw, fileDesc)
 	generator.GenerateDjinniJNI(rw, fileDesc)
-}
-
-// nonClientStreamingMethods returns methods that are not client-streaming.
-// Both client-only and bidirectional streaming methods are excluded because
-// both have IsStreamingClient() == true.
-// This implements PLUG-06, mirroring api_generator.cc line 110:
-//
-//	if (method->client_streaming()) { continue; }
-//
-// Examples from routeguide RouteGuide:
-//   - GetFeature (unary): INCLUDED
-//   - UpdateFeature (unary): INCLUDED
-//   - ListFeatures (server-streaming): INCLUDED
-//   - RecordRoute (client-streaming): SKIPPED
-//   - RouteChat (bidi): SKIPPED (client_streaming=true)
-func nonClientStreamingMethods(service protoreflect.ServiceDescriptor) []protoreflect.MethodDescriptor {
-	var methods []protoreflect.MethodDescriptor
-	allMethods := service.Methods()
-	for i := 0; i < allMethods.Len(); i++ {
-		method := allMethods.Get(i)
-		if method.IsStreamingClient() {
-			continue
-		}
-		methods = append(methods, method)
+	if opts.SwiftEnabled() {
+		generator.GenerateDjinniSwiftxx(rw, fileDesc)
 	}
-	return methods
+	if opts.KotlinEnabled() {
+		generator.GenerateDjinniKotlinJNI(rw, fileDesc, opts)
+	}
 }

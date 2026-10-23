@@ -92,6 +92,8 @@ protoc \
 
 ## protoc-gen-cruxclient (C++)
 
+**Status**: Frozen. This plugin does not get new options. The options `swift_module`, `kotlin_package` and `kotlin_messages` are in `protoc-gen-cruxclient-go` only.
+
 **Purpose**: Generates C++ client code, mock servers, and Djinni cross-language bindings (ObjC, JNI) from proto service definitions. Targets the CRUX Engine mobile client SDK.
 
 **Generates**: `.crux.api.h`, `.crux.api.cc`, `.mock.h`, `.djinni.yaml`, `.djinni.objc.h`, `.djinni.jni.h`
@@ -105,9 +107,9 @@ make install-cruxclient
 
 ## protoc-gen-cruxclient-go
 
-**Purpose**: Go port of `protoc-gen-cruxclient`. Generates identical output using the `bufbuild/protoplugin` framework — no C++ toolchain required.
+**Purpose**: Go port of `protoc-gen-cruxclient`. Generates identical output using the `bufbuild/protoplugin` framework — no C++ toolchain required. With no option, the output is the output of `protoc-gen-cruxclient` on `master`. The options below are only in this plugin.
 
-**Generates**: `.crux.api.h`, `.crux.api.cc`, `.mock.h`, `.djinni.yaml`, `.djinni.objc.h`, `.djinni.jni.h`
+**Generates**: `.crux.api.h`, `.crux.api.cc`, `.mock.h`, `.djinni.yaml`, `.djinni.objc.h`, `.djinni.jni.h`, and `.djinni.swiftxx.h` (only with the `swift_module` option), `.djinni.kotlin.jni.h` (only with the `kotlin_package` option), and one `.pb.kt` file for each proto file with a message or an enum, with the runtime file `<root>/wire/S12Wire.kt` and the shrinker keep rules `<root>/s12kt.pro` (only with the `kotlin_messages` option)
 
 **Install**:
 ```sh
@@ -121,3 +123,57 @@ protoc \
   --cruxclient-go_out=. \
   path/to/*.proto
 ```
+
+**Options**: The plugin stops with an error for an option that it does not know (it accepts `paths`), and for a value on an option that takes none, such as `messages_only=false`. Errors that options or proto content cause come back as the response error of the plugin, so protoc prints them after `--cruxclient-go_out:`.
+
+**Option `swift_module`**: Turns on the Swift output. A bare `swift_module` uses the module name `S12Protos`. `swift_module=<Name>` sets the module name. With the option on, each `.djinni.yaml` record gets a `swift:` and a `swiftxx:` block, and the plugin writes `.djinni.swiftxx.h` next to `.djinni.objc.h`. The translator throws `ErrorValue` for a message that has a missing required field, before it serializes the message. With the option off, the output does not change.
+```sh
+protoc \
+  -I. \
+  --cruxclient-go_out=swift_module=S12Protos:. \
+  path/to/*.proto
+```
+
+**Option `kotlin_package`**: Turns on the Kotlin output for the Djinni bindings of the pure Kotlin messages. Use the option `kotlin_messages` for the Kotlin messages. A bare `kotlin_package` uses the root package `com.safetyculture.s12kt`. `kotlin_package=<Root>` sets the root package. With the option on, each `.djinni.yaml` record gets `kotlinTranslator`, `kotlinHeader` and `kotlinTypeSignature` keys in its `jni:` block and a `jniTypename` key in its `kotlin:` block, and the plugin writes `.djinni.kotlin.jni.h`. The Kotlin translator moves a message as serialized bytes between C++ and the Kotlin class, with `toByteArray()` and `parseFrom(ByteArray)`. A parse or serialize failure, a null or wrong-type Kotlin object, and a message with a missing required field throw `std::runtime_error`, which djinni converts to a Java exception. With the option on, each record has `deriving(eq, parcelable)` without `ord`, because a Kotlin message class does not implement `Comparable`. A Djinni record that derives `ord` and has a field of a protobuf type does not generate. With the option off, the output does not change.
+
+**Names in the glue** (with `swift_module` or `kotlin_package`): the translators use the C++ names that protoc writes, so a package or message name that is a C++ keyword gets a trailing `_` (`private` becomes `private_`), and so does a message name that would hide a method of the message class (`Clear`, `New`, `Swap`, `CopyFrom`, `MergeFrom`, `IsInitialized`, `GetDescriptor`, `GetReflection`, `GetMetadata`, `UnsafeArenaSwap`, `default_instance`). The plugin stops with an error for a nested message named `Translator`, for a package with any segment `std` or a message named `std`, with `swift_module` for a package whose first segment is `swift`, and with `kotlin_package` for a package whose first segment is `kotlin` and for a nested message named `JNIInfo`.
+```sh
+protoc \
+  -I. \
+  --cruxclient-go_out=kotlin_package:. \
+  path/to/*.proto
+```
+
+**Option `kotlin_messages`**: Writes pure Kotlin message classes with a wire codec. The classes replace the Java lite classes in Kotlin code. They have no dependency except the Kotlin standard library. A bare `kotlin_messages` uses the root package from `kotlin_package`, or `com.safetyculture.s12kt` if `kotlin_package` is absent. `kotlin_messages=<Root>` sets the root package. When `kotlin_package` is also set, both options must name the same root package, or the plugin stops with an error. Each segment of the root package must be a Kotlin identifier that is not a hard keyword. A message, enum or property named like the first segment of the root gets a suffix, as `kotlin`, `com` and `java` do. With the option off, the output does not change. Only this plugin has the option. The C++ plugin cannot write Kotlin.
+```sh
+protoc \
+  -I. \
+  --cruxclient-go_out=kotlin_messages:. \
+  path/to/*.proto
+```
+The plugin writes one `.pb.kt` file for each proto file that has a message or an enum, and one runtime file `<root>/wire/S12Wire.kt` and one keep rules file `<root>/s12kt.pro` for each run. The keep rules stop a shrinker from removing `parseFrom`, `toByteArray` and `getSerializedSize`, which the JNI translator calls by name. The proto package follows the root, with the leading `s12.` removed, as the Java lite package does. The Kotlin classes and the Java lite classes can be in one app, because their packages are different. The plugin must get all files of a run in one request, because it writes the runtime file once. With `buf`, set `strategy: all`.
+
+**Option `messages_only`**: Turns off all cruxclient output in the run: the API, mock and Djinni files, and the files of `swift_module` and `kotlin_package`. A run with `kotlin_messages,messages_only` writes only the `.pb.kt` files, the runtime file and the keep rules file. The option does not take a value, and it needs `kotlin_messages`: without it the plugin stops with an error. The output of the other options does not change when `messages_only` is absent.
+
+**Rules**:
+
+| Proto | Kotlin |
+|-------|--------|
+| message | `data class` with `val` parameters and default values. Use the constructor and `copy()`. |
+| plain scalar | Non-null, with the proto default |
+| `optional` scalar, singular message | Nullable, `null` by default |
+| proto2 `required` | Non-null, with no default, so code cannot build a message without it. `parseFrom` throws `InvalidWireException` if no part has a value for it |
+| `repeated` | `List`, empty by default |
+| `map` | `Map`, empty by default |
+| `oneof` | A nullable property of a `sealed class` type, with one subclass for each member |
+| enum | `sealed class` with one `object` for each value, `number`, `name`, `entries`, `fromNumber()` and a class `UNRECOGNIZED(number)` |
+
+Each message has `toByteArray()`, `getSerializedSize()` and `companion object { @JvmStatic fun parseFrom(bytes: ByteArray) }`. A field that the code does not know is kept in `unknownFields` and written again. The well-known types (`Timestamp`, `Duration`, `FieldMask`, `Any`, `Struct`, wrappers, `Empty`) are generated like other messages, when you give their files to the plugin. They have data and codec only.
+
+The wire format is the same as the format of Java lite. A proto3 enum is open: a number that the enum does not declare becomes `UNRECOGNIZED(number)` in the property, and the codec writes the number in the same place. A closed enum (proto2, or an edition enum with `enum_type = CLOSED`) does not reject such a number: the codec keeps it in `unknownFields` and writes it again, as Java lite does. `UNRECOGNIZED` has an `internal` constructor. Get it from `fromNumber`, so that `UNRECOGNIZED(-1)` cannot be made for a declared number. The reader stops at a nesting depth of 100 and throws `InvalidWireException`, as Java lite does.
+
+`parseFrom` checks the required fields of a proto2 message once, after it has merged all parts of the message, and throws `InvalidWireException("missing required field <name>")` for the first field that no part has. A message below the top-level message does not throw on its own, because a later part can have the field. A message can have 63 required fields at most. A string field with the feature `utf8_validation = NONE` (proto2 by default) accepts invalid UTF-8 and replaces the bad bytes with U+FFFD, as Java lite does. A proto3 string, an edition string with `utf8_validation = VERIFY`, and every map entry throw `InvalidWireException` for invalid UTF-8.
+
+A parse returns lists and maps that cannot change. A constructor keeps the list or the map that the caller passes. The serialized size is not cached. Encoding recomputes each nested size at each depth, so it costs O(bytes × depth). `toByteArray()` writes the current contents. If a list or a map changes while `toByteArray()` runs, it can throw `StaleSizeException`, an `IllegalStateException`. `toByteArray()` throws `UninitializedMessageException` for a message from `WireCodec.decode` that has a missing required field, as Java lite's `build()` does. `equals` and `hashCode` ignore the missing state. A `copy()` drops the missing state and writes the default value. A map entry with two value messages keeps the last one, and a oneof message member is checked when it is read, also if a later member replaces it, as in Java lite. Three cases differ from Java lite: a `copy()` of a partial message writes the default value instead of throwing; the codec filters the unknown numbers of a closed-enum map value once after all parts of the message, where Java lite filters each part; and the codec does not read the Java feature `legacy_closed_enum`, so a proto2 field with a proto3 enum type stays open, where Java lite makes it closed. An extension (`extend`) is not generated. The bytes of an extension field are kept in `unknownFields` and written again. The codec writes an unknown field with the tags, lengths and varints in their shortest form, as Java lite does. A string with an unpaired surrogate is written with `?` in place of the surrogate, where Java lite throws. The codec throws `InvalidWireException`, a `RuntimeException`, for every wire error. A varint of more than ten bytes is a wire error. Java lite accepts an int32 or an int64 varint of more than ten bytes when it reads from a byte array, and refuses it when it reads from a stream. The codec refuses it in both cases. The plugin does not validate the value of `swift_module`.
+
+**Test**: `go test ./...` in `protobuf/protoc-gen-cruxclient-go` runs the golden test and the nullability tests. `test/wire_compat.sh` generates Kotlin and Java lite classes from the same proto files, encodes random messages and compares the bytes in both directions. Set `APISCHEMA` to an APISchema checkout to include `s12.assets.v1.Asset`. Set `ROOTS_FILE` to a list of proto files, relative to `APISCHEMA/protos`, to include more files, such as the whole Crux whitelist.

@@ -6,20 +6,38 @@ protoc = "36.1"
 "go:google.golang.org/protobuf/cmd/protoc-gen-go" = "latest"
 
 [tasks.build]
-description = "Build all packages"
-run = "go build ./..."
+description = "Build all packages (root module and the plugin modules)"
+run = """
+set -eu
+go build ./...
+for d in protobuf/protoc-gen-cruxclient-go; do
+  (cd "$d" && go build ./...)
+done
+"""
 
 [tasks.vet]
-description = "Run go vet"
-run = "go vet ./..."
+description = "Run go vet (root module and the plugin modules)"
+run = """
+set -eu
+go vet ./...
+for d in protobuf/protoc-gen-cruxclient-go; do
+  (cd "$d" && go vet ./...)
+done
+"""
 
 [tasks.generate]
 description = "Generate Go code from proto definitions"
 run = "make generate"
 
 [tasks.test]
-description = "Run tests (root module)"
-run = "go test ./..."
+description = "Run tests (root module and the plugin modules)"
+run = """
+set -eu
+go test ./...
+for d in protobuf/protoc-gen-cruxclient-go; do
+  (cd "$d" && go test ./...)
+done
+"""
 
 [tasks."verify:generated"]
 description = "Fail if the checked-in govalidator fixtures do not match a fresh generation"
@@ -57,8 +75,16 @@ fi
 """
 
 [tasks.lint]
-description = "Run Go linter"
-run = "golangci-lint run"
+description = "Run Go linter (root module and the plugin modules)"
+run = """
+set -u
+status=0
+golangci-lint run || status=1
+for d in protobuf/protoc-gen-cruxclient-go; do
+  (cd "$d" && golangci-lint run) || status=1
+done
+exit "$status"
+"""
 
 [tasks."fmt:proto"]
 description = "Format proto files with buf"

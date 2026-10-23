@@ -39,8 +39,8 @@ See [docs/plugins.md](docs/plugins.md) for the full plugin reference, including 
 | `protoc-gen-s12perm` | gRPC permission interceptors |
 | `protoc-gen-logger` | Structured logging for gRPC services |
 | `protoc-gen-gogrpcmock` | gRPC mock server implementations |
-| `protoc-gen-cruxclient` | C++ client + Djinni bindings (C++ toolchain) |
-| `protoc-gen-cruxclient-go` | C++ client + Djinni bindings (Go, no C++ toolchain needed) |
+| `protoc-gen-cruxclient` | C++ client + Djinni bindings (C++ toolchain). Frozen: new options are only in `protoc-gen-cruxclient-go` |
+| `protoc-gen-cruxclient-go` | C++ client + Djinni bindings (Go, no C++ toolchain needed), and pure Kotlin messages with a wire codec (option `kotlin_messages`) |
 
 ## Proto linting with buf
 
@@ -57,4 +57,7 @@ go test ./...
 
 # protoc-gen-cruxclient-go
 cd protobuf/protoc-gen-cruxclient-go && go test ./...
+
+# Kotlin and Java lite wire compatibility (needs go, protoc, kotlinc, javac, java, curl and shasum)
+protobuf/protoc-gen-cruxclient-go/test/wire_compat.sh
 ```

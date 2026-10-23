@@ -13,6 +13,7 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/descriptorpb"
 
+	"github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-cruxclient-go/internal/kotlin"
 	wire "github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-cruxclient-go/internal/wire"
 )
 
@@ -87,7 +88,7 @@ func FilenameIdentifier(filename string) string {
 		if isAlphaNumeric(c) {
 			b.WriteByte(c)
 		} else {
-			b.WriteString(fmt.Sprintf("_%02x", c))
+			fmt.Fprintf(&b, "_%02x", c)
 		}
 	}
 	return b.String()
@@ -233,4 +234,133 @@ func getMessagesFromMessage(msg protoreflect.MessageDescriptor) []protoreflect.M
 		result = append(result, getMessagesFromMessage(nested.Get(i))...)
 	}
 	return result
+}
+
+// SwiftProtobufPrefix returns the type prefix of the SwiftProtobuf types of a file.
+// The swift_prefix file option wins, even when it is empty. Without it, each part of
+// the proto package is in upper camel case, and "_" joins and ends the parts.
+// Example: "s12.legacy_ratelimits.v1" gives "S12_LegacyRatelimits_V1_". An empty package gives "".
+func SwiftProtobufPrefix(fileDesc protoreflect.FileDescriptor) string {
+	if opts, ok := fileDesc.Options().(*descriptorpb.FileOptions); ok && opts != nil && opts.SwiftPrefix != nil {
+		return opts.GetSwiftPrefix()
+	}
+	return swiftPackagePrefix(string(fileDesc.Package()))
+}
+
+// swiftBundledProtos are the files that the SwiftProtobuf runtime has the types of (isBundledProto in protoc-gen-swift).
+var swiftBundledProtos = map[string]struct{}{
+	"google/protobuf/any.proto":            {},
+	"google/protobuf/api.proto":            {},
+	"google/protobuf/descriptor.proto":     {},
+	"google/protobuf/duration.proto":       {},
+	"google/protobuf/empty.proto":          {},
+	"google/protobuf/field_mask.proto":     {},
+	"google/protobuf/source_context.proto": {},
+	"google/protobuf/struct.proto":         {},
+	"google/protobuf/timestamp.proto":      {},
+	"google/protobuf/type.proto":           {},
+	"google/protobuf/wrappers.proto":       {},
+}
+
+// SwiftProtobufModule returns the Swift module of the SwiftProtobuf types of a file.
+// The types of the bundled google.protobuf files are in the SwiftProtobuf runtime, not in the module of the other protos.
+func SwiftProtobufModule(fileDesc protoreflect.FileDescriptor, module string) string {
+	if _, bundled := swiftBundledProtos[fileDesc.Path()]; bundled && fileDesc.Package() == "google.protobuf" {
+		return "SwiftProtobuf"
+	}
+	return module
+}
+
+func swiftPackagePrefix(pkg string) string {
+	if pkg == "" {
+		return ""
+	}
+	var b strings.Builder
+	makeUpper := true
+	for i := 0; i < len(pkg); i++ {
+		c := pkg[i]
+		switch c {
+		case '_':
+			makeUpper = true
+		case '.':
+			makeUpper = true
+			b.WriteByte('_')
+		default:
+			if b.Len() == 0 && c >= '0' && c <= '9' {
+				b.WriteByte('_')
+			}
+			if makeUpper && c >= 'a' && c <= 'z' {
+				c -= 'a' - 'A'
+			}
+			makeUpper = false
+			b.WriteByte(c)
+		}
+	}
+	return b.String() + "_"
+}
+
+// SwiftProtobufTypeName returns the SwiftProtobuf type name of a message.
+// A nested message is a nested Swift type, so its name has a "." separator.
+// Example: "S12_Assets_V1_Outer.Inner".
+func SwiftProtobufTypeName(msg protoreflect.MessageDescriptor) string {
+	if parent, ok := msg.Parent().(protoreflect.MessageDescriptor); ok {
+		return SwiftProtobufTypeName(parent) + "." + sanitizeSwiftMessageName(string(msg.Name()))
+	}
+	return sanitizeSwiftMessageName(SwiftProtobufPrefix(msg.ParentFile()) + string(msg.Name()))
+}
+
+// swiftReservedTypeNames are the names that SwiftProtobuf does not use for a type
+// (reservedTypeNames in the NamingUtils of protoc-gen-swift).
+var swiftReservedTypeNames = map[string]struct{}{}
+
+func init() {
+	for _, name := range []string{
+		"SwiftProtobuf", "Extensions", "protoMessageName", "decodeMessage", "traverse",
+		"isInitialized", "unknownFields", "debugDescription", "description", "dynamicType",
+		"hashValue", "Type", "Protocol", "Swift", "Equatable", "Hashable", "Sendable",
+		// Keywords used in declarations
+		"associatedtype", "class", "deinit", "enum", "extension", "fileprivate", "func",
+		"import", "init", "inout", "internal", "let", "open", "operator", "private",
+		"protocol", "public", "static", "struct", "subscript", "typealias", "var",
+		// Keywords used in statements
+		"break", "case", "continue", "default", "defer", "do", "else", "fallthrough", "for",
+		"guard", "if", "in", "repeat", "return", "switch", "where", "while",
+		// Keywords used in expressions and types
+		"as", "Any", "catch", "false", "is", "nil", "rethrows", "super", "self", "Self",
+		"throw", "throws", "true", "try",
+		// Common types and special variables
+		"Bool", "Data", "Double", "Float", "Int", "Int32", "Int64", "String", "UInt",
+		"UInt32", "UInt64", "__COLUMN__", "__FILE__", "__FUNCTION__", "__LINE__",
+	} {
+		swiftReservedTypeNames[name] = struct{}{}
+	}
+}
+
+// sanitizeSwiftMessageName adds the "Message" suffix to a reserved name, as SwiftProtobuf does.
+// A name that already ends in "Message" gets the suffix again if its root is reserved.
+func sanitizeSwiftMessageName(name string) string {
+	const disambiguator = "Message"
+	if _, reserved := swiftReservedTypeNames[name]; reserved {
+		return name + disambiguator
+	}
+	if name != "" && strings.Trim(name, "_") == "" {
+		return name + disambiguator
+	}
+	if root, found := strings.CutSuffix(name, disambiguator); found {
+		return sanitizeSwiftMessageName(root) + disambiguator
+	}
+	return name
+}
+
+// KotlinQualifiedName returns the fully qualified Kotlin source name of the class of a message,
+// as the Kotlin message generator names it. Example: "com.safetyculture.s12kt.assets.v1.Outer.Inner".
+func KotlinQualifiedName(msg protoreflect.MessageDescriptor, root string) string {
+	return kotlin.QualifiedClassName(msg, root)
+}
+
+// KotlinBinaryName returns the JVM binary name of the Kotlin class of a message, as the Kotlin
+// message generator names it. A nested class has a "$" separator.
+// Example: "com/safetyculture/s12kt/assets/v1/Outer$Inner".
+func KotlinBinaryName(msg protoreflect.MessageDescriptor, root string) string {
+	return DotsToSlashs(kotlin.BinaryClassName(msg, root))
 }

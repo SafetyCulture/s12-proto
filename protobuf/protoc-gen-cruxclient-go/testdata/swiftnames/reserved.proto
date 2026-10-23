@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package s12.reserved_test.v1;
+
+option swift_prefix = "";
+
+// Names that SwiftProtobuf reserves. With an empty swift_prefix the top-level names are not
+// prefixed, so the reserved list applies to them as it does to nested names.
+message Sendable {}
+message Equatable {}
+message Hashable {}
+message Swift {}
+message SwiftProtobuf {}
+message Extensions {}
+message let {}
+message self {}
+message func {}
+message _ {}
+message __ {}
+message SendableMessage {}
+message Outer {
+  message Sendable {}
+  message Swift {}
+  message in {}
+  message _ {}
+}

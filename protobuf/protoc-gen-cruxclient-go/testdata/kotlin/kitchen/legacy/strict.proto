@@ -1,0 +1,18 @@
+syntax = "proto2";
+
+package kitchen.legacy;
+
+option java_multiple_files = true;
+option java_package = "com.safetyculture.kitchen.legacy";
+option java_string_check_utf8 = true;
+
+// The file option makes Java lite check the UTF-8 of every string of the file, although proto2
+// does not.
+message Strict {
+  optional string text = 1;
+  repeated string lines = 2;
+  oneof pick {
+    string a = 3;
+    int32 b = 4;
+  }
+}

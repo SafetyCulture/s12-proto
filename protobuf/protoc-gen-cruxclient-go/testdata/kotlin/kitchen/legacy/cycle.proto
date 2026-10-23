@@ -1,0 +1,18 @@
+syntax = "proto2";
+
+package kitchen.cycle;
+
+option java_multiple_files = true;
+option java_package = "com.safetyculture.kitchen.cycle";
+
+message A {
+  required A a = 1;
+}
+
+message HolderA {
+  optional A a = 1;
+}
+
+message ListA {
+  repeated A a = 1;
+}

@@ -1,0 +1,201 @@
+syntax = "proto3";
+
+package s12.kitchen.v1;
+
+import "google/protobuf/any.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+option java_multiple_files = true;
+option java_package = "com.safetyculture.s12.kitchen.v1";
+
+// Every scalar type with the proto3 default rules.
+message Scalars {
+  double f_double = 1;
+  float f_float = 2;
+  int32 f_int32 = 3;
+  int64 f_int64 = 4;
+  uint32 f_uint32 = 5;
+  uint64 f_uint64 = 6;
+  sint32 f_sint32 = 7;
+  sint64 f_sint64 = 8;
+  fixed32 f_fixed32 = 9;
+  fixed64 f_fixed64 = 10;
+  sfixed32 f_sfixed32 = 11;
+  sfixed64 f_sfixed64 = 12;
+  bool f_bool = 13;
+  string f_string = 14;
+  bytes f_bytes = 15;
+  Color f_enum = 16;
+}
+
+// The same scalar types with explicit presence.
+message OptionalScalars {
+  optional double f_double = 1;
+  optional float f_float = 2;
+  optional int32 f_int32 = 3;
+  optional int64 f_int64 = 4;
+  optional uint32 f_uint32 = 5;
+  optional uint64 f_uint64 = 6;
+  optional sint32 f_sint32 = 7;
+  optional sint64 f_sint64 = 8;
+  optional fixed32 f_fixed32 = 9;
+  optional fixed64 f_fixed64 = 10;
+  optional sfixed32 f_sfixed32 = 11;
+  optional sfixed64 f_sfixed64 = 12;
+  optional bool f_bool = 13;
+  optional string f_string = 14;
+  optional bytes f_bytes = 15;
+  optional Color f_enum = 16;
+  optional Scalars f_message = 17;
+}
+
+// Repeated fields: packed by default, unpacked on request.
+message Repeated {
+  repeated double f_double = 1;
+  repeated float f_float = 2;
+  repeated int32 f_int32 = 3;
+  repeated int64 f_int64 = 4;
+  repeated uint32 f_uint32 = 5;
+  repeated uint64 f_uint64 = 6;
+  repeated sint32 f_sint32 = 7;
+  repeated sint64 f_sint64 = 8;
+  repeated fixed32 f_fixed32 = 9;
+  repeated fixed64 f_fixed64 = 10;
+  repeated sfixed32 f_sfixed32 = 11;
+  repeated sfixed64 f_sfixed64 = 12;
+  repeated bool f_bool = 13;
+  repeated string f_string = 14;
+  repeated bytes f_bytes = 15;
+  repeated Color f_enum = 16;
+  repeated Scalars f_message = 17;
+  repeated int32 unpacked_int32 = 18 [packed = false];
+  repeated Color unpacked_enum = 19 [packed = false];
+  repeated double unpacked_double = 20 [packed = false];
+}
+
+// Maps with every key kind and several value kinds.
+message Maps {
+  map<string, string> by_string = 1;
+  map<int32, int64> by_int32 = 2;
+  map<int64, bool> by_int64 = 3;
+  map<uint32, double> by_uint32 = 4;
+  map<uint64, float> by_uint64 = 5;
+  map<sint32, bytes> by_sint32 = 6;
+  map<sint64, Color> by_sint64 = 7;
+  map<fixed32, Scalars> by_fixed32 = 8;
+  map<fixed64, string> by_fixed64 = 9;
+  map<sfixed32, string> by_sfixed32 = 10;
+  map<sfixed64, string> by_sfixed64 = 11;
+  map<bool, string> by_bool = 12;
+  map<string, Maps> nested = 13;
+}
+
+// Oneofs with scalar, enum, message and string members.
+message Oneofs {
+  string before = 1;
+  oneof choice {
+    string name = 2;
+    int32 count = 3;
+    Scalars scalars = 4;
+    Color color = 5;
+    bytes raw = 6;
+    double ratio = 7;
+  }
+  oneof other {
+    bool flag = 20;
+    Oneofs child = 21;
+  }
+  string after = 30;
+}
+
+enum Color {
+  COLOR_UNSPECIFIED = 0;
+  COLOR_RED = 1;
+  COLOR_GREEN = 2;
+  COLOR_BLUE = 3;
+  COLOR_NEGATIVE = -1;
+}
+
+enum Alias {
+  option allow_alias = true;
+  ALIAS_UNSPECIFIED = 0;
+  ALIAS_FIRST = 1;
+  ALIAS_ONE = 1;
+}
+
+// Nested messages and enums, and names that need care.
+message Outer {
+  message Inner {
+    message Deep {
+      string value = 1;
+    }
+    Deep deep = 1;
+    Kind kind = 2;
+  }
+  enum Kind {
+    KIND_UNSPECIFIED = 0;
+    KIND_A = 1;
+  }
+  message Companion {
+    int32 n = 1;
+  }
+  message Choice {
+    int32 n = 1;
+  }
+  Inner inner = 1;
+  Kind kind = 2;
+  Companion companion = 3;
+  Choice choice_message = 4;
+  oneof choice {
+    string text = 5;
+    Choice number = 6;
+  }
+  string in = 7;
+  string class = 8;
+  string serialized_size = 9;
+  string unknown_fields = 10;
+  string object = 11;
+  int32 value = 12;
+  string memoized_size = 13;
+}
+
+// Well-known types.
+message WellKnown {
+  google.protobuf.Timestamp ts = 1;
+  google.protobuf.Duration dur = 2;
+  google.protobuf.FieldMask mask = 3;
+  google.protobuf.StringValue str = 4;
+  google.protobuf.Int32Value i32 = 5;
+  google.protobuf.Int64Value i64 = 6;
+  google.protobuf.BoolValue flag = 7;
+  google.protobuf.DoubleValue dbl = 8;
+  google.protobuf.UInt32Value u32 = 9;
+  google.protobuf.Any any = 10;
+  google.protobuf.Struct data = 11;
+  google.protobuf.Value value = 12;
+  google.protobuf.ListValue list = 13;
+  repeated google.protobuf.Timestamp many = 14;
+  map<string, google.protobuf.Value> by_name = 15;
+}
+
+// A message without fields, and a message that shadows library type names.
+message Empty {}
+
+message String {
+  string value = 1;
+}
+
+message List {
+  repeated String items = 1;
+  map<string, String> by_name = 2;
+}
+
+message Highest {
+  int32 first = 1;
+  int32 last = 536870911;
+  int32 gap = 1000;
+}

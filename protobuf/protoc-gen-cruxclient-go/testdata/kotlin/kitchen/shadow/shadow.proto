@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package kitchen.shadow;
+
+// Names that hide a package that the generated code uses. Java lite cannot compile a nested class
+// named com, so this file is not part of the wire compatibility test.
+message Shadows {
+  message com {
+    int32 value = 1;
+  }
+
+  message kotlin {
+    int32 value = 1;
+  }
+
+  message java {
+    int32 value = 1;
+  }
+
+  message Inner {
+    enum Package {
+      PACKAGE_UNSPECIFIED = 0;
+      com = 1;
+      kotlin = 2;
+      java = 3;
+    }
+  }
+
+  com first = 1;
+  kotlin second = 2;
+  java third = 3;
+  Inner.Package package = 4;
+}
