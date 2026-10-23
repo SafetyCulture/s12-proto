@@ -81,7 +81,8 @@ func render(protos []*descriptorpb.FileDescriptorProto, names []string, opts *op
 	return out, nil
 }
 
-// internalError is a panic of the generator. Its text names the file already.
+// internalError is an internal failure of the generator (a panic or a broken invariant). Its text
+// names the file already.
 type internalError struct{ text string }
 
 func (e *internalError) Error() string { return e.text }
