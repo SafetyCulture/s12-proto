@@ -5,6 +5,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"path/filepath"
 	"sort"
 	"strings"
 	"testing"
@@ -128,4 +129,26 @@ func TestSwiftMessagesRejectsUnknownOption(t *testing.T) {
 	env := protoplugin.Env{Args: []string{}, Stdin: bytes.NewReader(reqBytes), Stdout: &stdout, Stderr: &stderr}
 	err = protoplugin.Run(context.Background(), env, protoplugin.HandlerFunc(handle))
 	require.ErrorContains(t, err, "Visibilty")
+}
+
+// TestSwiftMessagesKitchenThroughPlugin runs protos with a message set, groups and
+// editions through the plugin handler, as the binary runs. It compares the output with the golden files of
+// protoc-gen-swift. The runtime descriptors of Go refuse a message set, so the plugin
+// must not build them when it writes only the Swift messages.
+func TestSwiftMessagesKitchenThroughPlugin(t *testing.T) {
+	root := filepath.Join("internal", "swift", "testdata", "kitchen")
+	files := []string{"kitchen/editions.proto", "kitchen/proto2.proto", "kitchen/proto3.proto"}
+	sources := map[string]string{}
+	for _, name := range files {
+		sources[name] = string(mustReadFile(t, filepath.Join(root, filepath.FromSlash(name))))
+	}
+	output, stderr := runPluginWithComments(t, sources, files, "swift_messages,messages_only,Visibility=Public,FileNaming=PathToUnderscores")
+
+	require.Empty(t, stderr)
+	golden, err := filepath.Glob(filepath.Join(root, "golden", "public", "*.pb.swift"))
+	require.NoError(t, err)
+	require.Len(t, output, len(golden))
+	for _, path := range golden {
+		require.Equal(t, string(mustReadFile(t, path)), output[filepath.Base(path)], "output differs from %s", path)
+	}
 }

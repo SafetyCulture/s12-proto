@@ -34,14 +34,18 @@ func handle(
 ) error {
 	responseWriter.SetFeatureProto3Optional()
 	responseWriter.SetFeatureSupportsEditions(descriptorpb.Edition_EDITION_PROTO2, descriptorpb.Edition_EDITION_2023)
-	fileDescriptors, err := request.FileDescriptorsToGenerate()
-	if err != nil {
-		return err
-	}
 	opts, err := generator.ParseOptions(request.Parameter())
 	if err != nil {
 		responseWriter.AddError(err.Error())
 		return nil
+	}
+	var fileDescriptors []protoreflect.FileDescriptor
+	if !opts.MessagesOnly || opts.KotlinMessagesEnabled() {
+		fileDescriptors, err = request.FileDescriptorsToGenerate()
+		if err != nil {
+			responseWriter.AddError(err.Error())
+			return nil
+		}
 	}
 	cruxclientFiles := fileDescriptors
 	if opts.MessagesOnly {
@@ -71,7 +75,7 @@ func handle(
 	}
 	if opts.SwiftMessagesEnabled() {
 		if err := swift.Generate(responseWriter, request); err != nil {
-			return err
+			return fmt.Errorf("cruxclient-go: swift.Generate: %w", err)
 		}
 	}
 	if opts.MessagesOnly && !opts.KotlinMessagesEnabled() && !opts.SwiftMessagesEnabled() {
