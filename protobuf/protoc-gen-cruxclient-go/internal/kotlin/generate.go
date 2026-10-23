@@ -828,7 +828,11 @@ func (g *fileGen) companion(msg protoreflect.MessageDescriptor, qualified string
 		}
 	}
 	g.w.line("@kotlin.jvm.JvmStatic")
-	if g.needsRequiredCheck(msg) {
+	if cycleField := requiredMessageCycle(msg); cycleField != "" {
+		g.w.open("public fun parseFrom(bytes: kotlin.ByteArray): %s {", qualified)
+		g.w.line("throw %s(\"missing required field %s\")", g.rt("InvalidWireException"), cycleField)
+		g.w.close("}")
+	} else if g.needsRequiredCheck(msg) {
 		g.w.open("public fun parseFrom(bytes: kotlin.ByteArray): %s {", qualified)
 		g.w.line("val _message = decode(%s(bytes))", g.rt("WireReader"))
 		g.w.line("_message.findMissingRequired()?.let { throw %s(\"missing required field \" + it) }", g.rt("InvalidWireException"))
@@ -879,7 +883,7 @@ func (g *fileGen) companion(msg protoreflect.MessageDescriptor, qualified string
 				typ += "?"
 				g.w.line("var v_%s: %s = null", f.prop, typ)
 				if fd.Message() != nil {
-					args = append(args, fmt.Sprintf("%s = v_%s ?: throw %s(\"missing required field %s\")", f.prop, f.prop, g.rt("InvalidWireException"), fd.Name()))
+					args = append(args, fmt.Sprintf("%s = v_%s ?: %s.decode(%s(kotlin.ByteArray(0)))", f.prop, f.prop, QualifiedClassName(fd.Message(), g.root), g.rt("WireReader")))
 				} else {
 					args = append(args, fmt.Sprintf("%s = v_%s ?: %s", f.prop, f.prop, g.requiredFallback(f)))
 				}
@@ -1144,6 +1148,37 @@ func (g *fileGen) findMissingRequired(fields, required []*fieldInfo, qualified s
 	}
 	g.w.line("return null")
 	g.w.close("}")
+}
+
+func requiredMessageCycle(msg protoreflect.MessageDescriptor) string {
+	visiting := map[protoreflect.FullName]bool{msg.FullName(): true}
+	var reachesCycle func(protoreflect.MessageDescriptor) bool
+	reachesCycle = func(current protoreflect.MessageDescriptor) bool {
+		for i := range current.Fields().Len() {
+			field := current.Fields().Get(i)
+			if field.Cardinality() != protoreflect.Required || field.Message() == nil {
+				continue
+			}
+			next := field.Message()
+			if visiting[next.FullName()] {
+				return true
+			}
+			visiting[next.FullName()] = true
+			if reachesCycle(next) {
+				return true
+			}
+			delete(visiting, next.FullName())
+		}
+		return false
+	}
+	fields := msg.Fields()
+	for i := range fields.Len() {
+		field := fields.Get(i)
+		if field.Cardinality() == protoreflect.Required && field.Message() != nil && reachesCycle(field.Message()) {
+			return string(field.Name())
+		}
+	}
+	return ""
 }
 
 // needsRequiredCheck reports whether a message has a required field, or has a field whose message

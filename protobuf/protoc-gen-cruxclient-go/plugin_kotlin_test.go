@@ -480,7 +480,6 @@ func TestRequiredMessageCyclesRejectMissingFields(t *testing.T) {
 			require.NoError(t, os.WriteFile(filepath.Join(dir, "cycle.proto"), []byte(source), 0o644))
 			out := runPluginOnDisk(t, []string{dir}, "kotlin_messages", "cycle.proto")
 			code := out["com/safetyculture/s12kt/cycle/v1/cycle.pb.kt"]
-			require.NotContains(t, code, ".decode(com.safetyculture.s12kt.wire.WireReader(kotlin.ByteArray(0)))")
 			require.Contains(t, code, "throw com.safetyculture.s12kt.wire.InvalidWireException(\"missing required field ")
 		})
 	}

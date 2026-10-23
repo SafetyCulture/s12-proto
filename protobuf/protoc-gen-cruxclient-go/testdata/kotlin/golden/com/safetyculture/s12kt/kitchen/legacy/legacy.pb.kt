@@ -377,7 +377,7 @@ public data class RequiredMessage(
             }
             if (s_child != null) v_child = reader.readSections(com.safetyculture.s12kt.kitchen.legacy.Req, s_child)
             val _result = com.safetyculture.s12kt.kitchen.legacy.RequiredMessage(
-                child = v_child ?: throw com.safetyculture.s12kt.wire.InvalidWireException("missing required field child"),
+                child = v_child ?: com.safetyculture.s12kt.kitchen.legacy.Req.decode(com.safetyculture.s12kt.wire.WireReader(kotlin.ByteArray(0))),
                 unknownFields = _unknown.toByteString(),
             )
             _result.missingRequired = _missing
@@ -751,6 +751,261 @@ public data class LevelMaps(
                 byId = java.util.Collections.unmodifiableMap(v_byId),
                 tags = java.util.Collections.unmodifiableMap(v_tags),
                 tail = v_tail,
+                unknownFields = _unknown.toByteString(),
+            )
+        }
+    }
+}
+
+public data class PartialInner(
+    public val value: kotlin.Int,
+    /** The fields that this version of the schema does not know, kept as encoded bytes. */
+    public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
+) : com.safetyculture.s12kt.wire.WireMessage {
+    internal var missingRequired: kotlin.Long = 0L
+
+    override fun getSerializedSize(): kotlin.Int {
+        var _size = 0
+        if ((this.missingRequired and 1L) == 0L) _size += com.safetyculture.s12kt.wire.WireSize.int32(1, this.value)
+        _size += this.unknownFields.size
+        return _size
+    }
+
+    override fun writeTo(writer: com.safetyculture.s12kt.wire.WireWriter) {
+        if ((this.missingRequired and 1L) == 0L) writer.writeInt32(1, this.value)
+        writer.writeUnknown(this.unknownFields)
+    }
+
+    override fun toByteArray(): kotlin.ByteArray {
+        findMissingRequired()?.let { throw com.safetyculture.s12kt.wire.UninitializedMessageException("missing required field " + it) }
+        return com.safetyculture.s12kt.wire.WireWriter.encode(this)
+    }
+
+    internal fun findMissingRequired(): kotlin.String? {
+        if ((this.missingRequired and 1L) != 0L) return "value"
+        return null
+    }
+
+    public companion object : com.safetyculture.s12kt.wire.WireCodec<com.safetyculture.s12kt.kitchen.legacy.PartialInner> {
+        @kotlin.jvm.JvmStatic
+        public fun parseFrom(bytes: kotlin.ByteArray): com.safetyculture.s12kt.kitchen.legacy.PartialInner {
+            val _message = decode(com.safetyculture.s12kt.wire.WireReader(bytes))
+            _message.findMissingRequired()?.let { throw com.safetyculture.s12kt.wire.InvalidWireException("missing required field " + it) }
+            return _message
+        }
+
+        override fun decodeSections(reader: com.safetyculture.s12kt.wire.WireReader, sections: com.safetyculture.s12kt.wire.Sections?): com.safetyculture.s12kt.kitchen.legacy.PartialInner {
+            var v_value: kotlin.Int? = null
+            var _missing = 1L
+            val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+            var _part = 0
+            while (reader.nextSection(sections, _part++)) {
+                loop@ while (true) {
+                    when (val _tag = reader.readTag()) {
+                        0 -> break@loop
+                        8 -> {
+                            v_value = reader.readInt32()
+                            _missing = _missing and -2L
+                        }
+                        else -> reader.readUnknown(_tag, _unknown)
+                    }
+                }
+            }
+            val _result = com.safetyculture.s12kt.kitchen.legacy.PartialInner(
+                value = v_value ?: 0,
+                unknownFields = _unknown.toByteString(),
+            )
+            _result.missingRequired = _missing
+            return _result
+        }
+    }
+}
+
+public data class PartialWrap(
+    public val inner: com.safetyculture.s12kt.kitchen.legacy.PartialInner,
+    /** The fields that this version of the schema does not know, kept as encoded bytes. */
+    public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
+) : com.safetyculture.s12kt.wire.WireMessage {
+    internal var missingRequired: kotlin.Long = 0L
+
+    override fun getSerializedSize(): kotlin.Int {
+        var _size = 0
+        if ((this.missingRequired and 1L) == 0L) _size += com.safetyculture.s12kt.wire.WireSize.message(1, this.inner)
+        _size += this.unknownFields.size
+        return _size
+    }
+
+    override fun writeTo(writer: com.safetyculture.s12kt.wire.WireWriter) {
+        if ((this.missingRequired and 1L) == 0L) writer.writeMessage(1, this.inner)
+        writer.writeUnknown(this.unknownFields)
+    }
+
+    override fun toByteArray(): kotlin.ByteArray {
+        findMissingRequired()?.let { throw com.safetyculture.s12kt.wire.UninitializedMessageException("missing required field " + it) }
+        return com.safetyculture.s12kt.wire.WireWriter.encode(this)
+    }
+
+    internal fun findMissingRequired(): kotlin.String? {
+        if ((this.missingRequired and 1L) != 0L) return "inner"
+        this.inner.findMissingRequired()?.let { return "inner." + it }
+        return null
+    }
+
+    public companion object : com.safetyculture.s12kt.wire.WireCodec<com.safetyculture.s12kt.kitchen.legacy.PartialWrap> {
+        @kotlin.jvm.JvmStatic
+        public fun parseFrom(bytes: kotlin.ByteArray): com.safetyculture.s12kt.kitchen.legacy.PartialWrap {
+            val _message = decode(com.safetyculture.s12kt.wire.WireReader(bytes))
+            _message.findMissingRequired()?.let { throw com.safetyculture.s12kt.wire.InvalidWireException("missing required field " + it) }
+            return _message
+        }
+
+        override fun decodeSections(reader: com.safetyculture.s12kt.wire.WireReader, sections: com.safetyculture.s12kt.wire.Sections?): com.safetyculture.s12kt.kitchen.legacy.PartialWrap {
+            var v_inner: com.safetyculture.s12kt.kitchen.legacy.PartialInner? = null
+            var s_inner: com.safetyculture.s12kt.wire.Sections? = null
+            var _missing = 1L
+            val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+            var _part = 0
+            while (reader.nextSection(sections, _part++)) {
+                loop@ while (true) {
+                    when (val _tag = reader.readTag()) {
+                        0 -> break@loop
+                        10 -> {
+                            s_inner = reader.deferMessage(s_inner)
+                            _missing = _missing and -2L
+                        }
+                        else -> reader.readUnknown(_tag, _unknown)
+                    }
+                }
+            }
+            if (s_inner != null) v_inner = reader.readSections(com.safetyculture.s12kt.kitchen.legacy.PartialInner, s_inner)
+            val _result = com.safetyculture.s12kt.kitchen.legacy.PartialWrap(
+                inner = v_inner ?: com.safetyculture.s12kt.kitchen.legacy.PartialInner.decode(com.safetyculture.s12kt.wire.WireReader(kotlin.ByteArray(0))),
+                unknownFields = _unknown.toByteString(),
+            )
+            _result.missingRequired = _missing
+            return _result
+        }
+    }
+}
+
+public data class PartialHolder(
+    public val pick: com.safetyculture.s12kt.kitchen.legacy.PartialHolder.Pick? = null,
+    public val wraps: kotlin.collections.Map<kotlin.String, com.safetyculture.s12kt.kitchen.legacy.PartialWrap> = kotlin.collections.emptyMap(),
+    /** The fields that this version of the schema does not know, kept as encoded bytes. */
+    public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
+) : com.safetyculture.s12kt.wire.WireMessage {
+    override fun getSerializedSize(): kotlin.Int {
+        var _size = 0
+        if (this.pick is com.safetyculture.s12kt.kitchen.legacy.PartialHolder.Pick.Wrap) _size += com.safetyculture.s12kt.wire.WireSize.message(1, this.pick.value)
+        if (this.pick is com.safetyculture.s12kt.kitchen.legacy.PartialHolder.Pick.Number) _size += com.safetyculture.s12kt.wire.WireSize.int32(2, this.pick.value)
+        for ((_k, _v) in this.wraps) {
+            val _entry = com.safetyculture.s12kt.wire.WireSize.string(1, _k) + com.safetyculture.s12kt.wire.WireSize.message(2, _v)
+            _size += com.safetyculture.s12kt.wire.WireSize.tag(3) + com.safetyculture.s12kt.wire.WireSize.varint32(_entry) + _entry
+        }
+        _size += this.unknownFields.size
+        return _size
+    }
+
+    override fun writeTo(writer: com.safetyculture.s12kt.wire.WireWriter) {
+        if (this.pick is com.safetyculture.s12kt.kitchen.legacy.PartialHolder.Pick.Wrap) writer.writeMessage(1, this.pick.value)
+        if (this.pick is com.safetyculture.s12kt.kitchen.legacy.PartialHolder.Pick.Number) writer.writeInt32(2, this.pick.value)
+        for ((_k, _v) in this.wraps) {
+            writer.writeTag(3, 2)
+            writer.writeVarint32(com.safetyculture.s12kt.wire.WireSize.string(1, _k) + com.safetyculture.s12kt.wire.WireSize.message(2, _v))
+            writer.writeString(1, _k)
+            writer.writeMessage(2, _v)
+        }
+        writer.writeUnknown(this.unknownFields)
+    }
+
+    override fun toByteArray(): kotlin.ByteArray {
+        findMissingRequired()?.let { throw com.safetyculture.s12kt.wire.UninitializedMessageException("missing required field " + it) }
+        return com.safetyculture.s12kt.wire.WireWriter.encode(this)
+    }
+
+    internal fun findMissingRequired(): kotlin.String? {
+        if (this.pick is com.safetyculture.s12kt.kitchen.legacy.PartialHolder.Pick.Wrap) this.pick.value.findMissingRequired()?.let { return "wrap." + it }
+        for ((_k, _v) in this.wraps) {
+            _v.findMissingRequired()?.let { return "wraps." + it }
+        }
+        return null
+    }
+
+    public sealed class Pick {
+        public data class Wrap(public val value: com.safetyculture.s12kt.kitchen.legacy.PartialWrap) : Pick()
+
+        public data class Number(public val value: kotlin.Int) : Pick()
+    }
+
+    public companion object : com.safetyculture.s12kt.wire.WireCodec<com.safetyculture.s12kt.kitchen.legacy.PartialHolder> {
+        @kotlin.jvm.JvmStatic
+        public fun parseFrom(bytes: kotlin.ByteArray): com.safetyculture.s12kt.kitchen.legacy.PartialHolder {
+            val _message = decode(com.safetyculture.s12kt.wire.WireReader(bytes))
+            _message.findMissingRequired()?.let { throw com.safetyculture.s12kt.wire.InvalidWireException("missing required field " + it) }
+            return _message
+        }
+
+        override fun decodeSections(reader: com.safetyculture.s12kt.wire.WireReader, sections: com.safetyculture.s12kt.wire.Sections?): com.safetyculture.s12kt.kitchen.legacy.PartialHolder {
+            var v_pick: com.safetyculture.s12kt.kitchen.legacy.PartialHolder.Pick? = null
+            var s_pick: com.safetyculture.s12kt.wire.Sections? = null
+            var n_pick = 0
+            fun c_pick(reader: com.safetyculture.s12kt.wire.WireReader, s: com.safetyculture.s12kt.wire.Sections?, n: kotlin.Int) {
+                val _s = s ?: return
+                when (n) {
+                    1 -> reader.readSections(com.safetyculture.s12kt.kitchen.legacy.PartialWrap, _s)
+                }
+            }
+            val v_wraps = kotlin.collections.LinkedHashMap<kotlin.String, com.safetyculture.s12kt.kitchen.legacy.PartialWrap>()
+            val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+            var _part = 0
+            while (reader.nextSection(sections, _part++)) {
+                loop@ while (true) {
+                    when (val _tag = reader.readTag()) {
+                        0 -> break@loop
+                        10 -> {
+                            val _next = reader.deferMessage(null)
+                            if (n_pick != 1) {
+                                c_pick(reader, s_pick, n_pick)
+                                s_pick = null
+                            }
+                            n_pick = 1
+                            s_pick = s_pick?.append(_next) ?: _next
+                            v_pick = null
+                        }
+                        16 -> {
+                            v_pick = com.safetyculture.s12kt.kitchen.legacy.PartialHolder.Pick.Number(reader.readInt32())
+                            c_pick(reader, s_pick, n_pick); n_pick = 0; s_pick = null
+                        }
+                        26 -> {
+                            val _saved = reader.beginSection()
+                            var _key: kotlin.String = ""
+                            var _value: com.safetyculture.s12kt.kitchen.legacy.PartialWrap? = null
+                            var _valueSections: com.safetyculture.s12kt.wire.Sections? = null
+                            entry@ while (true) {
+                                when (val _t = reader.readTag()) {
+                                    0 -> break@entry
+                                    10 -> _key = reader.readString()
+                                    18 -> {
+                                        if (_valueSections != null) reader.readSections(com.safetyculture.s12kt.kitchen.legacy.PartialWrap, _valueSections)
+                                        _valueSections = reader.deferMessage(null)
+                                    }
+                                    else -> reader.skipField(_t)
+                                }
+                            }
+                            if (_valueSections != null) _value = reader.readSections(com.safetyculture.s12kt.kitchen.legacy.PartialWrap, _valueSections)
+                            reader.endSection(_saved)
+                            v_wraps[_key] = _value ?: com.safetyculture.s12kt.kitchen.legacy.PartialWrap.decode(com.safetyculture.s12kt.wire.WireReader(kotlin.ByteArray(0)))
+                        }
+                        else -> reader.readUnknown(_tag, _unknown)
+                    }
+                }
+            }
+            when (n_pick) {
+                1 -> if (s_pick != null) v_pick = com.safetyculture.s12kt.kitchen.legacy.PartialHolder.Pick.Wrap(reader.readSections(com.safetyculture.s12kt.kitchen.legacy.PartialWrap, s_pick))
+            }
+            return com.safetyculture.s12kt.kitchen.legacy.PartialHolder(
+                pick = v_pick,
+                wraps = java.util.Collections.unmodifiableMap(v_wraps),
                 unknownFields = _unknown.toByteString(),
             )
         }

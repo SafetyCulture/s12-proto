@@ -16,6 +16,7 @@ import com.safetyculture.s12kt.kitchen.legacy.Req
 import com.safetyculture.s12kt.kitchen.legacy.ReqEnum
 import com.safetyculture.s12kt.kitchen.legacy.ReqHolder
 import com.safetyculture.s12kt.kitchen.legacy.RequiredMessage
+import com.safetyculture.s12kt.kitchen.legacy.PartialHolder
 import com.safetyculture.s12kt.kitchen.v1.Color
 import com.safetyculture.s12kt.kitchen.v1.Maps
 import com.safetyculture.s12kt.kitchen.v1.OptionalScalars
@@ -144,6 +145,7 @@ private typealias JReqEnum = com.safetyculture.kitchen.legacy.ReqEnum
 private typealias JReqHolder = com.safetyculture.kitchen.legacy.ReqHolder
 private typealias JLevelMaps = com.safetyculture.kitchen.legacy.LevelMaps
 private typealias JStrict = com.safetyculture.kitchen.legacy.Strict
+private typealias JPartialHolder = com.safetyculture.kitchen.legacy.PartialHolder
 private typealias JClosedMaps = kitchen.editions.ClosedMaps
 private typealias JUtf8Modes = kitchen.editions.Utf8Modes
 
@@ -295,6 +297,27 @@ private fun requiredChecks(): Int {
     failures += same("Legacy without score", { Legacy.parseFrom(it) }, { JLegacy.parseFrom(it) }, legacyId, false)
     failures += same("Legacy with both", { Legacy.parseFrom(it) }, { JLegacy.parseFrom(it) }, legacyId + legacyScore, true)
     failures += same("Legacy with a parent without id", { Legacy.parseFrom(it) }, { JLegacy.parseFrom(it) }, legacyId + legacyScore + delimited(8, legacyScore), false)
+    return failures
+}
+
+private fun partialRequiredMessageChecks(): Int {
+    val fullWrap = delimited(1, delimited(1, vint(1, 1)))
+    val oneof = delimited(1, ByteArray(0)) + vint(2, 1)
+    val map = delimited(3, delimited(1, "k".toByteArray()) + delimited(2, ByteArray(0)) + delimited(2, fullWrap))
+    var failures = same(
+        "PartialHolder a partial oneof message replaced by a scalar",
+        { PartialHolder.parseFrom(it) },
+        { JPartialHolder.parseFrom(it) },
+        oneof,
+        true,
+    )
+    failures += same(
+        "PartialHolder a partial map value replaced by a full value",
+        { PartialHolder.parseFrom(it) },
+        { JPartialHolder.parseFrom(it) },
+        map,
+        false,
+    )
     return failures
 }
 
@@ -589,6 +612,7 @@ private fun requiredEncodeChecks(): Int {
     failures += check("a required scalar field that is missing is refused on encode", missingScalar)
     failures += check("a copy writes the default for a missing required field", copiedMissing)
     failures += check("Java lite rejects a copy of a partial message", javaCopiedMissing)
+    failures += partialRequiredMessageChecks()
     failures += check("a required scalar set to its default is encoded", explicitDefault)
     return failures
 }

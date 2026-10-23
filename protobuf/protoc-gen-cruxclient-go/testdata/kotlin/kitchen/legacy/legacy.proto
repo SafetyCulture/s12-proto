@@ -63,3 +63,19 @@ message LevelMaps {
   map<string, string> tags = 3;
   optional string tail = 4;
 }
+
+message PartialInner {
+  required int32 value = 1;
+}
+
+message PartialWrap {
+  required PartialInner inner = 1;
+}
+
+message PartialHolder {
+  oneof pick {
+    PartialWrap wrap = 1;
+    int32 number = 2;
+  }
+  map<string, PartialWrap> wraps = 3;
+}
