@@ -217,9 +217,36 @@ func TestBytecode(t *testing.T) {
 func TestPrintSwiftLiterals(t *testing.T) {
 	require.Equal(t, `"a\"b\\c\u{0a}"`, stringToEscapedStringLiteral("a\"b\\c\n"))
 	require.Equal(t, "String()", stringToEscapedStringLiteral(""))
-	require.Equal(t, "Data([0, 1, 97, 255, 10])", escapedToDataLiteral(`\000\001a\377\n`))
-	require.Equal(t, "Data()", escapedToDataLiteral(""))
+	require.Equal(t, "Data([0, 1, 97, 255, 10])", escapedToDataLiteral("test.proto", `\000\001a\377\n`))
+	require.Equal(t, "Data()", escapedToDataLiteral("test.proto", ""))
 }
+
+func TestEscapedDataLiteralNamesNonOctalByte(t *testing.T) {
+	require.PanicsWithValue(t, "broken.proto: non-octal byte 'x' in an octal escape", func() {
+		escapedToDataLiteral("broken.proto", `\00x`)
+	})
+
+	broken := &descriptorpb.FileDescriptorProto{
+		Name:   proto.String("broken.proto"),
+		Syntax: proto.String("proto2"),
+		MessageType: []*descriptorpb.DescriptorProto{{
+			Name: proto.String("Message"),
+			Field: []*descriptorpb.FieldDescriptorProto{{
+				Name:         proto.String("data"),
+				Number:       proto.Int32(1),
+				Label:        descriptorpb.FieldDescriptorProto_LABEL_OPTIONAL.Enum(),
+				Type:         descriptorpb.FieldDescriptorProto_TYPE_BYTES.Enum(),
+				DefaultValue: proto.String(`\00x`),
+			}},
+		}},
+	}
+	opts, err := parseOptions("", nil)
+	require.NoError(t, err)
+	_, err = render([]*descriptorpb.FileDescriptorProto{broken}, []string{"broken.proto"}, opts)
+	require.ErrorContains(t, err, "internal error of the Swift generator on broken.proto")
+	require.ErrorContains(t, err, "non-octal byte 'x' in an octal escape")
+}
+
 
 // TestInternalErrorNamesFile checks that a descriptor that breaks the generator gives an error with the file name and the stack.
 func TestInternalErrorNamesFile(t *testing.T) {
