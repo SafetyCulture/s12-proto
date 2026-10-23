@@ -187,10 +187,10 @@ protoc \
 | `repeated` | `List`, empty by default |
 | `map` | `Map`, empty by default |
 | `oneof` | A nullable property of a `sealed class` type, with one subclass for each member |
-| enum | `enum class` with `number`, `fromNumber()` and an `UNRECOGNIZED` entry |
+| enum | `sealed class` with one `object` for each value, `number`, `name`, `entries`, `fromNumber()` and a class `UNRECOGNIZED(number)` |
 
 Each message has `toByteArray()`, `getSerializedSize()` and `companion object { @JvmStatic fun parseFrom(bytes: ByteArray) }`. A field that the code does not know is kept in `unknownFields` and written again. The well-known types (`Timestamp`, `Duration`, `FieldMask`, `Any`, `Struct`, wrappers, `Empty`) are generated like other messages, when you give their files to the plugin. They have data and codec only.
 
-The wire format is the same as the format of Java lite. One case is different. A proto3 enum number that the enum does not declare cannot be held by `UNRECOGNIZED`. The codec keeps the number in `unknownFields` and writes it after the known fields. For a map entry, the codec keeps the whole entry there.
+The wire format is the same as the format of Java lite. A proto3 enum is open: a number that the enum does not declare becomes `UNRECOGNIZED(number)` in the property, and the codec writes the number in the same place. A proto2 enum is closed: the codec keeps such a number in `unknownFields`, as Java lite does. The reader stops at a nesting depth of 100 and throws `InvalidWireException`, as Java lite does.
 
 **Test**: `go test ./...` in the plugin directory runs the golden test and the nullability tests. `test/wire_compat.sh` generates Kotlin and Java lite classes from the same proto files, encodes random messages and compares the bytes in both directions. Set `APISCHEMA` to an APISchema checkout to include `s12.assets.v1.Asset`. Set `ROOTS_FILE` to a list of proto files, relative to `APISCHEMA/protos`, to include more files, such as the whole Crux whitelist.

@@ -5,18 +5,29 @@
 
 package com.safetyculture.s12kt.kitchen.legacy
 
-public enum class Level(public val number: kotlin.Int) {
-    LEVEL_LOW(1),
-    LEVEL_HIGH(2),
+public sealed class Level(public val number: kotlin.Int, public val name: kotlin.String) {
+    public object LEVEL_LOW : Level(1, "LEVEL_LOW")
+    public object LEVEL_HIGH : Level(2, "LEVEL_HIGH")
+
     /** A number that this version of the schema does not know. */
-    UNRECOGNIZED(-1);
+    public class UNRECOGNIZED(number: kotlin.Int) : Level(number, "UNRECOGNIZED") {
+        override fun equals(other: kotlin.Any?): kotlin.Boolean = other is UNRECOGNIZED && other.number == number
+
+        override fun hashCode(): kotlin.Int = number
+
+        override fun toString(): kotlin.String = "UNRECOGNIZED($number)"
+    }
+
+    override fun toString(): kotlin.String = name
 
     public companion object {
+        public val entries: kotlin.collections.List<Level> by lazy { kotlin.collections.listOf(LEVEL_LOW, LEVEL_HIGH) }
+
         @kotlin.jvm.JvmStatic
         public fun fromNumber(number: kotlin.Int): Level = when (number) {
             1 -> LEVEL_LOW
             2 -> LEVEL_HIGH
-            else -> UNRECOGNIZED
+            else -> UNRECOGNIZED(number)
         }
     }
 }
@@ -46,7 +57,7 @@ public data class Legacy(
         if (true) _size += com.safetyculture.s12kt.wire.WireSize.string(1, this.id)
         if (this.count != null) _size += com.safetyculture.s12kt.wire.WireSize.int32(2, this.count)
         if (this.label != null) _size += com.safetyculture.s12kt.wire.WireSize.string(3, this.label)
-        if (this.level != null && this.level != com.safetyculture.s12kt.kitchen.legacy.Level.UNRECOGNIZED) _size += com.safetyculture.s12kt.wire.WireSize.int32(4, this.level.number)
+        if (this.level != null) _size += com.safetyculture.s12kt.wire.WireSize.int32(4, this.level.number)
         for (_e in this.numbers) {
             _size += com.safetyculture.s12kt.wire.WireSize.int32(5, _e)
         }
@@ -66,7 +77,7 @@ public data class Legacy(
         if (true) writer.writeString(1, this.id)
         if (this.count != null) writer.writeInt32(2, this.count)
         if (this.label != null) writer.writeString(3, this.label)
-        if (this.level != null && this.level != com.safetyculture.s12kt.kitchen.legacy.Level.UNRECOGNIZED) writer.writeInt32(4, this.level.number)
+        if (this.level != null) writer.writeInt32(4, this.level.number)
         for (_e in this.numbers) {
             writer.writeInt32(5, _e)
         }
@@ -124,28 +135,27 @@ public data class Legacy(
                     32 -> {
                         val _n = reader.readInt32()
                         val _e = com.safetyculture.s12kt.kitchen.legacy.Level.fromNumber(_n)
-                        if (_e == com.safetyculture.s12kt.kitchen.legacy.Level.UNRECOGNIZED) _unknown.addVarint(32, _n.toLong())
-                        v_level = _e
+                        if (_e is com.safetyculture.s12kt.kitchen.legacy.Level.UNRECOGNIZED) _unknown.addVarint(32, _n.toLong()) else v_level = _e
                     }
                     40 -> {
                         v_numbers.add(reader.readInt32())
                     }
                     42 -> {
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         while (!reader.isAtEnd()) {
                             v_numbers.add(reader.readInt32())
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                     }
                     48 -> {
                         v_packedNumbers.add(reader.readInt32())
                     }
                     50 -> {
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         while (!reader.isAtEnd()) {
                             v_packedNumbers.add(reader.readInt32())
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                     }
                     58 -> {
                         v_blob = reader.readBytes()

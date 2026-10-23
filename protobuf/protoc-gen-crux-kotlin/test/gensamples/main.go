@@ -2,9 +2,8 @@
 
 // Command gensamples writes random encoded messages for the wire compatibility test. It reads a
 // descriptor set, writes one sample file for each sample, and writes an index that names the
-// Kotlin class, the Java class, the sample file and the full name of each sample, and whether the
-// sample holds an enum number that its enum does not declare. It also writes the list of
-// proto files that define the types reachable from the root files.
+// Kotlin class, the Java class, the sample file and the full name of each sample. It also writes
+// the list of proto files that define the types reachable from the root files.
 package main
 
 import (
@@ -26,10 +25,6 @@ import (
 
 	"github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-crux-kotlin/internal/kotlin"
 )
-
-// sawOpenEnum is set when the sample under construction holds an enum number that its enum does not
-// declare.
-var sawOpenEnum bool
 
 func main() {
 	descPath := flag.String("desc", "", "descriptor set with imports")
@@ -63,7 +58,6 @@ func main() {
 		collect(fd, reach)
 		walkMessages(fd.Messages(), func(md protoreflect.MessageDescriptor) {
 			for i := 0; i < *perMessage; i++ {
-				sawOpenEnum = false
 				m := dynamicpb.NewMessage(md)
 				if i > 0 || proto.CheckInitialized(m) != nil {
 					fill(r, m, 0)
@@ -74,13 +68,12 @@ func main() {
 				if i%4 == 3 {
 					m.SetUnknown(unknownBytes(r))
 				}
-				openEnum := sawOpenEnum
 				data, err := proto.MarshalOptions{Deterministic: true}.Marshal(m)
 				check(err)
 				name := fmt.Sprintf("%05d.bin", count)
 				count++
 				check(os.WriteFile(filepath.Join(*out, name), data, 0o644))
-				fmt.Fprintf(&index, "%s\t%s\t%s\t%s\t%t\n", kotlin.BinaryClassName(md, *root), javaClassName(md), name, md.FullName(), openEnum)
+				fmt.Fprintf(&index, "%s\t%s\t%s\t%s\n", kotlin.BinaryClassName(md, *root), javaClassName(md), name, md.FullName())
 			}
 		})
 	}
@@ -236,11 +229,6 @@ func setField(r *rand.Rand, m *dynamicpb.Message, fd protoreflect.FieldDescripto
 		for i := r.Intn(5); i > 0; i-- {
 			list.Append(randomValue(r, list.NewElement, fd, depth+1))
 		}
-		// A number that the enum does not declare moves behind the other elements in Kotlin, so
-		// the samples put it there.
-		if fd.Kind() == protoreflect.EnumKind && r.Intn(3) == 0 {
-			list.Append(openEnumValue(r, fd))
-		}
 	default:
 		if depth >= 3 && fd.Message() != nil && fd.Cardinality() != protoreflect.Required {
 			return
@@ -273,8 +261,8 @@ func randomValue(r *rand.Rand, newMessage func() protoreflect.Value, fd protoref
 		return protoreflect.ValueOfBytes(b)
 	case protoreflect.EnumKind:
 		values := fd.Enum().Values()
-		if !fd.IsList() && r.Intn(8) == 0 {
-			return openEnumValue(r, fd)
+		if r.Intn(8) == 0 {
+			return openEnumValue(r)
 		}
 		return protoreflect.ValueOfEnum(values.Get(r.Intn(values.Len())).Number())
 	case protoreflect.MessageKind:
@@ -361,11 +349,8 @@ func unknownBytes(r *rand.Rand) []byte {
 	return b
 }
 
-// openEnumValue returns a number that the enum of a field does not declare.
-func openEnumValue(r *rand.Rand, fd protoreflect.FieldDescriptor) protoreflect.Value {
-	if fd.Syntax() != protoreflect.Proto2 {
-		sawOpenEnum = true
-	}
+// openEnumValue returns an enum number that no test enum declares.
+func openEnumValue(r *rand.Rand) protoreflect.Value {
 	return protoreflect.ValueOfEnum(protoreflect.EnumNumber(100 + r.Intn(50)))
 }
 

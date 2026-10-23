@@ -92,30 +92,52 @@ func (g *fileGen) comment(d protoreflect.Descriptor) {
 func (g *fileGen) enum(e protoreflect.EnumDescriptor) {
 	name := escapeIdent(className(string(e.Name())))
 	g.comment(e)
-	g.w.open("public enum class %s(public val number: kotlin.Int) {", name)
+	g.w.open("public sealed class %s(public val number: kotlin.Int, public val name: kotlin.String) {", name)
 	values := e.Values()
 	first := map[protoreflect.EnumNumber]string{}
 	var order []protoreflect.EnumNumber
+	var aliases [][2]string
+	var entries []string
 	for i := 0; i < values.Len(); i++ {
 		v := values.Get(i)
 		entry := entryName(string(v.Name()))
-		g.comment(v)
-		g.w.line("%s(%d),", entry, v.Number())
-		if _, ok := first[v.Number()]; !ok {
-			first[v.Number()] = entry
-			order = append(order, v.Number())
+		if canonical, ok := first[v.Number()]; ok {
+			aliases = append(aliases, [2]string{entry, canonical})
+			continue
 		}
+		first[v.Number()] = entry
+		order = append(order, v.Number())
+		entries = append(entries, entry)
+		g.comment(v)
+		g.w.line("public object %s : %s(%d, %s)", entry, name, v.Number(), kotlinString(string(v.Name())))
 	}
+	g.w.line("")
 	g.w.line("/** A number that this version of the schema does not know. */")
-	g.w.line("UNRECOGNIZED(-1);")
+	g.w.open("public class UNRECOGNIZED(number: kotlin.Int) : %s(number, \"UNRECOGNIZED\") {", name)
+	g.w.line("override fun equals(other: kotlin.Any?): kotlin.Boolean = other is UNRECOGNIZED && other.number == number")
+	g.w.line("")
+	g.w.line("override fun hashCode(): kotlin.Int = number")
+	g.w.line("")
+	g.w.line("override fun toString(): kotlin.String = \"UNRECOGNIZED($number)\"")
+	g.w.close("}")
+	g.w.line("")
+	g.w.line("override fun toString(): kotlin.String = name")
 	g.w.line("")
 	g.w.open("public companion object {")
+	for _, al := range aliases {
+		g.w.line("public val %s: %s get() = %s", al[0], name, al[1])
+	}
+	if len(aliases) > 0 {
+		g.w.line("")
+	}
+	g.w.line("public val entries: kotlin.collections.List<%s> by lazy { kotlin.collections.listOf(%s) }", name, strings.Join(entries, ", "))
+	g.w.line("")
 	g.w.line("@kotlin.jvm.JvmStatic")
 	g.w.open("public fun fromNumber(number: kotlin.Int): %s = when (number) {", name)
 	for _, n := range order {
 		g.w.line("%d -> %s", n, first[n])
 	}
-	g.w.line("else -> UNRECOGNIZED")
+	g.w.line("else -> UNRECOGNIZED(number)")
 	g.w.close("}")
 	g.w.close("}")
 	g.w.close("}")
@@ -139,7 +161,7 @@ type fieldInfo struct {
 
 func (f *fieldInfo) number() protoreflect.FieldNumber { return f.fd.Number() }
 
-// presence reports whether the property is nullable because the field tracks explicit presence.
+// nullable reports whether the property is nullable because the field tracks explicit presence.
 func (f *fieldInfo) nullable() bool {
 	fd := f.fd
 	if f.oneof != nil || fd.IsList() || fd.IsMap() {
@@ -329,15 +351,11 @@ func (g *fileGen) oneofClass(oi *oneofInfo, qualified string) {
 // presenceCondition returns the Kotlin condition that decides whether a plain field is written.
 func (g *fileGen) presenceCondition(f *fieldInfo, expr string) string {
 	fd := f.fd
-	if fd.Kind() == protoreflect.EnumKind {
-		cond := expr + " != " + qualifiedName(fd.Enum(), g.root) + ".UNRECOGNIZED"
-		if fd.Cardinality() == protoreflect.Required {
-			return cond
-		}
-		return cond + " && " + expr + ".number != 0"
-	}
 	if fd.Cardinality() == protoreflect.Required {
 		return "true"
+	}
+	if fd.Kind() == protoreflect.EnumKind {
+		return expr + ".number != 0"
 	}
 	switch fd.Kind() {
 	case protoreflect.BoolKind:
@@ -368,9 +386,24 @@ func (g *fileGen) sizeMethod(byNumber []*fieldInfo, qualified string) {
 	g.w.close("}")
 }
 
-// unrecognized returns the Kotlin expression of the UNRECOGNIZED entry of the enum of a field.
+// unrecognized returns the Kotlin type of the UNRECOGNIZED class of the enum of a field.
 func (g *fileGen) unrecognized(fd protoreflect.FieldDescriptor) string {
 	return qualifiedName(fd.Enum(), g.root) + ".UNRECOGNIZED"
+}
+
+// closedEnum reports whether a field has an enum that drops a number it does not declare. Such a
+// number goes to the unknown fields. The number of an open enum stays in the property.
+func closedEnum(fd protoreflect.FieldDescriptor) bool {
+	return fd.Kind() == protoreflect.EnumKind && fd.Enum().ParentFile().Syntax() == protoreflect.Proto2
+}
+
+// store returns the statement that stores the value of a field that readValue read. For a closed
+// enum, a number that the enum does not declare goes to the unknown fields instead.
+func (g *fileGen) store(fd protoreflect.FieldDescriptor, stmt string) string {
+	if !closedEnum(fd) {
+		return stmt
+	}
+	return fmt.Sprintf("if (_e is %s) _unknown.addVarint(%d, _n.toLong()) else %s", g.unrecognized(fd), tagOf(fd.Number(), wireVarint), stmt)
 }
 
 func (g *fileGen) sizeField(f *fieldInfo, qualified string) {
@@ -387,32 +420,22 @@ func (g *fileGen) sizeField(f *fieldInfo, qualified string) {
 	case fd.IsList() && fd.IsPacked():
 		g.w.open("if (%s.isNotEmpty()) {", p)
 		if fd.Kind() == protoreflect.EnumKind {
-			g.w.line("val _nums = %s.filter { it != %s }.map { it.number }", p, g.unrecognized(fd))
-			g.w.line("if (_nums.isNotEmpty()) _size += %s.packed(%d, %s)", ws, n, g.packedPayload(fd.Kind(), "_nums"))
+			g.w.line("val _nums = %s.map { it.number }", p)
+			g.w.line("_size += %s.packed(%d, %s)", ws, n, g.packedPayload(fd.Kind(), "_nums"))
 		} else {
 			g.w.line("_size += %s.packed(%d, %s)", ws, n, g.packedPayload(fd.Kind(), p))
 		}
 		g.w.close("}")
 	case fd.IsList():
 		g.w.open("for (_e in %s) {", p)
-		if fd.Kind() == protoreflect.EnumKind {
-			g.w.line("if (_e != %s) _size += %s", g.unrecognized(fd), g.sizeCall(fd.Kind(), n, "_e"))
-		} else {
-			g.w.line("_size += %s", g.sizeCall(fd.Kind(), n, "_e"))
-		}
+		g.w.line("_size += %s", g.sizeCall(fd.Kind(), n, "_e"))
 		g.w.close("}")
 	case f.oneof != nil:
 		o := "this." + f.oneof.prop
 		cond := fmt.Sprintf("%s is %s", o, f.variant(qualified))
-		if fd.Kind() == protoreflect.EnumKind {
-			cond += fmt.Sprintf(" && %s.value != %s", o, g.unrecognized(fd))
-		}
 		g.w.line("if (%s) _size += %s", cond, g.sizeCall(fd.Kind(), n, o+".value"))
 	case f.nullable():
 		cond := p + " != null"
-		if fd.Kind() == protoreflect.EnumKind {
-			cond += " && " + p + " != " + g.unrecognized(fd)
-		}
 		g.w.line("if (%s) _size += %s", cond, g.sizeCall(fd.Kind(), n, p))
 	default:
 		g.w.line("if (%s) _size += %s", g.presenceCondition(f, p), g.sizeCall(fd.Kind(), n, p))
@@ -443,32 +466,21 @@ func (g *fileGen) writeField(f *fieldInfo, qualified string) {
 	case fd.IsList() && fd.IsPacked():
 		g.w.open("if (%s.isNotEmpty()) {", p)
 		if fd.Kind() == protoreflect.EnumKind {
-			g.w.line("val _nums = %s.filter { it != %s }.map { it.number }", p, g.unrecognized(fd))
-			g.w.line("if (_nums.isNotEmpty()) writer.writePacked%s(%d, _nums)", packedSuffix(fd.Kind()), n)
+			g.w.line("writer.writePacked%s(%d, %s.map { it.number })", packedSuffix(fd.Kind()), n, p)
 		} else {
 			g.w.line("writer.writePacked%s(%d, %s)", packedSuffix(fd.Kind()), n, p)
 		}
 		g.w.close("}")
 	case fd.IsList():
 		g.w.open("for (_e in %s) {", p)
-		if fd.Kind() == protoreflect.EnumKind {
-			g.w.line("if (_e != %s) %s", g.unrecognized(fd), writeCall(fd.Kind(), n, "_e"))
-		} else {
-			g.w.text(writeCall(fd.Kind(), n, "_e"))
-		}
+		g.w.text(writeCall(fd.Kind(), n, "_e"))
 		g.w.close("}")
 	case f.oneof != nil:
 		o := "this." + f.oneof.prop
 		cond := fmt.Sprintf("%s is %s", o, f.variant(qualified))
-		if fd.Kind() == protoreflect.EnumKind {
-			cond += fmt.Sprintf(" && %s.value != %s", o, g.unrecognized(fd))
-		}
 		g.w.line("if (%s) %s", cond, writeCall(fd.Kind(), n, o+".value"))
 	case f.nullable():
 		cond := p + " != null"
-		if fd.Kind() == protoreflect.EnumKind {
-			cond += " && " + p + " != " + g.unrecognized(fd)
-		}
 		g.w.line("if (%s) %s", cond, writeCall(fd.Kind(), n, p))
 	default:
 		g.w.line("if (%s) %s", g.presenceCondition(f, p), writeCall(fd.Kind(), n, p))
@@ -482,20 +494,20 @@ func (f *fieldInfo) variant(qualified string) string {
 
 // readValue returns the statements and the expression that read one value of a field.
 // previous is the expression of the earlier value of a message field, or "null".
-// With retain, a number that the enum does not know is kept in the unknown fields.
+// With retain, a closed enum reads its number into _n, so that store can keep a number that the
+// enum does not declare.
 func (g *fileGen) readValue(fd protoreflect.FieldDescriptor, previous string, retain bool) ([]string, string) {
 	switch fd.Kind() {
 	case protoreflect.MessageKind:
 		return nil, fmt.Sprintf("reader.readMessage(%s, %s)", qualifiedName(fd.Message(), g.root), previous)
 	case protoreflect.EnumKind:
 		enum := qualifiedName(fd.Enum(), g.root)
-		if !retain {
+		if !retain || !closedEnum(fd) {
 			return nil, fmt.Sprintf("%s.fromNumber(reader.readInt32())", enum)
 		}
 		return []string{
 			"val _n = reader.readInt32()",
 			fmt.Sprintf("val _e = %s.fromNumber(_n)", enum),
-			fmt.Sprintf("if (_e == %s.UNRECOGNIZED) _unknown.addVarint(%d, _n.toLong())", enum, tagOf(fd.Number(), wireVarint)),
 		}, "_e"
 	}
 	return nil, "reader." + readMethod(fd.Kind()) + "()"
@@ -563,18 +575,18 @@ func (g *fileGen) decodeCase(f *fieldInfo, qualified string) {
 		for _, l := range pre {
 			g.w.text(l)
 		}
-		g.w.line("v_%s.add(%s)", f.prop, expr)
+		g.w.line("%s", g.store(fd, fmt.Sprintf("v_%s.add(%s)", f.prop, expr)))
 		g.w.close("}")
 		if isPackable(fd.Kind()) {
 			g.w.open("%d -> {", tagOf(n, wireLength))
-			g.w.line("val _saved = reader.beginMessage()")
+			g.w.line("val _saved = reader.beginSection()")
 			g.w.open("while (!reader.isAtEnd()) {")
 			for _, l := range pre {
 				g.w.text(l)
 			}
-			g.w.line("v_%s.add(%s)", f.prop, expr)
+			g.w.line("%s", g.store(fd, fmt.Sprintf("v_%s.add(%s)", f.prop, expr)))
 			g.w.close("}")
-			g.w.line("reader.endMessage(_saved)")
+			g.w.line("reader.endSection(_saved)")
 			g.w.close("}")
 		}
 	case f.oneof != nil:
@@ -584,7 +596,7 @@ func (g *fileGen) decodeCase(f *fieldInfo, qualified string) {
 		for _, l := range pre {
 			g.w.text(l)
 		}
-		g.w.line("v_%s = %s(%s)", f.oneof.prop, variant, expr)
+		g.w.line("%s", g.store(fd, fmt.Sprintf("v_%s = %s(%s)", f.oneof.prop, variant, expr)))
 		g.w.close("}")
 	default:
 		pre, expr := g.readValue(fd, "v_"+f.prop, true)
@@ -592,7 +604,7 @@ func (g *fileGen) decodeCase(f *fieldInfo, qualified string) {
 		for _, l := range pre {
 			g.w.text(l)
 		}
-		g.w.line("v_%s = %s", f.prop, expr)
+		g.w.line("%s", g.store(fd, fmt.Sprintf("v_%s = %s", f.prop, expr)))
 		g.w.close("}")
 	}
 }
@@ -603,7 +615,7 @@ func (g *fileGen) decodeMap(f *fieldInfo) {
 	n := fd.Number()
 	g.w.open("%d -> {", tagOf(n, wireLength))
 	g.w.line("val _start = reader.fieldStart()")
-	g.w.line("val _saved = reader.beginMessage()")
+	g.w.line("val _saved = reader.beginSection()")
 	g.w.line("var _key: %s = %s", g.elementType(key), g.defaultLiteral(key))
 	if val.Kind() == protoreflect.MessageKind {
 		g.w.line("var _value: %s? = null", g.elementType(val))
@@ -625,12 +637,12 @@ func (g *fileGen) decodeMap(f *fieldInfo) {
 	g.w.line("else -> reader.readUnknown(_t, %s())", g.rt("UnknownFields"))
 	g.w.close("}")
 	g.w.close("}")
-	g.w.line("reader.endMessage(_saved)")
+	g.w.line("reader.endSection(_saved)")
 	switch {
 	case val.Kind() == protoreflect.MessageKind:
 		g.w.line("v_%s[_key] = _value ?: %s()", f.prop, g.elementType(val))
-	case val.Kind() == protoreflect.EnumKind:
-		g.w.line("if (_value == %s) reader.keep(_start, _unknown) else v_%s[_key] = _value", g.unrecognized(val), f.prop)
+	case closedEnum(val):
+		g.w.line("if (_value is %s) reader.keep(_start, _unknown) else v_%s[_key] = _value", g.unrecognized(val), f.prop)
 	default:
 		g.w.line("v_%s[_key] = _value", f.prop)
 	}

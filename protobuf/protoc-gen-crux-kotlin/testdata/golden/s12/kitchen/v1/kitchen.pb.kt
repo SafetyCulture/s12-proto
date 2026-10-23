@@ -5,16 +5,27 @@
 
 package com.safetyculture.s12kt.kitchen.v1
 
-public enum class Color(public val number: kotlin.Int) {
-    COLOR_UNSPECIFIED(0),
-    COLOR_RED(1),
-    COLOR_GREEN(2),
-    COLOR_BLUE(3),
-    COLOR_NEGATIVE(-1),
+public sealed class Color(public val number: kotlin.Int, public val name: kotlin.String) {
+    public object COLOR_UNSPECIFIED : Color(0, "COLOR_UNSPECIFIED")
+    public object COLOR_RED : Color(1, "COLOR_RED")
+    public object COLOR_GREEN : Color(2, "COLOR_GREEN")
+    public object COLOR_BLUE : Color(3, "COLOR_BLUE")
+    public object COLOR_NEGATIVE : Color(-1, "COLOR_NEGATIVE")
+
     /** A number that this version of the schema does not know. */
-    UNRECOGNIZED(-1);
+    public class UNRECOGNIZED(number: kotlin.Int) : Color(number, "UNRECOGNIZED") {
+        override fun equals(other: kotlin.Any?): kotlin.Boolean = other is UNRECOGNIZED && other.number == number
+
+        override fun hashCode(): kotlin.Int = number
+
+        override fun toString(): kotlin.String = "UNRECOGNIZED($number)"
+    }
+
+    override fun toString(): kotlin.String = name
 
     public companion object {
+        public val entries: kotlin.collections.List<Color> by lazy { kotlin.collections.listOf(COLOR_UNSPECIFIED, COLOR_RED, COLOR_GREEN, COLOR_BLUE, COLOR_NEGATIVE) }
+
         @kotlin.jvm.JvmStatic
         public fun fromNumber(number: kotlin.Int): Color = when (number) {
             0 -> COLOR_UNSPECIFIED
@@ -22,24 +33,36 @@ public enum class Color(public val number: kotlin.Int) {
             2 -> COLOR_GREEN
             3 -> COLOR_BLUE
             -1 -> COLOR_NEGATIVE
-            else -> UNRECOGNIZED
+            else -> UNRECOGNIZED(number)
         }
     }
 }
 
-public enum class Alias(public val number: kotlin.Int) {
-    ALIAS_UNSPECIFIED(0),
-    ALIAS_FIRST(1),
-    ALIAS_ONE(1),
+public sealed class Alias(public val number: kotlin.Int, public val name: kotlin.String) {
+    public object ALIAS_UNSPECIFIED : Alias(0, "ALIAS_UNSPECIFIED")
+    public object ALIAS_FIRST : Alias(1, "ALIAS_FIRST")
+
     /** A number that this version of the schema does not know. */
-    UNRECOGNIZED(-1);
+    public class UNRECOGNIZED(number: kotlin.Int) : Alias(number, "UNRECOGNIZED") {
+        override fun equals(other: kotlin.Any?): kotlin.Boolean = other is UNRECOGNIZED && other.number == number
+
+        override fun hashCode(): kotlin.Int = number
+
+        override fun toString(): kotlin.String = "UNRECOGNIZED($number)"
+    }
+
+    override fun toString(): kotlin.String = name
 
     public companion object {
+        public val ALIAS_ONE: Alias get() = ALIAS_FIRST
+
+        public val entries: kotlin.collections.List<Alias> by lazy { kotlin.collections.listOf(ALIAS_UNSPECIFIED, ALIAS_FIRST) }
+
         @kotlin.jvm.JvmStatic
         public fun fromNumber(number: kotlin.Int): Alias = when (number) {
             0 -> ALIAS_UNSPECIFIED
             1 -> ALIAS_FIRST
-            else -> UNRECOGNIZED
+            else -> UNRECOGNIZED(number)
         }
     }
 }
@@ -85,7 +108,7 @@ public data class Scalars(
         if (this.fBool) _size += com.safetyculture.s12kt.wire.WireSize.bool(13)
         if (this.fString.isNotEmpty()) _size += com.safetyculture.s12kt.wire.WireSize.string(14, this.fString)
         if (!this.fBytes.isEmpty()) _size += com.safetyculture.s12kt.wire.WireSize.bytes(15, this.fBytes)
-        if (this.fEnum != com.safetyculture.s12kt.kitchen.v1.Color.UNRECOGNIZED && this.fEnum.number != 0) _size += com.safetyculture.s12kt.wire.WireSize.int32(16, this.fEnum.number)
+        if (this.fEnum.number != 0) _size += com.safetyculture.s12kt.wire.WireSize.int32(16, this.fEnum.number)
         _size += this.unknownFields.size
         return _size
     }
@@ -106,7 +129,7 @@ public data class Scalars(
         if (this.fBool) writer.writeBool(13, this.fBool)
         if (this.fString.isNotEmpty()) writer.writeString(14, this.fString)
         if (!this.fBytes.isEmpty()) writer.writeBytes(15, this.fBytes)
-        if (this.fEnum != com.safetyculture.s12kt.kitchen.v1.Color.UNRECOGNIZED && this.fEnum.number != 0) writer.writeInt32(16, this.fEnum.number)
+        if (this.fEnum.number != 0) writer.writeInt32(16, this.fEnum.number)
         writer.writeUnknown(this.unknownFields)
     }
 
@@ -187,10 +210,7 @@ public data class Scalars(
                         v_fBytes = reader.readBytes()
                     }
                     128 -> {
-                        val _n = reader.readInt32()
-                        val _e = com.safetyculture.s12kt.kitchen.v1.Color.fromNumber(_n)
-                        if (_e == com.safetyculture.s12kt.kitchen.v1.Color.UNRECOGNIZED) _unknown.addVarint(128, _n.toLong())
-                        v_fEnum = _e
+                        v_fEnum = com.safetyculture.s12kt.kitchen.v1.Color.fromNumber(reader.readInt32())
                     }
                     else -> reader.readUnknown(_tag, _unknown)
                 }
@@ -277,7 +297,7 @@ public data class OptionalScalars(
         if (this.fBool != null) _size += com.safetyculture.s12kt.wire.WireSize.bool(13)
         if (this.fString != null) _size += com.safetyculture.s12kt.wire.WireSize.string(14, this.fString)
         if (this.fBytes != null) _size += com.safetyculture.s12kt.wire.WireSize.bytes(15, this.fBytes)
-        if (this.fEnum != null && this.fEnum != com.safetyculture.s12kt.kitchen.v1.Color.UNRECOGNIZED) _size += com.safetyculture.s12kt.wire.WireSize.int32(16, this.fEnum.number)
+        if (this.fEnum != null) _size += com.safetyculture.s12kt.wire.WireSize.int32(16, this.fEnum.number)
         if (this.fMessage != null) _size += com.safetyculture.s12kt.wire.WireSize.message(17, this.fMessage)
         _size += this.unknownFields.size
         return _size
@@ -299,7 +319,7 @@ public data class OptionalScalars(
         if (this.fBool != null) writer.writeBool(13, this.fBool)
         if (this.fString != null) writer.writeString(14, this.fString)
         if (this.fBytes != null) writer.writeBytes(15, this.fBytes)
-        if (this.fEnum != null && this.fEnum != com.safetyculture.s12kt.kitchen.v1.Color.UNRECOGNIZED) writer.writeInt32(16, this.fEnum.number)
+        if (this.fEnum != null) writer.writeInt32(16, this.fEnum.number)
         if (this.fMessage != null) writer.writeMessage(17, this.fMessage)
         writer.writeUnknown(this.unknownFields)
     }
@@ -382,10 +402,7 @@ public data class OptionalScalars(
                         v_fBytes = reader.readBytes()
                     }
                     128 -> {
-                        val _n = reader.readInt32()
-                        val _e = com.safetyculture.s12kt.kitchen.v1.Color.fromNumber(_n)
-                        if (_e == com.safetyculture.s12kt.kitchen.v1.Color.UNRECOGNIZED) _unknown.addVarint(128, _n.toLong())
-                        v_fEnum = _e
+                        v_fEnum = com.safetyculture.s12kt.kitchen.v1.Color.fromNumber(reader.readInt32())
                     }
                     138 -> {
                         v_fMessage = reader.readMessage(com.safetyculture.s12kt.kitchen.v1.Scalars, v_fMessage)
@@ -493,8 +510,8 @@ public data class Repeated(
             _size += com.safetyculture.s12kt.wire.WireSize.bytes(15, _e)
         }
         if (this.fEnum.isNotEmpty()) {
-            val _nums = this.fEnum.filter { it != com.safetyculture.s12kt.kitchen.v1.Color.UNRECOGNIZED }.map { it.number }
-            if (_nums.isNotEmpty()) _size += com.safetyculture.s12kt.wire.WireSize.packed(16, com.safetyculture.s12kt.wire.WireSize.packedInt32Payload(_nums))
+            val _nums = this.fEnum.map { it.number }
+            _size += com.safetyculture.s12kt.wire.WireSize.packed(16, com.safetyculture.s12kt.wire.WireSize.packedInt32Payload(_nums))
         }
         for (_e in this.fMessage) {
             _size += com.safetyculture.s12kt.wire.WireSize.message(17, _e)
@@ -503,7 +520,7 @@ public data class Repeated(
             _size += com.safetyculture.s12kt.wire.WireSize.int32(18, _e)
         }
         for (_e in this.unpackedEnum) {
-            if (_e != com.safetyculture.s12kt.kitchen.v1.Color.UNRECOGNIZED) _size += com.safetyculture.s12kt.wire.WireSize.int32(19, _e.number)
+            _size += com.safetyculture.s12kt.wire.WireSize.int32(19, _e.number)
         }
         for (_e in this.unpackedDouble) {
             _size += com.safetyculture.s12kt.wire.WireSize.fixed64(20)
@@ -559,8 +576,7 @@ public data class Repeated(
             writer.writeBytes(15, _e)
         }
         if (this.fEnum.isNotEmpty()) {
-            val _nums = this.fEnum.filter { it != com.safetyculture.s12kt.kitchen.v1.Color.UNRECOGNIZED }.map { it.number }
-            if (_nums.isNotEmpty()) writer.writePackedInt32(16, _nums)
+            writer.writePackedInt32(16, this.fEnum.map { it.number })
         }
         for (_e in this.fMessage) {
             writer.writeMessage(17, _e)
@@ -569,7 +585,7 @@ public data class Repeated(
             writer.writeInt32(18, _e)
         }
         for (_e in this.unpackedEnum) {
-            if (_e != com.safetyculture.s12kt.kitchen.v1.Color.UNRECOGNIZED) writer.writeInt32(19, _e.number)
+            writer.writeInt32(19, _e.number)
         }
         for (_e in this.unpackedDouble) {
             writer.writeDouble(20, _e)
@@ -616,131 +632,131 @@ public data class Repeated(
                         v_fDouble.add(reader.readDouble())
                     }
                     10 -> {
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         while (!reader.isAtEnd()) {
                             v_fDouble.add(reader.readDouble())
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                     }
                     21 -> {
                         v_fFloat.add(reader.readFloat())
                     }
                     18 -> {
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         while (!reader.isAtEnd()) {
                             v_fFloat.add(reader.readFloat())
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                     }
                     24 -> {
                         v_fInt32.add(reader.readInt32())
                     }
                     26 -> {
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         while (!reader.isAtEnd()) {
                             v_fInt32.add(reader.readInt32())
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                     }
                     32 -> {
                         v_fInt64.add(reader.readInt64())
                     }
                     34 -> {
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         while (!reader.isAtEnd()) {
                             v_fInt64.add(reader.readInt64())
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                     }
                     40 -> {
                         v_fUint32.add(reader.readInt32())
                     }
                     42 -> {
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         while (!reader.isAtEnd()) {
                             v_fUint32.add(reader.readInt32())
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                     }
                     48 -> {
                         v_fUint64.add(reader.readInt64())
                     }
                     50 -> {
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         while (!reader.isAtEnd()) {
                             v_fUint64.add(reader.readInt64())
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                     }
                     56 -> {
                         v_fSint32.add(reader.readSInt32())
                     }
                     58 -> {
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         while (!reader.isAtEnd()) {
                             v_fSint32.add(reader.readSInt32())
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                     }
                     64 -> {
                         v_fSint64.add(reader.readSInt64())
                     }
                     66 -> {
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         while (!reader.isAtEnd()) {
                             v_fSint64.add(reader.readSInt64())
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                     }
                     77 -> {
                         v_fFixed32.add(reader.readFixed32())
                     }
                     74 -> {
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         while (!reader.isAtEnd()) {
                             v_fFixed32.add(reader.readFixed32())
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                     }
                     81 -> {
                         v_fFixed64.add(reader.readFixed64())
                     }
                     82 -> {
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         while (!reader.isAtEnd()) {
                             v_fFixed64.add(reader.readFixed64())
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                     }
                     93 -> {
                         v_fSfixed32.add(reader.readFixed32())
                     }
                     90 -> {
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         while (!reader.isAtEnd()) {
                             v_fSfixed32.add(reader.readFixed32())
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                     }
                     97 -> {
                         v_fSfixed64.add(reader.readFixed64())
                     }
                     98 -> {
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         while (!reader.isAtEnd()) {
                             v_fSfixed64.add(reader.readFixed64())
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                     }
                     104 -> {
                         v_fBool.add(reader.readBool())
                     }
                     106 -> {
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         while (!reader.isAtEnd()) {
                             v_fBool.add(reader.readBool())
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                     }
                     114 -> {
                         v_fString.add(reader.readString())
@@ -749,20 +765,14 @@ public data class Repeated(
                         v_fBytes.add(reader.readBytes())
                     }
                     128 -> {
-                        val _n = reader.readInt32()
-                        val _e = com.safetyculture.s12kt.kitchen.v1.Color.fromNumber(_n)
-                        if (_e == com.safetyculture.s12kt.kitchen.v1.Color.UNRECOGNIZED) _unknown.addVarint(128, _n.toLong())
-                        v_fEnum.add(_e)
+                        v_fEnum.add(com.safetyculture.s12kt.kitchen.v1.Color.fromNumber(reader.readInt32()))
                     }
                     130 -> {
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         while (!reader.isAtEnd()) {
-                            val _n = reader.readInt32()
-                            val _e = com.safetyculture.s12kt.kitchen.v1.Color.fromNumber(_n)
-                            if (_e == com.safetyculture.s12kt.kitchen.v1.Color.UNRECOGNIZED) _unknown.addVarint(128, _n.toLong())
-                            v_fEnum.add(_e)
+                            v_fEnum.add(com.safetyculture.s12kt.kitchen.v1.Color.fromNumber(reader.readInt32()))
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                     }
                     138 -> {
                         v_fMessage.add(reader.readMessage(com.safetyculture.s12kt.kitchen.v1.Scalars, null))
@@ -771,37 +781,31 @@ public data class Repeated(
                         v_unpackedInt32.add(reader.readInt32())
                     }
                     146 -> {
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         while (!reader.isAtEnd()) {
                             v_unpackedInt32.add(reader.readInt32())
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                     }
                     152 -> {
-                        val _n = reader.readInt32()
-                        val _e = com.safetyculture.s12kt.kitchen.v1.Color.fromNumber(_n)
-                        if (_e == com.safetyculture.s12kt.kitchen.v1.Color.UNRECOGNIZED) _unknown.addVarint(152, _n.toLong())
-                        v_unpackedEnum.add(_e)
+                        v_unpackedEnum.add(com.safetyculture.s12kt.kitchen.v1.Color.fromNumber(reader.readInt32()))
                     }
                     154 -> {
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         while (!reader.isAtEnd()) {
-                            val _n = reader.readInt32()
-                            val _e = com.safetyculture.s12kt.kitchen.v1.Color.fromNumber(_n)
-                            if (_e == com.safetyculture.s12kt.kitchen.v1.Color.UNRECOGNIZED) _unknown.addVarint(152, _n.toLong())
-                            v_unpackedEnum.add(_e)
+                            v_unpackedEnum.add(com.safetyculture.s12kt.kitchen.v1.Color.fromNumber(reader.readInt32()))
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                     }
                     161 -> {
                         v_unpackedDouble.add(reader.readDouble())
                     }
                     162 -> {
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         while (!reader.isAtEnd()) {
                             v_unpackedDouble.add(reader.readDouble())
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                     }
                     else -> reader.readUnknown(_tag, _unknown)
                 }
@@ -1024,7 +1028,7 @@ public data class Maps(
                     0 -> break@loop
                     10 -> {
                         val _start = reader.fieldStart()
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         var _key: kotlin.String = ""
                         var _value: kotlin.String = ""
                         entry@ while (true) {
@@ -1035,12 +1039,12 @@ public data class Maps(
                                 else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
                             }
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                         v_byString[_key] = _value
                     }
                     18 -> {
                         val _start = reader.fieldStart()
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         var _key: kotlin.Int = 0
                         var _value: kotlin.Long = 0L
                         entry@ while (true) {
@@ -1051,12 +1055,12 @@ public data class Maps(
                                 else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
                             }
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                         v_byInt32[_key] = _value
                     }
                     26 -> {
                         val _start = reader.fieldStart()
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         var _key: kotlin.Long = 0L
                         var _value: kotlin.Boolean = false
                         entry@ while (true) {
@@ -1067,12 +1071,12 @@ public data class Maps(
                                 else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
                             }
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                         v_byInt64[_key] = _value
                     }
                     34 -> {
                         val _start = reader.fieldStart()
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         var _key: kotlin.Int = 0
                         var _value: kotlin.Double = 0.0
                         entry@ while (true) {
@@ -1083,12 +1087,12 @@ public data class Maps(
                                 else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
                             }
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                         v_byUint32[_key] = _value
                     }
                     42 -> {
                         val _start = reader.fieldStart()
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         var _key: kotlin.Long = 0L
                         var _value: kotlin.Float = 0.0f
                         entry@ while (true) {
@@ -1099,12 +1103,12 @@ public data class Maps(
                                 else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
                             }
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                         v_byUint64[_key] = _value
                     }
                     50 -> {
                         val _start = reader.fieldStart()
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         var _key: kotlin.Int = 0
                         var _value: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY
                         entry@ while (true) {
@@ -1115,12 +1119,12 @@ public data class Maps(
                                 else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
                             }
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                         v_bySint32[_key] = _value
                     }
                     58 -> {
                         val _start = reader.fieldStart()
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         var _key: kotlin.Long = 0L
                         var _value: com.safetyculture.s12kt.kitchen.v1.Color = com.safetyculture.s12kt.kitchen.v1.Color.COLOR_UNSPECIFIED
                         entry@ while (true) {
@@ -1131,12 +1135,12 @@ public data class Maps(
                                 else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
                             }
                         }
-                        reader.endMessage(_saved)
-                        if (_value == com.safetyculture.s12kt.kitchen.v1.Color.UNRECOGNIZED) reader.keep(_start, _unknown) else v_bySint64[_key] = _value
+                        reader.endSection(_saved)
+                        v_bySint64[_key] = _value
                     }
                     66 -> {
                         val _start = reader.fieldStart()
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         var _key: kotlin.Int = 0
                         var _value: com.safetyculture.s12kt.kitchen.v1.Scalars? = null
                         entry@ while (true) {
@@ -1147,12 +1151,12 @@ public data class Maps(
                                 else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
                             }
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                         v_byFixed32[_key] = _value ?: com.safetyculture.s12kt.kitchen.v1.Scalars()
                     }
                     74 -> {
                         val _start = reader.fieldStart()
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         var _key: kotlin.Long = 0L
                         var _value: kotlin.String = ""
                         entry@ while (true) {
@@ -1163,12 +1167,12 @@ public data class Maps(
                                 else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
                             }
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                         v_byFixed64[_key] = _value
                     }
                     82 -> {
                         val _start = reader.fieldStart()
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         var _key: kotlin.Int = 0
                         var _value: kotlin.String = ""
                         entry@ while (true) {
@@ -1179,12 +1183,12 @@ public data class Maps(
                                 else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
                             }
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                         v_bySfixed32[_key] = _value
                     }
                     90 -> {
                         val _start = reader.fieldStart()
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         var _key: kotlin.Long = 0L
                         var _value: kotlin.String = ""
                         entry@ while (true) {
@@ -1195,12 +1199,12 @@ public data class Maps(
                                 else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
                             }
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                         v_bySfixed64[_key] = _value
                     }
                     98 -> {
                         val _start = reader.fieldStart()
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         var _key: kotlin.Boolean = false
                         var _value: kotlin.String = ""
                         entry@ while (true) {
@@ -1211,12 +1215,12 @@ public data class Maps(
                                 else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
                             }
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                         v_byBool[_key] = _value
                     }
                     106 -> {
                         val _start = reader.fieldStart()
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         var _key: kotlin.String = ""
                         var _value: com.safetyculture.s12kt.kitchen.v1.Maps? = null
                         entry@ while (true) {
@@ -1227,7 +1231,7 @@ public data class Maps(
                                 else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
                             }
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                         v_nested[_key] = _value ?: com.safetyculture.s12kt.kitchen.v1.Maps()
                     }
                     else -> reader.readUnknown(_tag, _unknown)
@@ -1271,7 +1275,7 @@ public data class Oneofs(
         if (this.choice is com.safetyculture.s12kt.kitchen.v1.Oneofs.Choice.Name) _size += com.safetyculture.s12kt.wire.WireSize.string(2, this.choice.value)
         if (this.choice is com.safetyculture.s12kt.kitchen.v1.Oneofs.Choice.Count) _size += com.safetyculture.s12kt.wire.WireSize.int32(3, this.choice.value)
         if (this.choice is com.safetyculture.s12kt.kitchen.v1.Oneofs.Choice.Scalars) _size += com.safetyculture.s12kt.wire.WireSize.message(4, this.choice.value)
-        if (this.choice is com.safetyculture.s12kt.kitchen.v1.Oneofs.Choice.Color && this.choice.value != com.safetyculture.s12kt.kitchen.v1.Color.UNRECOGNIZED) _size += com.safetyculture.s12kt.wire.WireSize.int32(5, this.choice.value.number)
+        if (this.choice is com.safetyculture.s12kt.kitchen.v1.Oneofs.Choice.Color) _size += com.safetyculture.s12kt.wire.WireSize.int32(5, this.choice.value.number)
         if (this.choice is com.safetyculture.s12kt.kitchen.v1.Oneofs.Choice.Raw) _size += com.safetyculture.s12kt.wire.WireSize.bytes(6, this.choice.value)
         if (this.choice is com.safetyculture.s12kt.kitchen.v1.Oneofs.Choice.Ratio) _size += com.safetyculture.s12kt.wire.WireSize.fixed64(7)
         if (this.other is com.safetyculture.s12kt.kitchen.v1.Oneofs.Other.Flag) _size += com.safetyculture.s12kt.wire.WireSize.bool(20)
@@ -1286,7 +1290,7 @@ public data class Oneofs(
         if (this.choice is com.safetyculture.s12kt.kitchen.v1.Oneofs.Choice.Name) writer.writeString(2, this.choice.value)
         if (this.choice is com.safetyculture.s12kt.kitchen.v1.Oneofs.Choice.Count) writer.writeInt32(3, this.choice.value)
         if (this.choice is com.safetyculture.s12kt.kitchen.v1.Oneofs.Choice.Scalars) writer.writeMessage(4, this.choice.value)
-        if (this.choice is com.safetyculture.s12kt.kitchen.v1.Oneofs.Choice.Color && this.choice.value != com.safetyculture.s12kt.kitchen.v1.Color.UNRECOGNIZED) writer.writeInt32(5, this.choice.value.number)
+        if (this.choice is com.safetyculture.s12kt.kitchen.v1.Oneofs.Choice.Color) writer.writeInt32(5, this.choice.value.number)
         if (this.choice is com.safetyculture.s12kt.kitchen.v1.Oneofs.Choice.Raw) writer.writeBytes(6, this.choice.value)
         if (this.choice is com.safetyculture.s12kt.kitchen.v1.Oneofs.Choice.Ratio) writer.writeDouble(7, this.choice.value)
         if (this.other is com.safetyculture.s12kt.kitchen.v1.Oneofs.Other.Flag) writer.writeBool(20, this.other.value)
@@ -1347,10 +1351,7 @@ public data class Oneofs(
                         v_choice = com.safetyculture.s12kt.kitchen.v1.Oneofs.Choice.Scalars(reader.readMessage(com.safetyculture.s12kt.kitchen.v1.Scalars, (v_choice as? com.safetyculture.s12kt.kitchen.v1.Oneofs.Choice.Scalars)?.value))
                     }
                     40 -> {
-                        val _n = reader.readInt32()
-                        val _e = com.safetyculture.s12kt.kitchen.v1.Color.fromNumber(_n)
-                        if (_e == com.safetyculture.s12kt.kitchen.v1.Color.UNRECOGNIZED) _unknown.addVarint(40, _n.toLong())
-                        v_choice = com.safetyculture.s12kt.kitchen.v1.Oneofs.Choice.Color(_e)
+                        v_choice = com.safetyculture.s12kt.kitchen.v1.Oneofs.Choice.Color(com.safetyculture.s12kt.kitchen.v1.Color.fromNumber(reader.readInt32()))
                     }
                     50 -> {
                         v_choice = com.safetyculture.s12kt.kitchen.v1.Oneofs.Choice.Raw(reader.readBytes())
@@ -1406,7 +1407,7 @@ public data class Outer(
     override fun getSerializedSize(): kotlin.Int {
         var _size = 0
         if (this.inner != null) _size += com.safetyculture.s12kt.wire.WireSize.message(1, this.inner)
-        if (this.kind != com.safetyculture.s12kt.kitchen.v1.Outer.Kind.UNRECOGNIZED && this.kind.number != 0) _size += com.safetyculture.s12kt.wire.WireSize.int32(2, this.kind.number)
+        if (this.kind.number != 0) _size += com.safetyculture.s12kt.wire.WireSize.int32(2, this.kind.number)
         if (this.companion != null) _size += com.safetyculture.s12kt.wire.WireSize.message(3, this.companion)
         if (this.choiceMessage != null) _size += com.safetyculture.s12kt.wire.WireSize.message(4, this.choiceMessage)
         if (this.choice is com.safetyculture.s12kt.kitchen.v1.Outer.ChoiceOneof.Text) _size += com.safetyculture.s12kt.wire.WireSize.string(5, this.choice.value)
@@ -1423,7 +1424,7 @@ public data class Outer(
 
     override fun writeTo(writer: com.safetyculture.s12kt.wire.WireWriter) {
         if (this.inner != null) writer.writeMessage(1, this.inner)
-        if (this.kind != com.safetyculture.s12kt.kitchen.v1.Outer.Kind.UNRECOGNIZED && this.kind.number != 0) writer.writeInt32(2, this.kind.number)
+        if (this.kind.number != 0) writer.writeInt32(2, this.kind.number)
         if (this.companion != null) writer.writeMessage(3, this.companion)
         if (this.choiceMessage != null) writer.writeMessage(4, this.choiceMessage)
         if (this.choice is com.safetyculture.s12kt.kitchen.v1.Outer.ChoiceOneof.Text) writer.writeString(5, this.choice.value)
@@ -1449,18 +1450,29 @@ public data class Outer(
         public data class Number(public val value: com.safetyculture.s12kt.kitchen.v1.Outer.Choice) : ChoiceOneof()
     }
 
-    public enum class Kind(public val number: kotlin.Int) {
-        KIND_UNSPECIFIED(0),
-        KIND_A(1),
+    public sealed class Kind(public val number: kotlin.Int, public val name: kotlin.String) {
+        public object KIND_UNSPECIFIED : Kind(0, "KIND_UNSPECIFIED")
+        public object KIND_A : Kind(1, "KIND_A")
+
         /** A number that this version of the schema does not know. */
-        UNRECOGNIZED(-1);
+        public class UNRECOGNIZED(number: kotlin.Int) : Kind(number, "UNRECOGNIZED") {
+            override fun equals(other: kotlin.Any?): kotlin.Boolean = other is UNRECOGNIZED && other.number == number
+
+            override fun hashCode(): kotlin.Int = number
+
+            override fun toString(): kotlin.String = "UNRECOGNIZED($number)"
+        }
+
+        override fun toString(): kotlin.String = name
 
         public companion object {
+            public val entries: kotlin.collections.List<Kind> by lazy { kotlin.collections.listOf(KIND_UNSPECIFIED, KIND_A) }
+
             @kotlin.jvm.JvmStatic
             public fun fromNumber(number: kotlin.Int): Kind = when (number) {
                 0 -> KIND_UNSPECIFIED
                 1 -> KIND_A
-                else -> UNRECOGNIZED
+                else -> UNRECOGNIZED(number)
             }
         }
     }
@@ -1476,14 +1488,14 @@ public data class Outer(
         override fun getSerializedSize(): kotlin.Int {
             var _size = 0
             if (this.deep != null) _size += com.safetyculture.s12kt.wire.WireSize.message(1, this.deep)
-            if (this.kind != com.safetyculture.s12kt.kitchen.v1.Outer.Kind.UNRECOGNIZED && this.kind.number != 0) _size += com.safetyculture.s12kt.wire.WireSize.int32(2, this.kind.number)
+            if (this.kind.number != 0) _size += com.safetyculture.s12kt.wire.WireSize.int32(2, this.kind.number)
             _size += this.unknownFields.size
             return _size
         }
 
         override fun writeTo(writer: com.safetyculture.s12kt.wire.WireWriter) {
             if (this.deep != null) writer.writeMessage(1, this.deep)
-            if (this.kind != com.safetyculture.s12kt.kitchen.v1.Outer.Kind.UNRECOGNIZED && this.kind.number != 0) writer.writeInt32(2, this.kind.number)
+            if (this.kind.number != 0) writer.writeInt32(2, this.kind.number)
             writer.writeUnknown(this.unknownFields)
         }
 
@@ -1556,10 +1568,7 @@ public data class Outer(
                             v_deep = reader.readMessage(com.safetyculture.s12kt.kitchen.v1.Outer.Inner.Deep, v_deep)
                         }
                         16 -> {
-                            val _n = reader.readInt32()
-                            val _e = com.safetyculture.s12kt.kitchen.v1.Outer.Kind.fromNumber(_n)
-                            if (_e == com.safetyculture.s12kt.kitchen.v1.Outer.Kind.UNRECOGNIZED) _unknown.addVarint(16, _n.toLong())
-                            v_kind = _e
+                            v_kind = com.safetyculture.s12kt.kitchen.v1.Outer.Kind.fromNumber(reader.readInt32())
                         }
                         else -> reader.readUnknown(_tag, _unknown)
                     }
@@ -1693,10 +1702,7 @@ public data class Outer(
                         v_inner = reader.readMessage(com.safetyculture.s12kt.kitchen.v1.Outer.Inner, v_inner)
                     }
                     16 -> {
-                        val _n = reader.readInt32()
-                        val _e = com.safetyculture.s12kt.kitchen.v1.Outer.Kind.fromNumber(_n)
-                        if (_e == com.safetyculture.s12kt.kitchen.v1.Outer.Kind.UNRECOGNIZED) _unknown.addVarint(16, _n.toLong())
-                        v_kind = _e
+                        v_kind = com.safetyculture.s12kt.kitchen.v1.Outer.Kind.fromNumber(reader.readInt32())
                     }
                     26 -> {
                         v_companion = reader.readMessage(com.safetyculture.s12kt.kitchen.v1.Outer.CompanionMessage, v_companion)
@@ -1911,7 +1917,7 @@ public data class WellKnown(
                     }
                     122 -> {
                         val _start = reader.fieldStart()
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         var _key: kotlin.String = ""
                         var _value: com.safetyculture.s12kt.google.protobuf.Value? = null
                         entry@ while (true) {
@@ -1922,7 +1928,7 @@ public data class WellKnown(
                                 else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
                             }
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                         v_byName[_key] = _value ?: com.safetyculture.s12kt.google.protobuf.Value()
                     }
                     else -> reader.readUnknown(_tag, _unknown)
@@ -2095,7 +2101,7 @@ public data class List(
                     }
                     18 -> {
                         val _start = reader.fieldStart()
-                        val _saved = reader.beginMessage()
+                        val _saved = reader.beginSection()
                         var _key: kotlin.String = ""
                         var _value: com.safetyculture.s12kt.kitchen.v1.String? = null
                         entry@ while (true) {
@@ -2106,7 +2112,7 @@ public data class List(
                                 else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
                             }
                         }
-                        reader.endMessage(_saved)
+                        reader.endSection(_saved)
                         v_byName[_key] = _value ?: com.safetyculture.s12kt.kitchen.v1.String()
                     }
                     else -> reader.readUnknown(_tag, _unknown)

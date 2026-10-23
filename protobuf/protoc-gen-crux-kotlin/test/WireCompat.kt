@@ -2,7 +2,13 @@
 
 // Compares the Kotlin message classes with the Java lite classes of the same proto files. For
 // each sample from gensamples, both classes parse the sample and write it again, and the bytes
-// must be equal in both directions.
+// must be equal in both directions. The kitchen checks at the end cover edits and nesting limits.
+import com.safetyculture.s12kt.kitchen.v1.Color
+import com.safetyculture.s12kt.kitchen.v1.Oneofs
+import com.safetyculture.s12kt.kitchen.v1.Repeated
+import com.safetyculture.s12kt.kitchen.v1.Scalars
+import com.safetyculture.s12kt.wire.InvalidWireException
+import java.io.ByteArrayOutputStream
 import java.io.File
 import kotlin.system.exitProcess
 
@@ -13,16 +19,13 @@ private fun bytesOf(message: Any): ByteArray = message.javaClass.getMethod("toBy
 
 private fun sizeOf(message: Any): Int = message.javaClass.getMethod("getSerializedSize").invoke(message) as Int
 
-fun main(args: Array<String>) {
-    val dir = File(args[0])
+private fun compareSamples(dir: File): Int {
     var failures = 0
     var samples = 0
     var identical = 0
-    var openEnumReordered = 0
     val covered = sortedSetOf<String>()
     for (line in File(dir, "index.tsv").readLines()) {
-        val (kotlinName, javaName, file, fullName, openEnumText) = line.split('\t')
-        val openEnum = openEnumText == "true"
+        val (kotlinName, javaName, file, fullName) = line.split('\t')
         val input = File(dir, file).readBytes()
         fun fail(what: String) {
             failures++
@@ -35,20 +38,12 @@ fun main(args: Array<String>) {
             val j = parse(javaClass, input)
             val kBytes = bytesOf(k)
             val jBytes = bytesOf(j)
-            val javaAgain = parse(javaClass, kBytes)
+            if (!kBytes.contentEquals(jBytes)) fail("Kotlin writes ${kBytes.size} bytes, Java lite writes ${jBytes.size} bytes different")
             if (sizeOf(k) != kBytes.size) fail("Kotlin getSerializedSize ${sizeOf(k)} but toByteArray ${kBytes.size}")
-            if (openEnum) {
-                // Java lite keeps an unknown enum number in its field; the Kotlin enum cannot hold it, so
-                // the number goes to the unknown fields and is written last.
-                if (javaAgain != j) fail("Java lite parse of the Kotlin bytes is not equal to the parse of the sample")
-                if (!kBytes.contentEquals(jBytes)) openEnumReordered++
-            } else {
-                if (!kBytes.contentEquals(jBytes)) fail("Kotlin writes ${kBytes.size} bytes, Java lite writes ${jBytes.size} bytes different")
-                if (sizeOf(j) != sizeOf(k)) fail("getSerializedSize differs: Kotlin ${sizeOf(k)} Java ${sizeOf(j)}")
-                if (!bytesOf(javaAgain).contentEquals(jBytes)) fail("Java lite re-parse of the Kotlin bytes differs")
-            }
+            if (sizeOf(j) != sizeOf(k)) fail("getSerializedSize differs: Kotlin ${sizeOf(k)} Java ${sizeOf(j)}")
+            if (!bytesOf(parse(javaClass, kBytes)).contentEquals(jBytes)) fail("Java lite re-parse of the Kotlin bytes differs")
             val kAgain = parse(kotlinClass, jBytes)
-            if (!openEnum && (kAgain != k || kAgain.hashCode() != k.hashCode())) fail("Kotlin parse of the Java bytes is not equal")
+            if (kAgain != k || kAgain.hashCode() != k.hashCode()) fail("Kotlin parse of the Java bytes is not equal")
             if (!bytesOf(kAgain).contentEquals(kBytes)) fail("Kotlin re-write of the Java bytes differs")
             if (kBytes.contentEquals(input)) identical++
             covered += fullName
@@ -57,6 +52,103 @@ fun main(args: Array<String>) {
             fail(e.toString())
         }
     }
-    println("samples=$samples messages=${covered.size} identicalToInput=$identical openEnumReordered=$openEnumReordered failures=$failures")
-    exitProcess(if (failures == 0 && samples > 0) 0 else 1)
+    println("samples=$samples messages=${covered.size} identicalToInput=$identical failures=$failures")
+    return failures + if (samples == 0) 1 else 0
+}
+
+private typealias JScalars = com.safetyculture.s12.kitchen.v1.Scalars
+private typealias JOneofs = com.safetyculture.s12.kitchen.v1.Oneofs
+private typealias JRepeated = com.safetyculture.s12.kitchen.v1.Repeated
+
+private fun check(name: String, ok: Boolean): Int {
+    println((if (ok) "ok   " else "FAIL ") + name)
+    return if (ok) 0 else 1
+}
+
+/** An edit must replace an enum number that the enum does not declare, as it does in Java lite. */
+private fun editChecks(): Int {
+    var failures = 0
+
+    val scalars = Scalars.parseFrom(JScalars.newBuilder().setFEnumValue(99).build().toByteArray())
+    failures += check("a number that is not declared stays in place", scalars.fEnum == Color.UNRECOGNIZED(99) && scalars.fEnum.number == 99)
+    failures += check("a number that is not declared is written again", JScalars.parseFrom(scalars.toByteArray()).fEnumValue == 99)
+    val edited = scalars.copy(fEnum = Color.COLOR_RED)
+    failures += check("copy replaces a single enum number", JScalars.parseFrom(edited.toByteArray()).fEnumValue == 1 && Scalars.parseFrom(edited.toByteArray()).fEnum == Color.COLOR_RED)
+
+    val oneofs = Oneofs.parseFrom(JOneofs.newBuilder().setColorValue(99).build().toByteArray())
+    failures += check("a oneof keeps a number that is not declared", oneofs.choice == Oneofs.Choice.Color(Color.UNRECOGNIZED(99)))
+    val editedOneofs = oneofs.copy(choice = Oneofs.Choice.Name("x"))
+    failures += check("copy replaces a oneof enum number", JOneofs.parseFrom(editedOneofs.toByteArray()).choiceCase == com.safetyculture.s12.kitchen.v1.Oneofs.ChoiceCase.NAME)
+
+    val repeated = Repeated.parseFrom(JRepeated.newBuilder().addAllFEnumValue(listOf(1, 99, 2)).build().toByteArray())
+    failures += check("a repeated enum keeps the order", JRepeated.parseFrom(repeated.toByteArray()).fEnumValueList == listOf(1, 99, 2))
+    val editedRepeated = repeated.copy(fEnum = listOf(Color.COLOR_GREEN))
+    failures += check("copy replaces a repeated enum list", JRepeated.parseFrom(editedRepeated.toByteArray()).fEnumValueList == listOf(2))
+    return failures
+}
+
+private fun varint(value: Int): ByteArray {
+    val out = ByteArrayOutputStream()
+    var v = value
+    while (v >= 0x80) {
+        out.write((v and 0x7F) or 0x80)
+        v = v ushr 7
+    }
+    out.write(v)
+    return out.toByteArray()
+}
+
+/** Returns the bytes of an Oneofs message with [depth] more Oneofs messages inside it. */
+private fun nestedMessages(depth: Int): ByteArray {
+    var bytes = ByteArray(0)
+    repeat(depth) { bytes = byteArrayOf(0xAA.toByte(), 0x01) + varint(bytes.size) + bytes }
+    return bytes
+}
+
+/** Returns the bytes of [depth] nested groups of an unknown field. */
+private fun nestedGroups(depth: Int): ByteArray {
+    val start = varint((100 shl 3) or 3)
+    val end = varint((100 shl 3) or 4)
+    val out = ByteArrayOutputStream()
+    repeat(depth) { out.write(start) }
+    repeat(depth) { out.write(end) }
+    return out.toByteArray()
+}
+
+private fun accepts(parser: (ByteArray) -> Any, bytes: ByteArray): Boolean? =
+    try {
+        parser(bytes)
+        true
+    } catch (e: InvalidWireException) {
+        false
+    } catch (e: com.google.protobuf.InvalidProtocolBufferException) {
+        false
+    } catch (e: Throwable) {
+        println("unexpected ${e.javaClass.name}")
+        null
+    }
+
+/** Java lite stops at a nesting depth of 100. Kotlin must stop at the same depth, with a checked error. */
+private fun nestingChecks(): Int {
+    var failures = 0
+    for (depth in listOf(1, 50, 99, 100, 101, 102, 3000)) {
+        val bytes = nestedMessages(depth)
+        val kotlin = accepts({ Oneofs.parseFrom(it) }, bytes)
+        val java = accepts({ JOneofs.parseFrom(it) }, bytes)
+        failures += check("messages nested $depth deep: Kotlin=$kotlin Java=$java", kotlin != null && kotlin == java)
+    }
+    for (depth in listOf(1, 99, 100, 101, 200000)) {
+        val bytes = nestedGroups(depth)
+        val kotlin = accepts({ Scalars.parseFrom(it) }, bytes)
+        val java = accepts({ JScalars.parseFrom(it) }, bytes)
+        failures += check("unknown groups nested $depth deep: Kotlin=$kotlin Java=$java", kotlin != null && kotlin == java)
+    }
+    return failures
+}
+
+fun main(args: Array<String>) {
+    var failures = compareSamples(File(args[0]))
+    failures += editChecks()
+    failures += nestingChecks()
+    exitProcess(if (failures == 0) 0 else 1)
 }
