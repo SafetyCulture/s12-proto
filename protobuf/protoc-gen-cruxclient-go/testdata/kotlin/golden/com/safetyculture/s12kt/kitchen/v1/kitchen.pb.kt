@@ -1131,7 +1131,10 @@ public data class Maps(
                                 when (val _t = reader.readTag()) {
                                     0 -> break@entry
                                     13 -> _key = reader.readFixed32()
-                                    18 -> _valueSections = reader.deferMessage(null)
+                                    18 -> {
+                                        if (_valueSections != null) reader.readSections(com.safetyculture.s12kt.kitchen.v1.Scalars, _valueSections)
+                                        _valueSections = reader.deferMessage(null)
+                                    }
                                     else -> reader.skipField(_t)
                                 }
                             }
@@ -1208,7 +1211,10 @@ public data class Maps(
                                 when (val _t = reader.readTag()) {
                                     0 -> break@entry
                                     10 -> _key = reader.readString()
-                                    18 -> _valueSections = reader.deferMessage(null)
+                                    18 -> {
+                                        if (_valueSections != null) reader.readSections(com.safetyculture.s12kt.kitchen.v1.Maps, _valueSections)
+                                        _valueSections = reader.deferMessage(null)
+                                    }
                                     else -> reader.skipField(_t)
                                 }
                             }
@@ -1986,7 +1992,10 @@ public data class WellKnown(
                                 when (val _t = reader.readTag()) {
                                     0 -> break@entry
                                     10 -> _key = reader.readString()
-                                    18 -> _valueSections = reader.deferMessage(null)
+                                    18 -> {
+                                        if (_valueSections != null) reader.readSections(com.safetyculture.s12kt.google.protobuf.Value, _valueSections)
+                                        _valueSections = reader.deferMessage(null)
+                                    }
                                     else -> reader.skipField(_t)
                                 }
                             }
@@ -2179,7 +2188,10 @@ public data class List(
                                 when (val _t = reader.readTag()) {
                                     0 -> break@entry
                                     10 -> _key = reader.readString()
-                                    18 -> _valueSections = reader.deferMessage(null)
+                                    18 -> {
+                                        if (_valueSections != null) reader.readSections(com.safetyculture.s12kt.kitchen.v1.String, _valueSections)
+                                        _valueSections = reader.deferMessage(null)
+                                    }
                                     else -> reader.skipField(_t)
                                 }
                             }

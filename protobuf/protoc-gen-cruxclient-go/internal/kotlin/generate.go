@@ -1008,7 +1008,10 @@ func (g *fileGen) decodeMap(f *fieldInfo) {
 	_, keyExpr := g.readValue(key, false)
 	g.w.line("%d -> _key = %s", tagOf(1, wireTypeOf(key.Kind())), keyExpr)
 	if val.Kind() == protoreflect.MessageKind {
-		g.w.line("%d -> _valueSections = reader.deferMessage(null)", tagOf(2, wireTypeOf(val.Kind())))
+		g.w.open("%d -> {", tagOf(2, wireTypeOf(val.Kind())))
+		g.w.line("if (_valueSections != null) reader.readSections(%s, _valueSections)", g.qualifiedValue(val))
+		g.w.line("_valueSections = reader.deferMessage(null)")
+		g.w.close("}")
 	} else {
 		_, valExpr := g.readValue(val, false)
 		g.w.line("%d -> _value = %s", tagOf(2, wireTypeOf(val.Kind())), valExpr)

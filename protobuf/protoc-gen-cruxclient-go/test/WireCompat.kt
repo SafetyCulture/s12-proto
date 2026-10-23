@@ -417,6 +417,18 @@ private fun valueChecks(): Int {
         byteArrayOf(0x42, 0x0D, 0x0D, 1, 0, 0, 0, 0x12, 2, 0x18, 1, 0x12, 2, 0x20, 2),
         true,
     )
+    failures += same(
+        "Maps a replaced message value with invalid UTF-8",
+        { Maps.parseFrom(it) },
+        { JMaps.parseFrom(it) },
+        delimited(
+            8,
+            fixed32(1, 1) +
+                delimited(2, delimited(14, byteArrayOf(0xFF.toByte()))) +
+                delimited(2, scalarsPart1),
+        ),
+        false,
+    )
     return failures
 }
 

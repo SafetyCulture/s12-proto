@@ -479,7 +479,10 @@ public data class ReqHolder(
                                 when (val _t = reader.readTag()) {
                                     0 -> break@entry
                                     10 -> _key = reader.readString()
-                                    18 -> _valueSections = reader.deferMessage(null)
+                                    18 -> {
+                                        if (_valueSections != null) reader.readSections(com.safetyculture.s12kt.kitchen.legacy.Req, _valueSections)
+                                        _valueSections = reader.deferMessage(null)
+                                    }
                                     else -> reader.skipField(_t)
                                 }
                             }
