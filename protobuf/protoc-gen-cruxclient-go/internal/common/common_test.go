@@ -305,7 +305,7 @@ func TestSwiftPackagePrefix(t *testing.T) {
 	}
 }
 
-// The expected names are the output of protoc-gen-swift 1.26.0 (protoc-swift:1.3.2) for nested messages with these names.
+// The expected names are the output of protoc-gen-swift 1.26.0 (protoc-swift:1.3.2), and for Swift, class, self, _ and __ of 1.38.1 and 1.39.0, for nested messages with these names.
 func TestSanitizeSwiftMessageName(t *testing.T) {
 	tests := []struct {
 		input    string
@@ -325,6 +325,12 @@ func TestSanitizeSwiftMessageName(t *testing.T) {
 		{"Hashable", "HashableMessage"},
 		{"Equatable", "EquatableMessage"},
 		{"Sendable", "SendableMessage"},
+		{"Swift", "SwiftMessage"},
+		{"class", "classMessage"},
+		{"self", "selfMessage"},
+		{"_", "_Message"},
+		{"__", "__Message"},
+		{"SendableMessage", "SendableMessageMessage"},
 		{"Extensions", "ExtensionsMessage"},
 		{"SwiftProtobuf", "SwiftProtobufMessage"},
 		{"Message", "Message"},

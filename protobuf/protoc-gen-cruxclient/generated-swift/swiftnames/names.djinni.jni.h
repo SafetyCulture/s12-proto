@@ -475,6 +475,178 @@ struct Translator {
 }  //namespace djinni::s12::name_test::v1::Outer::Error
 
 #include "swiftnames/names.pb.h"
+namespace djinni::s12::name_test::v1::Outer::Sendable {
+struct JNIInfo {
+  const GlobalRef<jclass> clazz { jniFindClass("/Outer$Sendable")  };
+  const jmethodID method_toBytes { jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
+  const jmethodID method_byteSize { jniGetMethodID(clazz.get(), "getSerializedSize", "()I") };
+  const jmethodID method_fromBytes { jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)L/Outer$Sendable;") };
+};
+
+struct Translator {
+  using CppType = ::s12::name_test::v1::Outer::Sendable;
+  using JniType = jobject;
+  using Boxed = Translator;
+
+  static CppType toCpp(JNIEnv* jniEnv, JniType j) {
+    assert(j != nullptr);
+    const auto& data = JniClass<JNIInfo>::get();
+    assert(jniEnv->IsInstanceOf(j, data.clazz.get()));
+    jbyteArray byteArray = static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes));
+    auto byte_len = jniEnv->CallIntMethod(j, data.method_byteSize);
+    jbyte* byte = jniEnv->GetByteArrayElements(byteArray, NULL);
+    CppType cpp_message;
+    cpp_message.ParseFromArray(byte, byte_len);
+    jniEnv->ReleaseByteArrayElements(byteArray, byte, JNI_ABORT);
+    jniExceptionCheck(jniEnv);
+    return cpp_message;
+  }
+
+  static LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
+    size_t size = message.ByteSizeLong();
+    jbyte* temp = new jbyte[size];
+    message.SerializeToArray(temp, static_cast<int>(size));
+    jbyteArray bytes = jniEnv->NewByteArray(size);
+    jniEnv->SetByteArrayRegion(bytes, 0, size, temp);
+    delete[] temp;
+    const auto& data = JniClass<JNIInfo>::get();
+    auto j = LocalRef<JniType>{jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes)};
+    jniExceptionCheck(jniEnv);
+    return j;
+  }
+};
+}  //namespace djinni::s12::name_test::v1::Outer::Sendable
+
+#include "swiftnames/names.pb.h"
+namespace djinni::s12::name_test::v1::Outer::Equatable {
+struct JNIInfo {
+  const GlobalRef<jclass> clazz { jniFindClass("/Outer$Equatable")  };
+  const jmethodID method_toBytes { jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
+  const jmethodID method_byteSize { jniGetMethodID(clazz.get(), "getSerializedSize", "()I") };
+  const jmethodID method_fromBytes { jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)L/Outer$Equatable;") };
+};
+
+struct Translator {
+  using CppType = ::s12::name_test::v1::Outer::Equatable;
+  using JniType = jobject;
+  using Boxed = Translator;
+
+  static CppType toCpp(JNIEnv* jniEnv, JniType j) {
+    assert(j != nullptr);
+    const auto& data = JniClass<JNIInfo>::get();
+    assert(jniEnv->IsInstanceOf(j, data.clazz.get()));
+    jbyteArray byteArray = static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes));
+    auto byte_len = jniEnv->CallIntMethod(j, data.method_byteSize);
+    jbyte* byte = jniEnv->GetByteArrayElements(byteArray, NULL);
+    CppType cpp_message;
+    cpp_message.ParseFromArray(byte, byte_len);
+    jniEnv->ReleaseByteArrayElements(byteArray, byte, JNI_ABORT);
+    jniExceptionCheck(jniEnv);
+    return cpp_message;
+  }
+
+  static LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
+    size_t size = message.ByteSizeLong();
+    jbyte* temp = new jbyte[size];
+    message.SerializeToArray(temp, static_cast<int>(size));
+    jbyteArray bytes = jniEnv->NewByteArray(size);
+    jniEnv->SetByteArrayRegion(bytes, 0, size, temp);
+    delete[] temp;
+    const auto& data = JniClass<JNIInfo>::get();
+    auto j = LocalRef<JniType>{jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes)};
+    jniExceptionCheck(jniEnv);
+    return j;
+  }
+};
+}  //namespace djinni::s12::name_test::v1::Outer::Equatable
+
+#include "swiftnames/names.pb.h"
+namespace djinni::s12::name_test::v1::Outer::Hashable {
+struct JNIInfo {
+  const GlobalRef<jclass> clazz { jniFindClass("/Outer$Hashable")  };
+  const jmethodID method_toBytes { jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
+  const jmethodID method_byteSize { jniGetMethodID(clazz.get(), "getSerializedSize", "()I") };
+  const jmethodID method_fromBytes { jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)L/Outer$Hashable;") };
+};
+
+struct Translator {
+  using CppType = ::s12::name_test::v1::Outer::Hashable;
+  using JniType = jobject;
+  using Boxed = Translator;
+
+  static CppType toCpp(JNIEnv* jniEnv, JniType j) {
+    assert(j != nullptr);
+    const auto& data = JniClass<JNIInfo>::get();
+    assert(jniEnv->IsInstanceOf(j, data.clazz.get()));
+    jbyteArray byteArray = static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes));
+    auto byte_len = jniEnv->CallIntMethod(j, data.method_byteSize);
+    jbyte* byte = jniEnv->GetByteArrayElements(byteArray, NULL);
+    CppType cpp_message;
+    cpp_message.ParseFromArray(byte, byte_len);
+    jniEnv->ReleaseByteArrayElements(byteArray, byte, JNI_ABORT);
+    jniExceptionCheck(jniEnv);
+    return cpp_message;
+  }
+
+  static LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
+    size_t size = message.ByteSizeLong();
+    jbyte* temp = new jbyte[size];
+    message.SerializeToArray(temp, static_cast<int>(size));
+    jbyteArray bytes = jniEnv->NewByteArray(size);
+    jniEnv->SetByteArrayRegion(bytes, 0, size, temp);
+    delete[] temp;
+    const auto& data = JniClass<JNIInfo>::get();
+    auto j = LocalRef<JniType>{jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes)};
+    jniExceptionCheck(jniEnv);
+    return j;
+  }
+};
+}  //namespace djinni::s12::name_test::v1::Outer::Hashable
+
+#include "swiftnames/names.pb.h"
+namespace djinni::s12::name_test::v1::Outer::Swift {
+struct JNIInfo {
+  const GlobalRef<jclass> clazz { jniFindClass("/Outer$Swift")  };
+  const jmethodID method_toBytes { jniGetMethodID(clazz.get(), "toByteArray", "()[B") };
+  const jmethodID method_byteSize { jniGetMethodID(clazz.get(), "getSerializedSize", "()I") };
+  const jmethodID method_fromBytes { jniGetStaticMethodID(clazz.get(), "parseFrom", "([B)L/Outer$Swift;") };
+};
+
+struct Translator {
+  using CppType = ::s12::name_test::v1::Outer::Swift;
+  using JniType = jobject;
+  using Boxed = Translator;
+
+  static CppType toCpp(JNIEnv* jniEnv, JniType j) {
+    assert(j != nullptr);
+    const auto& data = JniClass<JNIInfo>::get();
+    assert(jniEnv->IsInstanceOf(j, data.clazz.get()));
+    jbyteArray byteArray = static_cast<jbyteArray>(jniEnv->CallObjectMethod(j, data.method_toBytes));
+    auto byte_len = jniEnv->CallIntMethod(j, data.method_byteSize);
+    jbyte* byte = jniEnv->GetByteArrayElements(byteArray, NULL);
+    CppType cpp_message;
+    cpp_message.ParseFromArray(byte, byte_len);
+    jniEnv->ReleaseByteArrayElements(byteArray, byte, JNI_ABORT);
+    jniExceptionCheck(jniEnv);
+    return cpp_message;
+  }
+
+  static LocalRef<JniType> fromCpp(JNIEnv* jniEnv, const CppType& message) {
+    size_t size = message.ByteSizeLong();
+    jbyte* temp = new jbyte[size];
+    message.SerializeToArray(temp, static_cast<int>(size));
+    jbyteArray bytes = jniEnv->NewByteArray(size);
+    jniEnv->SetByteArrayRegion(bytes, 0, size, temp);
+    delete[] temp;
+    const auto& data = JniClass<JNIInfo>::get();
+    auto j = LocalRef<JniType>{jniEnv->CallStaticObjectMethod(data.clazz.get(), data.method_fromBytes, bytes)};
+    jniExceptionCheck(jniEnv);
+    return j;
+  }
+};
+}  //namespace djinni::s12::name_test::v1::Outer::Swift
+
+#include "swiftnames/names.pb.h"
 namespace djinni::s12::name_test::v1::Outer::Date {
 struct JNIInfo {
   const GlobalRef<jclass> clazz { jniFindClass("/Outer$Date")  };

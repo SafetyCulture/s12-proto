@@ -383,14 +383,17 @@ func swiftTypeNames(yaml string) []string {
 	return names
 }
 
-// TestSwiftTypeNames checks the type names against the output of protoc-gen-swift 1.26.0
-// (protoc-swift:1.3.2) for the same protos: reserved nested names, no package, swift_prefix.
+// TestSwiftTypeNames checks the type names against the output of protoc-gen-swift for the same
+// protos: reserved nested names, no package, swift_prefix. The names of reserved.proto are the
+// output of protoc-gen-swift 1.38.1 and 1.39.0, and the other names are the output of 1.26.0.
 func TestSwiftTypeNames(t *testing.T) {
 	sources := map[string]string{}
-	for _, name := range []string{"names", "loose", "prefixed", "wellknown"} {
+	var files []string
+	for _, name := range []string{"names", "loose", "prefixed", "wellknown", "reserved"} {
 		sources["swiftnames/"+name+".proto"] = string(mustReadFile(t, "testdata/swiftnames/"+name+".proto"))
+		files = append(files, "swiftnames/"+name+".proto")
 	}
-	output := runPluginWithParameter(t, sources, []string{"swiftnames/names.proto", "swiftnames/loose.proto", "swiftnames/prefixed.proto", "swiftnames/wellknown.proto"}, "swift_module")
+	output := runPluginWithParameter(t, sources, files, "swift_module")
 
 	require.Equal(t, []string{
 		"S12_NameTest_V1_Outer",
@@ -404,13 +407,24 @@ func TestSwiftTypeNames(t *testing.T) {
 		"S12_NameTest_V1_Outer.Message",
 		"S12_NameTest_V1_Outer.DataMessageMessage",
 		"S12_NameTest_V1_Outer.Error",
+		"S12_NameTest_V1_Outer.SendableMessage",
+		"S12_NameTest_V1_Outer.EquatableMessage",
+		"S12_NameTest_V1_Outer.HashableMessage",
+		"S12_NameTest_V1_Outer.SwiftMessage",
 		"S12_NameTest_V1_Outer.Date",
 		"S12_NameTest_V1_Outer.Foo",
 		"S12_NameTest_V1_Outer.Foo.TypeMessage",
 		"S12_NameTest_V1_Data",
 	}, swiftTypeNames(output["swiftnames/names.djinni.yaml"]))
 
-	for _, name := range []string{"names", "loose", "prefixed", "wellknown"} {
+	require.Equal(t, []string{
+		"SendableMessage", "EquatableMessage", "HashableMessage", "SwiftMessage", "SwiftProtobufMessage",
+		"ExtensionsMessage", "classMessage", "selfMessage", "funcMessage", "_Message", "__Message",
+		"SendableMessageMessage", "Outer", "Outer.SendableMessage", "Outer.SwiftMessage", "Outer.inMessage",
+		"Outer._Message",
+	}, swiftTypeNames(output["swiftnames/reserved.djinni.yaml"]))
+
+	for _, name := range []string{"names", "loose", "prefixed", "wellknown", "reserved"} {
 		golden := mustReadFile(t, "testdata/swiftnames/"+name+".djinni.yaml")
 		require.Equal(t, string(golden), output["swiftnames/"+name+".djinni.yaml"])
 	}

@@ -14,6 +14,10 @@ message Outer {
   message Message {}
   message DataMessage {}
   message Error {}
+  message Sendable {}
+  message Equatable {}
+  message Hashable {}
+  message Swift {}
   message Date {}
   message Foo {
     message Type {}

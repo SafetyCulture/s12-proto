@@ -344,6 +344,130 @@ struct Translator {
 #include "swiftnames/names.pb.h"
 #import "swiftnames_Names.pbobjc.h"
 
+namespace djinni::s12::name_test::v1::Outer::Sendable {
+struct Translator {
+  using CppType = ::s12::name_test::v1::Outer::Sendable;
+  using ObjcType = Outer_Sendable*;
+  using Boxed = Translator;
+
+  static CppType toCpp(ObjcType message) {
+    assert(message);
+    NSData * data = [message data];
+    const void *bytes = [data bytes];
+    int byte_len = (int)[data length];
+    CppType cpp_message;
+    cpp_message.ParseFromArray(bytes, byte_len);
+    return cpp_message;
+  }
+
+  static ObjcType fromCpp(const CppType& message) {
+    size_t byte_size = message.ByteSizeLong();
+    void *bytes = malloc(byte_size);
+    message.SerializeToArray(bytes, static_cast<int>(byte_size));
+    NSData *data = [NSData dataWithBytes: bytes length: (int)byte_size];
+    free(bytes);
+    NSError *error;
+    return [Outer_Sendable parseFromData:data error:&error];
+  }
+};
+}  //namespace djinni::s12::name_test::v1::Outer::Sendable
+
+#include "swiftnames/names.pb.h"
+#import "swiftnames_Names.pbobjc.h"
+
+namespace djinni::s12::name_test::v1::Outer::Equatable {
+struct Translator {
+  using CppType = ::s12::name_test::v1::Outer::Equatable;
+  using ObjcType = Outer_Equatable*;
+  using Boxed = Translator;
+
+  static CppType toCpp(ObjcType message) {
+    assert(message);
+    NSData * data = [message data];
+    const void *bytes = [data bytes];
+    int byte_len = (int)[data length];
+    CppType cpp_message;
+    cpp_message.ParseFromArray(bytes, byte_len);
+    return cpp_message;
+  }
+
+  static ObjcType fromCpp(const CppType& message) {
+    size_t byte_size = message.ByteSizeLong();
+    void *bytes = malloc(byte_size);
+    message.SerializeToArray(bytes, static_cast<int>(byte_size));
+    NSData *data = [NSData dataWithBytes: bytes length: (int)byte_size];
+    free(bytes);
+    NSError *error;
+    return [Outer_Equatable parseFromData:data error:&error];
+  }
+};
+}  //namespace djinni::s12::name_test::v1::Outer::Equatable
+
+#include "swiftnames/names.pb.h"
+#import "swiftnames_Names.pbobjc.h"
+
+namespace djinni::s12::name_test::v1::Outer::Hashable {
+struct Translator {
+  using CppType = ::s12::name_test::v1::Outer::Hashable;
+  using ObjcType = Outer_Hashable*;
+  using Boxed = Translator;
+
+  static CppType toCpp(ObjcType message) {
+    assert(message);
+    NSData * data = [message data];
+    const void *bytes = [data bytes];
+    int byte_len = (int)[data length];
+    CppType cpp_message;
+    cpp_message.ParseFromArray(bytes, byte_len);
+    return cpp_message;
+  }
+
+  static ObjcType fromCpp(const CppType& message) {
+    size_t byte_size = message.ByteSizeLong();
+    void *bytes = malloc(byte_size);
+    message.SerializeToArray(bytes, static_cast<int>(byte_size));
+    NSData *data = [NSData dataWithBytes: bytes length: (int)byte_size];
+    free(bytes);
+    NSError *error;
+    return [Outer_Hashable parseFromData:data error:&error];
+  }
+};
+}  //namespace djinni::s12::name_test::v1::Outer::Hashable
+
+#include "swiftnames/names.pb.h"
+#import "swiftnames_Names.pbobjc.h"
+
+namespace djinni::s12::name_test::v1::Outer::Swift {
+struct Translator {
+  using CppType = ::s12::name_test::v1::Outer::Swift;
+  using ObjcType = Outer_Swift*;
+  using Boxed = Translator;
+
+  static CppType toCpp(ObjcType message) {
+    assert(message);
+    NSData * data = [message data];
+    const void *bytes = [data bytes];
+    int byte_len = (int)[data length];
+    CppType cpp_message;
+    cpp_message.ParseFromArray(bytes, byte_len);
+    return cpp_message;
+  }
+
+  static ObjcType fromCpp(const CppType& message) {
+    size_t byte_size = message.ByteSizeLong();
+    void *bytes = malloc(byte_size);
+    message.SerializeToArray(bytes, static_cast<int>(byte_size));
+    NSData *data = [NSData dataWithBytes: bytes length: (int)byte_size];
+    free(bytes);
+    NSError *error;
+    return [Outer_Swift parseFromData:data error:&error];
+  }
+};
+}  //namespace djinni::s12::name_test::v1::Outer::Swift
+
+#include "swiftnames/names.pb.h"
+#import "swiftnames_Names.pbobjc.h"
+
 namespace djinni::s12::name_test::v1::Outer::Date {
 struct Translator {
   using CppType = ::s12::name_test::v1::Outer::Date;

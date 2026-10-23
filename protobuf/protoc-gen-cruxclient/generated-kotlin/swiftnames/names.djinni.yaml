@@ -385,6 +385,146 @@ kotlin:
   jniTypename: 'com.safetyculture.s12kt.name_test.v1.Outer.Error'
 
 ---
+name: pb_swiftnames_Names_Outer_Sendable
+typedef: 'record deriving(eq, ord, parcelable)'
+params: []
+prefix: 'pb'
+cpp:
+  typename: 's12::name_test::v1::Outer::Sendable'
+  header: '"swiftnames/names.pb.h"'
+  byValue: false
+objc:
+  typename: 'Outer_Sendable'
+  header: '"swiftnames_Names.pbobjc.h"'
+  boxed: 'Outer_Sendable'
+  pointer: true
+  hash: '%s.hash()'
+objcpp:
+  translator: 'djinni::s12::name_test::v1::Outer::Sendable::Translator'
+  header: '"swiftnames/names.djinni.objc.h"'
+java:
+  typename: '.Outer.Sendable'
+  boxed: '.Outer.Sendable'
+  reference: true
+  generic: false
+  hash: '%s.hashCode()'
+jni:
+  translator: 'djinni::s12::name_test::v1::Outer::Sendable::Translator'
+  header: '"swiftnames/names.djinni.jni.h"'
+  typename: jobject
+  typeSignature: 'L/Outer$Sendable;'
+  kotlinTranslator: 'djinni::kotlin::s12::name_test::v1::Outer::Sendable::Translator'
+  kotlinHeader: '"swiftnames/names.djinni.kotlin.jni.h"'
+  kotlinTypeSignature: 'Lcom/safetyculture/s12kt/name_test/v1/Outer$Sendable;'
+kotlin:
+  jniTypename: 'com.safetyculture.s12kt.name_test.v1.Outer.Sendable'
+
+---
+name: pb_swiftnames_Names_Outer_Equatable
+typedef: 'record deriving(eq, ord, parcelable)'
+params: []
+prefix: 'pb'
+cpp:
+  typename: 's12::name_test::v1::Outer::Equatable'
+  header: '"swiftnames/names.pb.h"'
+  byValue: false
+objc:
+  typename: 'Outer_Equatable'
+  header: '"swiftnames_Names.pbobjc.h"'
+  boxed: 'Outer_Equatable'
+  pointer: true
+  hash: '%s.hash()'
+objcpp:
+  translator: 'djinni::s12::name_test::v1::Outer::Equatable::Translator'
+  header: '"swiftnames/names.djinni.objc.h"'
+java:
+  typename: '.Outer.Equatable'
+  boxed: '.Outer.Equatable'
+  reference: true
+  generic: false
+  hash: '%s.hashCode()'
+jni:
+  translator: 'djinni::s12::name_test::v1::Outer::Equatable::Translator'
+  header: '"swiftnames/names.djinni.jni.h"'
+  typename: jobject
+  typeSignature: 'L/Outer$Equatable;'
+  kotlinTranslator: 'djinni::kotlin::s12::name_test::v1::Outer::Equatable::Translator'
+  kotlinHeader: '"swiftnames/names.djinni.kotlin.jni.h"'
+  kotlinTypeSignature: 'Lcom/safetyculture/s12kt/name_test/v1/Outer$Equatable;'
+kotlin:
+  jniTypename: 'com.safetyculture.s12kt.name_test.v1.Outer.Equatable'
+
+---
+name: pb_swiftnames_Names_Outer_Hashable
+typedef: 'record deriving(eq, ord, parcelable)'
+params: []
+prefix: 'pb'
+cpp:
+  typename: 's12::name_test::v1::Outer::Hashable'
+  header: '"swiftnames/names.pb.h"'
+  byValue: false
+objc:
+  typename: 'Outer_Hashable'
+  header: '"swiftnames_Names.pbobjc.h"'
+  boxed: 'Outer_Hashable'
+  pointer: true
+  hash: '%s.hash()'
+objcpp:
+  translator: 'djinni::s12::name_test::v1::Outer::Hashable::Translator'
+  header: '"swiftnames/names.djinni.objc.h"'
+java:
+  typename: '.Outer.Hashable'
+  boxed: '.Outer.Hashable'
+  reference: true
+  generic: false
+  hash: '%s.hashCode()'
+jni:
+  translator: 'djinni::s12::name_test::v1::Outer::Hashable::Translator'
+  header: '"swiftnames/names.djinni.jni.h"'
+  typename: jobject
+  typeSignature: 'L/Outer$Hashable;'
+  kotlinTranslator: 'djinni::kotlin::s12::name_test::v1::Outer::Hashable::Translator'
+  kotlinHeader: '"swiftnames/names.djinni.kotlin.jni.h"'
+  kotlinTypeSignature: 'Lcom/safetyculture/s12kt/name_test/v1/Outer$Hashable;'
+kotlin:
+  jniTypename: 'com.safetyculture.s12kt.name_test.v1.Outer.Hashable'
+
+---
+name: pb_swiftnames_Names_Outer_Swift
+typedef: 'record deriving(eq, ord, parcelable)'
+params: []
+prefix: 'pb'
+cpp:
+  typename: 's12::name_test::v1::Outer::Swift'
+  header: '"swiftnames/names.pb.h"'
+  byValue: false
+objc:
+  typename: 'Outer_Swift'
+  header: '"swiftnames_Names.pbobjc.h"'
+  boxed: 'Outer_Swift'
+  pointer: true
+  hash: '%s.hash()'
+objcpp:
+  translator: 'djinni::s12::name_test::v1::Outer::Swift::Translator'
+  header: '"swiftnames/names.djinni.objc.h"'
+java:
+  typename: '.Outer.Swift'
+  boxed: '.Outer.Swift'
+  reference: true
+  generic: false
+  hash: '%s.hashCode()'
+jni:
+  translator: 'djinni::s12::name_test::v1::Outer::Swift::Translator'
+  header: '"swiftnames/names.djinni.jni.h"'
+  typename: jobject
+  typeSignature: 'L/Outer$Swift;'
+  kotlinTranslator: 'djinni::kotlin::s12::name_test::v1::Outer::Swift::Translator'
+  kotlinHeader: '"swiftnames/names.djinni.kotlin.jni.h"'
+  kotlinTypeSignature: 'Lcom/safetyculture/s12kt/name_test/v1/Outer$Swift;'
+kotlin:
+  jniTypename: 'com.safetyculture.s12kt.name_test.v1.Outer.Swift'
+
+---
 name: pb_swiftnames_Names_Outer_Date
 typedef: 'record deriving(eq, ord, parcelable)'
 params: []
