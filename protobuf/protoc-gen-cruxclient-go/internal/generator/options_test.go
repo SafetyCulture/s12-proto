@@ -118,3 +118,14 @@ func TestParseOptionsRejectsInvalidInput(t *testing.T) {
 		})
 	}
 }
+
+func TestParseOptionsRejectsDifferentKotlinRoots(t *testing.T) {
+	_, err := ParseOptions("kotlin_package=com.example.kt,kotlin_messages=com.example.other")
+	if err == nil {
+		t.Fatal("ParseOptions returned nil error")
+	}
+	want := "kotlin_package=com.example.kt and kotlin_messages=com.example.other must name the same root package"
+	if err.Error() != want {
+		t.Errorf("ParseOptions error = %q, want %q", err, want)
+	}
+}

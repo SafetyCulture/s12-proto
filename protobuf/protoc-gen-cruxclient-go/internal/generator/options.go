@@ -69,6 +69,13 @@ func ParseOptions(parameter string) (Options, error) {
 		if err := kotlin.ValidateRoot(opts.KotlinMessages); err != nil {
 			return Options{}, err
 		}
+		if opts.KotlinPackage != "" && opts.KotlinPackage != opts.KotlinMessages {
+			return Options{}, fmt.Errorf(
+				"kotlin_package=%s and kotlin_messages=%s must name the same root package",
+				opts.KotlinPackage,
+				opts.KotlinMessages,
+			)
+		}
 	}
 	return opts, nil
 }
