@@ -1,0 +1,129 @@
+// Copyright (c) 2018 SafetyCulture Pty Ltd. All Rights Reserved.
+
+syntax = "proto3";
+package example;
+
+import "google/protobuf/timestamp.proto";
+import "s12/protobuf/proto/validator.proto";
+
+option go_package = "github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-tsvalidator/example";
+
+message ExampleMessage {
+  // returns an error if the string cannot be parsed as a UUID
+  string id = 1 [ (validator.uuid) = true ];
+  // bytes can also be parsed as UUID with support for gogo
+  bytes user_id = 2 [ (validator.uuid) = true ];
+  // should be a valid email address
+  string email = 3 [ (validator.url) = {optional : true} ];
+  // integers can be greater than a value
+  repeated int32 age = 4 [ (validator.int_gt) = 0 ];
+  // integers can be less than a value
+  int64 speed = 5 [ (validator.int_lt) = 110 ];
+  // integers greater/less than or equal, the can also be combined
+  int32 score = 6 [ (validator.int_gte) = 0, (validator.int_lte) = 100 ];
+  // validation is created for all messages
+  InnerMessage inner = 7;
+  // can validate each repeated item too
+  repeated bytes ids = 8 [ (validator.uuid) = true ];
+  // only validate if non-zero value
+  string media_id = 9 [ (validator.uuid) = true, (validator.optional) = true ];
+  // validate the max length of a string
+  string description = 10 [ (validator.length_lte) = 2000 ];
+  // validate the min length
+  string password = 11 [ (validator.length_gte) = 8 ];
+  // You don't need to validate everything
+  string no_validation = 12;
+
+  oneof contact_oneof {
+    string fax = 13;
+    string phone = 14 [ (validator.length_gte) = 11 ];
+  }
+
+  // Required inner message
+  InnerMessage msg_required = 15 [ (validator.msg_required) = true ];
+
+  // returns an error if the string cannot be parsed as a legacy id
+  string legacy_id = 16 [ (validator.legacy_id) = true ];
+
+  // InnerMessage can contain a legacy id too
+  InnerMessageWithLegacyId inner_legacy_id = 17;
+
+  // Trim leading and trailing whitespaces (as defined by Unicode) before doing
+  // length check
+  string name = 18 [
+    (validator.length_gte) = 6,
+    (validator.length_lte) = 10,
+    (validator.trim_len_check) = true
+  ];
+
+  message NestedMessage {
+    string val = 1 [
+      (validator.length_gte) = 1,
+      (validator.length_lte) = 40,
+      (validator.trim_len_check) = true
+    ];
+
+    message InnerNestedMessage {
+      string inner_val = 1 [
+        (validator.length_gte) = 1,
+        (validator.length_lte) = 40,
+        (validator.trim_len_check) = true
+      ];
+    }
+
+    string nested_email = 2 [ (validator.regex) = ".+\\@.+\\..+" ];
+
+    repeated string member_emails = 3 [
+      (validator.regex) = "[a-z0-9!#$&'*+/=?^_{|}~-]+(?:\\.[a-z0-9!#$&'*+/"
+                          "=?^_{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)"
+                          "+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?",
+      (validator.repeated_len_gte) = 2,
+      (validator.repeated_len_lte) = 5
+    ];
+  }
+
+  NestedMessage nested_message = 19;
+
+  map<string, string> not_supported = 100;
+
+  // strings can validate against a regular expression
+  string url = 21
+      [ (validator.regex) = "https:\\/\\/www\\.safetyculture\\.(io|com)" ];
+
+  repeated Contact contacts_with_length_constraint = 22
+      [ (validator.repeated_len_gte) = 0, (validator.repeated_len_lte) = 10 ];
+  repeated Contact contacts_with_no_length_constraint = 23;
+
+  message Contact {
+    string phone = 1 [ (validator.optional) = true ];
+    string email = 2 [ (validator.email) = {optional : true} ];
+  }
+  google.protobuf.Timestamp scheduled_for = 24 [ (validator.optional) = true ];
+
+  string timezone = 25 [ (validator.timezone) = {} ];
+
+  string timezone_optional = 26 [ (validator.timezone) = {optional : true} ];
+
+  optional string string_optional = 27 [ (validator.string) = {} ];
+}
+
+message OuterMessageUsingNestedMessage {
+  ExampleMessage.NestedMessage some_message = 1;
+}
+
+message InnerMessage { string id = 1 [ (validator.uuid) = true ]; }
+
+message InnerMessageWithLegacyId {
+  string id = 1 [ (validator.legacy_id) = true ];
+}
+
+message MyMessageWithEnum {
+  MyEnum enum = 1 [ (validator.enum_required) = true ];
+
+  enum MyEnum {
+    // Default is unspecified.
+    MY_ENUM_UNSPECIFIED = 0;
+    // First valid value.
+    MY_ENUM_FIRST = 1;
+  }
+}
