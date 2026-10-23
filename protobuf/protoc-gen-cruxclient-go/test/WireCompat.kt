@@ -301,7 +301,7 @@ private fun requiredChecks(): Int {
 }
 
 private fun partialRequiredMessageChecks(): Int {
-    val fullWrap = delimited(1, delimited(1, vint(1, 1)))
+    val fullWrap = delimited(1, vint(1, 1))
     val oneof = delimited(1, ByteArray(0)) + vint(2, 1)
     val map = delimited(3, delimited(1, "k".toByteArray()) + delimited(2, ByteArray(0)) + delimited(2, fullWrap))
     var failures = same(
@@ -316,7 +316,7 @@ private fun partialRequiredMessageChecks(): Int {
         { PartialHolder.parseFrom(it) },
         { JPartialHolder.parseFrom(it) },
         map,
-        false,
+        true,
     )
     return failures
 }
