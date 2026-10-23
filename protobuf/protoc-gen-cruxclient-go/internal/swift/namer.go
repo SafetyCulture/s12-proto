@@ -14,12 +14,15 @@ import (
 type namer struct {
 	runtimeModule      string
 	currentIsBundled   bool
+	forbidden          map[string]bool
 	enumValueNameCache map[string]string
 }
 
-// newNamer returns the namer for the Swift code of one file.
 func newNamer(runtimeModule string, current *file) *namer {
-	return &namer{runtimeModule: runtimeModule, currentIsBundled: current.isBundledProto(), enumValueNameCache: map[string]string{}}
+	return &namer{
+		runtimeModule: runtimeModule, currentIsBundled: current.isBundledProto(),
+		forbidden: map[string]bool{runtimeModule: true}, enumValueNameCache: map[string]string{},
+	}
 }
 
 // runtimePrefix is the qualifier of the runtime types.
@@ -38,19 +41,15 @@ func (n *namer) modulePrefix(f *file) string {
 	return ""
 }
 
-func (n *namer) forbidden() map[string]bool {
-	return map[string]bool{n.runtimeModule: true}
-}
-
 func (n *namer) filePrefix(f *file) string {
 	return typePrefix(f.pkg, f.swiftPrefix())
 }
 
 func (n *namer) relativeNameMessage(m *message) string {
 	if m.containing != nil {
-		return sanitizeMessageName(m.name, n.forbidden())
+		return sanitizeMessageName(m.name, n.forbidden)
 	}
-	return sanitizeMessageName(n.filePrefix(m.file)+m.name, n.forbidden())
+	return sanitizeMessageName(n.filePrefix(m.file)+m.name, n.forbidden)
 }
 
 func (n *namer) fullNameMessage(m *message) string {
@@ -63,9 +62,9 @@ func (n *namer) fullNameMessage(m *message) string {
 
 func (n *namer) relativeNameEnum(e *enum) string {
 	if e.containing != nil {
-		return sanitizeEnumName(e.name, n.forbidden())
+		return sanitizeEnumName(e.name, n.forbidden)
 	}
-	return sanitizeEnumName(n.filePrefix(e.file)+e.name, n.forbidden())
+	return sanitizeEnumName(n.filePrefix(e.file)+e.name, n.forbidden)
 }
 
 func (n *namer) fullNameEnum(e *enum) string {
@@ -139,7 +138,7 @@ func (n *namer) dottedRelativeNameEnumValue(v *enumValue) string {
 }
 
 func (n *namer) relativeNameOneof(o *oneof) string {
-	return sanitizeOneofName("OneOf_"+toUpperCamelCase(o.name), n.forbidden())
+	return sanitizeOneofName("OneOf_"+toUpperCamelCase(o.name), n.forbidden)
 }
 
 func (n *namer) fullNameOneof(o *oneof) string {
