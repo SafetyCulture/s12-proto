@@ -205,6 +205,9 @@ func (r *registry) addFile(fp *descriptorpb.FileDescriptorProto) (*file, error) 
 		f.deps = append(f.deps, dep)
 	}
 	for _, i := range fp.GetPublicDependency() {
+		if i < 0 || int(i) >= len(f.deps) {
+			return nil, fmt.Errorf("%s: public dependency index %d is out of range", f.name, i)
+		}
 		f.publicDeps = append(f.publicDeps, f.deps[i])
 	}
 	f.locations = map[string]*descriptorpb.SourceCodeInfo_Location{}
@@ -216,7 +219,11 @@ func (r *registry) addFile(fp *descriptorpb.FileDescriptorProto) (*file, error) 
 		f.enums = append(f.enums, r.newEnum(ep, i, f, nil, fp.GetPackage(), f.features))
 	}
 	for i, mp := range fp.GetMessageType() {
-		f.messages = append(f.messages, r.newMessage(mp, i, f, nil, fp.GetPackage(), f.features))
+		m, err := r.newMessage(mp, i, f, nil, fp.GetPackage(), f.features)
+		if err != nil {
+			return nil, err
+		}
+		f.messages = append(f.messages, m)
 	}
 	for i, xp := range fp.GetExtension() {
 		f.extensions = append(f.extensions, newField(xp, i, f, nil, f.features, true))
@@ -257,7 +264,7 @@ func (r *registry) newEnum(ep *descriptorpb.EnumDescriptorProto, index int, f *f
 	return e
 }
 
-func (r *registry) newMessage(mp *descriptorpb.DescriptorProto, index int, f *file, containing *message, scope string, parent *descriptorpb.FeatureSet) *message {
+func (r *registry) newMessage(mp *descriptorpb.DescriptorProto, index int, f *file, containing *message, scope string, parent *descriptorpb.FeatureSet) (*message, error) {
 	m := &message{
 		proto: mp, name: mp.GetName(), fullName: scoped(scope, mp.GetName()), index: index,
 		file: f, containing: containing,
@@ -277,25 +284,32 @@ func (r *registry) newMessage(mp *descriptorpb.DescriptorProto, index int, f *fi
 		m.enums = append(m.enums, r.newEnum(ep, i, f, m, m.fullName, m.features))
 	}
 	for i, np := range mp.GetNestedType() {
-		m.nested = append(m.nested, r.newMessage(np, i, f, m, m.fullName, m.features))
+		nested, err := r.newMessage(np, i, f, m, m.fullName, m.features)
+		if err != nil {
+			return nil, err
+		}
+		m.nested = append(m.nested, nested)
 	}
 	for i, fp := range mp.GetField() {
+		oneofIndex := int(fp.GetOneofIndex())
+		if fp.OneofIndex != nil && (oneofIndex < 0 || oneofIndex >= len(m.oneofs)) {
+			return nil, fmt.Errorf("%s: field %s has oneof index %d out of range", f.name, fp.GetName(), oneofIndex)
+		}
 		parentFeatures := m.features
 		if fp.OneofIndex != nil && !fp.GetProto3Optional() {
-			parentFeatures = oneofFeatures[fp.GetOneofIndex()]
+			parentFeatures = oneofFeatures[oneofIndex]
 		}
 		fld := newField(fp, i, f, m, parentFeatures, false)
 		m.fields = append(m.fields, fld)
 		if fp.OneofIndex != nil {
-			o := m.oneofs[fp.GetOneofIndex()]
-			o.fields = append(o.fields, fld)
+			m.oneofs[oneofIndex].fields = append(m.oneofs[oneofIndex].fields, fld)
 		}
 	}
 	for i, xp := range mp.GetExtension() {
 		m.extensions = append(m.extensions, newField(xp, i, f, m, m.features, true))
 	}
 	r.messages[m.fullName] = m
-	return m
+	return m, nil
 }
 
 func newField(fp *descriptorpb.FieldDescriptorProto, index int, f *file, containing *message, parent *descriptorpb.FeatureSet, isExtension bool) *field {
