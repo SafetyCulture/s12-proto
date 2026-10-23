@@ -4,7 +4,7 @@
 # Generates both sets of classes from the same proto files, writes random encoded samples for
 # every message of the root files, and runs test/WireCompat.kt over them.
 #
-# Needs: go, protoc, kotlinc, javac, java and curl on PATH.
+# Needs: go, protoc, kotlinc, javac, java, curl and shasum on PATH.
 # Environment:
 #   APISCHEMA        An APISchema checkout. When set, s12/assets/v1/asset.proto is a root file.
 #   ROOTS_FILE       A file with one more root proto file in each line, relative to APISCHEMA/protos.
