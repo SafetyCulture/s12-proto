@@ -15,6 +15,7 @@ import (
 
 	"github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-cruxclient-go/internal/generator"
 	"github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-cruxclient-go/internal/kotlin"
+	"github.com/SafetyCulture/s12-proto/protobuf/protoc-gen-cruxclient-go/internal/swift"
 )
 
 func main() {
@@ -27,7 +28,7 @@ func main() {
 //   - services > 0:  generate all 6 file types
 func handle(
 	_ context.Context,
-	_ protoplugin.PluginEnv,
+	env protoplugin.PluginEnv,
 	responseWriter protoplugin.ResponseWriter,
 	request protoplugin.Request,
 ) error {
@@ -67,6 +68,14 @@ func handle(
 			responseWriter.AddError(fmt.Sprintf("cruxclient-go: kotlin.Generate: %v", err))
 			return nil
 		}
+	}
+	if opts.SwiftMessagesEnabled() {
+		if err := swift.Generate(responseWriter, request); err != nil {
+			return err
+		}
+	}
+	if opts.MessagesOnly && !opts.KotlinMessagesEnabled() && !opts.SwiftMessagesEnabled() {
+		fmt.Fprintln(env.Stderr, "warning: messages_only writes no file without a messages option such as swift_messages or kotlin_messages")
 	}
 	return nil
 }

@@ -122,6 +122,34 @@ func TestParseOptionsRejectsInvalidInput(t *testing.T) {
 	}
 }
 
+func TestParseSwiftMessages(t *testing.T) {
+	tests := []struct {
+		parameter string
+		module    string
+	}{
+		{"", ""},
+		{"swift_module", ""},
+		{"swift_messages", DefaultSwiftModule},
+		{"swift_messages=", DefaultSwiftModule},
+		{"swift_messages=Custom", "Custom"},
+		{"Visibility=Public, swift_messages = Mod ", "Mod"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.parameter, func(t *testing.T) {
+			opts, err := ParseOptions(tt.parameter)
+			if err != nil {
+				t.Fatalf("ParseOptions(%q) returned %v", tt.parameter, err)
+			}
+			if opts.SwiftMessages != tt.module {
+				t.Errorf("ParseOptions(%q).SwiftMessages = %q, want %q", tt.parameter, opts.SwiftMessages, tt.module)
+			}
+			if opts.SwiftMessagesEnabled() != (tt.module != "") {
+				t.Errorf("ParseOptions(%q).SwiftMessagesEnabled() = %v", tt.parameter, opts.SwiftMessagesEnabled())
+			}
+		})
+	}
+}
+
 func TestParseOptionsRejectsDifferentKotlinRoots(t *testing.T) {
 	_, err := ParseOptions("kotlin_package=com.example.kt,kotlin_messages=com.example.other")
 	if err == nil {

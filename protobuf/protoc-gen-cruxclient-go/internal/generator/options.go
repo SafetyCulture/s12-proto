@@ -19,6 +19,8 @@ const DefaultKotlinPackage = "com.safetyculture.s12kt"
 type Options struct {
 	// SwiftModule enables the Swift output. An empty value leaves it off.
 	SwiftModule string
+	// SwiftMessages enables the Swift messages and names the Swift module that compiles them. An empty value leaves them off.
+	SwiftMessages string
 	// KotlinPackage enables the output for the pure Kotlin messages. An empty value leaves it off.
 	KotlinPackage string
 	// KotlinMessages enables the pure Kotlin message classes and sets their root package. An empty value leaves them off.
@@ -44,6 +46,8 @@ func ParseOptions(parameter string) (Options, error) {
 		switch key {
 		case "swift_module":
 			opts.SwiftModule = valueOr(value, DefaultSwiftModule)
+		case "swift_messages":
+			opts.SwiftMessages = valueOr(value, DefaultSwiftModule)
 		case "kotlin_package":
 			opts.KotlinPackage = valueOr(value, DefaultKotlinPackage)
 		case "kotlin_messages":
@@ -86,6 +90,11 @@ func ParseOptions(parameter string) (Options, error) {
 // SwiftEnabled reports whether the Swift output is on.
 func (o Options) SwiftEnabled() bool {
 	return o.SwiftModule != ""
+}
+
+// SwiftMessagesEnabled reports whether the Swift messages are on.
+func (o Options) SwiftMessagesEnabled() bool {
+	return o.SwiftMessages != ""
 }
 
 // KotlinEnabled reports whether the Kotlin output is on.
