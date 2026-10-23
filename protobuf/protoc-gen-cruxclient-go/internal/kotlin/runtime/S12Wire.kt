@@ -54,8 +54,8 @@ public class ByteString private constructor(private val bytes: ByteArray) {
 
 /**
  * A generated message. A parse returns lists and maps that cannot change. A message keeps the lists
- * and maps that the caller passes to its constructor, so a caller must not change them later: the
- * serialized size of the message is cached.
+ * and maps that the caller passes to its constructor. Do not change them later. Encoding recomputes
+ * each nested size at each depth. It costs O(bytes × depth).
  */
 public interface WireMessage {
     /** The size in bytes of the serialized message, unknown fields included. */
@@ -423,7 +423,7 @@ public class WireWriter(private val buffer: ByteArray) {
     private var position = 0
 
     public companion object {
-        /** Writes a message to a new array. It fails if the message changed after its size was cached. */
+        /** Writes a message to a new array. It can throw if the message changed after its size was computed. */
         @JvmStatic
         public fun encode(message: WireMessage): ByteArray {
             val writer = WireWriter(ByteArray(message.getSerializedSize()))
