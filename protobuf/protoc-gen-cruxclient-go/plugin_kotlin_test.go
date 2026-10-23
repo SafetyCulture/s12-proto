@@ -502,7 +502,7 @@ func TestKotlinRootRejectsCodecLocals(t *testing.T) {
 	dir := t.TempDir()
 	source := "syntax = \"proto3\";\npackage rq.v1;\nmessage Leaf {}\n"
 	require.NoError(t, os.WriteFile(filepath.Join(dir, "root.proto"), []byte(source), 0o644))
-	for _, root := range []string{"reader.acme", "writer.acme", "value.acme", "n_k.acme", "s_k.acme", "_x.acme"} {
+	for _, root := range []string{"reader.acme", "writer.acme", "value.acme", "sections.acme", "missingRequired.acme", "n_k.acme", "s_k.acme", "_x.acme"} {
 		requirePluginResponseError(t, []string{dir}, "kotlin_messages="+root, "which is a name in the generated code", "root.proto")
 	}
 }

@@ -185,10 +185,11 @@ func ValidateRoot(root string) error {
 	return nil
 }
 
-// codecLocals are the parameter and local names without "_" that the generated code declares.
+// codecLocals are the parameter, local and member names without "_" that the generated code declares.
 var codecLocals = map[string]bool{
 	"reader": true, "writer": true, "bytes": true, "value": true, "number": true, "name": true,
-	"entries": true, "other": true, "v": true, "it": true, "unknownFields": true,
+	"entries": true, "other": true, "v": true, "it": true, "unknownFields": true, "sections": true,
+	"missingRequired": true,
 }
 
 func isIdentifier(s string) bool {
