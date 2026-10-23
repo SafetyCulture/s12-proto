@@ -39,7 +39,7 @@ func ParseOptions(parameter string) (Options, error) {
 			if item == "" {
 				continue
 			}
-			return Options{}, fmt.Errorf("cruxclient-go: unknown option %q", key)
+			return Options{}, fmt.Errorf("cruxclient-go: empty option key in %q", item)
 		}
 		switch key {
 		case "swift_module":
@@ -64,17 +64,17 @@ func ParseOptions(parameter string) (Options, error) {
 	}
 	if opts.KotlinPackage != "" {
 		if err := kotlin.ValidateRoot(opts.KotlinPackage); err != nil {
-			return Options{}, err
+			return Options{}, fmt.Errorf("cruxclient-go: %w", err)
 		}
 	}
 	if kotlinMessages {
 		opts.KotlinMessages = valueOr(opts.KotlinMessages, valueOr(opts.KotlinPackage, DefaultKotlinPackage))
 		if err := kotlin.ValidateRoot(opts.KotlinMessages); err != nil {
-			return Options{}, err
+			return Options{}, fmt.Errorf("cruxclient-go: %w", err)
 		}
 		if opts.KotlinPackage != "" && opts.KotlinPackage != opts.KotlinMessages {
 			return Options{}, fmt.Errorf(
-				"kotlin_package=%s and kotlin_messages=%s must name the same root package",
+				"cruxclient-go: kotlin_package=%s and kotlin_messages=%s must name the same root package",
 				opts.KotlinPackage,
 				opts.KotlinMessages,
 			)

@@ -47,19 +47,24 @@ func ValidateDjinniNames(files []protoreflect.FileDescriptor, options Options) e
 	for _, fileDesc := range files {
 		segments := strings.Split(string(fileDesc.Package()), ".")
 		for index, segment := range segments {
-			if options.SwiftEnabled() && index == 0 && segment == "swift" {
-				return fmt.Errorf("proto package %q starts with unsupported segment %q", fileDesc.Package(), segment)
+			// The new translators live in djinni::swift:: and djinni::kotlin::, where a legacy translator
+			// of a package that starts with that segment would have the same name.
+			if options.SwiftEnabled() && index == 0 && segment == "swift" ||
+				options.KotlinEnabled() && index == 0 && segment == "kotlin" {
+				return fmt.Errorf("cruxclient-go: proto package %q starts with unsupported segment %q", fileDesc.Package(), segment)
 			}
 			if segment == "std" {
-				return fmt.Errorf("proto package %q has unsupported segment %q", fileDesc.Package(), segment)
+				return fmt.Errorf("cruxclient-go: proto package %q has unsupported segment %q", fileDesc.Package(), segment)
 			}
 		}
 		for _, message := range common.GetMessagesFromFile(fileDesc) {
-			if _, nested := message.Parent().(protoreflect.MessageDescriptor); nested && message.Name() == "Translator" {
-				return fmt.Errorf("nested message %q has unsupported name %q", message.FullName(), message.Name())
+			// A nested message opens a namespace inside its parent's namespace, which already declares these.
+			_, nested := message.Parent().(protoreflect.MessageDescriptor)
+			if nested && (message.Name() == "Translator" || options.KotlinEnabled() && message.Name() == "JNIInfo") {
+				return fmt.Errorf("cruxclient-go: nested message %q has unsupported name %q", message.FullName(), message.Name())
 			}
 			if message.Name() == "std" {
-				return fmt.Errorf("message %q has unsupported segment %q", message.FullName(), message.Name())
+				return fmt.Errorf("cruxclient-go: message %q has unsupported segment %q", message.FullName(), message.Name())
 			}
 		}
 	}

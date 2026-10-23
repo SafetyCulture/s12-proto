@@ -71,6 +71,7 @@ func runPluginResponse(
 	for path := range protoSources {
 		allFiles = append(allFiles, path)
 	}
+	// protoplugin needs the full import closure in the request to resolve imports.
 	compiled, err := compiler.Compile(ctx, allFiles...)
 	require.NoError(t, err, "protocompile.Compile failed")
 
@@ -124,26 +125,43 @@ func TestUnsupportedDjinniNamesAddResponseError(t *testing.T) {
 		name      string
 		source    string
 		parameter string
+		want      string
 	}{
 		{
 			name:      "nested translator",
 			source:    "syntax = \"proto3\";\npackage test.v1;\nmessage Outer { message Translator {} }\n",
 			parameter: "swift_module",
+			want:      `cruxclient-go: nested message "test.v1.Outer.Translator" has unsupported name "Translator"`,
+		},
+		{
+			name:      "nested JNIInfo",
+			source:    "syntax = \"proto3\";\npackage test.v1;\nmessage Outer { message JNIInfo {} }\n",
+			parameter: "kotlin_package",
+			want:      `cruxclient-go: nested message "test.v1.Outer.JNIInfo" has unsupported name "JNIInfo"`,
 		},
 		{
 			name:      "std package",
 			source:    "syntax = \"proto3\";\npackage std.v1;\nmessage Message {}\n",
 			parameter: "kotlin_package",
+			want:      `cruxclient-go: proto package "std.v1" has unsupported segment "std"`,
 		},
 		{
 			name:      "std message",
 			source:    "syntax = \"proto3\";\npackage test.v1;\nmessage std {}\n",
 			parameter: "kotlin_package",
+			want:      `cruxclient-go: message "test.v1.std" has unsupported segment "std"`,
 		},
 		{
 			name:      "swift package",
 			source:    "syntax = \"proto3\";\npackage swift.v1;\nmessage Message {}\n",
 			parameter: "swift_module",
+			want:      `cruxclient-go: proto package "swift.v1" starts with unsupported segment "swift"`,
+		},
+		{
+			name:      "kotlin package",
+			source:    "syntax = \"proto3\";\npackage kotlin.v1;\nmessage Message {}\n",
+			parameter: "kotlin_package",
+			want:      `cruxclient-go: proto package "kotlin.v1" starts with unsupported segment "kotlin"`,
 		},
 	}
 	for _, tt := range tests {
@@ -151,7 +169,7 @@ func TestUnsupportedDjinniNamesAddResponseError(t *testing.T) {
 			resp, err := runPluginResponse(t, map[string]string{"test.proto": tt.source},
 				[]string{"test.proto"}, tt.parameter)
 			require.NoError(t, err)
-			require.NotEmpty(t, resp.GetError())
+			require.Equal(t, tt.want, resp.GetError())
 			require.Empty(t, resp.GetFile())
 		})
 	}
@@ -520,8 +538,6 @@ func swiftTypeNames(yaml string) []string {
 	return names
 }
 
-// timestamp.djinni.yaml and reserved.djinni.yaml pin malformed names for master byte identity.
-
 // TestSwiftTypeNames checks the type names against the output of protoc-gen-swift for the same
 // protos: reserved nested names, no package, swift_prefix. The names of reserved.proto are the
 // output of protoc-gen-swift 1.38.1 and 1.39.0, and the other names are the output of 1.26.0.
@@ -582,6 +598,8 @@ func TestSwiftTypeNames(t *testing.T) {
 
 // TestSwiftBundledProtoModule checks that the types of a bundled google/protobuf file use the
 // SwiftProtobuf module, as protoc-gen-swift does.
+// TestSwiftBundledProtoModule also pins timestamp.djinni.yaml, whose legacy Java and JNI names are
+// malformed as on master; byte identity with master needs them.
 func TestSwiftBundledProtoModule(t *testing.T) {
 	sources := map[string]string{
 		"google/protobuf/timestamp.proto": string(mustReadFile(t, "testdata/google/protobuf/timestamp.proto")),

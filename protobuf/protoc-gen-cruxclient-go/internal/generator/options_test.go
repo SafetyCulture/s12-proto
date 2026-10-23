@@ -102,6 +102,7 @@ func TestParseOptionsRejectsInvalidInput(t *testing.T) {
 	for _, parameter := range []string{
 		"unknown",
 		"unknown=value",
+		"=x",
 		"messages_only=",
 		"messages_only=false",
 		"messages_only",
@@ -126,8 +127,15 @@ func TestParseOptionsRejectsDifferentKotlinRoots(t *testing.T) {
 	if err == nil {
 		t.Fatal("ParseOptions returned nil error")
 	}
-	want := "kotlin_package=com.example.kt and kotlin_messages=com.example.other must name the same root package"
+	want := "cruxclient-go: kotlin_package=com.example.kt and kotlin_messages=com.example.other must name the same root package"
 	if err.Error() != want {
 		t.Errorf("ParseOptions error = %q, want %q", err, want)
+	}
+}
+
+func TestParseOptionsNamesAnEmptyKey(t *testing.T) {
+	_, err := ParseOptions("kotlin_package,=x")
+	if err == nil || err.Error() != `cruxclient-go: empty option key in "=x"` {
+		t.Fatalf("ParseOptions returned %v", err)
 	}
 }
