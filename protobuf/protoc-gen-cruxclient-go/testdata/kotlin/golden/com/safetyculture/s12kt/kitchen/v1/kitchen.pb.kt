@@ -1318,18 +1318,18 @@ public data class Oneofs(
             var v_choice: com.safetyculture.s12kt.kitchen.v1.Oneofs.Choice? = null
             var s_choice: com.safetyculture.s12kt.wire.Sections? = null
             var n_choice = 0
-            fun c_choice() {
-                val _s = s_choice ?: return
-                when (n_choice) {
+            fun c_choice(reader: com.safetyculture.s12kt.wire.WireReader, s: com.safetyculture.s12kt.wire.Sections?, n: kotlin.Int) {
+                val _s = s ?: return
+                when (n) {
                     4 -> reader.readSections(com.safetyculture.s12kt.kitchen.v1.Scalars, _s)
                 }
             }
             var v_other: com.safetyculture.s12kt.kitchen.v1.Oneofs.Other? = null
             var s_other: com.safetyculture.s12kt.wire.Sections? = null
             var n_other = 0
-            fun c_other() {
-                val _s = s_other ?: return
-                when (n_other) {
+            fun c_other(reader: com.safetyculture.s12kt.wire.WireReader, s: com.safetyculture.s12kt.wire.Sections?, n: kotlin.Int) {
+                val _s = s ?: return
+                when (n) {
                     21 -> reader.readSections(com.safetyculture.s12kt.kitchen.v1.Oneofs, _s)
                 }
             }
@@ -1345,16 +1345,16 @@ public data class Oneofs(
                         }
                         18 -> {
                             v_choice = com.safetyculture.s12kt.kitchen.v1.Oneofs.Choice.Name(reader.readString())
-                            c_choice(); n_choice = 0; s_choice = null
+                            c_choice(reader, s_choice, n_choice); n_choice = 0; s_choice = null
                         }
                         24 -> {
                             v_choice = com.safetyculture.s12kt.kitchen.v1.Oneofs.Choice.Count(reader.readInt32())
-                            c_choice(); n_choice = 0; s_choice = null
+                            c_choice(reader, s_choice, n_choice); n_choice = 0; s_choice = null
                         }
                         34 -> {
                             val _next = reader.deferMessage(null)
                             if (n_choice != 4) {
-                                c_choice()
+                                c_choice(reader, s_choice, n_choice)
                                 s_choice = null
                             }
                             n_choice = 4
@@ -1363,24 +1363,24 @@ public data class Oneofs(
                         }
                         40 -> {
                             v_choice = com.safetyculture.s12kt.kitchen.v1.Oneofs.Choice.Color(com.safetyculture.s12kt.kitchen.v1.Color.fromNumber(reader.readInt32()))
-                            c_choice(); n_choice = 0; s_choice = null
+                            c_choice(reader, s_choice, n_choice); n_choice = 0; s_choice = null
                         }
                         50 -> {
                             v_choice = com.safetyculture.s12kt.kitchen.v1.Oneofs.Choice.Raw(reader.readBytes())
-                            c_choice(); n_choice = 0; s_choice = null
+                            c_choice(reader, s_choice, n_choice); n_choice = 0; s_choice = null
                         }
                         57 -> {
                             v_choice = com.safetyculture.s12kt.kitchen.v1.Oneofs.Choice.Ratio(reader.readDouble())
-                            c_choice(); n_choice = 0; s_choice = null
+                            c_choice(reader, s_choice, n_choice); n_choice = 0; s_choice = null
                         }
                         160 -> {
                             v_other = com.safetyculture.s12kt.kitchen.v1.Oneofs.Other.Flag(reader.readBool())
-                            c_other(); n_other = 0; s_other = null
+                            c_other(reader, s_other, n_other); n_other = 0; s_other = null
                         }
                         170 -> {
                             val _next = reader.deferMessage(null)
                             if (n_other != 21) {
-                                c_other()
+                                c_other(reader, s_other, n_other)
                                 s_other = null
                             }
                             n_other = 21
@@ -1717,9 +1717,9 @@ public data class Outer(
             var v_choice: com.safetyculture.s12kt.kitchen.v1.Outer.ChoiceOneof? = null
             var s_choice: com.safetyculture.s12kt.wire.Sections? = null
             var n_choice = 0
-            fun c_choice() {
-                val _s = s_choice ?: return
-                when (n_choice) {
+            fun c_choice(reader: com.safetyculture.s12kt.wire.WireReader, s: com.safetyculture.s12kt.wire.Sections?, n: kotlin.Int) {
+                val _s = s ?: return
+                when (n) {
                     6 -> reader.readSections(com.safetyculture.s12kt.kitchen.v1.Outer.Choice, _s)
                 }
             }
@@ -1750,12 +1750,12 @@ public data class Outer(
                         }
                         42 -> {
                             v_choice = com.safetyculture.s12kt.kitchen.v1.Outer.ChoiceOneof.Text(reader.readString())
-                            c_choice(); n_choice = 0; s_choice = null
+                            c_choice(reader, s_choice, n_choice); n_choice = 0; s_choice = null
                         }
                         50 -> {
                             val _next = reader.deferMessage(null)
                             if (n_choice != 6) {
-                                c_choice()
+                                c_choice(reader, s_choice, n_choice)
                                 s_choice = null
                             }
                             n_choice = 6
