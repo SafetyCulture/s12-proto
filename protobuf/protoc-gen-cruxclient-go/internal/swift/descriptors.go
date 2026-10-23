@@ -195,6 +195,9 @@ func (r *registry) addFile(fp *descriptorpb.FileDescriptorProto) (*file, error) 
 	default:
 		return nil, fmt.Errorf("%s: unknown syntax %q", f.name, fp.GetSyntax())
 	}
+	if f.edition < descriptorpb.Edition_EDITION_PROTO2 || f.edition > descriptorpb.Edition_EDITION_2023 {
+		return nil, fmt.Errorf("%s: edition %s is not supported", f.name, f.edition)
+	}
 	f.features = resolveFeatures(defaultFeatures(f.edition), fp.GetOptions().GetFeatures())
 
 	for _, name := range fp.GetDependency() {

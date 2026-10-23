@@ -61,3 +61,11 @@ func TestBuildFilesAddsBindingContext(t *testing.T) {
 	require.ErrorContains(t, err, "add file broken-binding.proto: bind message example.Message: bind field example.Message.value")
 	require.ErrorContains(t, err, "unknown message .example.Missing")
 }
+
+func TestBuildFilesRejectsUnsupportedEdition(t *testing.T) {
+	_, err := buildFiles([]*descriptorpb.FileDescriptorProto{{
+		Name:    proto.String("edition-2024.proto"),
+		Edition: descriptorpb.Edition_EDITION_2024.Enum(),
+	}})
+	require.ErrorContains(t, err, "edition-2024.proto: edition EDITION_2024 is not supported")
+}
