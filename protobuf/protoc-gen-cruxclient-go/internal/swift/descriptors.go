@@ -610,7 +610,7 @@ func (f *file) needsFoundationImport() bool {
 	return false
 }
 
-// extensionRanges returns the extension ranges sorted by start and merged where they touch.
+// normalizedExtensionRanges returns the extension ranges sorted by start and merged where they touch.
 func (m *message) normalizedExtensionRanges() [][2]int32 {
 	ranges := make([][2]int32, 0, len(m.extensionRange))
 	for _, r := range m.extensionRange {
