@@ -16,6 +16,7 @@ var hardKeywords = map[string]bool{}
 // or with a method of java.lang.Object.
 var reservedProperties = map[string]bool{
 	"class": true, "serializedSize": true, "unknownFields": true,
+	"missingRequired": true, "findMissingRequired": true,
 }
 
 // reservedEntries are enum entry names that clash with a member of a Kotlin enum class

@@ -26,3 +26,15 @@ message Legacy {
   }
   extensions 100 to 199;
 }
+
+message Req {
+  required string name = 1;
+  optional int32 count = 2;
+}
+
+message ReqHolder {
+  optional Req one = 1;
+  repeated Req many = 2;
+  map<string, Req> by_name = 3;
+  map<string, string> tags = 4;
+}

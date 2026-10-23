@@ -46,6 +46,10 @@ public data class Legacy(
     /** The fields that this version of the schema does not know, kept as encoded bytes. */
     public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
 ) : com.safetyculture.s12kt.wire.WireMessage {
+    /** Bit i is set while required field i has not been read. It is zero for a message that code builds. */
+    internal var missingRequired: kotlin.Long = 0L
+        private set
+
     public fun hasCount(): kotlin.Boolean = this.count != null
     public fun hasLabel(): kotlin.Boolean = this.label != null
     public fun hasLevel(): kotlin.Boolean = this.level != null
@@ -54,7 +58,7 @@ public data class Legacy(
 
     override fun getSerializedSize(): kotlin.Int {
         var _size = 0
-        if (true) _size += com.safetyculture.s12kt.wire.WireSize.string(1, this.id)
+        if ((this.missingRequired and 1L) == 0L) _size += com.safetyculture.s12kt.wire.WireSize.string(1, this.id)
         if (this.count != null) _size += com.safetyculture.s12kt.wire.WireSize.int32(2, this.count)
         if (this.label != null) _size += com.safetyculture.s12kt.wire.WireSize.string(3, this.label)
         if (this.level != null) _size += com.safetyculture.s12kt.wire.WireSize.int32(4, this.level.number)
@@ -66,7 +70,7 @@ public data class Legacy(
         }
         if (this.blob != null) _size += com.safetyculture.s12kt.wire.WireSize.bytes(7, this.blob)
         if (this.parent != null) _size += com.safetyculture.s12kt.wire.WireSize.message(8, this.parent)
-        if (true) _size += com.safetyculture.s12kt.wire.WireSize.fixed64(9)
+        if ((this.missingRequired and 2L) == 0L) _size += com.safetyculture.s12kt.wire.WireSize.fixed64(9)
         if (this.pick is com.safetyculture.s12kt.kitchen.legacy.Legacy.Pick.A) _size += com.safetyculture.s12kt.wire.WireSize.string(10, this.pick.value)
         if (this.pick is com.safetyculture.s12kt.kitchen.legacy.Legacy.Pick.B) _size += com.safetyculture.s12kt.wire.WireSize.int64(11, this.pick.value)
         _size += this.unknownFields.size
@@ -74,7 +78,7 @@ public data class Legacy(
     }
 
     override fun writeTo(writer: com.safetyculture.s12kt.wire.WireWriter) {
-        if (true) writer.writeString(1, this.id)
+        if ((this.missingRequired and 1L) == 0L) writer.writeString(1, this.id)
         if (this.count != null) writer.writeInt32(2, this.count)
         if (this.label != null) writer.writeString(3, this.label)
         if (this.level != null) writer.writeInt32(4, this.level.number)
@@ -86,7 +90,7 @@ public data class Legacy(
         }
         if (this.blob != null) writer.writeBytes(7, this.blob)
         if (this.parent != null) writer.writeMessage(8, this.parent)
-        if (true) writer.writeDouble(9, this.score)
+        if ((this.missingRequired and 2L) == 0L) writer.writeDouble(9, this.score)
         if (this.pick is com.safetyculture.s12kt.kitchen.legacy.Legacy.Pick.A) writer.writeString(10, this.pick.value)
         if (this.pick is com.safetyculture.s12kt.kitchen.legacy.Legacy.Pick.B) writer.writeInt64(11, this.pick.value)
         writer.writeUnknown(this.unknownFields)
@@ -98,6 +102,13 @@ public data class Legacy(
         return writer.toByteArray()
     }
 
+    internal fun findMissingRequired(): kotlin.String? {
+        if ((this.missingRequired and 1L) != 0L) return "id"
+        if ((this.missingRequired and 2L) != 0L) return "score"
+        this.parent?.findMissingRequired()?.let { return "parent." + it }
+        return null
+    }
+
     public sealed class Pick {
         public data class A(public val value: kotlin.String) : Pick()
 
@@ -106,7 +117,11 @@ public data class Legacy(
 
     public companion object : com.safetyculture.s12kt.wire.WireCodec<com.safetyculture.s12kt.kitchen.legacy.Legacy> {
         @kotlin.jvm.JvmStatic
-        public fun parseFrom(bytes: kotlin.ByteArray): com.safetyculture.s12kt.kitchen.legacy.Legacy = decode(com.safetyculture.s12kt.wire.WireReader(bytes))
+        public fun parseFrom(bytes: kotlin.ByteArray): com.safetyculture.s12kt.kitchen.legacy.Legacy {
+            val _message = decode(com.safetyculture.s12kt.wire.WireReader(bytes))
+            _message.findMissingRequired()?.let { throw com.safetyculture.s12kt.wire.InvalidWireException("missing required field " + it) }
+            return _message
+        }
 
         override fun decode(reader: com.safetyculture.s12kt.wire.WireReader): com.safetyculture.s12kt.kitchen.legacy.Legacy {
             var v_id: kotlin.String = ""
@@ -119,12 +134,14 @@ public data class Legacy(
             var v_parent: com.safetyculture.s12kt.kitchen.legacy.Legacy? = null
             var v_score: kotlin.Double = 1.5
             var v_pick: com.safetyculture.s12kt.kitchen.legacy.Legacy.Pick? = null
+            var _missing = 3L
             val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
             loop@ while (true) {
                 when (val _tag = reader.readTag()) {
                     0 -> break@loop
                     10 -> {
                         v_id = reader.readString()
+                        _missing = _missing and -2L
                     }
                     16 -> {
                         v_count = reader.readInt32()
@@ -165,6 +182,7 @@ public data class Legacy(
                     }
                     73 -> {
                         v_score = reader.readDouble()
+                        _missing = _missing and -3L
                     }
                     82 -> {
                         v_pick = com.safetyculture.s12kt.kitchen.legacy.Legacy.Pick.A(reader.readString())
@@ -175,7 +193,7 @@ public data class Legacy(
                     else -> reader.readUnknown(_tag, _unknown)
                 }
             }
-            return com.safetyculture.s12kt.kitchen.legacy.Legacy(
+            val _result = com.safetyculture.s12kt.kitchen.legacy.Legacy(
                 id = v_id,
                 count = v_count,
                 label = v_label,
@@ -186,6 +204,216 @@ public data class Legacy(
                 parent = v_parent,
                 score = v_score,
                 pick = v_pick,
+                unknownFields = _unknown.toByteString(),
+            )
+            _result.missingRequired = _missing
+            return _result
+        }
+    }
+}
+
+public data class Req(
+    public val name: kotlin.String = "",
+    public val count: kotlin.Int? = null,
+    /** The fields that this version of the schema does not know, kept as encoded bytes. */
+    public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
+) : com.safetyculture.s12kt.wire.WireMessage {
+    /** Bit i is set while required field i has not been read. It is zero for a message that code builds. */
+    internal var missingRequired: kotlin.Long = 0L
+        private set
+
+    public fun hasCount(): kotlin.Boolean = this.count != null
+
+    override fun getSerializedSize(): kotlin.Int {
+        var _size = 0
+        if ((this.missingRequired and 1L) == 0L) _size += com.safetyculture.s12kt.wire.WireSize.string(1, this.name)
+        if (this.count != null) _size += com.safetyculture.s12kt.wire.WireSize.int32(2, this.count)
+        _size += this.unknownFields.size
+        return _size
+    }
+
+    override fun writeTo(writer: com.safetyculture.s12kt.wire.WireWriter) {
+        if ((this.missingRequired and 1L) == 0L) writer.writeString(1, this.name)
+        if (this.count != null) writer.writeInt32(2, this.count)
+        writer.writeUnknown(this.unknownFields)
+    }
+
+    override fun toByteArray(): kotlin.ByteArray {
+        val writer = com.safetyculture.s12kt.wire.WireWriter(kotlin.ByteArray(getSerializedSize()))
+        writeTo(writer)
+        return writer.toByteArray()
+    }
+
+    internal fun findMissingRequired(): kotlin.String? {
+        if ((this.missingRequired and 1L) != 0L) return "name"
+        return null
+    }
+
+    public companion object : com.safetyculture.s12kt.wire.WireCodec<com.safetyculture.s12kt.kitchen.legacy.Req> {
+        @kotlin.jvm.JvmStatic
+        public fun parseFrom(bytes: kotlin.ByteArray): com.safetyculture.s12kt.kitchen.legacy.Req {
+            val _message = decode(com.safetyculture.s12kt.wire.WireReader(bytes))
+            _message.findMissingRequired()?.let { throw com.safetyculture.s12kt.wire.InvalidWireException("missing required field " + it) }
+            return _message
+        }
+
+        override fun decode(reader: com.safetyculture.s12kt.wire.WireReader): com.safetyculture.s12kt.kitchen.legacy.Req {
+            var v_name: kotlin.String = ""
+            var v_count: kotlin.Int? = null
+            var _missing = 1L
+            val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+            loop@ while (true) {
+                when (val _tag = reader.readTag()) {
+                    0 -> break@loop
+                    10 -> {
+                        v_name = reader.readString()
+                        _missing = _missing and -2L
+                    }
+                    16 -> {
+                        v_count = reader.readInt32()
+                    }
+                    else -> reader.readUnknown(_tag, _unknown)
+                }
+            }
+            val _result = com.safetyculture.s12kt.kitchen.legacy.Req(
+                name = v_name,
+                count = v_count,
+                unknownFields = _unknown.toByteString(),
+            )
+            _result.missingRequired = _missing
+            return _result
+        }
+    }
+}
+
+public data class ReqHolder(
+    public val one: com.safetyculture.s12kt.kitchen.legacy.Req? = null,
+    public val many: kotlin.collections.List<com.safetyculture.s12kt.kitchen.legacy.Req> = kotlin.collections.emptyList(),
+    public val byName: kotlin.collections.Map<kotlin.String, com.safetyculture.s12kt.kitchen.legacy.Req> = kotlin.collections.emptyMap(),
+    public val tags: kotlin.collections.Map<kotlin.String, kotlin.String> = kotlin.collections.emptyMap(),
+    /** The fields that this version of the schema does not know, kept as encoded bytes. */
+    public val unknownFields: com.safetyculture.s12kt.wire.ByteString = com.safetyculture.s12kt.wire.ByteString.EMPTY,
+) : com.safetyculture.s12kt.wire.WireMessage {
+    public fun hasOne(): kotlin.Boolean = this.one != null
+
+    override fun getSerializedSize(): kotlin.Int {
+        var _size = 0
+        if (this.one != null) _size += com.safetyculture.s12kt.wire.WireSize.message(1, this.one)
+        for (_e in this.many) {
+            _size += com.safetyculture.s12kt.wire.WireSize.message(2, _e)
+        }
+        for ((_k, _v) in this.byName) {
+            val _entry = com.safetyculture.s12kt.wire.WireSize.string(1, _k) + com.safetyculture.s12kt.wire.WireSize.message(2, _v)
+            _size += com.safetyculture.s12kt.wire.WireSize.tag(3) + com.safetyculture.s12kt.wire.WireSize.varint32(_entry) + _entry
+        }
+        for ((_k, _v) in this.tags) {
+            val _entry = com.safetyculture.s12kt.wire.WireSize.string(1, _k) + com.safetyculture.s12kt.wire.WireSize.string(2, _v)
+            _size += com.safetyculture.s12kt.wire.WireSize.tag(4) + com.safetyculture.s12kt.wire.WireSize.varint32(_entry) + _entry
+        }
+        _size += this.unknownFields.size
+        return _size
+    }
+
+    override fun writeTo(writer: com.safetyculture.s12kt.wire.WireWriter) {
+        if (this.one != null) writer.writeMessage(1, this.one)
+        for (_e in this.many) {
+            writer.writeMessage(2, _e)
+        }
+        for ((_k, _v) in this.byName) {
+            writer.writeTag(3, 2)
+            writer.writeVarint32(com.safetyculture.s12kt.wire.WireSize.string(1, _k) + com.safetyculture.s12kt.wire.WireSize.message(2, _v))
+            writer.writeString(1, _k)
+            writer.writeMessage(2, _v)
+        }
+        for ((_k, _v) in this.tags) {
+            writer.writeTag(4, 2)
+            writer.writeVarint32(com.safetyculture.s12kt.wire.WireSize.string(1, _k) + com.safetyculture.s12kt.wire.WireSize.string(2, _v))
+            writer.writeString(1, _k)
+            writer.writeString(2, _v)
+        }
+        writer.writeUnknown(this.unknownFields)
+    }
+
+    override fun toByteArray(): kotlin.ByteArray {
+        val writer = com.safetyculture.s12kt.wire.WireWriter(kotlin.ByteArray(getSerializedSize()))
+        writeTo(writer)
+        return writer.toByteArray()
+    }
+
+    internal fun findMissingRequired(): kotlin.String? {
+        this.one?.findMissingRequired()?.let { return "one." + it }
+        for (_e in this.many) {
+            _e.findMissingRequired()?.let { return "many." + it }
+        }
+        for ((_k, _v) in this.byName) {
+            _v.findMissingRequired()?.let { return "by_name." + it }
+        }
+        return null
+    }
+
+    public companion object : com.safetyculture.s12kt.wire.WireCodec<com.safetyculture.s12kt.kitchen.legacy.ReqHolder> {
+        @kotlin.jvm.JvmStatic
+        public fun parseFrom(bytes: kotlin.ByteArray): com.safetyculture.s12kt.kitchen.legacy.ReqHolder {
+            val _message = decode(com.safetyculture.s12kt.wire.WireReader(bytes))
+            _message.findMissingRequired()?.let { throw com.safetyculture.s12kt.wire.InvalidWireException("missing required field " + it) }
+            return _message
+        }
+
+        override fun decode(reader: com.safetyculture.s12kt.wire.WireReader): com.safetyculture.s12kt.kitchen.legacy.ReqHolder {
+            var v_one: com.safetyculture.s12kt.kitchen.legacy.Req? = null
+            val v_many = kotlin.collections.ArrayList<com.safetyculture.s12kt.kitchen.legacy.Req>()
+            val v_byName = kotlin.collections.LinkedHashMap<kotlin.String, com.safetyculture.s12kt.kitchen.legacy.Req>()
+            val v_tags = kotlin.collections.LinkedHashMap<kotlin.String, kotlin.String>()
+            val _unknown = com.safetyculture.s12kt.wire.UnknownFields()
+            loop@ while (true) {
+                when (val _tag = reader.readTag()) {
+                    0 -> break@loop
+                    10 -> {
+                        v_one = reader.readMessage(com.safetyculture.s12kt.kitchen.legacy.Req, v_one)
+                    }
+                    18 -> {
+                        v_many.add(reader.readMessage(com.safetyculture.s12kt.kitchen.legacy.Req, null))
+                    }
+                    26 -> {
+                        val _start = reader.fieldStart()
+                        val _saved = reader.beginSection()
+                        var _key: kotlin.String = ""
+                        var _value: com.safetyculture.s12kt.kitchen.legacy.Req? = null
+                        entry@ while (true) {
+                            when (val _t = reader.readTag()) {
+                                0 -> break@entry
+                                10 -> _key = reader.readString()
+                                18 -> _value = reader.readMessage(com.safetyculture.s12kt.kitchen.legacy.Req, _value)
+                                else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
+                            }
+                        }
+                        reader.endSection(_saved)
+                        v_byName[_key] = _value ?: com.safetyculture.s12kt.kitchen.legacy.Req()
+                    }
+                    34 -> {
+                        val _start = reader.fieldStart()
+                        val _saved = reader.beginSection()
+                        var _key: kotlin.String = ""
+                        var _value: kotlin.String = ""
+                        entry@ while (true) {
+                            when (val _t = reader.readTag()) {
+                                0 -> break@entry
+                                10 -> _key = reader.readString()
+                                18 -> _value = reader.readString()
+                                else -> reader.readUnknown(_t, com.safetyculture.s12kt.wire.UnknownFields())
+                            }
+                        }
+                        reader.endSection(_saved)
+                        v_tags[_key] = _value
+                    }
+                    else -> reader.readUnknown(_tag, _unknown)
+                }
+            }
+            return com.safetyculture.s12kt.kitchen.legacy.ReqHolder(
+                one = v_one,
+                many = v_many,
+                byName = v_byName,
+                tags = v_tags,
                 unknownFields = _unknown.toByteString(),
             )
         }

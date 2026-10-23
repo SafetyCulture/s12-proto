@@ -75,9 +75,10 @@ func GenerateFile(file protoreflect.FileDescriptor, root string) (string, error)
 }
 
 type fileGen struct {
-	root string
-	file protoreflect.FileDescriptor
-	w    writer
+	root       string
+	file       protoreflect.FileDescriptor
+	w          writer
+	needsCheck map[protoreflect.FullName]bool // see needsRequiredCheck
 }
 
 // rt returns the qualified name of a runtime type.
@@ -157,6 +158,7 @@ type fieldInfo struct {
 	prop   string
 	oneof  *oneofInfo
 	member string // class name of the oneof member
+	reqBit int    // bit of a required field in the missing-required mask, or -1
 }
 
 func (f *fieldInfo) number() protoreflect.FieldNumber { return f.fd.Number() }
@@ -229,7 +231,7 @@ func (g *fileGen) message(msg protoreflect.MessageDescriptor) error {
 		used[className(string(enums.Get(i).Name()))] = true
 	}
 
-	var fields []*fieldInfo
+	var fields, required []*fieldInfo
 	oneofs := map[protoreflect.OneofDescriptor]*oneofInfo{}
 	var oneofOrder []*oneofInfo
 	fds := msg.Fields()
@@ -238,7 +240,7 @@ func (g *fileGen) message(msg protoreflect.MessageDescriptor) error {
 		if fd.Kind() == protoreflect.GroupKind {
 			return fmt.Errorf("%s: group fields are not supported", fd.FullName())
 		}
-		f := &fieldInfo{fd: fd, prop: propertyName(fd)}
+		f := &fieldInfo{fd: fd, prop: propertyName(fd), reqBit: -1}
 		if od := fd.ContainingOneof(); od != nil && !od.IsSynthetic() {
 			oi := oneofs[od]
 			if oi == nil {
@@ -256,6 +258,13 @@ func (g *fileGen) message(msg protoreflect.MessageDescriptor) error {
 				f.member += "Value"
 			}
 			oi.fields = append(oi.fields, f)
+		}
+		if fd.Cardinality() == protoreflect.Required {
+			if len(required) == maxRequired {
+				return fmt.Errorf("%s: more than %d required fields are not supported", msg.FullName(), maxRequired)
+			}
+			f.reqBit = len(required)
+			required = append(required, f)
 		}
 		fields = append(fields, f)
 	}
@@ -285,6 +294,14 @@ func (g *fileGen) message(msg protoreflect.MessageDescriptor) error {
 	g.w.close(") : %s {", g.rt("WireMessage"))
 	g.w.indent++
 
+	if len(required) > 0 {
+		g.w.line("/** Bit i is set while required field i has not been read. It is zero for a message that code builds. */")
+		g.w.line("internal var missingRequired: kotlin.Long = 0L")
+		g.w.indent++
+		g.w.line("private set")
+		g.w.indent--
+		g.w.line("")
+	}
 	for _, f := range fields {
 		if f.nullable() {
 			g.w.line("public fun has%s(): kotlin.Boolean = this.%s != null", upperFirst(strings.TrimSuffix(f.prop, "_")), f.prop)
@@ -303,6 +320,10 @@ func (g *fileGen) message(msg protoreflect.MessageDescriptor) error {
 	g.w.line("writeTo(writer)")
 	g.w.line("return writer.toByteArray()")
 	g.w.close("}")
+	if g.needsRequiredCheck(msg) {
+		g.w.line("")
+		g.findMissingRequired(fields, required, qualified)
+	}
 
 	for _, oi := range oneofOrder {
 		g.w.line("")
@@ -323,7 +344,7 @@ func (g *fileGen) message(msg protoreflect.MessageDescriptor) error {
 	}
 
 	g.w.line("")
-	g.companion(qualified, fields)
+	g.companion(msg, qualified, fields, required)
 	g.w.indent--
 	g.w.line("}")
 	return nil
@@ -351,8 +372,8 @@ func (g *fileGen) oneofClass(oi *oneofInfo, qualified string) {
 // presenceCondition returns the Kotlin condition that decides whether a plain field is written.
 func (g *fileGen) presenceCondition(f *fieldInfo, expr string) string {
 	fd := f.fd
-	if fd.Cardinality() == protoreflect.Required {
-		return "true"
+	if f.reqBit >= 0 {
+		return fmt.Sprintf("(this.missingRequired and %dL) == 0L", int64(1)<<f.reqBit)
 	}
 	if fd.Kind() == protoreflect.EnumKind {
 		return expr + ".number != 0"
@@ -513,11 +534,19 @@ func (g *fileGen) readValue(fd protoreflect.FieldDescriptor, previous string, re
 	return nil, "reader." + readMethod(fd.Kind()) + "()"
 }
 
-func (g *fileGen) companion(qualified string, fields []*fieldInfo) {
+func (g *fileGen) companion(msg protoreflect.MessageDescriptor, qualified string, fields, required []*fieldInfo) {
 	codec := g.rt("WireCodec")
 	g.w.open("public companion object : %s<%s> {", codec, qualified)
 	g.w.line("@kotlin.jvm.JvmStatic")
-	g.w.line("public fun parseFrom(bytes: kotlin.ByteArray): %s = decode(%s(bytes))", qualified, g.rt("WireReader"))
+	if g.needsRequiredCheck(msg) {
+		g.w.open("public fun parseFrom(bytes: kotlin.ByteArray): %s {", qualified)
+		g.w.line("val _message = decode(%s(bytes))", g.rt("WireReader"))
+		g.w.line("_message.findMissingRequired()?.let { throw %s(\"missing required field \" + it) }", g.rt("InvalidWireException"))
+		g.w.line("return _message")
+		g.w.close("}")
+	} else {
+		g.w.line("public fun parseFrom(bytes: kotlin.ByteArray): %s = decode(%s(bytes))", qualified, g.rt("WireReader"))
+	}
 	g.w.line("")
 	g.w.open("override fun decode(reader: %s): %s {", g.rt("WireReader"), qualified)
 
@@ -543,6 +572,9 @@ func (g *fileGen) companion(qualified string, fields []*fieldInfo) {
 			args = append(args, fmt.Sprintf("%s = v_%s", f.prop, f.prop))
 		}
 	}
+	if len(required) > 0 {
+		g.w.line("var _missing = %dL", int64(1)<<len(required)-1)
+	}
 	g.w.line("val _unknown = %s()", g.rt("UnknownFields"))
 	g.w.open("loop@ while (true) {")
 	g.w.open("when (val _tag = reader.readTag()) {")
@@ -554,11 +586,19 @@ func (g *fileGen) companion(qualified string, fields []*fieldInfo) {
 	g.w.close("}")
 	g.w.close("}")
 	args = append(args, "unknownFields = _unknown.toByteString()")
-	g.w.open("return %s(", qualified)
+	ret := "return"
+	if len(required) > 0 {
+		ret = "val _result ="
+	}
+	g.w.open("%s %s(", ret, qualified)
 	for _, a := range args {
 		g.w.line("%s,", a)
 	}
 	g.w.close(")")
+	if len(required) > 0 {
+		g.w.line("_result.missingRequired = _missing")
+		g.w.line("return _result")
+	}
 	g.w.close("}")
 	g.w.close("}")
 }
@@ -605,6 +645,9 @@ func (g *fileGen) decodeCase(f *fieldInfo, qualified string) {
 			g.w.text(l)
 		}
 		g.w.line("%s", g.store(fd, fmt.Sprintf("v_%s = %s", f.prop, expr)))
+		if f.reqBit >= 0 {
+			g.w.line("_missing = _missing and %dL", ^(int64(1) << f.reqBit))
+		}
 		g.w.close("}")
 	}
 }
@@ -647,4 +690,96 @@ func (g *fileGen) decodeMap(f *fieldInfo) {
 		g.w.line("v_%s[_key] = _value", f.prop)
 	}
 	g.w.close("}")
+}
+
+// maxRequired is the number of required fields of one message that the missing-required mask holds.
+const maxRequired = 63
+
+// findMissingRequired writes the method that returns the name of the first required field that a
+// parse did not read, in this message or in a message below it. It returns null if none is missing.
+func (g *fileGen) findMissingRequired(fields, required []*fieldInfo, qualified string) {
+	g.w.open("internal fun findMissingRequired(): kotlin.String? {")
+	for _, f := range required {
+		g.w.line("if ((this.missingRequired and %dL) != 0L) return %q", int64(1)<<f.reqBit, string(f.fd.Name()))
+	}
+	for _, f := range fields {
+		fd := f.fd
+		name := string(fd.Name())
+		p := "this." + f.prop
+		switch {
+		case fd.IsMap():
+			if value := fd.MapValue().Message(); value != nil && g.needsRequiredCheck(value) {
+				g.w.open("for ((_k, _v) in %s) {", p)
+				g.w.line("_v.findMissingRequired()?.let { return %q + it }", name+".")
+				g.w.close("}")
+			}
+		case fd.Message() == nil || !g.needsRequiredCheck(fd.Message()):
+		case fd.IsList():
+			g.w.open("for (_e in %s) {", p)
+			g.w.line("_e.findMissingRequired()?.let { return %q + it }", name+".")
+			g.w.close("}")
+		case f.oneof != nil:
+			o := "this." + f.oneof.prop
+			g.w.line("if (%s is %s) %s.value.findMissingRequired()?.let { return %q + it }", o, f.variant(qualified), o, name+".")
+		default:
+			g.w.line("%s?.findMissingRequired()?.let { return %q + it }", p, name+".")
+		}
+	}
+	g.w.line("return null")
+	g.w.close("}")
+}
+
+// needsRequiredCheck reports whether a message has a required field, or has a field whose message
+// has one. A parse of such a message checks the required fields once, after it has merged all parts.
+func (g *fileGen) needsRequiredCheck(msg protoreflect.MessageDescriptor) bool {
+	if g.needsCheck == nil {
+		g.needsCheck = map[protoreflect.FullName]bool{}
+	}
+	if known, ok := g.needsCheck[msg.FullName()]; ok {
+		return known
+	}
+	// Collect the messages below msg, then spread the flag from the messages with a required field
+	// to the messages that contain them. A loop of messages needs no special case.
+	reach := map[protoreflect.FullName]protoreflect.MessageDescriptor{}
+	var visit func(m protoreflect.MessageDescriptor)
+	visit = func(m protoreflect.MessageDescriptor) {
+		if _, ok := reach[m.FullName()]; ok {
+			return
+		}
+		reach[m.FullName()] = m
+		for i := 0; i < m.Fields().Len(); i++ {
+			if sub := m.Fields().Get(i).Message(); sub != nil {
+				visit(sub)
+			}
+		}
+	}
+	visit(msg)
+	for name, m := range reach {
+		for i := 0; i < m.Fields().Len(); i++ {
+			if m.Fields().Get(i).Cardinality() == protoreflect.Required {
+				g.needsCheck[name] = true
+			}
+		}
+	}
+	for changed := true; changed; {
+		changed = false
+		for name, m := range reach {
+			if g.needsCheck[name] {
+				continue
+			}
+			for i := 0; i < m.Fields().Len(); i++ {
+				if sub := m.Fields().Get(i).Message(); sub != nil && g.needsCheck[sub.FullName()] {
+					g.needsCheck[name] = true
+					changed = true
+					break
+				}
+			}
+		}
+	}
+	for name := range reach {
+		if !g.needsCheck[name] {
+			g.needsCheck[name] = false
+		}
+	}
+	return g.needsCheck[msg.FullName()]
 }

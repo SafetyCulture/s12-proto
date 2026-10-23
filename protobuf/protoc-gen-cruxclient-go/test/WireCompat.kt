@@ -3,6 +3,9 @@
 // Compares the Kotlin message classes with the Java lite classes of the same proto files. For
 // each sample from gensamples, both classes parse the sample and write it again, and the bytes
 // must be equal in both directions. The kitchen checks at the end cover edits and nesting limits.
+import com.safetyculture.s12kt.kitchen.legacy.Legacy
+import com.safetyculture.s12kt.kitchen.legacy.Req
+import com.safetyculture.s12kt.kitchen.legacy.ReqHolder
 import com.safetyculture.s12kt.kitchen.v1.Color
 import com.safetyculture.s12kt.kitchen.v1.Oneofs
 import com.safetyculture.s12kt.kitchen.v1.Repeated
@@ -59,6 +62,9 @@ private fun compareSamples(dir: File): Int {
 private typealias JScalars = com.safetyculture.s12.kitchen.v1.Scalars
 private typealias JOneofs = com.safetyculture.s12.kitchen.v1.Oneofs
 private typealias JRepeated = com.safetyculture.s12.kitchen.v1.Repeated
+private typealias JLegacy = com.safetyculture.kitchen.legacy.Legacy
+private typealias JReq = com.safetyculture.kitchen.legacy.Req
+private typealias JReqHolder = com.safetyculture.kitchen.legacy.ReqHolder
 
 private fun check(name: String, ok: Boolean): Int {
     println((if (ok) "ok   " else "FAIL ") + name)
@@ -146,9 +152,54 @@ private fun nestingChecks(): Int {
     return failures
 }
 
+/** Parses the bytes with both classes. Both must accept or both must reject, and an accepted message must be written alike. */
+private fun same(name: String, kotlin: (ByteArray) -> Any, java: (ByteArray) -> Any, bytes: ByteArray, accepted: Boolean): Int {
+    val k = accepts(kotlin, bytes)
+    val j = accepts(java, bytes)
+    var ok = k == accepted && j == accepted
+    if (ok && accepted) ok = bytesOf(kotlin(bytes)).contentEquals(bytesOf(java(bytes)))
+    return check("$name: Kotlin=$k Java=$j", ok)
+}
+
+private fun field(number: Int, wireType: Int, payload: ByteArray = ByteArray(0)): ByteArray =
+    varint((number shl 3) or wireType) + payload
+
+private fun delimited(number: Int, payload: ByteArray): ByteArray = field(number, 2, varint(payload.size) + payload)
+
+private val reqNoName = field(2, 0, varint(5))
+private val reqWithName = delimited(1, "a".toByteArray())
+private val legacyId = delimited(1, "id".toByteArray())
+private val legacyScore = field(9, 1, ByteArray(8))
+
+/** Java lite checks the required fields once, after it has merged the parts of a message. */
+private fun requiredChecks(): Int {
+    var failures = 0
+    fun req(name: String, bytes: ByteArray, accepted: Boolean) {
+        failures += same("Req $name", { Req.parseFrom(it) }, { JReq.parseFrom(it) }, bytes, accepted)
+    }
+    fun holder(name: String, bytes: ByteArray, accepted: Boolean) {
+        failures += same("ReqHolder $name", { ReqHolder.parseFrom(it) }, { JReqHolder.parseFrom(it) }, bytes, accepted)
+    }
+    req("without the required field", reqNoName, false)
+    req("with the required field", reqWithName + reqNoName, true)
+    holder("a message field without the required field", delimited(1, reqNoName), false)
+    holder("a message field split in two parts, the later part has the field", delimited(1, reqNoName) + delimited(1, reqWithName), true)
+    holder("a message field split in two parts, the earlier part has the field", delimited(1, reqWithName) + delimited(1, reqNoName), true)
+    holder("a message field split in two parts, no part has the field", delimited(1, reqNoName) + delimited(1, reqNoName), false)
+    holder("a repeated element without the required field", delimited(2, reqWithName) + delimited(2, reqNoName), false)
+    holder("a map value without the required field", delimited(3, delimited(1, "k".toByteArray()) + delimited(2, reqNoName)), false)
+    holder("a map value with the required field", delimited(3, delimited(1, "k".toByteArray()) + delimited(2, reqWithName)), true)
+    failures += same("Legacy without id", { Legacy.parseFrom(it) }, { JLegacy.parseFrom(it) }, legacyScore, false)
+    failures += same("Legacy without score", { Legacy.parseFrom(it) }, { JLegacy.parseFrom(it) }, legacyId, false)
+    failures += same("Legacy with both", { Legacy.parseFrom(it) }, { JLegacy.parseFrom(it) }, legacyId + legacyScore, true)
+    failures += same("Legacy with a parent without id", { Legacy.parseFrom(it) }, { JLegacy.parseFrom(it) }, legacyId + legacyScore + delimited(8, legacyScore), false)
+    return failures
+}
+
 fun main(args: Array<String>) {
     var failures = compareSamples(File(args[0]))
     failures += editChecks()
     failures += nestingChecks()
+    failures += requiredChecks()
     exitProcess(if (failures == 0) 0 else 1)
 }
