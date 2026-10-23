@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - uses: jdx/mise-action@v2
+      - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac # v2
 
       - run: mise run build
       - run: mise run vet
@@ -27,8 +27,8 @@ jobs:
       - uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165
         with:
           distribution: temurin
-          java-version: "21"
-      - uses: jdx/mise-action@v2
+          java-version: "21.0.12+8"
+      - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac # v2
       - name: Install pinned Kotlin compiler
         env:
           KOTLIN_SHA256: 7cc140e76daf416a0424a5557f99afd7ca89ebd463ea1101261e3e01c33e75cd
