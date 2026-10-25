@@ -7,7 +7,7 @@ PLUGIN_DIR=$(cd "$HERE/../.." && pwd)
 CACHE_DIR=${CRUXCLIENT_CI_CACHE:-"${TMPDIR:-/tmp}/cruxclient-go-ci"}
 PROTOC=${PROTOC:-protoc}
 CXX=${CXX:-clang++}
-DJINNI_COMMIT=43a4a98a40110b755d26d7dbd6164986b287a9b7
+DJINNI_COMMIT=6351d498069fb6f2b34c28482f5cc1e0975a0624
 mkdir -p "$CACHE_DIR"
 
 protoc_version=$($PROTOC --version)
