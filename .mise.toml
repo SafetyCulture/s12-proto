@@ -5,6 +5,11 @@ golangci-lint = "2.11.4"
 protoc = "36.1"
 "go:google.golang.org/protobuf/cmd/protoc-gen-go" = "latest"
 
+# The s12perm example module is deliberately absent from the loops below: it
+# imports private sc-go.io modules that a CI runner cannot fetch. Its generated
+# fixture is still checked by verify:generated, which is what catches template
+# drift.
+
 [tasks.build]
 description = "Build all packages (root module and the plugin modules)"
 run = """
@@ -40,18 +45,37 @@ done
 """
 
 [tasks."verify:generated"]
-description = "Fail if the checked-in govalidator fixtures do not match a fresh generation"
-# The valtest and example tests call Validate() on generated code that is
-# committed, so a change to a template in plugin.go passes CI while the tests run
-# against the old output. This regenerates and fails on a difference, which is
-# the only thing that ties a template change to the tests that cover it.
+description = "Fail if the checked-in generated fixtures do not match a fresh generation"
+# The tests exercise generated code that is committed, so a template change in
+# plugin.go passes CI while the tests run against the old output. Regenerating
+# and failing on a difference is the only thing tying the two together.
 #
 # protoc is pinned in [tools] because the version is written into the generated
 # header, so an unpinned one reports a difference that is not a real one.
 run = """
 set -eu
 bin="$(mktemp -d)"
+validator_pathspec=':(glob)protobuf/protoc-gen-govalidator/*/*.validator*.pb.go'
+s12perm_pathspec=':(glob)protobuf/protoc-gen-s12perm/example/*.perm.pb.go'
+# Generating overwrites the fixtures, so refuse to start over an uncommitted change
+# rather than discard it on a run that would otherwise report success.
+if [ -n "$(git status --porcelain --untracked-files=all -- "$validator_pathspec" "$s12perm_pathspec")" ]; then
+  echo "The generated fixtures have uncommitted changes."
+  echo "Commit or discard them, then run 'mise run verify:generated' again."
+  exit 1
+fi
+# Nothing uncommitted is left to lose, so a run that dies mid-generation can put
+# the deleted fixtures back from git.
+regenerated=0
+restore() {
+  if [ "$regenerated" = 0 ]; then
+    git checkout -- "$validator_pathspec" "$s12perm_pathspec" 2>/dev/null || true
+  fi
+  return 0
+}
+trap restore EXIT
 go build -o "$bin/protoc-gen-govalidator" ./protobuf/protoc-gen-govalidator
+find protobuf/protoc-gen-govalidator -mindepth 2 -maxdepth 2 -name '*.validator*.pb.go' -delete
 for d in valtest example; do
   protoc \
     -I"./protobuf/protoc-gen-govalidator/$d" -I. \
@@ -59,16 +83,22 @@ for d in valtest example; do
     --govalidator_out=paths=source_relative:"protobuf/protoc-gen-govalidator/$d" \
     "protobuf/protoc-gen-govalidator/$d"/*.proto
 done
-pathspec=':(glob)protobuf/protoc-gen-govalidator/*/*.validator*.pb.go'
-# git status rather than git diff, so a generated file that is new and has never
-# been added counts as well. A new .proto produces a new .validator.pb.go, and
-# diff only looks at files git already tracks, so that one would have passed.
-dirty="$(git status --porcelain --untracked-files=all -- "$pathspec")"
+go build -o "$bin/protoc-gen-s12perm" ./protobuf/protoc-gen-s12perm
+find protobuf/protoc-gen-s12perm/example -maxdepth 1 -name '*.perm.pb.go' -delete
+protoc \
+  -I"./protobuf/protoc-gen-s12perm/example" -I. \
+  --plugin=protoc-gen-s12perm="$bin/protoc-gen-s12perm" \
+  --s12perm_out=paths=source_relative:"protobuf/protoc-gen-s12perm/example" \
+  protobuf/protoc-gen-s12perm/example/*.proto
+regenerated=1  # a mismatch past here is the finding, so leave it on disk
+# Stale outputs are cleared above, so a fixture the generator no longer emits
+# shows up as deleted; git status (not diff) catches one never added.
+dirty="$(git status --porcelain --untracked-files=all -- "$validator_pathspec" "$s12perm_pathspec")"
 if [ -n "$dirty" ]; then
   echo "$dirty"
-  git --no-pager diff -- "$pathspec" || true
+  git --no-pager diff -- "$validator_pathspec" "$s12perm_pathspec" || true
   echo ""
-  echo "The generated validators are out of date or not committed. Run"
+  echo "The generated files are out of date or not committed. Run"
   echo "'mise run verify:generated' and commit the result."
   exit 1
 fi
