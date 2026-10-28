@@ -40,7 +40,7 @@ done
 """
 
 [tasks."verify:generated"]
-description = "Fail if the committed fixtures differ from a fresh generation; writes nothing"
+description = "Fail if the fixtures differ from a fresh generation or one is uncommitted; writes nothing"
 # Tests run against generated code that is committed, so a template change passes
 # CI while the tests exercise the old output. Regenerating and diffing is what
 # ties the two together. The fixtures covered, and the generators deliberately

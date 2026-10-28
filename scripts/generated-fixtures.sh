@@ -5,6 +5,9 @@
 # the tree is touched and a local fixture edit is never silently replaced.
 #
 # A row is <generator>|<plugin pkg>|<proto dir>|<out flag>|<fixture dir>|<glob>.
+# Both dirs are flat: a generator that writes into subdirectories needs code, not
+# a row.
+#
 # protoc is pinned in .mise.toml because its version lands in the generated
 # header: an unpinned one reports drift that is not real.
 set -uo pipefail
@@ -97,6 +100,13 @@ compare() {
           "$fixtures/$path" "$work/gen/$path" | sed -n '3,42p' | sed 's/^/      /'
       fi
       drift=1
+    elif [ "$quiet" = 0 ]; then
+      # Matches a fresh generation but was never added, so a checkout of the
+      # commit sees it missing while a working tree holding it passes.
+      if ! git ls-files --error-unmatch -- "$fixtures/$path" >/dev/null 2>&1; then
+        printf '    untracked  %s\n' "$fixtures/$path"
+        drift=1
+      fi
     fi
   done
 
@@ -235,7 +245,7 @@ main() {
   fi
 
   [ "$drift" = 0 ] && return 0
-  printf '\nThe committed fixtures differ from a fresh generation.\n' >&2
+  printf '\nThe fixtures differ from a fresh generation, or one is not committed.\n' >&2
   printf "Run 'mise run update:generated' and commit the result.\n" >&2
   return 1
 }

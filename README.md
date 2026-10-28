@@ -21,15 +21,17 @@ mise install
 mise run generate           # Regenerate the protoc-gen-go output under s12/
 mise run verify:generated   # Fail if the committed fixtures differ from a fresh generation
 mise run update:generated   # Rewrite the committed fixtures from a fresh generation
-mise run test               # Run tests (root module)
+mise run test               # Run tests (root module and protoc-gen-cruxclient-go)
 mise run lint               # Run Go linter
 mise run lint:proto         # Lint proto files with buf
 ```
 
 Generated code is committed, so changing a plugin template or a `.proto` means
 regenerating its fixtures in the same commit: `mise run update:generated`, then
-`git diff`. CI runs `verify:generated`, which generates into a temp directory and
-diffs, so it never writes the tree. Both accept an optional generator
+`git add -A && git diff --cached` — a new fixture is untracked, so `git diff` on
+its own would not show it. CI runs `verify:generated`, which generates into a
+temp directory and diffs, so it never writes the tree; a fixture that is out of
+date, missing or not yet added fails it. Both accept an optional generator
 (`mise run verify:generated -- s12perm`), and
 `./scripts/generated-fixtures.sh list` shows which generators are checked.
 
@@ -65,10 +67,10 @@ buf breaking --against '.git#branch=master'
 go test ./...
 
 # protoc-gen-cruxclient-go
-cd protobuf/protoc-gen-cruxclient-go && go test ./...
+(cd protobuf/protoc-gen-cruxclient-go && go test ./...)
 
 # protoc-gen-s12perm example (separate module, needs private sc-go.io modules)
-cd protobuf/protoc-gen-s12perm/example && go test ./...
+(cd protobuf/protoc-gen-s12perm/example && go test ./...)
 
 # Kotlin and Java lite wire compatibility (needs go, protoc, kotlinc, javac, java, curl and shasum)
 protobuf/protoc-gen-cruxclient-go/test/wire_compat.sh

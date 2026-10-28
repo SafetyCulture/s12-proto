@@ -57,7 +57,6 @@ func TestExampleWithScopesPermissionsUnaryInterceptor(t *testing.T) {
 
 	interceptor := example.ExampleWithScopesPermissionsUnaryInterceptor()
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			ctx := context.WithValue(context.Background(), credentials.ContextKeyCredentialsScope, credentials.Scope(tt.scope))
 			info := &grpc.UnaryServerInfo{
@@ -134,7 +133,6 @@ func TestExamplePermissionsUnaryInterceptor(t *testing.T) {
 
 	interceptor := example.ExamplePermissionsUnaryInterceptor()
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			// The S12-JWT middleware stores prm verbatim; BuildScope does not
 			// model that.
@@ -244,7 +242,6 @@ func TestExampleWithScopesPermissionsStreamInterceptor(t *testing.T) {
 
 	interceptor := example.ExampleWithScopesPermissionsStreamInterceptor()
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			s12jwt := jwtclaims.S12JWTClaims{Permissions: tt.permissions}
 			ctx := context.WithValue(context.Background(), credentials.ContextKeyCredentialsScope, credentials.Scope(tt.scope))
@@ -325,7 +322,6 @@ func TestExamplePermissionsStreamInterceptor(t *testing.T) {
 
 	interceptor := example.ExamplePermissionsStreamInterceptor()
 	for _, tt := range tests {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			s12jwt := jwtclaims.S12JWTClaims{Permissions: tt.permissions}
 			ctx := context.WithValue(context.Background(), credentials.ContextKeyCredentialsScope, credentials.Scope(tt.scope))
@@ -350,34 +346,88 @@ func TestExamplePermissionsStreamInterceptor(t *testing.T) {
 // NoPermissions declares no annotation, so its interceptors must gate nothing and
 // run the handler, even for another service's annotated method.
 func TestNoPermissionsPermissionsUnaryInterceptor(t *testing.T) {
+	tests := [...]struct {
+		name   string
+		method string
+	}{
+		{name: "own method", method: "/example.NoPermissions/Unary"},
+		{name: "another service's annotated method", method: "/example.Example/Unary"},
+	}
+
 	interceptor := example.NoPermissionsPermissionsUnaryInterceptor()
-	for _, method := range [...]string{"/example.NoPermissions/Unary", "/example.Example/Unary"} {
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			handled := false
+			handler := func(_ context.Context, _ interface{}) (interface{}, error) {
+				handled = true
+				return nil, nil
+			}
+			info := &grpc.UnaryServerInfo{FullMethod: tt.method}
+			_, err := interceptor(context.Background(), nil, info, handler)
+			checkResult(t, err, false)
+			if !handled {
+				t.Errorf("%s: handler did not run", tt.method)
+			}
+		})
+	}
+}
+
+func TestNoPermissionsPermissionsStreamInterceptor(t *testing.T) {
+	tests := [...]struct {
+		name   string
+		method string
+	}{
+		{name: "own method", method: "/example.NoPermissions/ServerStream"},
+		{name: "another service's annotated method", method: "/example.Example/ServerStream"},
+	}
+
+	interceptor := example.NoPermissionsPermissionsStreamInterceptor()
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			handled := false
+			handler := func(_ interface{}, _ grpc.ServerStream) error {
+				handled = true
+				return nil
+			}
+			info := &grpc.StreamServerInfo{FullMethod: tt.method}
+			err := interceptor(nil, stubServerStream{ctx: context.Background()}, info, handler)
+			checkResult(t, err, false)
+			if !handled {
+				t.Errorf("%s: handler did not run", tt.method)
+			}
+		})
+	}
+}
+
+// Only this service's method is gated: a neighbouring annotated method passes.
+func TestExamplePermissionsIgnoreOtherServicesMethods(t *testing.T) {
+	t.Run("unary", func(t *testing.T) {
+		interceptor := example.ExamplePermissionsUnaryInterceptor()
 		handled := false
 		handler := func(_ context.Context, _ interface{}) (interface{}, error) {
 			handled = true
 			return nil, nil
 		}
-		_, err := interceptor(context.Background(), nil, &grpc.UnaryServerInfo{FullMethod: method}, handler)
+		info := &grpc.UnaryServerInfo{FullMethod: "/example.ExampleWithScopes/Unary"}
+		_, err := interceptor(context.Background(), nil, info, handler)
 		checkResult(t, err, false)
 		if !handled {
-			t.Errorf("%s: handler did not run", method)
+			t.Error("handler did not run")
 		}
-	}
-}
+	})
 
-func TestNoPermissionsPermissionsStreamInterceptor(t *testing.T) {
-	interceptor := example.NoPermissionsPermissionsStreamInterceptor()
-	for _, method := range [...]string{"/example.NoPermissions/ServerStream", "/example.Example/ServerStream"} {
+	t.Run("stream", func(t *testing.T) {
+		interceptor := example.ExamplePermissionsStreamInterceptor()
 		handled := false
 		handler := func(_ interface{}, _ grpc.ServerStream) error {
 			handled = true
 			return nil
 		}
-		info := &grpc.StreamServerInfo{FullMethod: method}
+		info := &grpc.StreamServerInfo{FullMethod: "/example.ExampleWithScopes/ServerStream"}
 		err := interceptor(nil, stubServerStream{ctx: context.Background()}, info, handler)
 		checkResult(t, err, false)
 		if !handled {
-			t.Errorf("%s: handler did not run", method)
+			t.Error("handler did not run")
 		}
-	}
+	})
 }
