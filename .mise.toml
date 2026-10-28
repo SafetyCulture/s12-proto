@@ -26,7 +26,7 @@ done
 """
 
 [tasks.generate]
-description = "Generate Go code from proto definitions"
+description = "Regenerate the protoc-gen-go output under s12/ (fixtures: update:generated)"
 run = "make generate"
 
 [tasks.test]
@@ -40,39 +40,16 @@ done
 """
 
 [tasks."verify:generated"]
-description = "Fail if the checked-in govalidator fixtures do not match a fresh generation"
-# The valtest and example tests call Validate() on generated code that is
-# committed, so a change to a template in plugin.go passes CI while the tests run
-# against the old output. This regenerates and fails on a difference, which is
-# the only thing that ties a template change to the tests that cover it.
-#
-# protoc is pinned in [tools] because the version is written into the generated
-# header, so an unpinned one reports a difference that is not a real one.
-run = """
-set -eu
-bin="$(mktemp -d)"
-go build -o "$bin/protoc-gen-govalidator" ./protobuf/protoc-gen-govalidator
-for d in valtest example; do
-  protoc \
-    -I"./protobuf/protoc-gen-govalidator/$d" -I. \
-    --plugin=protoc-gen-govalidator="$bin/protoc-gen-govalidator" \
-    --govalidator_out=paths=source_relative:"protobuf/protoc-gen-govalidator/$d" \
-    "protobuf/protoc-gen-govalidator/$d"/*.proto
-done
-pathspec=':(glob)protobuf/protoc-gen-govalidator/*/*.validator*.pb.go'
-# git status rather than git diff, so a generated file that is new and has never
-# been added counts as well. A new .proto produces a new .validator.pb.go, and
-# diff only looks at files git already tracks, so that one would have passed.
-dirty="$(git status --porcelain --untracked-files=all -- "$pathspec")"
-if [ -n "$dirty" ]; then
-  echo "$dirty"
-  git --no-pager diff -- "$pathspec" || true
-  echo ""
-  echo "The generated validators are out of date or not committed. Run"
-  echo "'mise run verify:generated' and commit the result."
-  exit 1
-fi
-"""
+description = "Fail if the fixtures differ from a fresh generation or one is uncommitted; writes nothing"
+# Tests run against generated code that is committed, so a template change passes
+# CI while the tests exercise the old output. Regenerating and diffing is what
+# ties the two together. The fixtures covered, and the generators deliberately
+# not covered, are declared at the top of scripts/generated-fixtures.sh.
+run = "./scripts/generated-fixtures.sh verify"
+
+[tasks."update:generated"]
+description = "Rewrite the committed fixtures from a fresh generation, then commit them"
+run = "./scripts/generated-fixtures.sh update"
 
 [tasks.lint]
 description = "Run Go linter (root module and the plugin modules)"
