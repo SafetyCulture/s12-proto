@@ -377,7 +377,9 @@ func TestNoPermissionsPermissionsStreamInterceptor(t *testing.T) {
 		name   string
 		method string
 	}{
-		{name: "own method", method: "/example.NoPermissions/ServerStream"},
+		// NoPermissions declares no stream method, so this name is arbitrary; the
+		// interceptor never reads FullMethod.
+		{name: "arbitrary method name", method: "/example.NoPermissions/ServerStream"},
 		{name: "another service's annotated method", method: "/example.Example/ServerStream"},
 	}
 

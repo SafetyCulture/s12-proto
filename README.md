@@ -19,7 +19,7 @@ mise install
 
 ```sh
 mise run generate           # Regenerate the protoc-gen-go output under s12/
-mise run verify:generated   # Fail if the committed fixtures differ from a fresh generation
+mise run verify:generated   # Fail if the fixtures differ from a fresh generation or one is uncommitted
 mise run update:generated   # Rewrite the committed fixtures from a fresh generation
 mise run test               # Run tests (root module and protoc-gen-cruxclient-go)
 mise run lint               # Run Go linter
