@@ -57,17 +57,6 @@ func writeSourceServiceBlock(w *codegen.CodeWriter, svc protoreflect.ServiceDesc
 	// Namespace open
 	w.WL("namespace %sNS {", svcName)
 
-	// UnimplementedClientReader template class (once per service NS)
-	w.WL("template <typename R>")
-	w.WL("class UnimplementedClientReader final: public grpc::ClientReaderInterface<R> {")
-	w.WL(" public:")
-	w.WL("  void WaitForInitialMetadata() override {}")
-	w.WL("  bool NextMessageSize(uint32_t* sz) override { return true; }")
-	w.WL("  bool Read(R* msg) override { return false; }")
-	w.WL("  grpc::Status Finish() override { return grpc::Status(grpc::StatusCode::UNIMPLEMENTED, \"Please call non-streaming method instead\"); }")
-	w.WL("};")
-	w.WL()
-
 	// Per-method function implementations
 	methods := nonClientStreamingMethods(svc)
 	for _, method := range methods {
@@ -83,18 +72,16 @@ func writeSourceServiceBlock(w *codegen.CodeWriter, svc protoreflect.ServiceDesc
 	w.WL()
 }
 
-// writeSourceMethodFunctions writes all 6 function implementations for a single method.
+// writeSourceMethodFunctions writes all 7 function implementations for a single method.
 func writeSourceMethodFunctions(w *codegen.CodeWriter, svc protoreflect.ServiceDescriptor, method protoreflect.MethodDescriptor) {
 	methodName := string(method.Name())
 	reqType := common.ClassName(method.Input(), true)
 	respType := common.ClassName(method.Output(), true)
-	qualifiedSvcName := common.DotsToColons(string(svc.FullName()))
+	path := "/" + string(svc.FullName()) + "/" + methodName
 	isServerStreaming := method.IsStreamingServer()
 
 	// a. Constructor
-	w.WL("%sAPI::%sAPI(const std::shared_ptr<crux::engine::ChannelProvider>& provider) {", methodName, methodName)
-	w.WL("  mStub = %s::NewStub(provider->ConnectionChannel());", qualifiedSvcName)
-	w.WL("}")
+	w.WL("%sAPI::%sAPI(const std::shared_ptr<crux::engine::RpcTransportProvider>& provider) : mProvider(provider) {}", methodName, methodName)
 	w.WL()
 
 	// b. Name()
@@ -115,27 +102,33 @@ func writeSourceMethodFunctions(w *codegen.CodeWriter, svc protoreflect.ServiceD
 	w.WL("}")
 	w.WL()
 
-	// e. Execute(unary): if server-streaming -> UNIMPLEMENTED; if unary -> real stub call
-	w.WL("grpc::Status %sAPI::Execute(", methodName)
-	w.WL("  grpc::ClientContext* context,")
+	// e. Path(): the gRPC method path, which is also the gRPC-Web URL path
+	w.WL("std::string %sAPI::Path() {", methodName)
+	w.WL("  return \"%s\";", path)
+	w.WL("}")
+	w.WL()
+
+	// f. Execute(unary): if server-streaming -> UNIMPLEMENTED; if unary -> call through the transport
+	w.WL("crux::engine::RpcStatus %sAPI::Execute(", methodName)
+	w.WL("  crux::engine::RpcContext* context,")
 	w.WL("  const %s& request,", reqType)
 	w.WL("  %s* response) const {", respType)
 	if isServerStreaming {
-		w.WL("  return grpc::Status(grpc::StatusCode::UNIMPLEMENTED, \"Please call streaming method instead\");")
+		w.WL("  return crux::engine::RpcStatus(crux::engine::RpcStatusCode::UNIMPLEMENTED, \"Please call streaming method instead\");")
 	} else {
-		w.WL("  return mStub->%s(context, request, response);", methodName)
+		w.WL("  return crux::engine::UnaryCall(*mProvider, context, Path(), request, response);")
 	}
 	w.WL("}")
 	w.WL()
 
-	// f. Execute(streaming): if server-streaming -> real stub call; if unary -> UnimplementedClientReader
-	w.WL("std::unique_ptr<grpc::ClientReaderInterface<%s>> %sAPI::Execute(", respType, methodName)
-	w.WL("  grpc::ClientContext* context,")
+	// g. Execute(streaming): if server-streaming -> call through the transport; if unary -> UNIMPLEMENTED reader
+	w.WL("std::unique_ptr<crux::engine::RpcReader<%s>> %sAPI::Execute(", respType, methodName)
+	w.WL("  crux::engine::RpcContext* context,")
 	w.WL("  const %s& request) const {", reqType)
 	if isServerStreaming {
-		w.WL("  return mStub->%s(context, request);", methodName)
+		w.WL("  return crux::engine::ServerStreamingCall<%s>(*mProvider, context, Path(), request);", respType)
 	} else {
-		w.WL("  return std::make_unique<UnimplementedClientReader<%s>>();", respType)
+		w.WL("  return crux::engine::FailedRpcReader<%s>(crux::engine::RpcStatus(crux::engine::RpcStatusCode::UNIMPLEMENTED, \"Please call non-streaming method instead\"));", respType)
 	}
 	w.WL("}")
 	w.WL()
@@ -143,7 +136,7 @@ func writeSourceMethodFunctions(w *codegen.CodeWriter, svc protoreflect.ServiceD
 
 // writeSourceInvokeFunction writes the Invoke() routing function for a service.
 func writeSourceInvokeFunction(w *codegen.CodeWriter, svc protoreflect.ServiceDescriptor, methods []protoreflect.MethodDescriptor) {
-	w.WL("grpc::Status Invoke(const std::shared_ptr<crux::engine::ChannelProvider>& provider, grpc::ClientContext* context, const google::protobuf::Any& request_data, const std::string& method_name) {")
+	w.WL("crux::engine::RpcStatus Invoke(const std::shared_ptr<crux::engine::RpcTransportProvider>& provider, crux::engine::RpcContext* context, const google::protobuf::Any& request_data, const std::string& method_name) {")
 
 	for _, method := range methods {
 		methodName := string(method.Name())
@@ -153,7 +146,7 @@ func writeSourceInvokeFunction(w *codegen.CodeWriter, svc protoreflect.ServiceDe
 		w.WL("  if (method_name == \"%s\") {", methodName)
 		w.WL("    %s request;", reqType)
 		w.WL("    if (!request_data.UnpackTo(&request)) {")
-		w.WL("      return grpc::Status(grpc::StatusCode::DATA_LOSS, \"Unable to unpack the request data\");")
+		w.WL("      return crux::engine::RpcStatus(crux::engine::RpcStatusCode::DATA_LOSS, \"Unable to unpack the request data\");")
 		w.WL("    }")
 		w.WL("    %sAPI api = %sAPI(provider);", methodName, methodName)
 		w.WL("    %s response;", respType)
@@ -162,6 +155,6 @@ func writeSourceInvokeFunction(w *codegen.CodeWriter, svc protoreflect.ServiceDe
 		w.WL()
 	}
 
-	w.WL("  return grpc::Status(grpc::StatusCode::DATA_LOSS, \"Invalid method name\");")
+	w.WL("  return crux::engine::RpcStatus(crux::engine::RpcStatusCode::DATA_LOSS, \"Invalid method name\");")
 	w.WL("}")
 }
