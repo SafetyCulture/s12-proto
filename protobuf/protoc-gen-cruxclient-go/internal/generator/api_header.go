@@ -32,7 +32,7 @@ func GenerateAPIHeader(rw protoplugin.ResponseWriter, fileDesc protoreflect.File
 	w.WL("#include <memory>")
 	w.WL()
 	w.WL("#include <google/protobuf/any.pb.h>")
-	w.WL("#include \"%s.grpc.pb.h\"", common.StripProto(path))
+	w.WL("#include \"%s.pb.h\"", common.StripProto(path))
 	w.WL("#include \"crux_engine_client_support.h\"")
 
 	// Package namespace open
@@ -72,7 +72,7 @@ func writeHeaderServiceBlock(w *codegen.CodeWriter, svc protoreflect.ServiceDesc
 	}
 
 	// Invoke() declaration
-	w.WL("grpc::Status Invoke(const std::shared_ptr<crux::engine::ChannelProvider>& provider, grpc::ClientContext* context, const google::protobuf::Any& request_data, const std::string& method_name);")
+	w.WL("crux::engine::RpcStatus Invoke(const std::shared_ptr<crux::engine::RpcTransportProvider>& provider, crux::engine::RpcContext* context, const google::protobuf::Any& request_data, const std::string& method_name);")
 
 	// Namespace close
 	w.WL("}  // namespace %sNS", svcName)
@@ -84,29 +84,29 @@ func writeHeaderMethodClass(w *codegen.CodeWriter, svc protoreflect.ServiceDescr
 	methodName := string(method.Name())
 	reqType := common.ClassName(method.Input(), true)
 	respType := common.ClassName(method.Output(), true)
-	svcName := string(svc.Name())
 
 	w.WL("class %sAPI {", methodName)
 	w.WL(" public:")
-	w.WL("  explicit %sAPI(const std::shared_ptr<crux::engine::ChannelProvider>& provider);", methodName)
+	w.WL("  explicit %sAPI(const std::shared_ptr<crux::engine::RpcTransportProvider>& provider);", methodName)
 	w.WL("  static std::string Name();")
 	w.WL("  static std::string ServiceName();")
 	w.WL("  static std::string MethodName();")
+	w.WL("  static std::string Path();")
 
 	// Unary Execute overload (multi-line signature)
-	w.WL("  grpc::Status Execute(")
-	w.WL("    grpc::ClientContext* context,")
+	w.WL("  crux::engine::RpcStatus Execute(")
+	w.WL("    crux::engine::RpcContext* context,")
 	w.WL("    const %s& request,", reqType)
 	w.WL("    %s* response) const;", respType)
 
 	// Streaming Execute overload
 	w.WL("  // server streaming")
-	w.WL("  std::unique_ptr<grpc::ClientReaderInterface<%s>> Execute(", respType)
-	w.WL("    grpc::ClientContext* context,")
+	w.WL("  std::unique_ptr<crux::engine::RpcReader<%s>> Execute(", respType)
+	w.WL("    crux::engine::RpcContext* context,")
 	w.WL("    const %s& request) const;", reqType)
 
 	w.WL(" private:")
-	w.WL("  std::unique_ptr<%s::StubInterface> mStub;", svcName)
+	w.WL("  std::shared_ptr<crux::engine::RpcTransportProvider> mProvider;")
 	w.WL("};")
 	w.WL()
 }

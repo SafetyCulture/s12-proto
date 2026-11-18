@@ -676,19 +676,21 @@ func requireSameFiles(t *testing.T, a, b map[string]string, aName, bName string)
 	require.Empty(t, problems, "%s and %s are not the same files", aName, bName)
 }
 
-// optionOffOutputs are the files that the plugin writes with no option for the routeguide protos.
-// The golden directory also holds the output of other plugins, so the test selects the goldens by name.
+// optionOffOutputs are the files that the plugin writes with no option for the routeguide protos and that the C++
+// plugin writes with the same bytes. The golden directory also holds the output of other plugins, so the test
+// selects the goldens by name. The .crux.api files are not here: the Go plugin's API classes call the crux RPC
+// transport instead of a gRPC stub, and TestRouteGuideGolden pins them.
 var optionOffOutputs = map[string]bool{
-	"message.djinni.jni.h":    true,
-	"message.djinni.objc.h":   true,
-	"message.djinni.yaml":     true,
-	"route_guide.crux.api.cc": true,
-	"route_guide.crux.api.h":  true,
-	"route_guide.mock.h":      true,
+	"message.djinni.jni.h":  true,
+	"message.djinni.objc.h": true,
+	"message.djinni.yaml":   true,
+	"route_guide.mock.h":    true,
 }
 
 // TestOptionOffMatchesCommittedGoldens checks that, with no option, the Go plugin writes the same
-// bytes as the goldens that the repository has committed under protoc-gen-cruxclient/generated.
+// bytes as the committed goldens for the .mock.h and Djinni files under protoc-gen-cruxclient/generated.
+// The .crux.api.h and .crux.api.cc files are not byte-equal to the C++ plugin's: the generated API
+// classes call the crux RPC transport, and TestRouteGuideGolden pins them.
 func TestOptionOffMatchesCommittedGoldens(t *testing.T) {
 	sources := messageProtoSources(t)
 	sources["routeguide/v1/route_guide.proto"] = string(mustReadFile(t, "testdata/routeguide/route_guide.proto"))
@@ -696,7 +698,11 @@ func TestOptionOffMatchesCommittedGoldens(t *testing.T) {
 
 	got := map[string]string{}
 	for name, content := range output {
-		got[strings.TrimPrefix(name, "routeguide/v1/")] = content
+		name = strings.TrimPrefix(name, "routeguide/v1/")
+		if strings.HasSuffix(name, ".crux.api.h") || strings.HasSuffix(name, ".crux.api.cc") {
+			continue
+		}
+		got[name] = content
 	}
 	goldens := readTree(t, "../protoc-gen-cruxclient/generated/routeguide/v1", false, func(name string) bool {
 		return optionOffOutputs[name]

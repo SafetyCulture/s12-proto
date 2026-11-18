@@ -7,18 +7,7 @@
 namespace routeguide::v1 {
 
 namespace RouteGuideNS {
-template <typename R>
-class UnimplementedClientReader final: public grpc::ClientReaderInterface<R> {
- public:
-  void WaitForInitialMetadata() override {}
-  bool NextMessageSize(uint32_t* sz) override { return true; }
-  bool Read(R* msg) override { return false; }
-  grpc::Status Finish() override { return grpc::Status(grpc::StatusCode::UNIMPLEMENTED, "Please call non-streaming method instead"); }
-};
-
-GetFeatureAPI::GetFeatureAPI(const std::shared_ptr<crux::engine::ChannelProvider>& provider) {
-  mStub = routeguide::v1::RouteGuide::NewStub(provider->ConnectionChannel());
-}
+GetFeatureAPI::GetFeatureAPI(const std::shared_ptr<crux::engine::RpcTransportProvider>& provider) : mProvider(provider) {}
 
 std::string GetFeatureAPI::Name() {
   return "routeguide_v1_RouteGuide_GetFeature";
@@ -32,22 +21,24 @@ std::string GetFeatureAPI::MethodName() {
   return "GetFeature";
 }
 
-grpc::Status GetFeatureAPI::Execute(
-  grpc::ClientContext* context,
+std::string GetFeatureAPI::Path() {
+  return "/routeguide.v1.RouteGuide/GetFeature";
+}
+
+crux::engine::RpcStatus GetFeatureAPI::Execute(
+  crux::engine::RpcContext* context,
   const routeguide::v1::Point& request,
   routeguide::v1::Feature* response) const {
-  return mStub->GetFeature(context, request, response);
+  return crux::engine::UnaryCall(*mProvider, context, Path(), request, response);
 }
 
-std::unique_ptr<grpc::ClientReaderInterface<routeguide::v1::Feature>> GetFeatureAPI::Execute(
-  grpc::ClientContext* context,
+std::unique_ptr<crux::engine::RpcReader<routeguide::v1::Feature>> GetFeatureAPI::Execute(
+  crux::engine::RpcContext* context,
   const routeguide::v1::Point& request) const {
-  return std::make_unique<UnimplementedClientReader<routeguide::v1::Feature>>();
+  return crux::engine::FailedRpcReader<routeguide::v1::Feature>(crux::engine::RpcStatus(crux::engine::RpcStatusCode::UNIMPLEMENTED, "Please call non-streaming method instead"));
 }
 
-UpdateFeatureAPI::UpdateFeatureAPI(const std::shared_ptr<crux::engine::ChannelProvider>& provider) {
-  mStub = routeguide::v1::RouteGuide::NewStub(provider->ConnectionChannel());
-}
+UpdateFeatureAPI::UpdateFeatureAPI(const std::shared_ptr<crux::engine::RpcTransportProvider>& provider) : mProvider(provider) {}
 
 std::string UpdateFeatureAPI::Name() {
   return "routeguide_v1_RouteGuide_UpdateFeature";
@@ -61,22 +52,24 @@ std::string UpdateFeatureAPI::MethodName() {
   return "UpdateFeature";
 }
 
-grpc::Status UpdateFeatureAPI::Execute(
-  grpc::ClientContext* context,
+std::string UpdateFeatureAPI::Path() {
+  return "/routeguide.v1.RouteGuide/UpdateFeature";
+}
+
+crux::engine::RpcStatus UpdateFeatureAPI::Execute(
+  crux::engine::RpcContext* context,
   const routeguide::v1::Point& request,
   routeguide::v1::Feature* response) const {
-  return mStub->UpdateFeature(context, request, response);
+  return crux::engine::UnaryCall(*mProvider, context, Path(), request, response);
 }
 
-std::unique_ptr<grpc::ClientReaderInterface<routeguide::v1::Feature>> UpdateFeatureAPI::Execute(
-  grpc::ClientContext* context,
+std::unique_ptr<crux::engine::RpcReader<routeguide::v1::Feature>> UpdateFeatureAPI::Execute(
+  crux::engine::RpcContext* context,
   const routeguide::v1::Point& request) const {
-  return std::make_unique<UnimplementedClientReader<routeguide::v1::Feature>>();
+  return crux::engine::FailedRpcReader<routeguide::v1::Feature>(crux::engine::RpcStatus(crux::engine::RpcStatusCode::UNIMPLEMENTED, "Please call non-streaming method instead"));
 }
 
-ListFeaturesAPI::ListFeaturesAPI(const std::shared_ptr<crux::engine::ChannelProvider>& provider) {
-  mStub = routeguide::v1::RouteGuide::NewStub(provider->ConnectionChannel());
-}
+ListFeaturesAPI::ListFeaturesAPI(const std::shared_ptr<crux::engine::RpcTransportProvider>& provider) : mProvider(provider) {}
 
 std::string ListFeaturesAPI::Name() {
   return "routeguide_v1_RouteGuide_ListFeatures";
@@ -90,24 +83,28 @@ std::string ListFeaturesAPI::MethodName() {
   return "ListFeatures";
 }
 
-grpc::Status ListFeaturesAPI::Execute(
-  grpc::ClientContext* context,
+std::string ListFeaturesAPI::Path() {
+  return "/routeguide.v1.RouteGuide/ListFeatures";
+}
+
+crux::engine::RpcStatus ListFeaturesAPI::Execute(
+  crux::engine::RpcContext* context,
   const routeguide::v1::Rectangle& request,
   routeguide::v1::Feature* response) const {
-  return grpc::Status(grpc::StatusCode::UNIMPLEMENTED, "Please call streaming method instead");
+  return crux::engine::RpcStatus(crux::engine::RpcStatusCode::UNIMPLEMENTED, "Please call streaming method instead");
 }
 
-std::unique_ptr<grpc::ClientReaderInterface<routeguide::v1::Feature>> ListFeaturesAPI::Execute(
-  grpc::ClientContext* context,
+std::unique_ptr<crux::engine::RpcReader<routeguide::v1::Feature>> ListFeaturesAPI::Execute(
+  crux::engine::RpcContext* context,
   const routeguide::v1::Rectangle& request) const {
-  return mStub->ListFeatures(context, request);
+  return crux::engine::ServerStreamingCall<routeguide::v1::Feature>(*mProvider, context, Path(), request);
 }
 
-grpc::Status Invoke(const std::shared_ptr<crux::engine::ChannelProvider>& provider, grpc::ClientContext* context, const google::protobuf::Any& request_data, const std::string& method_name) {
+crux::engine::RpcStatus Invoke(const std::shared_ptr<crux::engine::RpcTransportProvider>& provider, crux::engine::RpcContext* context, const google::protobuf::Any& request_data, const std::string& method_name) {
   if (method_name == "GetFeature") {
     routeguide::v1::Point request;
     if (!request_data.UnpackTo(&request)) {
-      return grpc::Status(grpc::StatusCode::DATA_LOSS, "Unable to unpack the request data");
+      return crux::engine::RpcStatus(crux::engine::RpcStatusCode::DATA_LOSS, "Unable to unpack the request data");
     }
     GetFeatureAPI api = GetFeatureAPI(provider);
     routeguide::v1::Feature response;
@@ -117,7 +114,7 @@ grpc::Status Invoke(const std::shared_ptr<crux::engine::ChannelProvider>& provid
   if (method_name == "UpdateFeature") {
     routeguide::v1::Point request;
     if (!request_data.UnpackTo(&request)) {
-      return grpc::Status(grpc::StatusCode::DATA_LOSS, "Unable to unpack the request data");
+      return crux::engine::RpcStatus(crux::engine::RpcStatusCode::DATA_LOSS, "Unable to unpack the request data");
     }
     UpdateFeatureAPI api = UpdateFeatureAPI(provider);
     routeguide::v1::Feature response;
@@ -127,31 +124,20 @@ grpc::Status Invoke(const std::shared_ptr<crux::engine::ChannelProvider>& provid
   if (method_name == "ListFeatures") {
     routeguide::v1::Rectangle request;
     if (!request_data.UnpackTo(&request)) {
-      return grpc::Status(grpc::StatusCode::DATA_LOSS, "Unable to unpack the request data");
+      return crux::engine::RpcStatus(crux::engine::RpcStatusCode::DATA_LOSS, "Unable to unpack the request data");
     }
     ListFeaturesAPI api = ListFeaturesAPI(provider);
     routeguide::v1::Feature response;
     return api.Execute(context, request, &response);
   }
 
-  return grpc::Status(grpc::StatusCode::DATA_LOSS, "Invalid method name");
+  return crux::engine::RpcStatus(crux::engine::RpcStatusCode::DATA_LOSS, "Invalid method name");
 }
 
 }  // namespace RouteGuideNS
 
 namespace PublicRouteGuideNS {
-template <typename R>
-class UnimplementedClientReader final: public grpc::ClientReaderInterface<R> {
- public:
-  void WaitForInitialMetadata() override {}
-  bool NextMessageSize(uint32_t* sz) override { return true; }
-  bool Read(R* msg) override { return false; }
-  grpc::Status Finish() override { return grpc::Status(grpc::StatusCode::UNIMPLEMENTED, "Please call non-streaming method instead"); }
-};
-
-GetFeatureAPI::GetFeatureAPI(const std::shared_ptr<crux::engine::ChannelProvider>& provider) {
-  mStub = routeguide::v1::PublicRouteGuide::NewStub(provider->ConnectionChannel());
-}
+GetFeatureAPI::GetFeatureAPI(const std::shared_ptr<crux::engine::RpcTransportProvider>& provider) : mProvider(provider) {}
 
 std::string GetFeatureAPI::Name() {
   return "routeguide_v1_PublicRouteGuide_GetFeature";
@@ -165,31 +151,35 @@ std::string GetFeatureAPI::MethodName() {
   return "GetFeature";
 }
 
-grpc::Status GetFeatureAPI::Execute(
-  grpc::ClientContext* context,
+std::string GetFeatureAPI::Path() {
+  return "/routeguide.v1.PublicRouteGuide/GetFeature";
+}
+
+crux::engine::RpcStatus GetFeatureAPI::Execute(
+  crux::engine::RpcContext* context,
   const routeguide::v1::Point& request,
   routeguide::v1::Feature* response) const {
-  return mStub->GetFeature(context, request, response);
+  return crux::engine::UnaryCall(*mProvider, context, Path(), request, response);
 }
 
-std::unique_ptr<grpc::ClientReaderInterface<routeguide::v1::Feature>> GetFeatureAPI::Execute(
-  grpc::ClientContext* context,
+std::unique_ptr<crux::engine::RpcReader<routeguide::v1::Feature>> GetFeatureAPI::Execute(
+  crux::engine::RpcContext* context,
   const routeguide::v1::Point& request) const {
-  return std::make_unique<UnimplementedClientReader<routeguide::v1::Feature>>();
+  return crux::engine::FailedRpcReader<routeguide::v1::Feature>(crux::engine::RpcStatus(crux::engine::RpcStatusCode::UNIMPLEMENTED, "Please call non-streaming method instead"));
 }
 
-grpc::Status Invoke(const std::shared_ptr<crux::engine::ChannelProvider>& provider, grpc::ClientContext* context, const google::protobuf::Any& request_data, const std::string& method_name) {
+crux::engine::RpcStatus Invoke(const std::shared_ptr<crux::engine::RpcTransportProvider>& provider, crux::engine::RpcContext* context, const google::protobuf::Any& request_data, const std::string& method_name) {
   if (method_name == "GetFeature") {
     routeguide::v1::Point request;
     if (!request_data.UnpackTo(&request)) {
-      return grpc::Status(grpc::StatusCode::DATA_LOSS, "Unable to unpack the request data");
+      return crux::engine::RpcStatus(crux::engine::RpcStatusCode::DATA_LOSS, "Unable to unpack the request data");
     }
     GetFeatureAPI api = GetFeatureAPI(provider);
     routeguide::v1::Feature response;
     return api.Execute(context, request, &response);
   }
 
-  return grpc::Status(grpc::StatusCode::DATA_LOSS, "Invalid method name");
+  return crux::engine::RpcStatus(crux::engine::RpcStatusCode::DATA_LOSS, "Invalid method name");
 }
 
 }  // namespace PublicRouteGuideNS
