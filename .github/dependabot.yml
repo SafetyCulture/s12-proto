@@ -1,0 +1,35 @@
+---
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    groups:
+      dependencies:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: "PEX-404"
+    cooldown:
+      default-days: 7
+      exclude:
+        - "SafetyCulture/*"
+  - package-ecosystem: "gomod"
+    directories:
+      - "/"
+      - "/protobuf/protoc-gen-cruxclient-go"
+      - "/protobuf/protoc-gen-s12perm/example"
+    schedule:
+      interval: "monthly"
+    groups:
+      dependencies:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: "PEX-404"
+    cooldown:
+      default-days: 7
+      exclude:
+        - "sc-go.io/*"
+        - "github.com/SafetyCulture/*"
