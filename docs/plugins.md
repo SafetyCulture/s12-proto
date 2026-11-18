@@ -107,7 +107,7 @@ make install-cruxclient
 
 ## protoc-gen-cruxclient-go
 
-**Purpose**: Go port of `protoc-gen-cruxclient`. Generates identical output using the `bufbuild/protoplugin` framework — no C++ toolchain required. With no option, the output is the output of `protoc-gen-cruxclient` on `master`. The options below are only in this plugin.
+**Purpose**: Go port of `protoc-gen-cruxclient`, on the `bufbuild/protoplugin` framework — no C++ toolchain required. With no option, the `.mock.h` file and the Djinni files are the output of `protoc-gen-cruxclient` on `master`. The `.crux.api.h` and `.crux.api.cc` files differ: the generated API classes call the crux RPC transport seam of `crux_engine_client_support.h` with crux-owned types, not a gRPC stub. The options below are only in this plugin.
 
 **Generates**: `.crux.api.h`, `.crux.api.cc`, `.mock.h`, `.djinni.yaml`, `.djinni.objc.h`, `.djinni.jni.h`, and `.djinni.swiftxx.h` (only with the `swift_module` option), `.djinni.kotlin.jni.h` (only with the `kotlin_package` option), and one `.pb.kt` file for each proto file with a message or an enum, with the runtime file `<root>/wire/S12Wire.kt` and the shrinker keep rules `<root>/s12kt.pro` (only with the `kotlin_messages` option), and one `.pb.swift` file for each proto file (only with the `swift_messages` option)
 
